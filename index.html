@@ -11,7 +11,6 @@
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
 
-    <!-- CUSTOMER VIEW -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
             <header class="text-center py-6">
@@ -59,7 +58,6 @@
                 </div>
             </div>
 
-            <!-- TERMS & CONDITIONS SECTION -->
             <div class="mt-8 bg-amber-50/50 border border-amber-100 rounded-2xl p-5 space-y-3">
                 <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
                     ⚠️ Terms & Conditions (11+1 Scheme)
@@ -75,7 +73,6 @@
         </div>
     </div>
 
-    <!-- ADMIN LOGIN VIEW -->
     <div id="adminLoginView" class="hidden-view max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
         <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
             <div class="text-center mb-6">
@@ -96,7 +93,6 @@
         </div>
     </div>
 
-    <!-- ADMIN DASHBOARD VIEW -->
     <div id="adminView" class="hidden-view max-w-5xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-gray-200 pb-5 mb-6">
             <div>
@@ -127,7 +123,6 @@
         </div>
     </div>
 
-    <!-- PAYMENT MODAL -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
             <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment</h3>
@@ -158,9 +153,9 @@
         </div>
     </div>
 
-    <!-- FUNCTIONAL INTERACTION SCRIPT -->
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzU82TtIDUPV7E9wqMblzIJ1YhJ5OVpJc6O5cyILV6FTeCQYudusbTVrDACD1LDox0pPA/exec";
+        // Paste your accurate New Version Deployment URL below
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0LDOQ2UhSADA_mWFUVDQDSS1mYTTlk6fk12-gJCxkAupamILMnpcSQPFRjOuOyCkJWQ/exec";
 
         let currentSelectedMonth = null;
         let globalCustomerPhone = null;
@@ -358,16 +353,17 @@
                     return;
                 }
                 body.innerHTML = "";
-                pendingList.forEach(item => {
+                pendingList.forEach((item, index) => {
                     const slipSrc = item.screenshotUrl || item.screenshot || "";
                     const isInline = slipSrc.startsWith("data:image");
                     const linkMarkup = isInline 
-                        ? `<button onclick="viewEmbeddedReceipt('${item.row}')" class="text-amber-600 underline font-medium block mt-1">View Native Image ↗</button>
-                           <div id="hidden-img-${item.row}" class="hidden-view mt-2 max-w-xs border border-gray-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto"></div>`
+                        ? `<button onclick="viewEmbeddedReceipt('${index}')" class="text-amber-600 underline font-medium block mt-1">View Native Image ↗</button>
+                           <div id="hidden-img-${index}" class="hidden-view mt-2 max-w-xs border border-gray-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto"></div>`
                         : `<a href="${slipSrc}" target="_blank" class="text-amber-600 underline font-medium block mt-1">View Slip Receipt ↗</a>`;
 
+                    // We normalize parameters to strings to prevent transmission parsing dropouts
                     body.innerHTML += `
-                        <tr id="row-${item.row}">
+                        <tr id="row-${index}">
                             <td class="p-4 font-medium">${item.phone}</td>
                             <td class="p-4">Month ${item.month}</td>
                             <td class="p-4 font-semibold">₹${item.amount}</td>
@@ -376,16 +372,18 @@
                                 ${slipSrc ? linkMarkup : ''}
                             </td>
                             <td class="p-4 text-center">
-                                <button onclick="executeApproval(${item.row})" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-md hover:bg-emerald-700 font-medium transition-all cursor-pointer">Approve Instantly</button>
+                                <button onclick="executeApproval('${index}', '${item.phone.toString().trim()}', '${item.month.toString().trim()}')" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-md hover:bg-emerald-700 font-medium transition-all cursor-pointer">Approve Instantly</button>
                             </td>
                         </tr>
                     `;
                 });
+            }).catch(err => {
+                body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Failed to connect to backend sheet data. Check SCRIPT_URL.</td></tr>`;
             });
         }
 
-        function viewEmbeddedReceipt(rowId) {
-            const box = document.getElementById(`hidden-img-${rowId}`);
+        function viewEmbeddedReceipt(indexId) {
+            const box = document.getElementById(`hidden-img-${indexId}`);
             if(box.classList.contains('hidden-view')) {
                 box.classList.remove('hidden-view');
             } else {
@@ -393,19 +391,41 @@
             }
         }
 
-        function executeApproval(rowId) {
+        function executeApproval(indexId, phoneStr, monthStr) {
             if(!confirm("Are you sure you want to approve this transaction?")) return;
-            const rowEl = document.getElementById(`row-${rowId}`);
-            rowEl.style.opacity = "0.4";
+            const rowEl = document.getElementById(`row-${indexId}`);
+            if(rowEl) rowEl.style.opacity = "0.3";
+
+            const payload = { 
+                action: "approve", 
+                phone: phoneStr, 
+                month: monthStr 
+            };
 
             fetch(SCRIPT_URL, {
                 method: "POST",
-                body: JSON.stringify({ action: "approve", row: rowId })
-            }).then(r => r.json()).then(success => {
-                if(success) {
-                    rowEl.remove();
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(success => {
+                if(success === true || success === "true") {
+                    if(rowEl) rowEl.remove();
                     alert("Transaction updated to PAID successfully inside Google Sheets!");
+                    
+                    // Safe cleanup: check if the table is completely empty now
+                    const remainingRows = document.querySelectorAll("#adminTableBody tr");
+                    if (remainingRows.length === 0) {
+                        loadAdminDashboard();
+                    }
+                } else {
+                    if(rowEl) rowEl.style.opacity = "1";
+                    alert("Google Sheet rejected operation. Verify phone match inside rows manually.");
                 }
+            })
+            .catch(err => {
+                if(rowEl) rowEl.style.opacity = "1";
+                alert("Communication error occurred. Please check your browser console for logs.");
+                console.error("Critical Execution Drop: ", err);
             });
         }
     </script>
