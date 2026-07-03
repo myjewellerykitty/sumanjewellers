@@ -11,7 +11,9 @@
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
 
-    <!-- CUSTOMER PORTAL INTERFACE VIEW -->
+    <!-- ==========================================
+         CUSTOMER PORTAL INTERFACE VIEW
+         ========================================== -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
             <header class="text-center py-6">
@@ -20,7 +22,7 @@
             </header>
 
             <div id="interactiveContainer">
-                <!-- Phone Lookup Card -->
+                <!-- Phone Lookup Form -->
                 <div class="bg-white rounded-2xl shadow-xs p-6 border border-gray-100 mb-6 space-y-4">
                     <div>
                         <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Registered Phone Number</label>
@@ -42,7 +44,7 @@
 
                 <!-- Passbook Ledger Content Drawer -->
                 <div id="passbookContainer" class="hidden-view space-y-4">
-                    <!-- Profile Summary Card -->
+                    <!-- Profile Summary Information Card -->
                     <div id="brandCard" class="bg-gradient-to-br text-white rounded-2xl p-6 shadow-xs relative overflow-hidden">
                         <div class="relative z-10 space-y-3">
                             <div>
@@ -90,7 +92,7 @@
                         <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
                     </div>
 
-                    <!-- Support Link -->
+                    <!-- Help desk Link -->
                     <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs">
                         <div>
                             <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
@@ -103,7 +105,7 @@
                 </div>
             </div>
 
-            <!-- Terms Card -->
+            <!-- Terms Footer Card -->
             <div id="termsContainer" class="mt-8 bg-amber-50/50 border rounded-2xl p-5 space-y-3">
                 <h4 id="termsHeading" class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
                     ⚠️ Terms & Conditions (12+1 Gold Scheme)
@@ -117,7 +119,9 @@
         </div>
     </div>
 
-    <!-- ADMIN PORTAL LOGIN VIEW -->
+    <!-- ==========================================
+         ADMIN PORTAL LOGIN VIEW
+         ========================================== -->
     <div id="adminLoginView" class="hidden-view max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
         <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
             <div class="text-center mb-6">
@@ -141,7 +145,9 @@
         </div>
     </div>
 
-    <!-- ADMINISTRATIVE PANEL VIEW -->
+    <!-- ==========================================
+         MOBILE-RESPONSIVE ADMINISTRATIVE PANEL VIEW
+         ========================================== -->
     <div id="adminView" class="hidden-view max-w-5xl mx-auto p-4 sm:p-6">
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-5 mb-6">
             <div>
@@ -182,7 +188,9 @@
         </div>
     </div>
 
-    <!-- MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL -->
+    <!-- ==========================================
+         MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL
+         ========================================== -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
             <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment Proof</h3>
@@ -345,7 +353,6 @@
             return val.toString().replace(/^"|"$/g, '').replace(/[\r\n\t]/g, '').trim();
         }
 
-        // PARSES RAW SEPARATORS MANUALLY WITHOUT COMPLEX REGEX PATTERNS TO AVOID BUILD ERRORS
         function parseCleanCsvLine(textLine) {
             let fields = [];
             let currentField = "";
@@ -366,6 +373,7 @@
             return fields;
         }
 
+        // STABLE EXPORT ENDPOINT ROUTING BYPASSING EXPLICIT GID MATRIX ERRORS
         function handleFetchWorkflow() {
             const rawPhone = document.getElementById('phoneInput').value.trim();
             if(!rawPhone) return alert("Please enter your registered mobile number.");
@@ -383,7 +391,8 @@
             fetchBtn.innerText = "Validating Profile...";
             fetchBtn.disabled = true;
 
-            const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers`;
+            // Updated path structure using clean tab name queries directly
+            const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/export?format=csv&sheet=Customers`;
 
             fetch(customersCsvUrl)
             .then(r => r.text())
@@ -435,7 +444,7 @@
             .catch(err => {
                 fetchBtn.disabled = false;
                 fetchBtn.innerText = "View Passbook";
-                alert("Database matrix synchronization network exception.");
+                alert("Database connection failed. Please ensure your sheet sharing is set to public.");
             });
         }
 
@@ -456,7 +465,7 @@
             
             document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(profile.customerId || '')}.`;
 
-            const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions`;
+            const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/export?format=csv&sheet=Transactions`;
             
             fetch(txCsvUrl)
             .then(r => r.text())
