@@ -90,7 +90,7 @@
                         <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
                     </div>
 
-                    <!-- Help Link -->
+                    <!-- Support Link -->
                     <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs">
                         <div>
                             <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
@@ -182,7 +182,7 @@
         </div>
     </div>
 
-    <!-- MULTI-CHANNEL TRANSACTION MODAL -->
+    <!-- MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
             <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment Proof</h3>
@@ -227,7 +227,7 @@
         </div>
     </div>
 
-    <!-- MAIN CORE ENGINE -->
+    <!-- JAVASCRIPT CONTROLLER LAYER -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -345,6 +345,27 @@
             return val.toString().replace(/^"|"$/g, '').replace(/[\r\n\t]/g, '').trim();
         }
 
+        // PARSES RAW SEPARATORS MANUALLY WITHOUT COMPLEX REGEX PATTERNS TO AVOID BUILD ERRORS
+        function parseCleanCsvLine(textLine) {
+            let fields = [];
+            let currentField = "";
+            let insideQuotes = false;
+            
+            for (let i = 0; i < textLine.length; i++) {
+                let char = textLine[i];
+                if (char === '"') {
+                    insideQuotes = !insideQuotes;
+                } else if (char === ',' && !insideQuotes) {
+                    fields.push(currentField);
+                    currentField = "";
+                } else {
+                    currentField += char;
+                }
+            }
+            fields.push(currentField);
+            return fields;
+        }
+
         function handleFetchWorkflow() {
             const rawPhone = document.getElementById('phoneInput').value.trim();
             if(!rawPhone) return alert("Please enter your registered mobile number.");
@@ -370,22 +391,24 @@
                 fetchBtn.disabled = false;
                 fetchBtn.innerText = "View Passbook";
                 
-                const lines = csvText.split('\n').map(line => line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
-                
+                const rawLines = csvText.split('\n');
                 activeMatches = [];
-                for(let i=1; i<lines.length; i++) {
-                    if(!lines[i][0]) continue;
+                
+                for(let i = 1; i < rawLines.length; i++) {
+                    if(!rawLines[i]) continue;
+                    let cols = parseCleanCsvLine(rawLines[i]);
+                    if(!cols[0]) continue;
                     
-                    const cellPhone = cleanStringValue(lines[i][0]).replace(/\D/g, "");
+                    const cellPhone = cleanStringValue(cols[0]).replace(/\D/g, "");
                     
                     if(cellPhone === cleanPhoneInput && cellPhone !== "") {
                         activeMatches.push({
                             phone: cellPhone,
-                            name: cleanStringValue(lines[i][1]) || "Valued Customer",
-                            monthlyAmount: cleanStringValue(lines[i][2]) || "0",
-                            customerId: cleanStringValue(lines[i][3]) || "Not Allocated",
-                            kittyNumber: cleanStringValue(lines[i][4]) || "Unassigned",
-                            otherDetails: cleanStringValue(lines[i][5]) || "None"
+                            name: cleanStringValue(cols[1]) || "Valued Customer",
+                            monthlyAmount: cleanStringValue(cols[2]) || "0",
+                            customerId: cleanStringValue(cols[3]) || "Not Allocated",
+                            kittyNumber: cleanStringValue(cols[4]) || "Unassigned",
+                            otherDetails: cleanStringValue(cols[5]) || "None"
                         });
                     }
                 }
@@ -438,22 +461,23 @@
             fetch(txCsvUrl)
             .then(r => r.text())
             .then(csvText => {
-                const lines = csvText.split('\n').map(line => line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
-                
+                const rawLines = csvText.split('\n');
                 let paidMonthsCount = 0;
                 let calculatedGoldGramsSum = 0;
                 
                 const userTransactions = [];
-                for(let j=1; j<lines.length; j++) {
-                    if(!lines[j][0]) continue;
+                for(let j = 1; j < rawLines.length; j++) {
+                    if(!rawLines[j]) continue;
+                    let cols = parseCleanCsvLine(rawLines[j]);
+                    if(!cols[0]) continue;
                     
-                    const txPhone = cleanStringValue(lines[j][0]).replace(/\D/g, "");
-                    const txKitty = cleanStringValue(lines[j][7]);
+                    const txPhone = cleanStringValue(cols[0]).replace(/\D/g, "");
+                    const txKitty = cleanStringValue(cols[7]);
                     
                     if(txPhone === phone && txKitty === kittyNumber) {
-                        const currentMonthNum = cleanStringValue(lines[j][1]);
-                        const status = cleanStringValue(lines[j][5]) || "Pending";
-                        const bookedGrams = Number(cleanStringValue(lines[j][9])) || 0;
+                        const currentMonthNum = cleanStringValue(cols[1]);
+                        const status = cleanStringValue(cols[5]) || "Pending";
+                        const bookedGrams = Number(cleanStringValue(cols[9])) || 0;
                         
                         userTransactions.push({
                             month: currentMonthNum,
