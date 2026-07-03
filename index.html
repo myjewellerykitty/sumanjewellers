@@ -11,7 +11,9 @@
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
 
-    <!-- CUSTOMER PORTAL INTERFACE VIEW -->
+    <!-- ==========================================
+         CUSTOMER PORTAL INTERFACE VIEW
+         ========================================== -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
             <header class="text-center py-6">
@@ -225,8 +227,11 @@
         </div>
     </div>
 
-    <!-- APPLICATION JAVASCRIPT ENGINE -->
+    <!-- ==========================================
+         APPLICATION MASTER JAVASCRIPT ENGINE
+         ========================================== -->
     <script>
+        // Bound directly to your verified Web App API production link
         const config = {
             name: "Suman Jewellers",
             themeText: "text-amber-600",
@@ -276,7 +281,6 @@
             const upiBox = document.getElementById('channelUpiView');
             const bankBox = document.getElementById('channelBankView');
             const toggleBtn = document.getElementById('btnPaymentToggle');
-            
             if (currentPaymentChannel === "upi") {
                 currentPaymentChannel = "bank";
                 upiBox.classList.add('hidden-view');
