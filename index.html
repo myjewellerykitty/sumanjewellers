@@ -22,7 +22,7 @@
             </header>
 
             <div id="interactiveContainer">
-                <!-- Phone Lookup Form -->
+                <!-- Phone Lookup Card -->
                 <div class="bg-white rounded-2xl shadow-xs p-6 border border-gray-100 mb-6 space-y-4">
                     <div>
                         <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Registered Phone Number</label>
@@ -44,7 +44,7 @@
 
                 <!-- Passbook Ledger Content Drawer -->
                 <div id="passbookContainer" class="hidden-view space-y-4">
-                    <!-- Profile Summary Information Card -->
+                    <!-- Profile Summary Card -->
                     <div id="brandCard" class="bg-gradient-to-br text-white rounded-2xl p-6 shadow-xs relative overflow-hidden">
                         <div class="relative z-10 space-y-3">
                             <div>
@@ -92,7 +92,7 @@
                         <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
                     </div>
 
-                    <!-- Help desk Link -->
+                    <!-- Help Desk Link -->
                     <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs">
                         <div>
                             <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
@@ -105,7 +105,7 @@
                 </div>
             </div>
 
-            <!-- Terms Footer Card -->
+            <!-- Terms Card -->
             <div id="termsContainer" class="mt-8 bg-amber-50/50 border rounded-2xl p-5 space-y-3">
                 <h4 id="termsHeading" class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
                     ⚠️ Terms & Conditions (12+1 Gold Scheme)
@@ -235,7 +235,7 @@
         </div>
     </div>
 
-    <!-- MAIN CONTROL CORE ENGINE -->
+    <!-- MAIN CORE RUNTIME CONTROLLER -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -246,7 +246,7 @@
             themeContainer: "bg-amber-50/50 text-amber-900/80",
             themeTextHeading: "text-amber-800",
             sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0", 
-            scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
+            scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec", 
             whatsapp: "918052473033",
             schemeMonths: 12
         };
@@ -357,7 +357,6 @@
             let fields = [];
             let currentField = "";
             let insideQuotes = false;
-            
             for (let i = 0; i < textLine.length; i++) {
                 let char = textLine[i];
                 if (char === '"') {
@@ -373,7 +372,6 @@
             return fields;
         }
 
-        // DOUBLE-CHANNEL HIGH SPEED FALLBACK INITIALIZER
         function handleFetchWorkflow() {
             const rawPhone = document.getElementById('phoneInput').value.trim();
             if(!rawPhone) return alert("Please enter your registered mobile number.");
@@ -391,94 +389,75 @@
             fetchBtn.innerText = "Validating Profile...";
             fetchBtn.disabled = true;
 
-            // Channel A: Attempt high-speed direct stream read
             const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/export?format=csv&sheet=Customers`;
 
             fetch(customersCsvUrl)
             .then(r => {
-                if(!r.ok) throw new Error("Stream blocked");
+                if(!r.ok) throw new Error("Stream connection blocked");
                 return r.text();
             })
             .then(csvText => {
-                processCustomerProfilePayload(csvText, cleanPhoneInput);
+                const rawLines = csvText.split('\n');
+                activeMatches = [];
+                for(let i = 1; i < rawLines.length; i++) {
+                    if(!rawLines[i]) continue;
+                    let cols = parseCleanCsvLine(rawLines[i]);
+                    if(!cols[0]) continue;
+                    
+                    const cellPhone = cleanStringValue(cols[0]).replace(/\D/g, "");
+                    if(cellPhone === cleanPhoneInput && cellPhone !== "") {
+                        activeMatches.push({
+                            phone: cellPhone,
+                            name: cleanStringValue(cols[1]) || "Valued Customer",
+                            monthlyAmount: cleanStringValue(cols[2]) || "0",
+                            customerId: cleanStringValue(cols[3]) || "Not Allocated",
+                            kittyNumber: cleanStringValue(cols[4]) || "Unassigned",
+                            otherDetails: cleanStringValue(cols[5]) || "None"
+                        });
+                    }
+                }
+
+                if(activeMatches.length === 0) {
+                    fetchLiveScriptLookupFallback(cleanPhoneInput);
+                    return;
+                }
+                routeProfileMatching(cleanPhoneInput);
             })
             .catch(err => {
-                console.warn("Channel A blocked or restricted. Activating secure backup pipeline...");
-                // Channel B Fallback: Fetch directly from your Web App script URL
-                fetch(`${SCRIPT_URL}?action=checkProfiles&phone=${cleanPhoneInput}`)
-                .then(r => r.json())
-                .then(res => {
-                    fetchBtn.disabled = false;
-                    fetchBtn.innerText = "View Passbook";
-                    if (!res.success || res.kittyNumbers.length === 0) {
-                        return alert("No active records matched against this mobile number.");
-                    }
-                    
-                    // Re-build active matches matrix structure from script container response
-                    activeMatches = res.kittyNumbers.map(num => ({
-                        phone: cleanPhoneInput,
-                        name: "Valued Customer",
-                        monthlyAmount: "0", 
-                        customerId: "Live Sync",
-                        kittyNumber: num,
-                        otherDetails: "Fetched via Backup Channel"
-                    }));
-
-                    routeProfileMatching(cleanPhoneInput);
-                })
-                .catch(fallbackErr => {
-                    fetchBtn.disabled = false;
-                    fetchBtn.innerText = "View Passbook";
-                    alert("Critical: Both network access routes are completely offline.");
-                });
+                console.warn("Direct CSV stream unavailable. Activating secure backup query pipeline...");
+                fetchLiveScriptLookupFallback(cleanPhoneInput);
             });
         }
 
-        function processCustomerProfilePayload(csvText, cleanPhoneInput) {
+        function fetchLiveScriptLookupFallback(cleanPhoneInput) {
             const fetchBtn = document.getElementById('fetchBtn');
-            fetchBtn.disabled = false;
-            fetchBtn.innerText = "View Passbook";
+            fetchBtn.innerText = "Synchronizing Profile...";
             
-            const rawLines = csvText.split('\n');
-            activeMatches = [];
-            
-            for(let i = 1; i < rawLines.length; i++) {
-                if(!rawLines[i]) continue;
-                let cols = parseCleanCsvLine(rawLines[i]);
-                if(!cols[0]) continue;
-                
-                const cellPhone = cleanStringValue(cols[0]).replace(/\D/g, "");
-                
-                if(cellPhone === cleanPhoneInput && cellPhone !== "") {
-                    activeMatches.push({
-                        phone: cellPhone,
-                        name: cleanStringValue(cols[1]) || "Valued Customer",
-                        monthlyAmount: cleanStringValue(cols[2]) || "0",
-                        customerId: cleanStringValue(cols[3]) || "Not Allocated",
-                        kittyNumber: cleanStringValue(cols[4]) || "Unassigned",
-                        otherDetails: cleanStringValue(cols[5]) || "None"
-                    });
+            fetch(`${SCRIPT_URL}?action=checkProfiles&phone=${cleanPhoneInput}`)
+            .then(r => r.json())
+            .then(res => {
+                fetchBtn.disabled = false;
+                fetchBtn.innerText = "View Passbook";
+                if (!res.success || !res.kittyNumbers || res.kittyNumbers.length === 0) {
+                    return alert("No active records matched against this mobile number.");
                 }
-            }
-
-            if(activeMatches.length === 0) {
-                // If CSV parsed fine but read empty rows, force trigger a dynamic runtime script query check
-                fetchBtn.innerText = "Checking Cloud Records...";
-                fetch(`${SCRIPT_URL}?action=checkProfiles&phone=${cleanPhoneInput}`)
-                .then(r => r.json())
-                .then(res => {
-                    fetchBtn.innerText = "View Passbook";
-                    if (!res.success || res.kittyNumbers.length === 0) {
-                        alert("No active records matched against this mobile number.");
-                    } else {
-                        // Force bypass directly into fallback parameters
-                        fetchPassbookBackupRoute(cleanPhoneInput, res.kittyNumbers[0]);
-                    }
-                });
-                return;
-            }
-
-            routeProfileMatching(cleanPhoneInput);
+                
+                // Emulate matches array structure from live response properties
+                activeMatches = res.kittyNumbers.map(num => ({
+                    phone: cleanPhoneInput,
+                    name: "Live Profile Sync",
+                    monthlyAmount: "0", 
+                    customerId: "Loading...",
+                    kittyNumber: num,
+                    otherDetails: "Fetched via dynamic backend routing"
+                }));
+                routeProfileMatching(cleanPhoneInput);
+            })
+            .catch(e => {
+                fetchBtn.disabled = false;
+                fetchBtn.innerText = "View Passbook";
+                alert("Database synchronization failure. Please verify connection credentials.");
+            });
         }
 
         function routeProfileMatching(cleanPhoneInput) {
@@ -497,90 +476,49 @@
             }
         }
 
-        function fetchPassbookBackupRoute(phone, kittyNumber) {
+        function executePassbookRender(phone, kittyNumber) {
             const fetchBtn = document.getElementById('fetchBtn');
-            fetchBtn.innerText = "Connecting Passbook...";
+            fetchBtn.innerText = "Opening Passbook...";
+            fetchBtn.disabled = true;
+
+            // Direct mapping parameters force microsecond live database lookups on server side
             fetch(`${SCRIPT_URL}?action=getData&phone=${phone}&kittyNumber=${kittyNumber}`)
             .then(r => r.json())
             .then(data => {
                 fetchBtn.innerText = "View Passbook";
-                if(!data || !data.profile) return alert("Profile records not found.");
+                fetchBtn.disabled = false;
                 
-                // Emulate structure payload context mock
-                activeMatches = [{
-                    phone: data.profile.phone,
-                    name: data.profile.name,
-                    monthlyAmount: data.profile.monthlyAmount,
-                    customerId: data.profile.customerId,
-                    kittyNumber: data.profile.kittyNumber,
-                    otherDetails: data.profile.otherDetails
-                }];
-                executePassbookRender(phone, kittyNumber);
-            });
-        }
+                if(!data || !data.profile) {
+                    return alert("Ledger serialization failure matching row entities.");
+                }
+                
+                globalCustomerPhone = data.profile.phone;
+                globalKittyNumber = data.profile.kittyNumber;
+                globalMonthlyAmount = Number(data.profile.monthlyAmount) || 0;
 
-        function executePassbookRender(phone, kittyNumber) {
-            const profile = activeMatches.find(m => m.kittyNumber === kittyNumber);
-            if(!profile) return alert("Profile selection array parsing fault.");
+                document.getElementById('custName').innerText = data.profile.name;
+                document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
+                document.getElementById('custAmount').innerText = "₹" + globalMonthlyAmount;
+                document.getElementById('lblCustId').innerText = data.profile.customerId;
+                document.getElementById('lblKittyNo').innerText = data.profile.kittyNumber;
+                document.getElementById('lblOtherDetails').innerText = data.profile.otherDetails;
+                
+                document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(data.profile.customerId || '')}.`;
 
-            globalCustomerPhone = profile.phone;
-            globalKittyNumber = profile.kittyNumber;
-            globalMonthlyAmount = Number(profile.monthlyAmount) || 0;
-
-            // Direct UI Field Overwrite Configuration
-            document.getElementById('custName').innerText = profile.name;
-            document.getElementById('custPhone').innerText = "+91 " + profile.phone;
-            document.getElementById('custAmount').innerText = "₹" + globalMonthlyAmount;
-            document.getElementById('lblCustId').innerText = profile.customerId;
-            document.getElementById('lblKittyNo').innerText = profile.kittyNumber;
-            document.getElementById('lblOtherDetails').innerText = profile.otherDetails;
-            
-            document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(profile.customerId || '')}.`;
-
-            // If layout was emulated or empty on amounts, fetch full details via dynamic route straight away
-            if(globalMonthlyAmount === 0 || profile.customerId === "Live Sync") {
-                fetchPassbookBackupRoute(phone, kittyNumber);
-                return;
-            }
-
-            const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/export?format=csv&sheet=Transactions`;
-            
-            fetch(txCsvUrl)
-            .then(r => r.text())
-            .then(csvText => {
-                const rawLines = csvText.split('\n');
                 let paidMonthsCount = 0;
                 let calculatedGoldGramsSum = 0;
                 
-                const userTransactions = [];
-                for(let j = 1; j < rawLines.length; j++) {
-                    if(!rawLines[j]) continue;
-                    let cols = parseCleanCsvLine(rawLines[j]);
-                    if(!cols[0]) continue;
-                    
-                    const txPhone = cleanStringValue(cols[0]).replace(/\D/g, "");
-                    const txKitty = cleanStringValue(cols[7]);
-                    
-                    if(txPhone === phone && txKitty === kittyNumber) {
-                        const currentMonthNum = cleanStringValue(cols[1]);
-                        const status = cleanStringValue(cols[5]) || "Pending";
-                        const bookedGrams = Number(cleanStringValue(cols[9])) || 0;
-                        
-                        userTransactions.push({
-                            month: currentMonthNum,
-                            status: status,
-                            bookedGrams: bookedGrams
-                        });
-
-                        if (status === "Paid") {
-                            if (Number(currentMonthNum) <= config.schemeMonths) {
+                if (data.transactions) {
+                    data.transactions.forEach(t => {
+                        if (t.status === "Paid") {
+                            if (Number(t.month) <= config.schemeMonths) {
                                 paidMonthsCount++;
                             }
-                            calculatedGoldGramsSum += bookedGrams;
+                            calculatedGoldGramsSum += (Number(t.bookedGrams) || 0);
                         }
-                    }
+                    });
                 }
-
+                
                 let calculatedBalance = paidMonthsCount * globalMonthlyAmount;
                 document.getElementById('custLiveBalance').innerText = "₹" + calculatedBalance;
                 document.getElementById('lblTotalGoldGrams').innerText = `${calculatedGoldGramsSum.toFixed(3)} g`;
@@ -589,7 +527,7 @@
                 grid.innerHTML = "";
                 
                 for (let m = 1; m <= config.schemeMonths; m++) {
-                    let tx = userTransactions.find(t => Number(t.month) === m);
+                    let tx = data.transactions ? data.transactions.find(t => Number(t.month) === m) : null;
                     let label = "Tap to Pay", style = `bg-gray-50 border border-gray-200 ${config.themeText} font-medium cursor-pointer hover:bg-gray-100 transition-all`;
                     let actionStr = `onclick="openPaymentModal(${m})"`;
                     
@@ -616,6 +554,11 @@
                     `;
                 }
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
+            })
+            .catch(err => {
+                fetchBtn.innerText = "View Passbook";
+                fetchBtn.disabled = false;
+                alert("Database communication error loading ledger passbook.");
             });
         }
 
@@ -699,14 +642,14 @@
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proofs filed for administrative review!");
-                handleFetchWorkflow();
+                executePassbookRender(globalCustomerPhone, globalKittyNumber);
             }).catch(e => {
                 clearTimeout(timeoutId);
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment transaction completed successfully!");
-                handleFetchWorkflow();
+                executePassbookRender(globalCustomerPhone, globalKittyNumber);
             });
         }
 
@@ -719,7 +662,7 @@
             fetch(`${SCRIPT_URL}?action=getData&id=all_pending`)
             .then(r => r.json()).then(pendingList => {
                 if(!pendingList || pendingList.length === 0) {
-                    const cleanStateMsg = `🎉 All clean! No pending verifications left.`;
+                    const cleanStateMsg = `🎉 All clear! No pending verifications left.`;
                     desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-600 font-medium">${cleanStateMsg}</td></tr>`;
                     mobileWrapper.innerHTML = `<div class="p-6 text-center text-emerald-600 bg-white border border-emerald-100 rounded-xl font-medium">${cleanStateMsg}</div>`;
                     return;
