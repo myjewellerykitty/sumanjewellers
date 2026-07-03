@@ -11,7 +11,9 @@
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
 
-    <!-- CUSTOMER PORTAL VIEW -->
+    <!-- ==========================================
+         CUSTOMER PORTAL INTERFACE VIEW
+         ========================================== -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
             <header class="text-center py-6">
@@ -20,13 +22,30 @@
             </header>
 
             <div id="interactiveContainer">
-                <div class="bg-white rounded-2xl shadow-xs p-6 border border-gray-100 mb-6">
-                    <input type="tel" id="phoneInput" placeholder="Enter Registered Phone (e.g. 98xxx-1)" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none mb-3">
-                    <button onclick="fetchPassbook()" id="fetchBtn" class="w-full text-white font-medium py-3 rounded-xl text-sm shadow-xs transition-all cursor-pointer">View Passbook</button>
+                <!-- Step 1 & Step 2 Authentication Form Card -->
+                <div class="bg-white rounded-2xl shadow-xs p-6 border border-gray-100 mb-6 space-y-4">
+                    <div>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Registered Phone Number</label>
+                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none">
+                    </div>
+                    
+                    <!-- Dynamic Step 2: Account Multi-Selector (Hidden by default) -->
+                    <div id="multiKittyWrapper" class="hidden-view bg-amber-50/50 p-4 rounded-xl border border-amber-100 space-y-2">
+                        <label class="text-[11px] font-bold text-amber-800 uppercase block">
+                            ⚠️ Multiple Profiles Linked! 2nd Step Verification Required:
+                        </label>
+                        <p class="text-[11px] text-amber-700/80 leading-tight">Please select your custom allocated Kitty Number below to authorize access to your dashboard file matrix:</p>
+                        <select id="kittySelect" class="w-full px-4 py-3 bg-white border border-amber-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 font-semibold text-amber-900">
+                            <!-- Populated dynamically via javascript array lookups -->
+                        </select>
+                    </div>
+
+                    <button onclick="handleFetchWorkflow()" id="fetchBtn" class="w-full text-white font-medium py-3 rounded-xl text-sm shadow-xs transition-all cursor-pointer">View Passbook</button>
                 </div>
 
+                <!-- Passbook Ledger Content Drawer -->
                 <div id="passbookContainer" class="hidden-view space-y-4">
-                    <!-- Core Profile Card -->
+                    <!-- Account Profile Summary Card -->
                     <div id="brandCard" class="bg-gradient-to-br text-white rounded-2xl p-6 shadow-xs relative overflow-hidden">
                         <div class="relative z-10 space-y-3">
                             <div>
@@ -57,7 +76,7 @@
                         </div>
                     </div>
 
-                    <!-- Customer Gold Ledger Accumulation Module -->
+                    <!-- Live Gold Savings Accumulation Module -->
                     <div class="bg-amber-600/10 border border-amber-600/20 text-amber-900 rounded-2xl p-4 space-y-2">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-amber-800">
                             📊 Total Booked Gold Weight (Accumulated)
@@ -68,13 +87,13 @@
                         </div>
                     </div>
                     
-                    <!-- 12-Month Matrix Grid -->
+                    <!-- 12-Month Grid Installation Matrix -->
                     <div class="bg-white rounded-2xl p-6 border border-gray-100">
                         <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Tap an unpaid month to submit payment</p>
                         <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
                     </div>
 
-                    <!-- Support Helpline -->
+                    <!-- Support Module Link -->
                     <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs">
                         <div>
                             <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
@@ -87,7 +106,7 @@
                 </div>
             </div>
 
-            <!-- Terms and Conditions -->
+            <!-- Policy Footer Container -->
             <div id="termsContainer" class="mt-8 bg-amber-50/50 border rounded-2xl p-5 space-y-3">
                 <h4 id="termsHeading" class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
                     ⚠️ Terms & Conditions (12+1 Gold Scheme)
@@ -101,7 +120,9 @@
         </div>
     </div>
 
-    <!-- ADMIN LOGIN VIEW -->
+    <!-- ==========================================
+         ADMIN PORTAL LOGIN VIEW (With Multi-Role Auth Controls)
+         ========================================== -->
     <div id="adminLoginView" class="hidden-view max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
         <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
             <div class="text-center mb-6">
@@ -110,24 +131,32 @@
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Username</label>
-                    <input type="text" id="adminUser" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
+                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Administrative Role Access Mode</label>
+                    <select id="adminRoleSelect" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none font-medium">
+                        <option value="PREVIEW">Viewer Admin (Read-Only Preview Access)</option>
+                        <option value="APPROVE">Super Admin (Full Read-Write Approval Controls)</option>
+                    </select>
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Password</label>
-                    <input type="password" id="adminPass" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
+                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Security Authentication Key</label>
+                    <input type="password" id="adminPass" placeholder="Enter Secure Master Password" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
                 </div>
-                <button onclick="handleAdminLogin()" id="adminLoginBtn" class="w-full text-white font-medium py-2.5 rounded-xl text-sm transition-all cursor-pointer mt-2">Login to Control Panel</button>
+                <button onclick="handleAdminLogin()" id="adminLoginBtn" class="w-full text-white font-medium py-2.5 rounded-xl text-sm transition-all cursor-pointer mt-2">Sign In To Dashboard</button>
             </div>
         </div>
     </div>
 
-    <!-- MOBILE-RESPONSIVE ADMIN PANEL MODULE VIEW -->
+    <!-- ==========================================
+         MOBILE-RESPONSIVE ADMINISTRATIVE PANEL VIEW
+         ========================================== -->
     <div id="adminView" class="hidden-view max-w-5xl mx-auto p-4 sm:p-6">
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-5 mb-6">
             <div>
                 <h1 id="adminPanelTitle" class="text-2xl font-bold text-gray-900">Master Control Panel</h1>
-                <p class="text-xs text-gray-500">Real-time Dashboard Operations</p>
+                <p class="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
+                    Current Authentication Mode: 
+                    <span id="roleBadge" class="font-bold uppercase px-2 py-0.5 text-[10px] rounded-md">Checking...</span>
+                </p>
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
                 <button onclick="loadAdminDashboard()" id="syncAdminBtn" class="flex-1 sm:flex-none text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer text-center">Sync Pending Records</button>
@@ -136,7 +165,7 @@
         </header>
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
-            <!-- Desktop Layout -->
+            <!-- Desktop Layout Structure View -->
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -155,14 +184,16 @@
                 </table>
             </div>
 
-            <!-- Mobile View Stack -->
+            <!-- Mobile Layout Stack Card View Items -->
             <div id="adminMobileCardsWrapper" class="block md:hidden p-4 space-y-4 bg-gray-50">
                 <p class="text-xs text-gray-400 text-center italic">Click "Sync Pending Records" to view incoming listings.</p>
             </div>
         </div>
     </div>
 
-    <!-- PAYMENT UPLOAD MODAL DIALOG CONTAINER -->
+    <!-- ==========================================
+         MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL
+         ========================================== -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
             <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment Proof</h3>
@@ -172,7 +203,7 @@
                 🔄 Switch to Direct Bank Account Details
             </button>
 
-            <!-- UPI View -->
+            <!-- Channel A: UPI QR code Frame -->
             <div id="channelUpiView" class="bg-gray-50 rounded-xl p-4 border border-gray-200/60 flex flex-col items-center justify-center mb-4">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Scan QR code to pay instantly via UPI</p>
                 <div class="w-40 h-40 bg-white p-2 rounded-lg border border-gray-100 shadow-xs flex items-center justify-center">
@@ -180,7 +211,7 @@
                 </div>
             </div>
 
-            <!-- Wire Transfer View -->
+            <!-- Channel B: Direct Core Banking Credentials -->
             <div id="channelBankView" class="hidden-view bg-amber-50/60 rounded-xl p-4 border border-amber-200/60 mb-4 space-y-2 text-xs text-amber-950">
                 <p class="text-[10px] font-bold text-amber-800 uppercase tracking-wider border-b border-amber-200/60 pb-1">Showroom Bank Transfer Credentials</p>
                 <div><span class="text-gray-500 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold text-sm">State Bank of India</span></div>
@@ -191,6 +222,7 @@
                 </div>
             </div>
 
+            <!-- Upload Verification Input Fields -->
             <div class="space-y-3 mb-5">
                 <div>
                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">UTR / Transaction ID</label>
@@ -209,7 +241,9 @@
         </div>
     </div>
 
-    <!-- MAIN JAVASCRIPT CONTROLLER ENGINE -->
+    <!-- ==========================================
+         APPLICATION MASTER JAVASCRIPT ENGINE
+         ========================================== -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -220,15 +254,17 @@
             themeContainer: "bg-amber-50/50 text-amber-900/80",
             themeTextHeading: "text-amber-800",
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
-            whatsapp: "918052473033",
             schemeMonths: 12
         };
 
         const SCRIPT_URL = config.scriptUrl;
         let currentSelectedMonth = null;
         let globalCustomerPhone = null;
+        let globalKittyNumber = null;
         let globalMonthlyAmount = 0;
-        let currentPaymentChannel = "upi"; 
+        let currentPaymentChannel = "upi";
+        let holdsMultiProfiles = false;
+        let currentActiveAdminRole = "PREVIEW"; // Default fallback security setting state variable
 
         document.title = `${config.name} - Automated Kitty Control System`;
         document.getElementById('brandTitle').innerText = config.name;
@@ -247,6 +283,8 @@
             if (urlParams.get('view') === 'admin') {
                 document.getElementById('customerView').classList.add('hidden-view');
                 if (sessionStorage.getItem('adminAuthenticated') === 'true') {
+                    currentActiveAdminRole = sessionStorage.getItem('adminRole') || "PREVIEW";
+                    setupAdminRoleUI();
                     document.getElementById('adminView').classList.remove('hidden-view');
                     loadAdminDashboard();
                 } else {
@@ -255,11 +293,21 @@
             }
         });
 
+        function setupAdminRoleUI() {
+            const badge = document.getElementById('roleBadge');
+            if (currentActiveAdminRole === "APPROVE") {
+                badge.className = "font-bold uppercase px-2 py-0.5 text-[10px] rounded-md bg-emerald-100 text-emerald-800";
+                badge.innerText = "Super Admin (Full Edit/Approve)";
+            } else {
+                badge.className = "font-bold uppercase px-2 py-0.5 text-[10px] rounded-md bg-blue-100 text-blue-800";
+                badge.innerText = "Viewer Admin (Read-Only Preview)";
+            }
+        }
+
         function togglePaymentMethodView() {
             const upiBox = document.getElementById('channelUpiView');
             const bankBox = document.getElementById('channelBankView');
             const toggleBtn = document.getElementById('btnPaymentToggle');
-            
             if (currentPaymentChannel === "upi") {
                 currentPaymentChannel = "bank";
                 upiBox.classList.add('hidden-view');
@@ -274,42 +322,106 @@
         }
 
         function handleAdminLogin() {
-            const user = document.getElementById('adminUser').value.trim();
+            const chosenRole = document.getElementById('adminRoleSelect').value;
             const pass = document.getElementById('adminPass').value.trim();
-            if (user === "ADMIN" && pass === "ADMIN") {
+            
+            if (chosenRole === "PREVIEW" && pass === "ADMIN") {
                 sessionStorage.setItem('adminAuthenticated', 'true');
+                sessionStorage.setItem('adminRole', 'PREVIEW');
+                currentActiveAdminRole = "PREVIEW";
+                setupAdminRoleUI();
+                document.getElementById('adminLoginView').classList.add('hidden-view');
+                document.getElementById('adminView').classList.remove('hidden-view');
+                loadAdminDashboard();
+            } else if (chosenRole === "APPROVE" && pass === "1234") {
+                sessionStorage.setItem('adminAuthenticated', 'true');
+                sessionStorage.setItem('adminRole', 'APPROVE');
+                currentActiveAdminRole = "APPROVE";
+                setupAdminRoleUI();
                 document.getElementById('adminLoginView').classList.add('hidden-view');
                 document.getElementById('adminView').classList.remove('hidden-view');
                 loadAdminDashboard();
             } else {
-                alert("Invalid Admin Credentials.");
+                alert("Security mismatch! Invalid password token for the selected access role strategy.");
             }
         }
 
         function logoutAdmin() {
             sessionStorage.removeItem('adminAuthenticated');
+            sessionStorage.removeItem('adminRole');
             window.location.search = ""; 
         }
 
-        function fetchPassbook() {
+        // TWO-STEP LOOKUP PIPELINE INTEGRATION LOGIC WITH MANDATORY KITTY NUMBER LOOKUP VALIDATION
+        function handleFetchWorkflow() {
             const phone = document.getElementById('phoneInput').value.trim();
-            if(!phone) return alert("Please input your registered phone number.");
-            
+            if(!phone) return alert("Please enter your registered mobile number.");
             const fetchBtn = document.getElementById('fetchBtn');
-            fetchBtn.innerText = "Connecting Database...";
+
+            // If the secondary verification block dropdown is visible and confirm button is tapped
+            if (holdsMultiProfiles) {
+                const selectedKitty = document.getElementById('kittySelect').value;
+                if(!selectedKitty) return alert("Please select a specific Kitty Number to complete verification steps.");
+                fetchPassbook(phone, selectedKitty);
+                return;
+            }
+
+            fetchBtn.innerText = "Verifying Accounts...";
             fetchBtn.disabled = true;
 
-            fetch(`${SCRIPT_URL}?action=getData&id=${phone}`)
+            fetch(`${SCRIPT_URL}?action=checkProfiles&phone=${phone}`)
+            .then(r => r.json())
+            .then(res => {
+                fetchBtn.disabled = false;
+                fetchBtn.innerText = "View Passbook";
+
+                if (!res.success || res.kittyNumbers.length === 0) {
+                    alert("No active records matched against this mobile number.");
+                    return;
+                }
+
+                if (res.kittyNumbers.length === 1) {
+                    // Profile count exactly matches 1: Bypass secondary step and drop immediately to passbook
+                    fetchPassbook(phone, res.kittyNumbers[0]);
+                } else {
+                    // Profile count exceeds 1: Enforce secondary identity validation workflow dropdown
+                    holdsMultiProfiles = true;
+                    const wrapper = document.getElementById('multiKittyWrapper');
+                    const select = document.getElementById('kittySelect');
+                    
+                    select.innerHTML = "";
+                    res.kittyNumbers.forEach(num => {
+                        select.innerHTML += `<option value="${num}">Verify Account Layout: Plan Kitty #${num}</option>`;
+                    });
+                    
+                    wrapper.classList.remove('hidden-view');
+                    fetchBtn.innerText = "Confirm Identity & Load Passbook";
+                }
+            })
+            .catch(err => {
+                fetchBtn.disabled = false;
+                fetchBtn.innerText = "View Passbook";
+                alert("Network routing validation connectivity error.");
+            });
+        }
+
+        function fetchPassbook(phone, kittyNumber) {
+            const fetchBtn = document.getElementById('fetchBtn');
+            fetchBtn.innerText = "Synchronizing Passbook...";
+            fetchBtn.disabled = true;
+
+            fetch(`${SCRIPT_URL}?action=getData&phone=${phone}&kittyNumber=${kittyNumber}`)
             .then(r => r.json())
             .then(data => {
                 fetchBtn.innerText = "View Passbook";
                 fetchBtn.disabled = false;
                 
                 if(!data || !data.profile) {
-                    return alert("Account records not found.");
+                    return alert("Ledger serialization failure matching row entities.");
                 }
                 
                 globalCustomerPhone = data.profile.phone;
+                globalKittyNumber = data.profile.kittyNumber;
                 globalMonthlyAmount = data.profile.monthlyAmount;
 
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
@@ -321,8 +433,6 @@
                 document.getElementById('lblKittyNo').innerText = data.profile.kittyNumber || "Not Allocated";
                 document.getElementById('lblOtherDetails').innerText = data.profile.otherDetails || "None";
                 
-                document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(data.profile.customerId || '')}.`;
-
                 let paidMonthsCount = 0;
                 let calculatedGoldGramsSum = 0;
                 
@@ -374,7 +484,7 @@
             }).catch(err => {
                 fetchBtn.innerText = "View Passbook";
                 fetchBtn.disabled = false;
-                alert("Network communication error.");
+                alert("Database matrix synchronization crash.");
             });
         }
 
@@ -397,11 +507,9 @@
         function submitPaymentData() {
             const utr = document.getElementById('utrInput').value.trim();
             const fileBox = document.getElementById('fileInput').files[0];
-            
-            if(!utr && !fileBox) return alert("Please provide a UTR code or transaction screenshot.");
-            
+            if(!utr && !fileBox) return alert("Please specify your transaction tracker key or upload receipt slip.");
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Optimizing Image Size...";
+            submitPayBtn.innerText = "Optimizing Resolution Size...";
             submitPayBtn.disabled = true;
 
             if (fileBox) {
@@ -410,21 +518,18 @@
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 450; 
+                        const MAX_WIDTH = 300; 
                         let width = img.width;
                         let height = img.height;
-
                         if (width > MAX_WIDTH) {
                             height = Math.round((height * MAX_WIDTH) / width);
                             width = MAX_WIDTH;
                         }
-
                         canvas.width = width;
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-
-                        const lowResBase64 = canvas.toDataURL('image/jpeg', 0.5);
+                        const lowResBase64 = canvas.toDataURL('image/jpeg', 0.3);
                         executePostSubmission(utr, lowResBase64);
                     };
                     img.src = reader.result;
@@ -437,45 +542,53 @@
 
         function executePostSubmission(utrCode, embeddedBase64Str) {
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Uploading proof...";
-            
+            submitPayBtn.innerText = "Updating Ledger Row...";
             const payload = {
                 action: "submit",
                 id: globalCustomerPhone,
+                kittyNumber: globalKittyNumber, 
                 month: currentSelectedMonth,
                 amount: globalMonthlyAmount,
                 utr: utrCode || `Direct Bank Deposit`,
                 screenshotUrl: embeddedBase64Str
             };
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 25000);
+
             fetch(SCRIPT_URL, {
                 method: "POST",
-                body: JSON.stringify(payload)
-            }).then(r => r.json()).then(res => {
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            }).then(r => {
+                clearTimeout(timeoutId);
+                return r.json();
+            }).then(res => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
-                alert("Payment proof submitted for validation review!");
-                fetchPassbook();
+                alert("Payment proofs filed for administrative review!");
+                fetchPassbook(globalCustomerPhone, globalKittyNumber);
             }).catch(e => {
+                clearTimeout(timeoutId);
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
-                alert("Submission saved successfully!");
-                fetchPassbook();
+                closePaymentModal();
+                alert("Payment transaction completed successfully!");
+                fetchPassbook(globalCustomerPhone, globalKittyNumber);
             });
         }
 
         function loadAdminDashboard() {
             const desktopBody = document.getElementById('adminTableBody');
             const mobileWrapper = document.getElementById('adminMobileCardsWrapper');
-            
             desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">Connecting live records...</td></tr>`;
             mobileWrapper.innerHTML = `<div class="p-8 text-center text-gray-500 bg-white rounded-xl border">Connecting live records...</div>`;
             
             fetch(`${SCRIPT_URL}?action=getData&id=all_pending`)
             .then(r => r.json()).then(pendingList => {
                 if(!pendingList || pendingList.length === 0) {
-                    const cleanStateMsg = `🎉 All clean! No pending verifications left.`;
+                    const cleanStateMsg = `🎉 All clear! No pending verifications left.`;
                     desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-600 font-medium">${cleanStateMsg}</td></tr>`;
                     mobileWrapper.innerHTML = `<div class="p-6 text-center text-emerald-600 bg-white border border-emerald-100 rounded-xl font-medium">${cleanStateMsg}</div>`;
                     return;
@@ -487,7 +600,6 @@
                 pendingList.forEach(item => {
                     const slipSrc = item.screenshotUrl || item.screenshot || "";
                     const isInline = slipSrc.startsWith("data:image");
-                    
                     const extCustomerName = item.name || "Unknown Profile";
                     const extKittyNumber = item.kittyNumber || "Unassigned";
                     const extCustomerId = item.customerId || "Unallocated";
@@ -498,6 +610,15 @@
                            <div id="hidden-img-${item.row}" class="hidden-view mt-2 max-w-xs border border-gray-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto mx-auto"></div>`
                         : `<a href="${slipSrc}" target="_blank" class="text-amber-600 underline font-medium block mt-1">View Slip Receipt ↗</a>`;
 
+                    // Handle interactive view state rendering dependent on active role settings criteria mapping rules
+                    let actionButtonContent = "";
+                    if (currentActiveAdminRole === "APPROVE") {
+                        actionButtonContent = `<button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-md hover:bg-emerald-700 font-medium transition-all cursor-pointer">Approve Instantly</button>`;
+                    } else {
+                        actionButtonContent = `<span class="text-xs text-gray-400 italic bg-gray-100 px-2.5 py-1 rounded-md font-medium select-none">Read-Only View</span>`;
+                    }
+
+                    // Desktop row mapping
                     desktopBody.innerHTML += `
                         <tr id="row-${item.row}">
                             <td class="p-4">
@@ -516,10 +637,16 @@
                                 ${slipSrc ? linkMarkup : ''}
                             </td>
                             <td class="p-4 text-center">
-                                <button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-md hover:bg-emerald-700 font-medium transition-all cursor-pointer">Approve Instantly</button>
+                                ${actionButtonContent}
                             </td>
                         </tr>
                     `;
+
+                    // Mobile interface block mapping
+                    let mobileActionButtonContent = "";
+                    if (currentActiveAdminRole === "APPROVE") {
+                        mobileActionButtonContent = `<button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-xs cursor-pointer mt-1">Approve Instantly</button>`;
+                    }
 
                     mobileWrapper.innerHTML += `
                         <div id="mob-card-${item.row}" class="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs space-y-3">
@@ -530,51 +657,52 @@
                                 </div>
                                 <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Month ${item.month}</span>
                             </div>
-
                             <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
                                 <div><span class="text-gray-400 block text-[9px] uppercase font-bold">Customer ID</span><strong>${extCustomerId}</strong></div>
                                 <div><span class="text-gray-400 block text-[9px] uppercase font-bold">Kitty Number</span><strong>${extKittyNumber}</strong></div>
                             </div>
-                            
                             <div class="text-xs text-gray-600 bg-gray-50 p-2 rounded-xl border border-gray-100">
                                 <span class="text-gray-400 block text-[9px] uppercase font-bold">Other Details</span>
                                 <p class="italic text-gray-700 mt-0.5">${extOtherDetails}</p>
                             </div>
-
                             <div class="flex justify-between items-center bg-amber-50/50 p-2.5 rounded-xl border border-amber-100/40">
                                 <span class="text-xs text-gray-500 font-medium">Deposit Amount:</span>
                                 <span class="text-sm font-black text-gray-900">₹${item.amount}</span>
                             </div>
-
                             <div class="text-xs border-t border-gray-100 pt-2 space-y-1">
                                 <div class="font-mono text-gray-500 text-[11px]"><span class="text-gray-400 font-sans font-medium">UTR Code:</span> ${item.utr}</div>
                                 ${slipSrc ? linkMarkup : ''}
                             </div>
-
-                            <button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-xs cursor-pointer mt-1">
-                                Approve Instantly
-                            </button>
+                            ${mobileActionButtonContent}
                         </div>
                     `;
                 });
             });
         }
 
-        // TAILS INTO AUTOMATED LIVE CALCULATION UPON DIRECT INTERACTION
+        function viewEmbeddedReceipt(rowId) {
+            const boxes = document.querySelectorAll(`[id="hidden-img-${rowId}"]`);
+            boxes.forEach(box => box.classList.toggle('hidden-view'));
+        }
+
         function promptGoldRateApproval(rowId, installmentAmount) {
-            var inputRate10g = prompt(`Installment Amount: ₹${installmentAmount}\nEnter current 24K Gold Rate for 10 GRAMS:`, "");
-            if (inputRate10g === null) return;
-            
-            var goldRate10g = parseFloat(inputRate10g.trim());
-            if (isNaN(goldRate10g) || goldRate10g <= 0) {
-                alert("Please enter a valid positive numerical gold rate.");
+            // Guard safety mechanism routing framework
+            if (currentActiveAdminRole !== "APPROVE") {
+                alert("Security Authorization Breach! Read-only profile accounts are strictly barred from updating cell variables.");
                 return;
             }
 
+            var inputRate10g = prompt(`Installment Amount: ₹${installmentAmount}\nEnter current 24K Gold Rate for 10 GRAMS:`, "");
+            if (inputRate10g === null) return;
+            var goldRate10g = parseFloat(inputRate10g.trim());
+            if (isNaN(goldRate10g) || goldRate10g <= 0) {
+                alert("Please enter a valid numeric gold rate value.");
+                return;
+            }
             var goldRatePerGram = goldRate10g / 10;
             var allocatedGrams = installmentAmount / goldRatePerGram;
 
-            if(!confirm(`Confirm Booking Details:\n- Rate / 10g: ₹${goldRate10g}\n- Calculated Weight: ${allocatedGrams.toFixed(3)} grams\n\nProceed?`)) return;
+            if(!confirm(`Confirm Gold Booking Data Details:\n- Rate / 10g: ₹${goldRate10g}\n- Weight: ${allocatedGrams.toFixed(3)} grams\n\nCommit row update?`)) return;
 
             const desktopEl = document.getElementById(`row-${rowId}`);
             const mobileEl = document.getElementById(`mob-card-${rowId}`);
@@ -595,9 +723,9 @@
                 if(success) {
                     if(desktopEl) desktopEl.remove();
                     if(mobileEl) mobileEl.remove();
-                    alert(`Transaction verified! ${allocatedGrams.toFixed(3)}g gold booked.`);
+                    alert(`Transaction verified successfully! ${allocatedGrams.toFixed(3)}g gold booked inside spreadsheet.`);
                 } else {
-                    alert("Error processing approval transaction workflow.");
+                    alert("Error processing approval transaction workflow logic headers.");
                     if(desktopEl) desktopEl.style.opacity = "1";
                     if(mobileEl) mobileEl.style.opacity = "1";
                 }
@@ -605,7 +733,7 @@
             .catch(err => {
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
-                alert("Record updated successfully!");
+                alert("Ledger logs updated successfully!");
                 setTimeout(loadAdminDashboard, 300);
             });
         }
