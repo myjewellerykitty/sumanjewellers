@@ -11,9 +11,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
 
-    <!-- ==========================================
-         CUSTOMER PORTAL INTERFACE VIEW
-         ========================================== -->
+    <!-- CUSTOMER PORTAL INTERFACE VIEW -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
             <header class="text-center py-6">
@@ -22,7 +20,7 @@
             </header>
 
             <div id="interactiveContainer">
-                <!-- Phone Lookup & Multi-Account Selection Block -->
+                <!-- Phone Lookup Block -->
                 <div class="bg-white rounded-2xl shadow-xs p-6 border border-gray-100 mb-6 space-y-3">
                     <div>
                         <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Registered Phone Number</label>
@@ -33,7 +31,6 @@
                     <div id="multiKittyWrapper" class="hidden-view">
                         <label class="text-[11px] font-bold text-amber-600 uppercase block mb-1">Multiple Accounts Found! Select Kitty Number:</label>
                         <select id="kittySelect" class="w-full px-4 py-3 bg-amber-50/50 border border-amber-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 font-medium text-amber-900">
-                            <!-- Options dynamically loaded here -->
                         </select>
                     </div>
 
@@ -42,7 +39,6 @@
 
                 <!-- Passbook Ledger Content Drawer -->
                 <div id="passbookContainer" class="hidden-view space-y-4">
-                    
                     <!-- Core Account Profile Summary Card -->
                     <div id="brandCard" class="bg-gradient-to-br text-white rounded-2xl p-6 shadow-xs relative overflow-hidden">
                         <div class="relative z-10 space-y-3">
@@ -120,9 +116,7 @@
         </div>
     </div>
 
-    <!-- ==========================================
-         ADMIN PORTAL LOGIN VIEW
-         ========================================== -->
+    <!-- ADMIN PORTAL LOGIN VIEW -->
     <div id="adminLoginView" class="hidden-view max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
         <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
             <div class="text-center mb-6">
@@ -143,9 +137,7 @@
         </div>
     </div>
 
-    <!-- ==========================================
-         MOBILE-RESPONSIVE ADMIN PANEL MODULE VIEW
-         ========================================== -->
+    <!-- MOBILE-RESPONSIVE ADMIN PANEL MODULE VIEW -->
     <div id="adminView" class="hidden-view max-w-5xl mx-auto p-4 sm:p-6">
         <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-5 mb-6">
             <div>
@@ -159,7 +151,7 @@
         </header>
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
-            <!-- Desktop Layout View Component -->
+            <!-- Desktop Layout -->
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -178,16 +170,14 @@
                 </table>
             </div>
 
-            <!-- Mobile Layout Stack Card Components -->
+            <!-- Mobile Layout Stack -->
             <div id="adminMobileCardsWrapper" class="block md:hidden p-4 space-y-4 bg-gray-50">
                 <p class="text-xs text-gray-400 text-center italic">Click "Sync Pending Records" to view incoming listings.</p>
             </div>
         </div>
     </div>
 
-    <!-- ==========================================
-         MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL
-         ========================================== -->
+    <!-- MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
             <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment Proof</h3>
@@ -205,7 +195,7 @@
                 </div>
             </div>
 
-            <!-- Channel B: Direct Core Banking Credentials (IMPS/NEFT Wire transfers) -->
+            <!-- Channel B: Direct Core Banking Credentials -->
             <div id="channelBankView" class="hidden-view bg-amber-50/60 rounded-xl p-4 border border-amber-200/60 mb-4 space-y-2 text-xs text-amber-950">
                 <p class="text-[10px] font-bold text-amber-800 uppercase tracking-wider border-b border-amber-200/60 pb-1">Showroom Bank Transfer Credentials</p>
                 <div><span class="text-gray-500 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold text-sm">State Bank of India</span></div>
@@ -235,11 +225,8 @@
         </div>
     </div>
 
-    <!-- ==========================================
-         APPLICATION MASTER JAVASCRIPT ENGINE
-         ========================================== -->
+    <!-- APPLICATION JAVASCRIPT ENGINE -->
     <script>
-        // Bound directly to your deployed Apps Script macro infrastructure endpoint
         const config = {
             name: "Suman Jewellers",
             themeText: "text-amber-600",
@@ -321,11 +308,9 @@
             window.location.search = ""; 
         }
 
-        // TWO-STEP LOOKUP PIPELINE INTERACTION LOGIC
         function handleFetchWorkflow() {
             const phone = document.getElementById('phoneInput').value.trim();
             if(!phone) return alert("Please enter your registered mobile number.");
-
             const fetchBtn = document.getElementById('fetchBtn');
 
             if (holdsMultiProfiles) {
@@ -349,19 +334,15 @@
                 }
 
                 if (res.kittyNumbers.length === 1) {
-                    // Route 1: Single account profile match -> Load passbook directly
                     fetchPassbook(phone, res.kittyNumbers[0]);
                 } else {
-                    // Route 2: Multiple accounts found -> Open dropdown UI selector
                     holdsMultiProfiles = true;
                     const wrapper = document.getElementById('multiKittyWrapper');
                     const select = document.getElementById('kittySelect');
-                    
                     select.innerHTML = "";
                     res.kittyNumbers.forEach(num => {
                         select.innerHTML += `<option value="${num}">Kitty Account Plan #${num}</option>`;
                     });
-                    
                     wrapper.classList.remove('hidden-view');
                     fetchBtn.innerText = "Confirm & Load Ledger";
                 }
@@ -369,7 +350,7 @@
             .catch(err => {
                 fetchBtn.disabled = false;
                 fetchBtn.innerText = "View Passbook";
-                alert("Communication network error parsing profile tracking registries.");
+                alert("Network connection error.");
             });
         }
 
@@ -478,7 +459,6 @@
             const utr = document.getElementById('utrInput').value.trim();
             const fileBox = document.getElementById('fileInput').files[0];
             if(!utr && !fileBox) return alert("Please specify your transaction tracker key or upload receipt slip.");
-            
             const submitPayBtn = document.getElementById('submitPayBtn');
             submitPayBtn.innerText = "Optimizing Resolution Size...";
             submitPayBtn.disabled = true;
@@ -492,17 +472,14 @@
                         const MAX_WIDTH = 450; 
                         let width = img.width;
                         let height = img.height;
-
                         if (width > MAX_WIDTH) {
                             height = Math.round((height * MAX_WIDTH) / width);
                             width = MAX_WIDTH;
                         }
-
                         canvas.width = width;
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-
                         const lowResBase64 = canvas.toDataURL('image/jpeg', 0.5);
                         executePostSubmission(utr, lowResBase64);
                     };
@@ -517,7 +494,6 @@
         function executePostSubmission(utrCode, embeddedBase64Str) {
             const submitPayBtn = document.getElementById('submitPayBtn');
             submitPayBtn.innerText = "Updating Ledger Row...";
-            
             const payload = {
                 action: "submit",
                 id: globalCustomerPhone,
@@ -548,7 +524,6 @@
         function loadAdminDashboard() {
             const desktopBody = document.getElementById('adminTableBody');
             const mobileWrapper = document.getElementById('adminMobileCardsWrapper');
-            
             desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">Connecting live records...</td></tr>`;
             mobileWrapper.innerHTML = `<div class="p-8 text-center text-gray-500 bg-white rounded-xl border">Connecting live records...</div>`;
             
@@ -567,7 +542,6 @@
                 pendingList.forEach(item => {
                     const slipSrc = item.screenshotUrl || item.screenshot || "";
                     const isInline = slipSrc.startsWith("data:image");
-                    
                     const extCustomerName = item.name || "Unknown Profile";
                     const extKittyNumber = item.kittyNumber || "Unassigned";
                     const extCustomerId = item.customerId || "Unallocated";
@@ -578,7 +552,6 @@
                            <div id="hidden-img-${item.row}" class="hidden-view mt-2 max-w-xs border border-gray-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto mx-auto"></div>`
                         : `<a href="${slipSrc}" target="_blank" class="text-amber-600 underline font-medium block mt-1">View Slip Receipt ↗</a>`;
 
-                    // Desktop Table layout structure
                     desktopBody.innerHTML += `
                         <tr id="row-${item.row}">
                             <td class="p-4">
@@ -602,7 +575,6 @@
                         </tr>
                     `;
 
-                    // Mobile Stack Card UI structure
                     mobileWrapper.innerHTML += `
                         <div id="mob-card-${item.row}" class="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs space-y-3">
                             <div class="flex justify-between items-start border-b border-gray-100 pb-2">
@@ -612,27 +584,22 @@
                                 </div>
                                 <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Month ${item.month}</span>
                             </div>
-
                             <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
                                 <div><span class="text-gray-400 block text-[9px] uppercase font-bold">Customer ID</span><strong>${extCustomerId}</strong></div>
                                 <div><span class="text-gray-400 block text-[9px] uppercase font-bold">Kitty Number</span><strong>${extKittyNumber}</strong></div>
                             </div>
-                            
                             <div class="text-xs text-gray-600 bg-gray-50 p-2 rounded-xl border border-gray-100">
                                 <span class="text-gray-400 block text-[9px] uppercase font-bold">Other Details</span>
                                 <p class="italic text-gray-700 mt-0.5">${extOtherDetails}</p>
                             </div>
-
                             <div class="flex justify-between items-center bg-amber-50/50 p-2.5 rounded-xl border border-amber-100/40">
                                 <span class="text-xs text-gray-500 font-medium">Deposit Amount:</span>
                                 <span class="text-sm font-black text-gray-900">₹${item.amount}</span>
                             </div>
-
                             <div class="text-xs border-t border-gray-100 pt-2 space-y-1">
                                 <div class="font-mono text-gray-500 text-[11px]"><span class="text-gray-400 font-sans font-medium">UTR Code:</span> ${item.utr}</div>
                                 ${slipSrc ? linkMarkup : ''}
                             </div>
-
                             <button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-xs cursor-pointer mt-1">
                                 Approve Instantly
                             </button>
@@ -647,21 +614,18 @@
             boxes.forEach(box => box.classList.toggle('hidden-view'));
         }
 
-        // CAPTURES RATE AND LOCKS FRACTIONAL GOLD WEIGHT IN CELL VALUES
         function promptGoldRateApproval(rowId, installmentAmount) {
             var inputRate10g = prompt(`Installment Amount: ₹${installmentAmount}\nEnter current 24K Gold Rate for 10 GRAMS:`, "");
             if (inputRate10g === null) return;
-            
             var goldRate10g = parseFloat(inputRate10g.trim());
             if (isNaN(goldRate10g) || goldRate10g <= 0) {
-                alert("Please enter a valid positive numerical gold rate.");
+                alert("Please enter a valid numeric gold rate value.");
                 return;
             }
-
             var goldRatePerGram = goldRate10g / 10;
             var allocatedGrams = installmentAmount / goldRatePerGram;
 
-            if(!confirm(`Confirm Gold Booking Data Details:\n- Showroom day booking index: ₹${goldRate10g} / 10g\n- Allocated Gold Weight: ${allocatedGrams.toFixed(3)} grams\n\nProceed with approval?`)) return;
+            if(!confirm(`Confirm Gold Booking:\n- Rate / 10g: ₹${goldRate10g}\n- Weight: ${allocatedGrams.toFixed(3)} grams\n\nCommit cell update?`)) return;
 
             const desktopEl = document.getElementById(`row-${rowId}`);
             const mobileEl = document.getElementById(`mob-card-${rowId}`);
@@ -684,7 +648,7 @@
                     if(mobileEl) mobileEl.remove();
                     alert(`Transaction verified successfully! ${allocatedGrams.toFixed(3)}g gold booked inside spreadsheet.`);
                 } else {
-                    alert("Error processing webhook verification approval logic headers.");
+                    alert("Error processing approval transaction workflow.");
                     if(desktopEl) desktopEl.style.opacity = "1";
                     if(mobileEl) mobileEl.style.opacity = "1";
                 }
