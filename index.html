@@ -247,7 +247,6 @@
             themeBorder: "border-amber-100",
             themeContainer: "bg-amber-50/50 text-amber-900/80",
             themeTextHeading: "text-amber-800",
-            // EXTRACT SHEET ID DIRECTLY FROM YOUR WEB APP ENVIRONMENT TO ENERGIZE HIGH-SPEED FETCH PIPELINES
             sheetId: "1JKIhOmizWVnNA8lcbF6ymaefXvDbZloK3tqlFpcwkhQ", 
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             whatsapp: "918052473033",
@@ -263,7 +262,6 @@
         let holdsMultiProfiles = false;
         let currentActiveAdminRole = "PREVIEW"; 
 
-        // Local State Arrays
         let activeMatches = [];
 
         document.title = `${config.name} - Automated Kitty Control System`;
@@ -352,23 +350,30 @@
             window.location.search = ""; 
         }
 
-        // HIGH-SPEED API EXPORT PIPELINE - RUNS IN < 1 SECOND
+        // STRICTOR STRING STRIPPING FUNCTION TO PREVENT LOOKUP DISCONNECTS
+        function cleanStringValue(val) {
+            if (!val) return "";
+            return val.toString().replace(/^"|"$/g, '').replace(/[\r\n\t]/g, '').trim();
+        }
+
         function handleFetchWorkflow() {
-            const phone = document.getElementById('phoneInput').value.trim();
-            if(!phone) return alert("Please enter your registered mobile number.");
+            const rawPhone = document.getElementById('phoneInput').value.trim();
+            if(!rawPhone) return alert("Please enter your registered mobile number.");
+            
+            // Clean up numbers by stripping non-numeric values (removes country codes, quotes, and space anomalies)
+            const cleanPhoneInput = rawPhone.replace(/\D/g, "");
             const fetchBtn = document.getElementById('fetchBtn');
 
             if (holdsMultiProfiles) {
-                const selectedKitty = document.getElementById('kittySelect').value;
+                const selectedKitty = cleanStringValue(document.getElementById('kittySelect').value);
                 if(!selectedKitty) return alert("Please select a specific Kitty Number.");
-                executePassbookRender(phone, selectedKitty);
+                executePassbookRender(cleanPhoneInput, selectedKitty);
                 return;
             }
 
             fetchBtn.innerText = "Validating Profile...";
             fetchBtn.disabled = true;
 
-            // Instantly reads structural rows directly via Google's Public Data Serialization Layer (Bypasses Script Engine entirely)
             const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers`;
 
             fetch(customersCsvUrl)
@@ -377,19 +382,22 @@
                 fetchBtn.disabled = false;
                 fetchBtn.innerText = "View Passbook";
                 
-                // Parse CSV contents cleanly
-                const lines = csvText.split('\n').map(line => line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(val => val.replace(/^"|"$/g, '').trim()));
+                const lines = csvText.split('\n').map(line => line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
                 
                 activeMatches = [];
                 for(let i=1; i<lines.length; i++) {
-                    if(lines[i][0] && lines[i][0] === phone) {
+                    if(!lines[i][0]) continue;
+                    
+                    const cellPhone = cleanStringValue(lines[i][0]).replace(/\D/g, "");
+                    
+                    if(cellPhone === cleanPhoneInput && cellPhone !== "") {
                         activeMatches.push({
-                            phone: lines[i][0],
-                            name: lines[i][1] || "Valued Customer",
-                            monthlyAmount: lines[i][2] || "0",
-                            customerId: lines[i][3] || "Not Allocated",
-                            kittyNumber: lines[i][4] || "Unassigned",
-                            otherDetails: lines[i][5] || "None"
+                            phone: cellPhone,
+                            name: cleanStringValue(lines[i][1]) || "Valued Customer",
+                            monthlyAmount: cleanStringValue(lines[i][2]) || "0",
+                            customerId: cleanStringValue(lines[i][3]) || "Not Allocated",
+                            kittyNumber: cleanStringValue(lines[i][4]) || "Unassigned",
+                            otherDetails: cleanStringValue(lines[i][5]) || "None"
                         });
                     }
                 }
@@ -400,7 +408,7 @@
                 }
 
                 if(activeMatches.length === 1) {
-                    executePassbookRender(phone, activeMatches[0].kittyNumber);
+                    executePassbookRender(cleanPhoneInput, activeMatches[0].kittyNumber);
                 } else {
                     holdsMultiProfiles = true;
                     const wrapper = document.getElementById('multiKittyWrapper');
@@ -421,6 +429,7 @@
         }
 
         function executePassbookRender(phone, kittyNumber) {
+            // Target elements precisely matching string parameters inside lookups
             const profile = activeMatches.find(m => m.kittyNumber === kittyNumber);
             if(!profile) return alert("Profile mismatch error.");
 
@@ -428,7 +437,7 @@
             globalKittyNumber = profile.kittyNumber;
             globalMonthlyAmount = Number(profile.monthlyAmount) || 0;
 
-            // Explicitly syncs custom structural definitions inside layout matrices instantly to resolve image_de03a9.png bugs
+            // Direct UI assignment block targeting the actual DOM nodes to fix the sync bug completely
             document.getElementById('custName').innerText = profile.name;
             document.getElementById('custPhone').innerText = "+91 " + profile.phone;
             document.getElementById('custAmount').innerText = "₹" + globalMonthlyAmount;
@@ -438,34 +447,36 @@
             
             document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(profile.customerId || '')}.`;
 
-            // Pull transaction grids via ultra-fast public layer skips screenshot delay crashes entirely
             const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions`;
             
             fetch(txCsvUrl)
             .then(r => r.text())
             .then(csvText => {
-                const lines = csvText.split('\n').map(line => line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(val => val.replace(/^"|"$/g, '').trim()));
+                const lines = csvText.split('\n').map(line => line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
                 
                 let paidMonthsCount = 0;
                 let calculatedGoldGramsSum = 0;
                 
                 const userTransactions = [];
                 for(let j=1; j<lines.length; j++) {
-                    const txPhone = lines[j][0] ? lines[j][0].toString().trim() : "";
-                    const txKitty = lines[j][7] ? lines[j][7].toString().trim() : "";
+                    if(!lines[j][0]) continue;
+                    
+                    const txPhone = cleanStringValue(lines[j][0]).replace(/\D/g, "");
+                    const txKitty = cleanStringValue(lines[j][7]);
                     
                     if(txPhone === phone && txKitty === kittyNumber) {
-                        const status = lines[j][5] || "Pending";
-                        const bookedGrams = Number(lines[j][9]) || 0;
+                        const currentMonthNum = cleanStringValue(lines[j][1]);
+                        const status = cleanStringValue(lines[j][5]) || "Pending";
+                        const bookedGrams = Number(cleanStringValue(lines[j][9])) || 0;
                         
                         userTransactions.push({
-                            month: lines[j][1],
+                            month: currentMonthNum,
                             status: status,
                             bookedGrams: bookedGrams
                         });
 
                         if (status === "Paid") {
-                            if (Number(lines[j][1]) <= config.schemeMonths) {
+                            if (Number(currentMonthNum) <= config.schemeMonths) {
                                 paidMonthsCount++;
                             }
                             calculatedGoldGramsSum += bookedGrams;
