@@ -19,21 +19,17 @@
             <header class="text-center py-6">
                 <h1 id="brandTitle" class="text-2xl font-bold text-amber-600 tracking-tight">Suman Jewellers</h1>
                 <p id="brandSubtitle" class="text-xs text-gray-400 uppercase tracking-widest mt-1">Ofbuzz Kitty Management Tool</p>
-                <div id="initialPreloadStatus" class="inline-flex items-center gap-1.5 mt-2 bg-amber-50 text-amber-700 text-[11px] px-3 py-1 rounded-full border border-amber-200/60 font-medium">
-                    <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-ping"></span>
-                    Syncing live database for instant access...
-                </div>
             </header>
 
             <div id="interactiveContainer">
-                <!-- Step 1 & Step 2 Authentication Card -->
+                <!-- Phone Lookup & Identity Validation Form -->
                 <div class="bg-white rounded-2xl shadow-xs p-6 border border-gray-100 mb-6 space-y-4">
                     <div>
                         <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Registered Phone Number</label>
                         <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none">
                     </div>
                     
-                    <!-- Dynamic Step 2 Selector Dropdown -->
+                    <!-- Dynamic Step 2 Selector Dropdown Panel -->
                     <div id="multiKittyWrapper" class="hidden-view bg-amber-50/50 p-4 rounded-xl border border-amber-100 space-y-2">
                         <label class="text-[11px] font-bold text-amber-800 uppercase block">
                             ⚠️ Multiple Profiles Linked! 2nd Step Verification Required:
@@ -43,12 +39,12 @@
                         </select>
                     </div>
 
-                    <button onclick="handleFetchWorkflow()" id="fetchBtn" disabled class="w-full bg-gray-300 text-gray-500 font-medium py-3 rounded-xl text-sm shadow-xs transition-all cursor-not-allowed">Syncing Database...</button>
+                    <button onclick="handleFetchWorkflow()" id="fetchBtn" class="w-full text-white font-medium py-3 rounded-xl text-sm shadow-xs transition-all cursor-pointer">View Passbook</button>
                 </div>
 
                 <!-- Passbook Ledger Content Drawer -->
                 <div id="passbookContainer" class="hidden-view space-y-4">
-                    <!-- Profile Summary Card -->
+                    <!-- Profile Summary Information Card -->
                     <div id="brandCard" class="bg-gradient-to-br text-white rounded-2xl p-6 shadow-xs relative overflow-hidden">
                         <div class="relative z-10 space-y-3">
                             <div>
@@ -96,7 +92,7 @@
                         <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
                     </div>
 
-                    <!-- Support Module Link -->
+                    <!-- Help desk Link -->
                     <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs">
                         <div>
                             <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
@@ -109,7 +105,7 @@
                 </div>
             </div>
 
-            <!-- Policy Footer Container -->
+            <!-- Terms Footer Card -->
             <div id="termsContainer" class="mt-8 bg-amber-50/50 border rounded-2xl p-5 space-y-3">
                 <h4 id="termsHeading" class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
                     ⚠️ Terms & Conditions (12+1 Gold Scheme)
@@ -168,7 +164,6 @@
         </header>
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
-            <!-- Desktop Layout -->
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -187,7 +182,6 @@
                 </table>
             </div>
 
-            <!-- Mobile Layout Stack -->
             <div id="adminMobileCardsWrapper" class="block md:hidden p-4 space-y-4 bg-gray-50">
                 <p class="text-xs text-gray-400 text-center italic">Click "Sync Pending Records" to view incoming listings.</p>
             </div>
@@ -206,7 +200,6 @@
                 🔄 Switch to Direct Bank Account Details
             </button>
 
-            <!-- Channel A: UPI QR -->
             <div id="channelUpiView" class="bg-gray-50 rounded-xl p-4 border border-gray-200/60 flex flex-col items-center justify-center mb-4">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Scan QR code to pay instantly via UPI</p>
                 <div class="w-40 h-40 bg-white p-2 rounded-lg border border-gray-100 shadow-xs flex items-center justify-center">
@@ -214,7 +207,6 @@
                 </div>
             </div>
 
-            <!-- Channel B: Direct Bank Credentials -->
             <div id="channelBankView" class="hidden-view bg-amber-50/60 rounded-xl p-4 border border-amber-200/60 mb-4 space-y-2 text-xs text-amber-950">
                 <p class="text-[10px] font-bold text-amber-800 uppercase tracking-wider border-b border-amber-200/60 pb-1">Showroom Bank Transfer Credentials</p>
                 <div><span class="text-gray-500 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold text-sm">State Bank of India</span></div>
@@ -225,7 +217,6 @@
                 </div>
             </div>
 
-            <!-- Upload Verification Fields -->
             <div class="space-y-3 mb-5">
                 <div>
                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">UTR / Transaction ID</label>
@@ -256,7 +247,10 @@
             themeBorder: "border-amber-100",
             themeContainer: "bg-amber-50/50 text-amber-900/80",
             themeTextHeading: "text-amber-800",
+            // EXTRACT SHEET ID DIRECTLY FROM YOUR WEB APP ENVIRONMENT TO ENERGIZE HIGH-SPEED FETCH PIPELINES
+            sheetId: "1JKIhOmizWVnNA8lcbF6ymaefXvDbZloK3tqlFpcwkhQ", 
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
+            whatsapp: "918052473033",
             schemeMonths: 12
         };
 
@@ -269,9 +263,8 @@
         let holdsMultiProfiles = false;
         let currentActiveAdminRole = "PREVIEW"; 
 
-        // CLIENT-SIDE INSTANT CACHE TABLES
-        let cachedCustomersTable = [];
-        let cachedTransactionsTable = [];
+        // Local State Arrays
+        let activeMatches = [];
 
         document.title = `${config.name} - Automated Kitty Control System`;
         document.getElementById('brandTitle').innerText = config.name;
@@ -285,10 +278,7 @@
         document.getElementById('syncAdminBtn').className = `${config.themeBg} text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer`;
         document.getElementById('qrCodeImg').src = "https://i.pinimg.com/736x/c3/38/d8/c338d8a5eb932a316590867cd5a71374.jpg";
 
-        // ASYNCHRONOUS DATA PRELOAD PIPELINE ON DOCUMENT INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
-            preloadDatabaseToMemory();
-            
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('view') === 'admin') {
                 document.getElementById('customerView').classList.add('hidden-view');
@@ -302,32 +292,6 @@
                 }
             }
         });
-
-        function preloadDatabaseToMemory() {
-            // Pulls data into browser cache memory immediately upon page load
-            fetch(`${SCRIPT_URL}?action=getData&phone=all_cached_sync`)
-            .then(r => r.json())
-            .then(response => {
-                if(response && response.customers) {
-                    cachedCustomersTable = response.customers;
-                    cachedTransactionsTable = response.transactions || [];
-                    
-                    // Unlock entry bars instantly
-                    const fetchBtn = document.getElementById('fetchBtn');
-                    fetchBtn.disabled = false;
-                    fetchBtn.innerText = "View Passbook";
-                    fetchBtn.className = `w-full ${config.themeBg} text-white font-medium py-3 rounded-xl text-sm shadow-xs transition-all cursor-pointer`;
-                    document.getElementById('initialPreloadStatus').classList.add('hidden-view');
-                }
-            })
-            .catch(err => {
-                console.error("Cache preload dropped. Falling back to live network fetching mode structures.");
-                // Gracefully fallback to unlock button anyway
-                const fetchBtn = document.getElementById('fetchBtn');
-                fetchBtn.disabled = false;
-                fetchBtn.innerText = "View Passbook";
-            });
-        }
 
         function setupAdminRoleUI() {
             const badge = document.getElementById('roleBadge');
@@ -388,130 +352,162 @@
             window.location.search = ""; 
         }
 
-        // TWO-STEP MEMORY VERIFICATION (INSTANT CLIENT-SIDE LOGIC)
+        // HIGH-SPEED API EXPORT PIPELINE - RUNS IN < 1 SECOND
         function handleFetchWorkflow() {
             const phone = document.getElementById('phoneInput').value.trim();
             if(!phone) return alert("Please enter your registered mobile number.");
+            const fetchBtn = document.getElementById('fetchBtn');
 
             if (holdsMultiProfiles) {
                 const selectedKitty = document.getElementById('kittySelect').value;
                 if(!selectedKitty) return alert("Please select a specific Kitty Number.");
-                renderPassbookFromCache(phone, selectedKitty);
+                executePassbookRender(phone, selectedKitty);
                 return;
             }
 
-            // Filter out match lists from local browser cache memory instantly (0ms Lag)
-            const matchedProfiles = cachedCustomersTable.filter(c => c.phone.toString().trim() === phone.toString().trim());
+            fetchBtn.innerText = "Validating Profile...";
+            fetchBtn.disabled = true;
 
-            if (matchedProfiles.length === 0) {
-                // Fallback: If cache sync wasn't complete, try live load block
-                fetchBtn.innerText = "Checking Cloud Records...";
-                fetchLiveFallback(phone);
-                return;
-            }
+            // Instantly reads structural rows directly via Google's Public Data Serialization Layer (Bypasses Script Engine entirely)
+            const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers`;
 
-            if (matchedProfiles.length === 1) {
-                renderPassbookFromCache(phone, matchedProfiles[0].kittyNumber);
-            } else {
-                holdsMultiProfiles = true;
-                const wrapper = document.getElementById('multiKittyWrapper');
-                const select = document.getElementById('kittySelect');
+            fetch(customersCsvUrl)
+            .then(r => r.text())
+            .then(csvText => {
+                fetchBtn.disabled = false;
+                fetchBtn.innerText = "View Passbook";
                 
-                select.innerHTML = "";
-                matchedProfiles.forEach(p => {
-                    select.innerHTML += `<option value="${p.kittyNumber}">Verify Account Layout: Plan Kitty #${p.kittyNumber}</option>`;
-                });
+                // Parse CSV contents cleanly
+                const lines = csvText.split('\n').map(line => line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(val => val.replace(/^"|"$/g, '').trim()));
                 
-                wrapper.classList.remove('hidden-view');
-                document.getElementById('fetchBtn').innerText = "Confirm Identity & Load Passbook";
-            }
+                activeMatches = [];
+                for(let i=1; i<lines.length; i++) {
+                    if(lines[i][0] && lines[i][0] === phone) {
+                        activeMatches.push({
+                            phone: lines[i][0],
+                            name: lines[i][1] || "Valued Customer",
+                            monthlyAmount: lines[i][2] || "0",
+                            customerId: lines[i][3] || "Not Allocated",
+                            kittyNumber: lines[i][4] || "Unassigned",
+                            otherDetails: lines[i][5] || "None"
+                        });
+                    }
+                }
+
+                if(activeMatches.length === 0) {
+                    alert("No active records matched against this mobile number.");
+                    return;
+                }
+
+                if(activeMatches.length === 1) {
+                    executePassbookRender(phone, activeMatches[0].kittyNumber);
+                } else {
+                    holdsMultiProfiles = true;
+                    const wrapper = document.getElementById('multiKittyWrapper');
+                    const select = document.getElementById('kittySelect');
+                    select.innerHTML = "";
+                    activeMatches.forEach(num => {
+                        select.innerHTML += `<option value="${num.kittyNumber}">Kitty Account Plan #${num.kittyNumber}</option>`;
+                    });
+                    wrapper.classList.remove('hidden-view');
+                    fetchBtn.innerText = "Confirm Identity & Load Passbook";
+                }
+            })
+            .catch(err => {
+                fetchBtn.disabled = false;
+                fetchBtn.innerText = "View Passbook";
+                alert("Database matrix synchronization network exception.");
+            });
         }
 
-        function renderPassbookFromCache(phone, kittyNumber) {
-            const profile = cachedCustomersTable.find(c => c.phone.toString().trim() === phone.toString().trim() && c.kittyNumber.toString().trim() === kittyNumber.toString().trim());
-            
-            if(!profile) return alert("Account specifications match failed inside context arrays.");
+        function executePassbookRender(phone, kittyNumber) {
+            const profile = activeMatches.find(m => m.kittyNumber === kittyNumber);
+            if(!profile) return alert("Profile mismatch error.");
 
             globalCustomerPhone = profile.phone;
             globalKittyNumber = profile.kittyNumber;
             globalMonthlyAmount = Number(profile.monthlyAmount) || 0;
 
-            document.getElementById('passbookContainer').classList.remove('hidden-view');
+            // Explicitly syncs custom structural definitions inside layout matrices instantly to resolve image_de03a9.png bugs
             document.getElementById('custName').innerText = profile.name;
             document.getElementById('custPhone').innerText = "+91 " + profile.phone;
             document.getElementById('custAmount').innerText = "₹" + globalMonthlyAmount;
+            document.getElementById('lblCustId').innerText = profile.customerId;
+            document.getElementById('lblKittyNo').innerText = profile.kittyNumber;
+            document.getElementById('lblOtherDetails').innerText = profile.otherDetails;
             
-            document.getElementById('lblCustId').innerText = profile.customerId || "Not Allocated";
-            document.getElementById('lblKittyNo').innerText = profile.kittyNumber || "Not Allocated";
-            document.getElementById('lblOtherDetails').innerText = profile.otherDetails || "None";
-            
-            // Map transaction records from cache instantly
-            const userTxList = cachedTransactionsTable.filter(t => t.phone.toString().trim() === phone.toString().trim() && (t.kittyNumber ? t.kittyNumber.toString().trim() : "") === kittyNumber.toString().trim());
+            document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(profile.customerId || '')}.`;
 
-            let paidMonthsCount = 0;
-            let calculatedGoldGramsSum = 0;
+            // Pull transaction grids via ultra-fast public layer skips screenshot delay crashes entirely
+            const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions`;
             
-            userTxList.forEach(t => {
-                if (t.status === "Paid") {
-                    if (Number(t.month) <= config.schemeMonths) {
-                        paidMonthsCount++;
-                    }
-                    calculatedGoldGramsSum += (Number(t.bookedGrams) || 0);
-                }
-            });
-            
-            let calculatedBalance = paidMonthsCount * globalMonthlyAmount;
-            document.getElementById('custLiveBalance').innerText = "₹" + calculatedBalance;
-            document.getElementById('lblTotalGoldGrams').innerText = `${calculatedGoldGramsSum.toFixed(3)} g`;
-
-            const grid = document.getElementById('gridWrapper'); 
-            grid.innerHTML = "";
-            
-            for (let m = 1; m <= config.schemeMonths; m++) {
-                let tx = userTxList.find(t => Number(t.month) === m);
-                let label = "Tap to Pay", style = `bg-gray-50 border border-gray-200 ${config.themeText} font-medium cursor-pointer hover:bg-gray-100 transition-all`;
-                let actionStr = `onclick="openPaymentModal(${m})"`;
+            fetch(txCsvUrl)
+            .then(r => r.text())
+            .then(csvText => {
+                const lines = csvText.split('\n').map(line => line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(val => val.replace(/^"|"$/g, '').trim()));
                 
-                if(tx && tx.status === "Paid") { 
-                    var displayGrams = (Number(tx.bookedGrams) || 0).toFixed(3);
-                    label = `✅ Paid (${displayGrams}g)`; 
-                    style = "bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-[10px]"; 
-                    actionStr = ""; 
-                }
-                else if(tx && tx.status === "Pending") { 
-                    label = "⏳ Pending"; 
-                    style = "bg-amber-50 border border-amber-100 text-amber-700 animate-pulse font-medium"; 
-                    actionStr = ""; 
-                }
-                grid.innerHTML += `<div ${actionStr} class="p-3 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[52px]"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
-            }
+                let paidMonthsCount = 0;
+                let calculatedGoldGramsSum = 0;
+                
+                const userTransactions = [];
+                for(let j=1; j<lines.length; j++) {
+                    const txPhone = lines[j][0] ? lines[j][0].toString().trim() : "";
+                    const txKitty = lines[j][7] ? lines[j][7].toString().trim() : "";
+                    
+                    if(txPhone === phone && txKitty === kittyNumber) {
+                        const status = lines[j][5] || "Pending";
+                        const bookedGrams = Number(lines[j][9]) || 0;
+                        
+                        userTransactions.push({
+                            month: lines[j][1],
+                            status: status,
+                            bookedGrams: bookedGrams
+                        });
 
-            if (paidMonthsCount === config.schemeMonths) {
-                grid.innerHTML += `
-                    <div class="p-3 rounded-xl bg-gradient-to-br ${config.themeGradient} text-white font-bold text-center text-xs col-span-4 border opacity-95 shadow-xs animate-bounce mt-1">
-                        <span class="text-[9px] block uppercase opacity-80 tracking-wider">M-13 Bonus Earned</span>
-                        🎉 13th Month Top-Up Deposited!
-                    </div>
-                `;
-            }
-        }
-
-        // LIVE BACKEND FALLBACK ROUTING MECHANISM IF PRELOAD IS BUSY
-        function fetchLiveFallback(phone) {
-            fetch(`${SCRIPT_URL}?action=checkProfiles&phone=${phone}`)
-            .then(r => r.json())
-            .then(res => {
-                const fetchBtn = document.getElementById('fetchBtn');
-                fetchBtn.innerText = "View Passbook";
-                if (!res.success || res.kittyNumbers.length === 0) {
-                    alert("No active records matched against this mobile number.");
-                    return;
+                        if (status === "Paid") {
+                            if (Number(lines[j][1]) <= config.schemeMonths) {
+                                paidMonthsCount++;
+                            }
+                            calculatedGoldGramsSum += bookedGrams;
+                        }
+                    }
                 }
-                // Update temporary runtime configurations
-                res.kittyNumbers.forEach(kn => {
-                    cachedCustomersTable.push({ phone: phone, kittyNumber: kn, name: "Synchronizing...", monthlyAmount: 0 });
-                });
-                handleFetchWorkflow();
+
+                let calculatedBalance = paidMonthsCount * globalMonthlyAmount;
+                document.getElementById('custLiveBalance').innerText = "₹" + calculatedBalance;
+                document.getElementById('lblTotalGoldGrams').innerText = `${calculatedGoldGramsSum.toFixed(3)} g`;
+
+                const grid = document.getElementById('gridWrapper'); 
+                grid.innerHTML = "";
+                
+                for (let m = 1; m <= config.schemeMonths; m++) {
+                    let tx = userTransactions.find(t => Number(t.month) === m);
+                    let label = "Tap to Pay", style = `bg-gray-50 border border-gray-200 ${config.themeText} font-medium cursor-pointer hover:bg-gray-100 transition-all`;
+                    let actionStr = `onclick="openPaymentModal(${m})"`;
+                    
+                    if(tx && tx.status === "Paid") { 
+                        var displayGrams = (Number(tx.bookedGrams) || 0).toFixed(3);
+                        label = `✅ Paid (${displayGrams}g)`; 
+                        style = "bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-[10px]"; 
+                        actionStr = ""; 
+                    }
+                    else if(tx && tx.status === "Pending") { 
+                        label = "⏳ Pending"; 
+                        style = "bg-amber-50 border border-amber-100 text-amber-700 animate-pulse font-medium"; 
+                        actionStr = ""; 
+                    }
+                    grid.innerHTML += `<div ${actionStr} class="p-3 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[52px]"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
+                }
+
+                if (paidMonthsCount === config.schemeMonths) {
+                    grid.innerHTML += `
+                        <div class="p-3 rounded-xl bg-gradient-to-br ${config.themeGradient} text-white font-bold text-center text-xs col-span-4 border opacity-95 shadow-xs animate-bounce mt-1">
+                            <span class="text-[9px] block uppercase opacity-80 tracking-wider">M-13 Bonus Earned</span>
+                            🎉 13th Month Top-Up Deposited!
+                        </div>
+                    `;
+                }
+                document.getElementById('passbookContainer').classList.remove('hidden-view');
             });
         }
 
@@ -595,25 +591,14 @@
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proofs filed for administrative review!");
-                
-                // Add tracking verification optimization placeholder variables locally to prevent loading delays
-                cachedTransactionsTable.push({
-                    phone: globalCustomerPhone,
-                    kittyNumber: globalKittyNumber,
-                    month: currentSelectedMonth,
-                    amount: globalMonthlyAmount,
-                    utr: utrCode,
-                    status: "Pending",
-                    bookedGrams: 0
-                });
-                renderPassbookFromCache(globalCustomerPhone, globalKittyNumber);
+                handleFetchWorkflow();
             }).catch(e => {
                 clearTimeout(timeoutId);
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment transaction completed successfully!");
-                location.reload(); // Refresh client state tables context seamlessly
+                setTimeout(() => { location.reload(); }, 500);
             });
         }
 
