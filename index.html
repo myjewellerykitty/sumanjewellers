@@ -227,7 +227,7 @@
         </div>
     </div>
 
-    <!-- MAIN ENGINE CONTROLLER -->
+    <!-- MAIN CONTROL CORE PLAIN TEXT SCRIPT ENGINE -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -633,10 +633,6 @@
             }
         }
 
-        function generateMultipartBoundary() {
-            return "---OfbuzzBoundary" + Math.random().toString(16).substring(2);
-        }
-
         function executePostSubmission(utrCode, embeddedBase64Str) {
             const submitPayBtn = document.getElementById('submitPayBtn');
             submitPayBtn.innerText = "Updating Ledger Row...";
@@ -651,22 +647,19 @@
                 screenshotUrl: embeddedBase64Str
             };
 
-            const boundary = generateMultipartBoundary();
-            let bodyBuffer = [];
-            
-            for (let key in payload) {
-                bodyBuffer.push(`--${boundary}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${payload[key]}\r\n`);
-            }
-            bodyBuffer.push(`--${boundary}--`);
-            const multipartBody = bodyBuffer.join("");
-
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 25000);
 
+            // SAFE TEXT/PLAIN QUERY PARAMS PIPELINE: Completely clean characters bypass all GitHub and CORS filters
+            const params = new URLSearchParams();
+            for (const key in payload) {
+                params.append(key, payload[key]);
+            }
+
             fetch(SCRIPT_URL, {
                 method: "POST",
-                headers: { "Content-Type": "multipart/form-data; boundary=" + boundary },
-                body: multipartBody,
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString(),
                 signal: controller.signal
             })
             .then(r => r.json())
@@ -815,19 +808,15 @@
             if(mobileEl) mobileEl.style.opacity = "0.4";
 
             const payload = { action: "approve", row: rowId, rateUsed: goldRate10g, gramsBooked: allocatedGrams };
-            const boundary = generateMultipartBoundary();
-            let bodyBuffer = [];
-            
-            for (let key in payload) {
-                bodyBuffer.push(`--${boundary}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${payload[key]}\r\n`);
+            const params = new URLSearchParams();
+            for (const key in payload) {
+                params.append(key, payload[key]);
             }
-            bodyBuffer.push(`--${boundary}--`);
-            const multipartBody = bodyBuffer.join("");
 
             fetch(SCRIPT_URL, {
                 method: "POST",
-                headers: { "Content-Type": "multipart/form-data; boundary=" + boundary },
-                body: multipartBody
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
             })
             .then(r => r.json())
             .then(success => {
