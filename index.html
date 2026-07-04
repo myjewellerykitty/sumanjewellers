@@ -227,7 +227,7 @@
         </div>
     </div>
 
-    <!-- MAIN CONTROL CORE PLAIN TEXT SCRIPT ENGINE -->
+    <!-- CORE ENGINE CONTROLLER -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -650,7 +650,6 @@
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 25000);
 
-            // SAFE TEXT/PLAIN QUERY PARAMS PIPELINE: Completely clean characters bypass all GitHub and CORS filters
             const params = new URLSearchParams();
             for (const key in payload) {
                 params.append(key, payload[key]);
