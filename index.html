@@ -11,9 +11,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
 
-    <!-- ==========================================
-         CUSTOMER PORTAL INTERFACE VIEW
-         ========================================== -->
+    <!-- CUSTOMER PORTAL INTERFACE VIEW -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
             <header class="text-center py-6">
@@ -92,7 +90,7 @@
                         <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
                     </div>
 
-                    <!-- Support Module Link -->
+                    <!-- Help desk Link -->
                     <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs">
                         <div>
                             <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
@@ -229,7 +227,7 @@
         </div>
     </div>
 
-    <!-- MAIN CONTROLLER ENGINE -->
+    <!-- MAIN ENGINE CONTROLLER -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -501,55 +499,80 @@
                 
                 document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(data.profile.customerId || '')}.`;
 
-                let paidMonthsCount = 0;
-                let calculatedGoldGramsSum = 0;
+                const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/export?format=csv&sheet=Transactions`;
                 
-                if (data.transactions) {
-                    data.transactions.forEach(t => {
-                        if (t.status === "Paid") {
-                            if (Number(t.month) <= config.schemeMonths) {
-                                paidMonthsCount++;
-                            }
-                            calculatedGoldGramsSum += (Number(t.bookedGrams) || 0);
-                        }
-                    });
-                }
-                
-                let calculatedBalance = paidMonthsCount * globalMonthlyAmount;
-                document.getElementById('custLiveBalance').innerText = "₹" + calculatedBalance;
-                document.getElementById('lblTotalGoldGrams').innerText = `${calculatedGoldGramsSum.toFixed(3)} g`;
-
-                const grid = document.getElementById('gridWrapper'); 
-                grid.innerHTML = "";
-                
-                for (let m = 1; m <= config.schemeMonths; m++) {
-                    let tx = data.transactions ? data.transactions.find(t => Number(t.month) === m) : null;
-                    let label = "Tap to Pay", style = `bg-gray-50 border border-gray-200 ${config.themeText} font-medium cursor-pointer hover:bg-gray-100 transition-all`;
-                    let actionStr = `onclick="openPaymentModal(${m})"`;
+                fetch(txCsvUrl)
+                .then(resCsv => resCsv.text())
+                .then(csvText => {
+                    const rawLines = csvText.split('\n');
+                    let paidMonthsCount = 0;
+                    let calculatedGoldGramsSum = 0;
                     
-                    if(tx && tx.status === "Paid") { 
-                        var displayGrams = (Number(tx.bookedGrams) || 0).toFixed(3);
-                        label = `✅ Paid (${displayGrams}g)`; 
-                        style = "bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-[10px]"; 
-                        actionStr = ""; 
-                    }
-                    else if(tx && tx.status === "Pending") { 
-                        label = "⏳ Pending"; 
-                        style = "bg-amber-50 border border-amber-100 text-amber-700 animate-pulse font-medium"; 
-                        actionStr = ""; 
-                    }
-                    grid.innerHTML += `<div ${actionStr} class="p-3 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[52px]"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
-                }
+                    const userTransactions = [];
+                    for(let j = 1; j < rawLines.length; j++) {
+                        if(!rawLines[j]) continue;
+                        let cols = parseCleanCsvLine(rawLines[j]);
+                        if(!cols[0]) continue;
+                        
+                        const txPhone = cleanStringValue(cols[0]).replace(/\D/g, "");
+                        const txKitty = cleanStringValue(cols[7]);
+                        
+                        if(txPhone === phone && txKitty === kittyNumber) {
+                            const currentMonthNum = cleanStringValue(cols[1]);
+                            const status = cleanStringValue(cols[5]);
+                            const bookedGrams = Number(cleanStringValue(cols[9])) || 0;
+                            
+                            userTransactions.push({
+                                month: currentMonthNum,
+                                status: status,
+                                bookedGrams: bookedGrams
+                            });
 
-                if (paidMonthsCount === config.schemeMonths) {
-                    grid.innerHTML += `
-                        <div class="p-3 rounded-xl bg-gradient-to-br ${config.themeGradient} text-white font-bold text-center text-xs col-span-4 border opacity-95 shadow-xs animate-bounce mt-1">
-                            <span class="text-[9px] block uppercase opacity-80 tracking-wider">M-13 Bonus Earned</span>
-                            🎉 13th Month Top-Up Deposited!
-                        </div>
-                    `;
-                }
-                document.getElementById('passbookContainer').classList.remove('hidden-view');
+                            if (status === "Paid") {
+                                if (Number(currentMonthNum) <= config.schemeMonths) {
+                                    paidMonthsCount++;
+                                }
+                                calculatedGoldGramsSum += bookedGrams;
+                            }
+                        }
+                    }
+
+                    let calculatedBalance = paidMonthsCount * globalMonthlyAmount;
+                    document.getElementById('custLiveBalance').innerText = "₹" + calculatedBalance;
+                    document.getElementById('lblTotalGoldGrams').innerText = `${calculatedGoldGramsSum.toFixed(3)} g`;
+
+                    const grid = document.getElementById('gridWrapper'); 
+                    grid.innerHTML = "";
+                    
+                    for (let m = 1; m <= config.schemeMonths; m++) {
+                        let tx = userTransactions.find(t => Number(t.month) === m);
+                        let label = "Tap to Pay", style = `bg-gray-50 border border-gray-200 ${config.themeText} font-medium cursor-pointer hover:bg-gray-100 transition-all`;
+                        let actionStr = `onclick="openPaymentModal(${m})"`;
+                        
+                        if(tx && tx.status === "Paid") { 
+                            var displayGrams = (Number(tx.bookedGrams) || 0).toFixed(3);
+                            label = `✅ Paid (${displayGrams}g)`; 
+                            style = "bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-[10px]"; 
+                            actionStr = ""; 
+                        }
+                        else if(tx && tx.status === "Pending") { 
+                            label = "⏳ Pending"; 
+                            style = "bg-amber-50 border border-amber-100 text-amber-700 animate-pulse font-medium"; 
+                            actionStr = ""; 
+                        }
+                        grid.innerHTML += `<div ${actionStr} class="p-3 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[52px]"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
+                    }
+
+                    if (paidMonthsCount === config.schemeMonths) {
+                        grid.innerHTML += `
+                            <div class="p-3 rounded-xl bg-gradient-to-br ${config.themeGradient} text-white font-bold text-center text-xs col-span-4 border opacity-95 shadow-xs animate-bounce mt-1">
+                                <span class="text-[9px] block uppercase opacity-80 tracking-wider">M-13 Bonus Earned</span>
+                                🎉 13th Month Top-Up Deposited!
+                            </div>
+                        `;
+                    }
+                    document.getElementById('passbookContainer').classList.remove('hidden-view');
+                });
             })
             .catch(err => {
                 fetchBtn.innerText = "View Passbook";
@@ -640,7 +663,6 @@
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 25000);
 
-            // EMULATED MULTIPART METHOD: Directly avoids preflight errors and forces clean row additions
             fetch(SCRIPT_URL, {
                 method: "POST",
                 headers: { "Content-Type": "multipart/form-data; boundary=" + boundary },
