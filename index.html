@@ -11,7 +11,9 @@
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
 
-    <!-- CUSTOMER PORTAL INTERFACE VIEW -->
+    <!-- ==========================================
+         CUSTOMER PORTAL INTERFACE VIEW
+         ========================================== -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
             <header class="text-center py-6">
@@ -90,7 +92,7 @@
                         <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
                     </div>
 
-                    <!-- Help desk Link -->
+                    <!-- Support Module Link -->
                     <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs">
                         <div>
                             <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
@@ -227,7 +229,7 @@
         </div>
     </div>
 
-    <!-- MAIN ENGINE -->
+    <!-- MAIN CONTROLLER ENGINE -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -466,7 +468,6 @@
                 });
                 wrapper.classList.remove('hidden-view');
                 
-                // UNLOCKED: In pichle configurations, these two specific lines were disabling the click state
                 fetchBtn.disabled = false; 
                 fetchBtn.innerText = "Confirm Identity & Load Passbook";
             }
@@ -609,9 +610,14 @@
             }
         }
 
+        function generateMultipartBoundary() {
+            return "---OfbuzzBoundary" + Math.random().toString(16).substring(2);
+        }
+
         function executePostSubmission(utrCode, embeddedBase64Str) {
             const submitPayBtn = document.getElementById('submitPayBtn');
             submitPayBtn.innerText = "Updating Ledger Row...";
+            
             const payload = {
                 action: "submit",
                 id: globalCustomerPhone,
@@ -622,19 +628,23 @@
                 screenshotUrl: embeddedBase64Str
             };
 
+            const boundary = generateMultipartBoundary();
+            let bodyBuffer = [];
+            
+            for (let key in payload) {
+                bodyBuffer.push(`--${boundary}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${payload[key]}\r\n`);
+            }
+            bodyBuffer.push(`--${boundary}--`);
+            const multipartBody = bodyBuffer.join("");
+
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 25000);
 
-            var formBody = [];
-            for (var property in payload) {
-                formBody.push(encodeURIComponent(property) + "=" + encodeURIComponent(payload[property]));
-            }
-            formBody = formBody.join("&");
-
+            // EMULATED MULTIPART METHOD: Directly avoids preflight errors and forces clean row additions
             fetch(SCRIPT_URL, {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-                body: formBody,
+                headers: { "Content-Type": "multipart/form-data; boundary=" + boundary },
+                body: multipartBody,
                 signal: controller.signal
             })
             .then(r => r.json())
@@ -782,17 +792,20 @@
             if(desktopEl) desktopEl.style.opacity = "0.4";
             if(mobileEl) mobileEl.style.opacity = "0.4";
 
-            var formBody = [];
-            var payload = { action: "approve", row: rowId, rateUsed: goldRate10g, gramsBooked: allocatedGrams };
-            for (var property in payload) {
-                formBody.push(encodeURIComponent(property) + "=" + encodeURIComponent(payload[property]));
+            const payload = { action: "approve", row: rowId, rateUsed: goldRate10g, gramsBooked: allocatedGrams };
+            const boundary = generateMultipartBoundary();
+            let bodyBuffer = [];
+            
+            for (let key in payload) {
+                bodyBuffer.push(`--${boundary}\r\nContent-Disposition: form-data; name="${key}"\r\n\r\n${payload[key]}\r\n`);
             }
-            formBody = formBody.join("&");
+            bodyBuffer.push(`--${boundary}--`);
+            const multipartBody = bodyBuffer.join("");
 
             fetch(SCRIPT_URL, {
                 method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-                body: formBody
+                headers: { "Content-Type": "multipart/form-data; boundary=" + boundary },
+                body: multipartBody
             })
             .then(r => r.json())
             .then(success => {
