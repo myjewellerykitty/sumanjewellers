@@ -253,6 +253,7 @@
         let holdsMultiProfiles = false;
         let currentActiveAdminRole = "PREVIEW"; 
 
+        let localPendingSubmissions = []; // Keeps track of recent local submissions before Google Sheet syncs
         let activeMatches = [];
 
         document.title = `${config.name} - Automated Kitty Control System`;
@@ -538,6 +539,20 @@
                         }
                     }
 
+                    // Integrate locally pending submissions if Google Sheets CSV hasn't updated yet
+                    localPendingSubmissions.forEach(lp => {
+                        if (lp.phone === phone && lp.kittyNumber === kittyNumber) {
+                            const existing = userTransactions.find(t => Number(t.month) === Number(lp.month));
+                            if (!existing) {
+                                userTransactions.push({
+                                    month: lp.month.toString(),
+                                    status: "Pending",
+                                    bookedGrams: 0
+                                });
+                            }
+                        }
+                    });
+
                     let calculatedBalance = paidMonthsCount * globalMonthlyAmount;
                     document.getElementById('custLiveBalance').innerText = "₹" + calculatedBalance;
                     document.getElementById('lblTotalGoldGrams').innerText = `${calculatedGoldGramsSum.toFixed(3)} g`;
@@ -653,7 +668,13 @@
                 params.append(key, payload[key]);
             }
 
-            // Guaranteed non-preflighted request for Google Apps Script through GitHub Pages
+            // Save to optimistic state cache immediately
+            localPendingSubmissions.push({
+                phone: globalCustomerPhone,
+                kittyNumber: globalKittyNumber,
+                month: currentSelectedMonth
+            });
+
             fetch(SCRIPT_URL, {
                 method: "POST",
                 mode: "no-cors",
@@ -665,14 +686,14 @@
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proofs filed for administrative review!");
-                setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber), 1000);
+                executePassbookRender(globalCustomerPhone, globalKittyNumber);
             })
             .catch(e => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proof transmitted successfully!");
-                setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber), 1000);
+                executePassbookRender(globalCustomerPhone, globalKittyNumber);
             });
         }
 
@@ -818,12 +839,13 @@
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
                 alert("Transaction verified successfully! " + allocatedGrams.toFixed(3) + "g gold booked inside spreadsheet.");
+                setTimeout(loadAdminDashboard, 1500);
             })
             .catch(err => {
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
                 alert("Ledger logs updated successfully!");
-                setTimeout(loadAdminDashboard, 300);
+                setTimeout(loadAdminDashboard, 1500);
             });
         }
     </script>
