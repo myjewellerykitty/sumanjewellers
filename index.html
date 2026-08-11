@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Suman Jewellers - Ofbuzz Kitty Management Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
+        /* Smooth touch scrolling for mobile */
+        .overflow-x-auto { -webkit-overflow-scrolling: touch; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased">
+<body class="bg-gray-50 text-gray-800 antialiased min-h-screen">
 
     <!-- CUSTOMER PORTAL INTERFACE VIEW -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
@@ -21,10 +23,10 @@
 
             <div id="interactiveContainer">
                 <!-- Phone Lookup Card -->
-                <div class="bg-white rounded-2xl shadow-xs p-6 border border-gray-100 mb-6 space-y-4">
+                <div class="bg-white rounded-2xl shadow-xs p-5 sm:p-6 border border-gray-100 mb-6 space-y-4">
                     <div>
                         <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Registered Phone Number</label>
-                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none">
+                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
                     </div>
                     
                     <!-- Dynamic Step 2 Selector Dropdown Panel -->
@@ -37,13 +39,13 @@
                         </select>
                     </div>
 
-                    <button onclick="handleFetchWorkflow()" id="fetchBtn" class="w-full text-white font-medium py-3 rounded-xl text-sm shadow-xs transition-all cursor-pointer">View Passbook</button>
+                    <button onclick="handleFetchWorkflow()" id="fetchBtn" class="w-full text-white font-medium py-3 rounded-xl text-sm shadow-xs transition-all cursor-pointer active:scale-[0.98]">View Passbook</button>
                 </div>
 
                 <!-- Passbook Ledger Content Drawer -->
                 <div id="passbookContainer" class="hidden-view space-y-4">
                     <!-- Profile Summary Card -->
-                    <div id="brandCard" class="bg-gradient-to-br text-white rounded-2xl p-6 shadow-xs relative overflow-hidden">
+                    <div id="brandCard" class="bg-gradient-to-br text-white rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden">
                         <div class="relative z-10 space-y-3">
                             <div>
                                 <h3 id="custName" class="text-lg font-bold">-</h3>
@@ -85,9 +87,9 @@
                     </div>
                     
                     <!-- 12-Month Matrix Grid -->
-                    <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                    <div class="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100">
                         <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Tap an unpaid month to submit payment</p>
-                        <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
+                        <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 sm:gap-3"></div>
                     </div>
 
                     <!-- Help desk Link -->
@@ -96,7 +98,7 @@
                             <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
                             <p class="text-[11px] text-gray-400 mt-0.5">Get instant verification support</p>
                         </div>
-                        <a id="supportLink" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer shadow-xs">
+                        <a id="supportLink" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer shadow-xs active:scale-[0.98]">
                             Contact Support
                         </a>
                     </div>
@@ -136,7 +138,7 @@
                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Security Authentication Key</label>
                     <input type="password" id="adminPass" placeholder="Enter Secure Master Password" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
                 </div>
-                <button onclick="handleAdminLogin()" id="adminLoginBtn" class="w-full text-white font-medium py-2.5 rounded-xl text-sm transition-all cursor-pointer mt-2">Sign In To Dashboard</button>
+                <button onclick="handleAdminLogin()" id="adminLoginBtn" class="w-full text-white font-medium py-2.5 rounded-xl text-sm transition-all cursor-pointer mt-2 active:scale-[0.98]">Sign In To Dashboard</button>
             </div>
         </div>
     </div>
@@ -152,8 +154,8 @@
                 </p>
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
-                <button onclick="loadAdminDashboard()" id="syncAdminBtn" class="flex-1 sm:flex-none text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer text-center">Sync Pending Records</button>
-                <button onclick="logoutAdmin()" class="bg-gray-100 text-gray-600 text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-gray-200 cursor-pointer">Logout</button>
+                <button onclick="loadAdminDashboard()" id="syncAdminBtn" class="flex-1 sm:flex-none text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer text-center active:scale-[0.98]">Sync Pending Records</button>
+                <button onclick="logoutAdmin()" class="bg-gray-100 text-gray-600 text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-gray-200 cursor-pointer active:scale-[0.98]">Logout</button>
             </div>
         </header>
 
@@ -183,18 +185,18 @@
     </div>
 
     <!-- MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL -->
-    <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
+    <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-xl my-auto">
             <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment Proof</h3>
             <p id="modalMonthTarget" class="text-xs font-semibold mb-4 text-amber-600">Month Tracker Allocation</p>
             
-            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-4 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold py-2 rounded-xl transition-all cursor-pointer text-center">
+            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-4 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold py-2.5 rounded-xl transition-all cursor-pointer text-center">
                 🔄 Switch to Direct Bank Account Details
             </button>
 
             <div id="channelUpiView" class="bg-gray-50 rounded-xl p-4 border border-gray-200/60 flex flex-col items-center justify-center mb-4">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Scan QR code to pay instantly via UPI</p>
-                <div class="w-40 h-40 bg-white p-2 rounded-lg border border-gray-100 shadow-xs flex items-center justify-center">
+                <div class="w-36 h-36 sm:w-40 sm:h-40 bg-white p-2 rounded-lg border border-gray-100 shadow-xs flex items-center justify-center">
                     <img id="qrCodeImg" src="" alt="UPI Payment QR Code" class="w-full h-full object-contain">
                 </div>
             </div>
@@ -212,7 +214,7 @@
             <div class="space-y-3 mb-5">
                 <div>
                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">UTR / Transaction ID</label>
-                    <input type="text" id="utrInput" placeholder="Enter 12-digit Bank UTR Code" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
+                    <input type="text" id="utrInput" placeholder="Enter 12-digit Bank UTR Code" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Payment Slip Screenshot</label>
@@ -381,7 +383,7 @@
             fetchBtn.innerText = "Validating Profile...";
             fetchBtn.disabled = true;
 
-            const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/export?format=csv&sheet=Customers`;
+            const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers`;
 
             fetch(customersCsvUrl)
             .then(r => {
@@ -499,7 +501,7 @@
                 
                 document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(data.profile.customerId || '')}.`;
 
-                const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/export?format=csv&sheet=Transactions`;
+                const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions`;
                 
                 fetch(txCsvUrl)
                 .then(resCsv => resCsv.text())
@@ -546,7 +548,7 @@
                     
                     for (let m = 1; m <= config.schemeMonths; m++) {
                         let tx = userTransactions.find(t => Number(t.month) === m);
-                        let label = "Tap to Pay", style = `bg-gray-50 border border-gray-200 ${config.themeText} font-medium cursor-pointer hover:bg-gray-100 transition-all`;
+                        let label = "Tap to Pay", style = `bg-gray-50 border border-gray-200 ${config.themeText} font-medium cursor-pointer hover:bg-gray-100 transition-all active:scale-95`;
                         let actionStr = `onclick="openPaymentModal(${m})"`;
                         
                         if(tx && tx.status === "Paid") { 
@@ -560,12 +562,12 @@
                             style = "bg-amber-50 border border-amber-100 text-amber-700 animate-pulse font-medium"; 
                             actionStr = ""; 
                         }
-                        grid.innerHTML += `<div ${actionStr} class="p-3 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[52px]"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
+                        grid.innerHTML += `<div ${actionStr} class="p-2.5 sm:p-3 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[54px]"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
                     }
 
                     if (paidMonthsCount === config.schemeMonths) {
                         grid.innerHTML += `
-                            <div class="p-3 rounded-xl bg-gradient-to-br ${config.themeGradient} text-white font-bold text-center text-xs col-span-4 border opacity-95 shadow-xs animate-bounce mt-1">
+                            <div class="p-3 rounded-xl bg-gradient-to-br ${config.themeGradient} text-white font-bold text-center text-xs col-span-3 sm:col-span-4 border opacity-95 shadow-xs animate-bounce mt-1">
                                 <span class="text-[9px] block uppercase opacity-80 tracking-wider">M-13 Bonus Earned</span>
                                 🎉 13th Month Top-Up Deposited!
                             </div>
@@ -602,7 +604,7 @@
             const fileBox = document.getElementById('fileInput').files[0];
             if(!utr && !fileBox) return alert("Please specify your transaction tracker key or upload receipt slip.");
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Optimizing Resolution Size...";
+            submitPayBtn.innerText = "Optimizing Resolution...";
             submitPayBtn.disabled = true;
 
             if (fileBox) {
@@ -635,7 +637,7 @@
 
         function executePostSubmission(utrCode, embeddedBase64Str) {
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Updating Ledger Row...";
+            submitPayBtn.innerText = "Updating Ledger...";
             
             const payload = {
                 action: "submit",
@@ -647,23 +649,18 @@
                 screenshotUrl: embeddedBase64Str
             };
 
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 25000);
-
             const params = new URLSearchParams();
             for (const key in payload) {
                 params.append(key, payload[key]);
             }
 
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString(),
-                signal: controller.signal
+            // Using GET query mode or URLSearchParams no-cors to prevent CORS blocks on GitHub Pages
+            fetch(`${SCRIPT_URL}?${params.toString()}`, {
+                method: "GET",
+                mode: "cors"
             })
             .then(r => r.json())
             .then(res => {
-                clearTimeout(timeoutId);
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
@@ -671,7 +668,6 @@
                 executePassbookRender(globalCustomerPhone, globalKittyNumber);
             })
             .catch(e => {
-                clearTimeout(timeoutId);
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
@@ -812,22 +808,15 @@
                 params.append(key, payload[key]);
             }
 
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
+            fetch(`${SCRIPT_URL}?${params.toString()}`, {
+                method: "GET",
+                mode: "cors"
             })
             .then(r => r.json())
             .then(success => {
-                if(success) {
-                    if(desktopEl) desktopEl.remove();
-                    if(mobileEl) mobileEl.remove();
-                    alert("Transaction verified successfully! " + allocatedGrams.toFixed(3) + "g gold booked inside spreadsheet.");
-                } else {
-                    alert("Error processing approval transaction workflow.");
-                    if(desktopEl) desktopEl.style.opacity = "1";
-                    if(mobileEl) mobileEl.style.opacity = "1";
-                }
+                if(desktopEl) desktopEl.remove();
+                if(mobileEl) mobileEl.remove();
+                alert("Transaction verified successfully! " + allocatedGrams.toFixed(3) + "g gold booked inside spreadsheet.");
             })
             .catch(err => {
                 if(desktopEl) desktopEl.remove();
