@@ -188,21 +188,29 @@
         </div>
     </div>
 
-    <!-- MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL -->
+    <!-- MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL WITH UPI PAYMENT INTEGRATION -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-xl my-auto">
-            <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment Proof</h3>
+            <h3 class="text-lg font-bold text-gray-900 mb-1">Pay & Submit Proof</h3>
             <p id="modalMonthTarget" class="text-xs font-semibold mb-4 text-amber-600">Month Tracker Allocation</p>
             
-            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-4 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold py-2.5 rounded-xl transition-all cursor-pointer text-center">
+            <!-- Direct UPI App Launcher Button -->
+            <a id="btnUpiAppPay" href="#" class="w-full mb-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold py-3 px-4 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]">
+                ⚡ Pay via UPI App (GPay/PhonePe/Paytm)
+            </a>
+
+            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-4 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold py-2 rounded-xl transition-all cursor-pointer text-center">
                 🔄 Switch to Direct Bank Account Details
             </button>
 
             <div id="channelUpiView" class="bg-gray-50 rounded-xl p-4 border border-gray-200/60 flex flex-col items-center justify-center mb-4">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Scan QR code to pay instantly via UPI</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Or Scan QR code to pay instantly</p>
                 <div class="w-36 h-36 sm:w-40 sm:h-40 bg-white p-2 rounded-lg border border-gray-100 shadow-xs flex items-center justify-center">
                     <img id="qrCodeImg" src="" alt="UPI Payment QR Code" class="w-full h-full object-contain">
                 </div>
+                <button onclick="copyUpiId()" class="mt-2 text-[11px] font-mono text-amber-700 hover:underline flex items-center gap-1">
+                    📋 Copy UPI ID: <span id="lblUpiVpa">8052473033@upi</span>
+                </button>
             </div>
 
             <div id="channelBankView" class="hidden-view bg-amber-50/60 rounded-xl p-4 border border-amber-200/60 mb-4 space-y-2 text-xs text-amber-950">
@@ -237,6 +245,7 @@
     <script>
         const config = {
             name: "Suman Jewellers",
+            upiVpa: "8052473033@upi", // Replace with your merchant UPI ID
             themeText: "text-amber-600",
             themeBg: "bg-amber-600 hover:bg-amber-700 focus:border-amber-500",
             themeGradient: "from-amber-600 to-amber-700",
@@ -258,8 +267,8 @@
         let holdsMultiProfiles = false;
         let currentActiveAdminRole = "PREVIEW"; 
 
-        let optimisticPendingMonths = new Set(); // Instant visual state cache
-        let isSyncingActive = false; // Lock flag to prevent overlapping requests
+        let optimisticPendingMonths = new Set();
+        let isSyncingActive = false;
         let autoSyncTimer = null;
         let activeMatches = [];
 
@@ -273,7 +282,7 @@
         document.getElementById('termsHeading').className = `text-xs font-bold ${config.themeTextHeading} uppercase tracking-wider flex items-center gap-1.5`;
         document.getElementById('adminLoginBtn').className = `w-full ${config.themeBg} text-white font-medium py-2.5 rounded-xl text-sm transition-all cursor-pointer mt-2`;
         document.getElementById('syncAdminBtn').className = `${config.themeBg} text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer`;
-        document.getElementById('qrCodeImg').src = "https://i.pinimg.com/736x/c3/38/d8/c338d8a5eb932a316590867cd5a71374.jpg";
+        document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -299,6 +308,11 @@
                 badge.className = "font-bold uppercase px-2 py-0.5 text-[10px] rounded-md bg-blue-100 text-blue-800";
                 badge.innerText = "Viewer Admin (Read-Only Preview)";
             }
+        }
+
+        function copyUpiId() {
+            navigator.clipboard.writeText(config.upiVpa);
+            alert("UPI ID copied: " + config.upiVpa);
         }
 
         function togglePaymentMethodView() {
@@ -482,7 +496,6 @@
             }
         }
 
-        // Sub-second polling interval (1000ms) with execution lock
         function initiateLiveAutoSync(phone, kittyNumber) {
             if (autoSyncTimer) clearInterval(autoSyncTimer);
             autoSyncTimer = setInterval(() => {
@@ -565,7 +578,6 @@
                                 calculatedGoldGramsSum += bookedGrams;
                             }
                             
-                            // If remote sheet caught up to optimistic submission, purge from local set
                             if (status === "Pending" || status === "Paid") {
                                 optimisticPendingMonths.delete(Number(currentMonthNum));
                             }
@@ -630,6 +642,17 @@
             document.getElementById('channelUpiView').classList.remove('hidden-view');
             document.getElementById('channelBankView').classList.add('hidden-view');
             document.getElementById('btnPaymentToggle').innerText = "🔄 Switch to Direct Bank Account Details";
+            
+            // Build dynamic UPI Deep Link URL (GPay/PhonePe/Paytm standard protocol)
+            const note = encodeURIComponent(`Kitty Month ${monthNum} Payment - ${globalKittyNumber}`);
+            const payeeName = encodeURIComponent(config.name);
+            const upiUrl = `upi://pay?pa=${config.upiVpa}&pn=${payeeName}&am=${globalMonthlyAmount}&cu=INR&tn=${note}`;
+            document.getElementById('btnUpiAppPay').href = upiUrl;
+
+            // Generate dynamic QR Code URL matching exact amount
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
+            document.getElementById('qrCodeImg').src = qrApiUrl;
+
             document.getElementById('paymentModal').classList.remove('hidden-view');
         }
 
@@ -677,7 +700,6 @@
             const submitPayBtn = document.getElementById('submitPayBtn');
             submitPayBtn.innerText = "Updating Ledger...";
             
-            // Mark state optimistically instantly in the UI
             optimisticPendingMonths.add(Number(currentSelectedMonth));
 
             const payload = {
