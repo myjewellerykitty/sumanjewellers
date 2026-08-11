@@ -46,9 +46,14 @@
                     <!-- Profile Summary Card -->
                     <div id="brandCard" class="bg-gradient-to-br text-white rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden">
                         <div class="relative z-10 space-y-3">
-                            <div>
-                                <h3 id="custName" class="text-lg font-bold">-</h3>
-                                <p id="custPhone" class="text-xs opacity-75">-</p>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 id="custName" class="text-lg font-bold">-</h3>
+                                    <p id="custPhone" class="text-xs opacity-75">-</p>
+                                </div>
+                                <span class="bg-white/20 text-[10px] uppercase font-semibold px-2 py-1 rounded-md flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Realtime Sync
+                                </span>
                             </div>
                             
                             <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs opacity-90">
@@ -253,6 +258,9 @@
         let holdsMultiProfiles = false;
         let currentActiveAdminRole = "PREVIEW"; 
 
+        let optimisticPendingMonths = new Set(); // Instant visual state cache
+        let isSyncingActive = false; // Lock flag to prevent overlapping requests
+        let autoSyncTimer = null;
         let activeMatches = [];
 
         document.title = `${config.name} - Automated Kitty Control System`;
@@ -375,14 +383,14 @@
             if (holdsMultiProfiles) {
                 const selectedKitty = cleanStringValue(document.getElementById('kittySelect').value);
                 if(!selectedKitty) return alert("Please select a specific Kitty Number.");
-                executePassbookRender(cleanPhoneInput, selectedKitty);
+                executePassbookRender(cleanPhoneInput, selectedKitty, false);
+                initiateLiveAutoSync(cleanPhoneInput, selectedKitty);
                 return;
             }
 
             fetchBtn.innerText = "Validating Profile...";
             fetchBtn.disabled = true;
 
-            // Cache buster appended to force latest Google Sheet data
             const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers&_ts=${Date.now()}`;
 
             fetch(customersCsvUrl, { cache: "no-store" })
@@ -457,7 +465,8 @@
             if(activeMatches.length === 1) {
                 fetchBtn.disabled = false;
                 fetchBtn.innerText = "View Passbook";
-                executePassbookRender(cleanPhoneInput, activeMatches[0].kittyNumber);
+                executePassbookRender(cleanPhoneInput, activeMatches[0].kittyNumber, false);
+                initiateLiveAutoSync(cleanPhoneInput, activeMatches[0].kittyNumber);
             } else {
                 holdsMultiProfiles = true;
                 const wrapper = document.getElementById('multiKittyWrapper');
@@ -473,19 +482,38 @@
             }
         }
 
-        function executePassbookRender(phone, kittyNumber) {
+        // Sub-second polling interval (1000ms) with execution lock
+        function initiateLiveAutoSync(phone, kittyNumber) {
+            if (autoSyncTimer) clearInterval(autoSyncTimer);
+            autoSyncTimer = setInterval(() => {
+                if (!isSyncingActive) {
+                    executePassbookRender(phone, kittyNumber, true);
+                }
+            }, 1000);
+        }
+
+        function executePassbookRender(phone, kittyNumber, isSilentSync = false) {
+            if (isSyncingActive) return;
+            isSyncingActive = true;
+
             const fetchBtn = document.getElementById('fetchBtn');
-            fetchBtn.innerText = "Opening Passbook...";
-            fetchBtn.disabled = true;
+            if (!isSilentSync) {
+                fetchBtn.innerText = "Opening Passbook...";
+                fetchBtn.disabled = true;
+            }
 
             fetch(`${SCRIPT_URL}?action=getData&phone=${phone}&kittyNumber=${kittyNumber}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(data => {
-                fetchBtn.innerText = "View Passbook";
-                fetchBtn.disabled = false;
+                if (!isSilentSync) {
+                    fetchBtn.innerText = "View Passbook";
+                    fetchBtn.disabled = false;
+                }
                 
                 if(!data || !data.profile) {
-                    return alert("Ledger serialization failure matching row entities.");
+                    isSyncingActive = false;
+                    if (!isSilentSync) alert("Ledger serialization failure matching row entities.");
+                    return;
                 }
                 
                 globalCustomerPhone = data.profile.phone;
@@ -501,7 +529,6 @@
                 
                 document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(data.profile.customerId || '')}.`;
 
-                // Cache buster appended to fetch non-cached transactions sheet
                 const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions&_ts=${Date.now()}`;
                 
                 fetch(txCsvUrl, { cache: "no-store" })
@@ -537,6 +564,11 @@
                                 }
                                 calculatedGoldGramsSum += bookedGrams;
                             }
+                            
+                            // If remote sheet caught up to optimistic submission, purge from local set
+                            if (status === "Pending" || status === "Paid") {
+                                optimisticPendingMonths.delete(Number(currentMonthNum));
+                            }
                         }
                     }
 
@@ -558,7 +590,7 @@
                             style = "bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-[10px]"; 
                             actionStr = ""; 
                         }
-                        else if(tx && tx.status === "Pending") { 
+                        else if((tx && tx.status === "Pending") || optimisticPendingMonths.has(m)) { 
                             label = "⏳ Pending"; 
                             style = "bg-amber-50 border border-amber-100 text-amber-700 animate-pulse font-medium"; 
                             actionStr = ""; 
@@ -575,12 +607,17 @@
                         `;
                     }
                     document.getElementById('passbookContainer').classList.remove('hidden-view');
-                });
+                    isSyncingActive = false;
+                })
+                .catch(() => { isSyncingActive = false; });
             })
             .catch(err => {
-                fetchBtn.innerText = "View Passbook";
-                fetchBtn.disabled = false;
-                alert("Database communication error loading ledger passbook.");
+                isSyncingActive = false;
+                if (!isSilentSync) {
+                    fetchBtn.innerText = "View Passbook";
+                    fetchBtn.disabled = false;
+                    alert("Database communication error loading ledger passbook.");
+                }
             });
         }
 
@@ -640,6 +677,9 @@
             const submitPayBtn = document.getElementById('submitPayBtn');
             submitPayBtn.innerText = "Updating Ledger...";
             
+            // Mark state optimistically instantly in the UI
+            optimisticPendingMonths.add(Number(currentSelectedMonth));
+
             const payload = {
                 action: "submit",
                 id: globalCustomerPhone,
@@ -666,14 +706,14 @@
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proofs filed for administrative review!");
-                setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber), 2000);
+                executePassbookRender(globalCustomerPhone, globalKittyNumber, true);
             })
             .catch(e => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proof transmitted successfully!");
-                setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber), 2000);
+                executePassbookRender(globalCustomerPhone, globalKittyNumber, true);
             });
         }
 
@@ -819,13 +859,13 @@
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
                 alert("Transaction verified successfully! " + allocatedGrams.toFixed(3) + "g gold booked inside spreadsheet.");
-                setTimeout(loadAdminDashboard, 2000);
+                setTimeout(loadAdminDashboard, 1500);
             })
             .catch(err => {
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
                 alert("Ledger logs updated successfully!");
-                setTimeout(loadAdminDashboard, 2000);
+                setTimeout(loadAdminDashboard, 1500);
             });
         }
     </script>
