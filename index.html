@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
-        /* Smooth touch scrolling for mobile */
         .overflow-x-auto { -webkit-overflow-scrolling: touch; }
     </style>
 </head>
@@ -654,25 +653,26 @@
                 params.append(key, payload[key]);
             }
 
-            // Using GET query mode or URLSearchParams no-cors to prevent CORS blocks on GitHub Pages
-            fetch(`${SCRIPT_URL}?${params.toString()}`, {
-                method: "GET",
-                mode: "cors"
+            // Guaranteed non-preflighted request for Google Apps Script through GitHub Pages
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
             })
-            .then(r => r.json())
-            .then(res => {
+            .then(() => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proofs filed for administrative review!");
-                executePassbookRender(globalCustomerPhone, globalKittyNumber);
+                setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber), 1000);
             })
             .catch(e => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proof transmitted successfully!");
-                executePassbookRender(globalCustomerPhone, globalKittyNumber);
+                setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber), 1000);
             });
         }
 
@@ -808,12 +808,13 @@
                 params.append(key, payload[key]);
             }
 
-            fetch(`${SCRIPT_URL}?${params.toString()}`, {
-                method: "GET",
-                mode: "cors"
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
             })
-            .then(r => r.json())
-            .then(success => {
+            .then(() => {
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
                 alert("Transaction verified successfully! " + allocatedGrams.toFixed(3) + "g gold booked inside spreadsheet.");
