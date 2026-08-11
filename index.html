@@ -253,7 +253,6 @@
         let holdsMultiProfiles = false;
         let currentActiveAdminRole = "PREVIEW"; 
 
-        let localPendingSubmissions = []; // Keeps track of recent local submissions before Google Sheet syncs
         let activeMatches = [];
 
         document.title = `${config.name} - Automated Kitty Control System`;
@@ -383,9 +382,10 @@
             fetchBtn.innerText = "Validating Profile...";
             fetchBtn.disabled = true;
 
-            const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers`;
+            // Cache buster appended to force latest Google Sheet data
+            const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers&_ts=${Date.now()}`;
 
-            fetch(customersCsvUrl)
+            fetch(customersCsvUrl, { cache: "no-store" })
             .then(r => {
                 if(!r.ok) throw new Error("Stream connection blocked");
                 return r.text();
@@ -426,7 +426,7 @@
             const fetchBtn = document.getElementById('fetchBtn');
             fetchBtn.innerText = "Synchronizing Profile...";
             
-            fetch(`${SCRIPT_URL}?action=checkProfiles&phone=${cleanPhoneInput}`)
+            fetch(`${SCRIPT_URL}?action=checkProfiles&phone=${cleanPhoneInput}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 if (!res.success || !res.kittyNumbers || res.kittyNumbers.length === 0) {
@@ -478,7 +478,7 @@
             fetchBtn.innerText = "Opening Passbook...";
             fetchBtn.disabled = true;
 
-            fetch(`${SCRIPT_URL}?action=getData&phone=${phone}&kittyNumber=${kittyNumber}`)
+            fetch(`${SCRIPT_URL}?action=getData&phone=${phone}&kittyNumber=${kittyNumber}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(data => {
                 fetchBtn.innerText = "View Passbook";
@@ -501,9 +501,10 @@
                 
                 document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(data.profile.customerId || '')}.`;
 
-                const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions`;
+                // Cache buster appended to fetch non-cached transactions sheet
+                const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions&_ts=${Date.now()}`;
                 
-                fetch(txCsvUrl)
+                fetch(txCsvUrl, { cache: "no-store" })
                 .then(resCsv => resCsv.text())
                 .then(csvText => {
                     const rawLines = csvText.split('\n');
@@ -538,20 +539,6 @@
                             }
                         }
                     }
-
-                    // Integrate locally pending submissions if Google Sheets CSV hasn't updated yet
-                    localPendingSubmissions.forEach(lp => {
-                        if (lp.phone === phone && lp.kittyNumber === kittyNumber) {
-                            const existing = userTransactions.find(t => Number(t.month) === Number(lp.month));
-                            if (!existing) {
-                                userTransactions.push({
-                                    month: lp.month.toString(),
-                                    status: "Pending",
-                                    bookedGrams: 0
-                                });
-                            }
-                        }
-                    });
 
                     let calculatedBalance = paidMonthsCount * globalMonthlyAmount;
                     document.getElementById('custLiveBalance').innerText = "₹" + calculatedBalance;
@@ -668,13 +655,6 @@
                 params.append(key, payload[key]);
             }
 
-            // Save to optimistic state cache immediately
-            localPendingSubmissions.push({
-                phone: globalCustomerPhone,
-                kittyNumber: globalKittyNumber,
-                month: currentSelectedMonth
-            });
-
             fetch(SCRIPT_URL, {
                 method: "POST",
                 mode: "no-cors",
@@ -686,14 +666,14 @@
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proofs filed for administrative review!");
-                executePassbookRender(globalCustomerPhone, globalKittyNumber);
+                setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber), 2000);
             })
             .catch(e => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proof transmitted successfully!");
-                executePassbookRender(globalCustomerPhone, globalKittyNumber);
+                setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber), 2000);
             });
         }
 
@@ -703,7 +683,7 @@
             desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">Connecting live records...</td></tr>`;
             mobileWrapper.innerHTML = `<div class="p-8 text-center text-gray-500 bg-white rounded-xl border">Connecting live records...</div>`;
             
-            fetch(`${SCRIPT_URL}?action=getData&id=all_pending`)
+            fetch(`${SCRIPT_URL}?action=getData&id=all_pending&_ts=${Date.now()}`)
             .then(r => r.json()).then(pendingList => {
                 if(!pendingList || pendingList.length === 0) {
                     const cleanStateMsg = `🎉 All clean! No pending verifications left.`;
@@ -839,13 +819,13 @@
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
                 alert("Transaction verified successfully! " + allocatedGrams.toFixed(3) + "g gold booked inside spreadsheet.");
-                setTimeout(loadAdminDashboard, 1500);
+                setTimeout(loadAdminDashboard, 2000);
             })
             .catch(err => {
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
                 alert("Ledger logs updated successfully!");
-                setTimeout(loadAdminDashboard, 1500);
+                setTimeout(loadAdminDashboard, 2000);
             });
         }
     </script>
