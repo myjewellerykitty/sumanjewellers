@@ -3,106 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Suman Jewellers - Ofbuzz Kitty Management Tool</title>
+    <title>Suman Jewellers - Kitty Ledger System</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
         .overflow-x-auto { -webkit-overflow-scrolling: touch; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased min-h-screen">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
 
     <!-- CUSTOMER PORTAL INTERFACE VIEW -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
-            <header class="text-center py-6">
-                <h1 id="brandTitle" class="text-2xl font-bold text-amber-600 tracking-tight">Suman Jewellers</h1>
-                <p id="brandSubtitle" class="text-xs text-gray-400 uppercase tracking-widest mt-1">Ofbuzz Kitty Management Tool</p>
+            <header class="text-center py-6 border-b border-slate-200 mb-6">
+                <h1 id="brandTitle" class="text-2xl font-bold text-slate-900 tracking-tight">Suman Jewellers</h1>
+                <p id="brandSubtitle" class="text-xs text-slate-500 uppercase tracking-widest mt-1">Kitty Scheme Management Portal</p>
             </header>
 
             <div id="interactiveContainer">
                 <!-- Phone Lookup Card -->
-                <div class="bg-white rounded-2xl shadow-xs p-5 sm:p-6 border border-gray-100 mb-6 space-y-4">
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
                     <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Registered Phone Number</label>
-                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Registered Mobile Number</label>
+                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 focus:bg-white transition-all">
                     </div>
                     
                     <!-- Dynamic Step 2 Selector Dropdown Panel -->
-                    <div id="multiKittyWrapper" class="hidden-view bg-amber-50/50 p-4 rounded-xl border border-amber-100 space-y-2">
-                        <label class="text-[11px] font-bold text-amber-800 uppercase block">
-                            ⚠️ Multiple Profiles Linked! 2nd Step Verification Required:
+                    <div id="multiKittyWrapper" class="hidden-view bg-amber-50/60 p-4 rounded-lg border border-amber-200 space-y-2">
+                        <label class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">
+                            Multiple Accounts Linked
                         </label>
-                        <p class="text-[11px] text-amber-700/80 leading-tight">Please select your custom allocated Kitty Number below to authorize access:</p>
-                        <select id="kittySelect" class="w-full px-4 py-3 bg-white border border-amber-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 font-semibold text-amber-900">
+                        <p class="text-[11px] text-amber-800 leading-tight">Select active Kitty Account to load default view:</p>
+                        <select id="kittySelect" class="w-full px-3 py-2.5 bg-white border border-amber-300 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none">
                         </select>
                     </div>
 
-                    <button onclick="handleFetchWorkflow()" id="fetchBtn" class="w-full text-white font-medium py-3 rounded-xl text-sm shadow-xs transition-all cursor-pointer active:scale-[0.98]">View Passbook</button>
+                    <button onclick="handleFetchWorkflow()" id="fetchBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.99]">
+                        Access Passbook
+                    </button>
                 </div>
 
                 <!-- Passbook Ledger Content Drawer -->
                 <div id="passbookContainer" class="hidden-view space-y-4">
                     <!-- Profile Summary Card -->
-                    <div id="brandCard" class="bg-gradient-to-br text-white rounded-2xl p-5 sm:p-6 shadow-xs relative overflow-hidden">
+                    <div id="brandCard" class="bg-slate-900 text-white rounded-xl p-5 shadow-sm relative overflow-hidden">
                         <div class="relative z-10 space-y-3">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h3 id="custName" class="text-lg font-bold">-</h3>
-                                    <p id="custPhone" class="text-xs opacity-75">-</p>
+                                    <h3 id="custName" class="text-base font-bold text-slate-100">-</h3>
+                                    <p id="custPhone" class="text-xs text-slate-400 font-mono mt-0.5">-</p>
                                 </div>
-                                <span class="bg-white/20 text-[10px] uppercase font-semibold px-2 py-1 rounded-md flex items-center gap-1">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Realtime Sync
+                                <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Synchronized
                                 </span>
                             </div>
                             
-                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-xs opacity-90">
-                                <div><span class="opacity-75 block text-[10px] uppercase">Customer ID:</span> <span id="lblCustId" class="font-semibold">-</span></div>
-                                <div><span class="opacity-75 block text-[10px] uppercase">Kitty Number:</span> <span id="lblKittyNo" class="font-semibold">-</span></div>
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800 text-xs text-slate-300">
+                                <div><span class="text-slate-500 block text-[10px] uppercase">Customer ID:</span> <span id="lblCustId" class="font-semibold font-mono">-</span></div>
+                                <div><span class="text-slate-500 block text-[10px] uppercase">Active Plan #:</span> <span id="lblKittyNo" class="font-semibold font-mono">-</span></div>
                             </div>
                             
-                            <div class="text-xs opacity-90 border-b border-white/10 pb-2">
-                                <span class="opacity-75 block text-[10px] uppercase">Other Details:</span> 
-                                <span id="lblOtherDetails" class="italic">-</span>
+                            <div class="text-xs text-slate-300 border-b border-slate-800 pb-2">
+                                <span class="text-slate-500 block text-[10px] uppercase">Details / Remarks:</span> 
+                                <span id="lblOtherDetails" class="italic font-sans text-slate-400">-</span>
                             </div>
 
                             <div class="pt-1 grid grid-cols-2 gap-4">
                                 <div>
-                                    <span class="text-[10px] uppercase opacity-75 block tracking-wider">Monthly Plan</span>
-                                    <span id="custAmount" class="text-lg font-bold">₹0</span>
+                                    <span class="text-[10px] uppercase text-slate-400 block tracking-wider">Monthly Installment</span>
+                                    <span id="custAmount" class="text-base font-bold text-slate-100">₹0</span>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-[10px] uppercase opacity-75 block tracking-wider">Total Cash Paid</span>
-                                    <span id="custLiveBalance" class="text-lg font-bold text-amber-100">₹0</span>
+                                    <span class="text-[10px] uppercase text-slate-400 block tracking-wider">Total Amount Deposited</span>
+                                    <span id="custLiveBalance" class="text-base font-bold text-amber-400">₹0</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Live Gold Module -->
-                    <div class="bg-amber-600/10 border border-amber-600/20 text-amber-900 rounded-2xl p-4 space-y-2">
-                        <h4 class="text-xs font-bold uppercase tracking-wider text-amber-800">
-                            📊 Total Booked Gold Weight (Accumulated)
-                        </h4>
-                        <div class="bg-white/80 p-3 rounded-xl border border-amber-600/10 text-center">
-                            <span class="text-[10px] text-gray-500 block uppercase font-medium">Total Booked 24K Gold</span>
-                            <span id="lblTotalGoldGrams" class="text-xl font-black text-emerald-700">0.000 g</span>
+                    <div class="bg-white border border-slate-200 text-slate-900 rounded-xl p-4 space-y-2 shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                                Total Booked Gold Weight (24K)
+                            </h4>
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase">Accumulated</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-center">
+                            <span id="lblTotalGoldGrams" class="text-2xl font-black text-slate-900 font-mono">0.000 g</span>
                         </div>
                     </div>
                     
                     <!-- 12-Month Matrix Grid -->
-                    <div class="bg-white rounded-2xl p-4 sm:p-6 border border-gray-100">
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Tap an unpaid month to submit payment</p>
-                        <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 sm:gap-3"></div>
+                    <div class="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Installment Ledger (12 Months)</p>
+                            <span class="text-[10px] text-slate-400">Tap open month to deposit</span>
+                        </div>
+                        <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5"></div>
                     </div>
 
                     <!-- Help desk Link -->
-                    <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs">
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 flex items-center justify-between shadow-sm">
                         <div>
-                            <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
-                            <p class="text-[11px] text-gray-400 mt-0.5">Get instant verification support</p>
+                            <h4 class="text-xs font-bold text-slate-900">Payment Verification Issue?</h4>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Contact showroom desk support</p>
                         </div>
-                        <a id="supportLink" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer shadow-xs active:scale-[0.98]">
+                        <a id="supportLink" href="#" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer shadow-sm active:scale-[0.98]">
                             Contact Support
                         </a>
                     </div>
@@ -110,14 +117,14 @@
             </div>
 
             <!-- Terms Card -->
-            <div id="termsContainer" class="mt-8 bg-amber-50/50 border rounded-2xl p-5 space-y-3">
-                <h4 id="termsHeading" class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                    ⚠️ Terms & Conditions (12+1 Gold Scheme)
+            <div id="termsContainer" class="mt-8 bg-slate-100 border border-slate-200 rounded-xl p-4 space-y-2">
+                <h4 id="termsHeading" class="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Terms & Conditions (12+1 Savings Scheme)
                 </h4>
-                <ul class="text-[11.5px] space-y-2 list-disc pl-4 leading-relaxed opacity-90">
-                    <li>Pay regularly for 12 consecutive months, and the 13th month's bonus contribution will be topped up entirely by Suman Jewellers.</li>
-                    <li><strong>Gold Booking Rule:</strong> Gold grams are calculated dynamically and locked at the exact moment the transaction is reviewed and approved by the admin.</li>
-                    <li><strong>Verification Proof:</strong> Providing a valid 12-digit UTR tracker reference is mandatory for all uploads.</li>
+                <ul class="text-[11px] text-slate-600 space-y-1.5 list-disc pl-4 leading-relaxed">
+                    <li>Pay 12 consecutive monthly installments to receive the 13th month showroom top-up bonus.</li>
+                    <li><strong>Gold Booking Protocol:</strong> Gold weights are calculated dynamically and locked at administrative review.</li>
+                    <li><strong>Verification:</strong> Providing a valid 12-digit UTR reference key is mandatory.</li>
                 </ul>
             </div>
         </div>
@@ -125,118 +132,133 @@
 
     <!-- ADMIN PORTAL LOGIN VIEW -->
     <div id="adminLoginView" class="hidden-view max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
-        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <div class="text-center mb-6">
-                <h2 class="text-xl font-bold text-gray-900">Master Authentication</h2>
-                <p class="text-xs text-gray-400 mt-1">Access restricted to authorized personnel</p>
+                <h2 class="text-lg font-bold text-slate-900">Administrative Login</h2>
+                <p class="text-xs text-slate-500 mt-1">Authorized showroom access point</p>
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Administrative Role Access Mode</label>
-                    <select id="adminRoleSelect" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none font-medium">
+                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Access Role Mode</label>
+                    <select id="adminRoleSelect" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none font-medium text-slate-800">
                         <option value="PREVIEW">Viewer Admin (Read-Only Preview Access)</option>
                         <option value="APPROVE">Super Admin (Full Read-Write Approval Controls)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Security Authentication Key</label>
-                    <input type="password" id="adminPass" placeholder="Enter Secure Master Password" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
+                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Security Key</label>
+                    <input type="password" id="adminPass" placeholder="Enter Secure Master Password" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none">
                 </div>
-                <button onclick="handleAdminLogin()" id="adminLoginBtn" class="w-full text-white font-medium py-2.5 rounded-xl text-sm transition-all cursor-pointer mt-2 active:scale-[0.98]">Sign In To Dashboard</button>
+                <button onclick="handleAdminLogin()" id="adminLoginBtn" class="w-full bg-slate-900 text-white font-medium py-2.5 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.98]">Sign In To Panel</button>
             </div>
         </div>
     </div>
 
     <!-- ADMINISTRATIVE PANEL VIEW -->
     <div id="adminView" class="hidden-view max-w-5xl mx-auto p-4 sm:p-6">
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-5 mb-6">
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5 mb-6">
             <div>
-                <h1 id="adminPanelTitle" class="text-2xl font-bold text-gray-900">Master Control Panel</h1>
-                <p class="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5">
-                    Current Authentication Mode: 
-                    <span id="roleBadge" class="font-bold uppercase px-2 py-0.5 text-[10px] rounded-md">Checking...</span>
+                <h1 id="adminPanelTitle" class="text-xl font-bold text-slate-900">Master Control Dashboard</h1>
+                <p class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+                    Authentication Status: 
+                    <span id="roleBadge" class="font-bold uppercase px-2 py-0.5 text-[10px] rounded">Checking...</span>
                 </p>
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
-                <button onclick="loadAdminDashboard()" id="syncAdminBtn" class="flex-1 sm:flex-none text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer text-center active:scale-[0.98]">Sync Pending Records</button>
-                <button onclick="logoutAdmin()" class="bg-gray-100 text-gray-600 text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-gray-200 cursor-pointer active:scale-[0.98]">Logout</button>
+                <button onclick="loadAdminDashboard()" id="syncAdminBtn" class="flex-1 sm:flex-none bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer text-center active:scale-[0.98]">Sync Pending Records</button>
+                <button onclick="logoutAdmin()" class="bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-slate-200 cursor-pointer active:scale-[0.98]">Logout</button>
             </div>
         </header>
 
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="text-xs font-semibold text-gray-500 bg-gray-50 border-b border-gray-100">
-                            <th class="p-4">Customer Info</th>
-                            <th class="p-4">Kitty Details</th>
+                        <tr class="text-xs font-semibold text-slate-500 bg-slate-50 border-b border-slate-200">
+                            <th class="p-4">Customer Details</th>
+                            <th class="p-4">Kitty Plan</th>
                             <th class="p-4">Month</th>
                             <th class="p-4">Deposit Amount</th>
                             <th class="p-4">UTR Reference / Receipt</th>
                             <th class="p-4 text-center">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="adminTableBody" class="divide-y divide-gray-100 text-sm">
-                        <tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Click "Sync Pending Records" to refresh state.</td></tr>
+                    <tbody id="adminTableBody" class="divide-y divide-slate-100 text-sm">
+                        <tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Click "Sync Pending Records" to refresh state.</td></tr>
                     </tbody>
                 </table>
             </div>
 
-            <div id="adminMobileCardsWrapper" class="block md:hidden p-4 space-y-4 bg-gray-50">
-                <p class="text-xs text-gray-400 text-center italic">Click "Sync Pending Records" to view incoming listings.</p>
+            <div id="adminMobileCardsWrapper" class="block md:hidden p-4 space-y-4 bg-slate-50">
+                <p class="text-xs text-slate-400 text-center italic">Click "Sync Pending Records" to view incoming listings.</p>
             </div>
         </div>
     </div>
 
-    <!-- MULTI-CHANNEL TRANSACTION SETTLEMENT MODAL WITH UPI PAYMENT INTEGRATION -->
-    <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-xl my-auto">
-            <h3 class="text-lg font-bold text-gray-900 mb-1">Pay & Submit Proof</h3>
-            <p id="modalMonthTarget" class="text-xs font-semibold mb-4 text-amber-600">Month Tracker Allocation</p>
+    <!-- MULTI-CHANNEL SETTLEMENT & MULTI-KITTY PAYMENT MODAL -->
+    <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-5 sm:p-6 w-full max-w-md shadow-xl my-auto border border-slate-100">
+            <div class="border-b border-slate-100 pb-3 mb-4">
+                <h3 class="text-base font-bold text-slate-900">Execute Payment Settlement</h3>
+                <p id="modalMonthTarget" class="text-xs font-medium text-slate-500 mt-0.5">Month Allocation</p>
+            </div>
+
+            <!-- MULTI-KITTY SELECTION SECTION -->
+            <div id="multiKittySelectionContainer" class="hidden-view mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-2">
+                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                    Select Kitty Plans To Include In Payment:
+                </label>
+                <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1">
+                    <!-- Checkboxes injected dynamically -->
+                </div>
+            </div>
             
-            <!-- Direct UPI App Launcher Button -->
-            <a id="btnUpiAppPay" href="#" class="w-full mb-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-bold py-3 px-4 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]">
-                ⚡ Pay via UPI App (GPay/PhonePe/Paytm)
+            <!-- Direct UPI Application Deep Link Button -->
+            <a id="btnUpiAppPay" href="#" class="w-full mb-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]">
+                Pay Via UPI App (GPay / PhonePe / Paytm)
             </a>
 
-            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-4 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold py-2 rounded-xl transition-all cursor-pointer text-center">
-                🔄 Switch to Direct Bank Account Details
+            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-4 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold py-2 rounded-lg transition-all cursor-pointer text-center">
+                Switch to Bank Account Credentials
             </button>
 
-            <div id="channelUpiView" class="bg-gray-50 rounded-xl p-4 border border-gray-200/60 flex flex-col items-center justify-center mb-4">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Or Scan QR code to pay instantly</p>
-                <div class="w-36 h-36 sm:w-40 sm:h-40 bg-white p-2 rounded-lg border border-gray-100 shadow-xs flex items-center justify-center">
+            <!-- UPI Payment View -->
+            <div id="channelUpiView" class="bg-slate-50 rounded-lg p-4 border border-slate-200 flex flex-col items-center justify-center mb-4">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Scan QR Code via Any UPI App</p>
+                <div class="w-36 h-36 bg-white p-2 rounded border border-slate-200 shadow-sm flex items-center justify-center">
                     <img id="qrCodeImg" src="" alt="UPI Payment QR Code" class="w-full h-full object-contain">
                 </div>
-                <button onclick="copyUpiId()" class="mt-2 text-[11px] font-mono text-amber-700 hover:underline flex items-center gap-1">
-                    📋 Copy UPI ID: <span id="lblUpiVpa">8052473033@upi</span>
+                <button onclick="copyUpiId()" class="mt-3 text-xs font-mono text-slate-700 hover:text-slate-900 flex items-center gap-1 font-semibold">
+                    Copy VPA: <span id="lblUpiVpa">8052473033@upi</span>
                 </button>
             </div>
 
-            <div id="channelBankView" class="hidden-view bg-amber-50/60 rounded-xl p-4 border border-amber-200/60 mb-4 space-y-2 text-xs text-amber-950">
-                <p class="text-[10px] font-bold text-amber-800 uppercase tracking-wider border-b border-amber-200/60 pb-1">Showroom Bank Transfer Credentials</p>
-                <div><span class="text-gray-500 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold text-sm">State Bank of India</span></div>
-                <div><span class="text-gray-500 block text-[9px] uppercase">Account Name</span><span class="font-semibold">Suman Jewellers Retail Private Limited</span></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div><span class="text-gray-500 block text-[9px] uppercase">Account Number</span><span class="font-bold tracking-wider">39485720194</span></div>
-                    <div><span class="text-gray-500 block text-[9px] uppercase">IFS Code</span><span class="font-bold tracking-wider">SBIN0001824</span></div>
+            <!-- Bank Credentials View -->
+            <div id="channelBankView" class="hidden-view bg-slate-50 rounded-lg p-4 border border-slate-200 mb-4 space-y-2 text-xs text-slate-800">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">Showroom Bank Transfer Credentials</p>
+                <div><span class="text-slate-400 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold">State Bank of India</span></div>
+                <div><span class="text-slate-400 block text-[9px] uppercase">Account Title</span><span class="font-semibold">Suman Jewellers Retail Private Limited</span></div>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Account Number</span><span class="font-bold font-mono">39485720194</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">IFSC Code</span><span class="font-bold font-mono">SBIN0001824</span></div>
                 </div>
             </div>
 
+            <!-- Form Submission Details -->
             <div class="space-y-3 mb-5">
                 <div>
-                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">UTR / Transaction ID</label>
-                    <input type="text" id="utrInput" placeholder="Enter 12-digit Bank UTR Code" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Transaction UTR Key / Ref Number</label>
+                    <input type="text" id="utrInput" placeholder="Enter 12-Digit Bank UTR Reference" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-900">
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Payment Slip Screenshot</label>
-                    <input type="file" id="fileInput" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold cursor-pointer">
+                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Payment Confirmation Slip</label>
+                    <input type="file" id="fileInput" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 cursor-pointer">
                 </div>
             </div>
 
             <div class="flex gap-2">
-                <button onclick="closePaymentModal()" class="w-1/2 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 cursor-pointer">Cancel</button>
-                <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 text-white py-2.5 rounded-xl text-sm font-medium cursor-pointer">Submit Proof</button>
+                <button onclick="closePaymentModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-200 cursor-pointer">Cancel</button>
+                <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-800 cursor-pointer">Submit Proof</button>
             </div>
         </div>
     </div>
@@ -245,13 +267,10 @@
     <script>
         const config = {
             name: "Suman Jewellers",
-            upiVpa: "8052473033@upi", // Replace with your merchant UPI ID
-            themeText: "text-amber-600",
-            themeBg: "bg-amber-600 hover:bg-amber-700 focus:border-amber-500",
-            themeGradient: "from-amber-600 to-amber-700",
-            themeBorder: "border-amber-100",
-            themeContainer: "bg-amber-50/50 text-amber-900/80",
-            themeTextHeading: "text-amber-800",
+            upiVpa: "8052473033@upi",
+            themeText: "text-slate-900",
+            themeBg: "bg-slate-900 hover:bg-slate-800 focus:border-slate-800",
+            themeGradient: "from-slate-900 to-slate-800",
             sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0", 
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec", 
             whatsapp: "918052473033",
@@ -272,16 +291,8 @@
         let autoSyncTimer = null;
         let activeMatches = [];
 
-        document.title = `${config.name} - Automated Kitty Control System`;
+        document.title = `${config.name} - Kitty Management Tool`;
         document.getElementById('brandTitle').innerText = config.name;
-        document.getElementById('brandTitle').className = `text-2xl font-bold ${config.themeText} tracking-tight`;
-        document.getElementById('fetchBtn').className = `w-full ${config.themeBg} text-white font-medium py-3 rounded-xl text-sm shadow-xs transition-all cursor-pointer`;
-        document.getElementById('submitPayBtn').className = `w-1/2 ${config.themeBg} text-white py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer`;
-        document.getElementById('brandCard').className = `bg-gradient-to-br ${config.themeGradient} text-white rounded-2xl p-6 shadow-xs relative overflow-hidden`;
-        document.getElementById('termsContainer').className = `mt-8 ${config.themeContainer} border ${config.themeBorder} rounded-2xl p-5 space-y-3`;
-        document.getElementById('termsHeading').className = `text-xs font-bold ${config.themeTextHeading} uppercase tracking-wider flex items-center gap-1.5`;
-        document.getElementById('adminLoginBtn').className = `w-full ${config.themeBg} text-white font-medium py-2.5 rounded-xl text-sm transition-all cursor-pointer mt-2`;
-        document.getElementById('syncAdminBtn').className = `${config.themeBg} text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer`;
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -302,17 +313,17 @@
         function setupAdminRoleUI() {
             const badge = document.getElementById('roleBadge');
             if (currentActiveAdminRole === "APPROVE") {
-                badge.className = "font-bold uppercase px-2 py-0.5 text-[10px] rounded-md bg-emerald-100 text-emerald-800";
-                badge.innerText = "Super Admin (Full Edit/Approve)";
+                badge.className = "font-bold uppercase px-2 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800";
+                badge.innerText = "Super Admin (Full Read-Write Controls)";
             } else {
-                badge.className = "font-bold uppercase px-2 py-0.5 text-[10px] rounded-md bg-blue-100 text-blue-800";
-                badge.innerText = "Viewer Admin (Read-Only Preview)";
+                badge.className = "font-bold uppercase px-2 py-0.5 text-[10px] rounded bg-slate-100 text-slate-700";
+                badge.innerText = "Viewer Admin (Read-Only Preview Mode)";
             }
         }
 
         function copyUpiId() {
             navigator.clipboard.writeText(config.upiVpa);
-            alert("UPI ID copied: " + config.upiVpa);
+            alert("Merchant UPI VPA copied to clipboard.");
         }
 
         function togglePaymentMethodView() {
@@ -323,12 +334,12 @@
                 currentPaymentChannel = "bank";
                 upiBox.classList.add('hidden-view');
                 bankBox.classList.remove('hidden-view');
-                toggleBtn.innerText = "🔄 Switch to Instant UPI QR Display";
+                toggleBtn.innerText = "Switch to Instant UPI QR Display";
             } else {
                 currentPaymentChannel = "upi";
                 bankBox.classList.add('hidden-view');
                 upiBox.classList.remove('hidden-view');
-                toggleBtn.innerText = "🔄 Switch to Direct Bank Account Details";
+                toggleBtn.innerText = "Switch to Bank Account Credentials";
             }
         }
 
@@ -353,7 +364,7 @@
                 document.getElementById('adminView').classList.remove('hidden-view');
                 loadAdminDashboard();
             } else {
-                alert("Security mismatch! Invalid password token.");
+                alert("Authentication Failure: Invalid security key.");
             }
         }
 
@@ -396,13 +407,13 @@
 
             if (holdsMultiProfiles) {
                 const selectedKitty = cleanStringValue(document.getElementById('kittySelect').value);
-                if(!selectedKitty) return alert("Please select a specific Kitty Number.");
+                if(!selectedKitty) return alert("Please select a specific Kitty Plan.");
                 executePassbookRender(cleanPhoneInput, selectedKitty, false);
                 initiateLiveAutoSync(cleanPhoneInput, selectedKitty);
                 return;
             }
 
-            fetchBtn.innerText = "Validating Profile...";
+            fetchBtn.innerText = "Authenticating Mobile Number...";
             fetchBtn.disabled = true;
 
             const customersCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers&_ts=${Date.now()}`;
@@ -446,15 +457,15 @@
 
         function fetchLiveScriptLookupFallback(cleanPhoneInput) {
             const fetchBtn = document.getElementById('fetchBtn');
-            fetchBtn.innerText = "Synchronizing Profile...";
+            fetchBtn.innerText = "Synchronizing Profile Data...";
             
             fetch(`${SCRIPT_URL}?action=checkProfiles&phone=${cleanPhoneInput}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 if (!res.success || !res.kittyNumbers || res.kittyNumbers.length === 0) {
                     fetchBtn.disabled = false;
-                    fetchBtn.innerText = "View Passbook";
-                    return alert("No active records matched against this mobile number.");
+                    fetchBtn.innerText = "Access Passbook";
+                    return alert("No active profiles found for this mobile number.");
                 }
                 
                 activeMatches = res.kittyNumbers.map(num => ({
@@ -463,14 +474,14 @@
                     monthlyAmount: "0", 
                     customerId: "Loading...",
                     kittyNumber: num,
-                    otherDetails: "Fetched via backup routing channel"
+                    otherDetails: "Fetched via server endpoint"
                 }));
                 routeProfileMatching(cleanPhoneInput);
             })
             .catch(e => {
                 fetchBtn.disabled = false;
-                fetchBtn.innerText = "View Passbook";
-                alert("Database synchronization failure. Please verify connection credentials.");
+                fetchBtn.innerText = "Access Passbook";
+                alert("Database connection failed. Please check your network.");
             });
         }
 
@@ -478,7 +489,7 @@
             const fetchBtn = document.getElementById('fetchBtn');
             if(activeMatches.length === 1) {
                 fetchBtn.disabled = false;
-                fetchBtn.innerText = "View Passbook";
+                fetchBtn.innerText = "Access Passbook";
                 executePassbookRender(cleanPhoneInput, activeMatches[0].kittyNumber, false);
                 initiateLiveAutoSync(cleanPhoneInput, activeMatches[0].kittyNumber);
             } else {
@@ -492,7 +503,7 @@
                 wrapper.classList.remove('hidden-view');
                 
                 fetchBtn.disabled = false; 
-                fetchBtn.innerText = "Confirm Identity & Load Passbook";
+                fetchBtn.innerText = "Confirm Selected Kitty & View";
             }
         }
 
@@ -519,7 +530,7 @@
             .then(r => r.json())
             .then(data => {
                 if (!isSilentSync) {
-                    fetchBtn.innerText = "View Passbook";
+                    fetchBtn.innerText = "Access Passbook";
                     fetchBtn.disabled = false;
                 }
                 
@@ -540,7 +551,7 @@
                 document.getElementById('lblKittyNo').innerText = data.profile.kittyNumber;
                 document.getElementById('lblOtherDetails').innerText = data.profile.otherDetails;
                 
-                document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20am%20having%20an%20issue%20with%20my%20Kitty%20Account%20ID%20${encodeURIComponent(data.profile.customerId || '')}.`;
+                document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20have%20an%20inquiry%20regarding%20my%20Kitty%20Account%20ID%20${encodeURIComponent(data.profile.customerId || '')}.`;
 
                 const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions&_ts=${Date.now()}`;
                 
@@ -593,28 +604,28 @@
                     
                     for (let m = 1; m <= config.schemeMonths; m++) {
                         let tx = userTransactions.find(t => Number(t.month) === m);
-                        let label = "Tap to Pay", style = `bg-gray-50 border border-gray-200 ${config.themeText} font-medium cursor-pointer hover:bg-gray-100 transition-all active:scale-95`;
+                        let label = "Pay Now", style = `bg-slate-50 border border-slate-200 text-slate-700 font-semibold cursor-pointer hover:bg-slate-100 transition-all active:scale-95`;
                         let actionStr = `onclick="openPaymentModal(${m})"`;
                         
                         if(tx && tx.status === "Paid") { 
                             var displayGrams = (Number(tx.bookedGrams) || 0).toFixed(3);
-                            label = `✅ Paid (${displayGrams}g)`; 
-                            style = "bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold text-[10px]"; 
+                            label = `Paid (${displayGrams}g)`; 
+                            style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[10px]"; 
                             actionStr = ""; 
                         }
                         else if((tx && tx.status === "Pending") || optimisticPendingMonths.has(m)) { 
-                            label = "⏳ Pending"; 
-                            style = "bg-amber-50 border border-amber-100 text-amber-700 animate-pulse font-medium"; 
+                            label = "Pending Review"; 
+                            style = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse font-semibold text-[10px]"; 
                             actionStr = ""; 
                         }
-                        grid.innerHTML += `<div ${actionStr} class="p-2.5 sm:p-3 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[54px]"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
+                        grid.innerHTML += `<div ${actionStr} class="p-2.5 rounded-lg ${style} text-center text-xs flex flex-col justify-center min-h-[52px]"><span class="text-[9px] block opacity-50 uppercase text-slate-500 font-mono">M-${m}</span>${label}</div>`;
                     }
 
                     if (paidMonthsCount === config.schemeMonths) {
                         grid.innerHTML += `
-                            <div class="p-3 rounded-xl bg-gradient-to-br ${config.themeGradient} text-white font-bold text-center text-xs col-span-3 sm:col-span-4 border opacity-95 shadow-xs animate-bounce mt-1">
-                                <span class="text-[9px] block uppercase opacity-80 tracking-wider">M-13 Bonus Earned</span>
-                                🎉 13th Month Top-Up Deposited!
+                            <div class="p-3 rounded-lg bg-slate-900 text-white font-bold text-center text-xs col-span-3 sm:col-span-4 border border-slate-800 shadow-sm animate-bounce mt-1">
+                                <span class="text-[9px] block uppercase opacity-70 tracking-wider">M-13 Bonus Credited</span>
+                                13th Month Showroom Top-Up Deposited
                             </div>
                         `;
                     }
@@ -626,34 +637,72 @@
             .catch(err => {
                 isSyncingActive = false;
                 if (!isSilentSync) {
-                    fetchBtn.innerText = "View Passbook";
+                    fetchBtn.innerText = "Access Passbook";
                     fetchBtn.disabled = false;
-                    alert("Database communication error loading ledger passbook.");
+                    alert("Database communication error loading passbook.");
                 }
             });
         }
 
         function openPaymentModal(monthNum) {
             currentSelectedMonth = monthNum;
-            document.getElementById('modalMonthTarget').innerText = `Submitting proof for Month ${monthNum} (Amount: ₹${globalMonthlyAmount})`;
+            document.getElementById('modalMonthTarget').innerText = `Submitting Proof for Month ${monthNum}`;
             document.getElementById('utrInput').value = "";
             document.getElementById('fileInput').value = "";
             currentPaymentChannel = "upi";
             document.getElementById('channelUpiView').classList.remove('hidden-view');
             document.getElementById('channelBankView').classList.add('hidden-view');
-            document.getElementById('btnPaymentToggle').innerText = "🔄 Switch to Direct Bank Account Details";
+            document.getElementById('btnPaymentToggle').innerText = "Switch to Bank Account Credentials";
+
+            // SETUP MULTI-KITTY SELECTION LIST IF CUSTOMER HOLDS MULTIPLE ACCOUNTS
+            const multiContainer = document.getElementById('multiKittySelectionContainer');
+            const listContainer = document.getElementById('multiKittyCheckboxList');
             
-            // Build dynamic UPI Deep Link URL (GPay/PhonePe/Paytm standard protocol)
-            const note = encodeURIComponent(`Kitty Month ${monthNum} Payment - ${globalKittyNumber}`);
+            if (activeMatches && activeMatches.length > 1) {
+                multiContainer.classList.remove('hidden-view');
+                listContainer.innerHTML = "";
+                activeMatches.forEach(item => {
+                    const isCurrent = item.kittyNumber === globalKittyNumber;
+                    const monthlyVal = Number(item.monthlyAmount) || globalMonthlyAmount;
+                    listContainer.innerHTML += `
+                        <label class="flex items-center justify-between p-2 bg-white rounded border border-slate-200 cursor-pointer text-xs">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" name="kittyPaySelect" value="${item.kittyNumber}" data-amount="${monthlyVal}" ${isCurrent ? 'checked' : ''} onchange="updateMultiPaymentTotal()" class="rounded border-slate-300 text-slate-900 focus:ring-slate-900">
+                                <span class="font-semibold text-slate-800">Plan #${item.kittyNumber}</span>
+                            </div>
+                            <span class="font-mono text-slate-500">₹${monthlyVal}</span>
+                        </label>
+                    `;
+                });
+            } else {
+                multiContainer.classList.add('hidden-view');
+            }
+
+            updateMultiPaymentTotal();
+            document.getElementById('paymentModal').classList.remove('hidden-view');
+        }
+
+        function updateMultiPaymentTotal() {
+            let totalAmountToPay = globalMonthlyAmount;
+            
+            if (activeMatches && activeMatches.length > 1) {
+                const checkboxes = document.querySelectorAll('input[name="kittyPaySelect"]:checked');
+                let aggregate = 0;
+                checkboxes.forEach(cb => {
+                    aggregate += Number(cb.getAttribute('data-amount')) || 0;
+                });
+                totalAmountToPay = aggregate > 0 ? aggregate : globalMonthlyAmount;
+            }
+
+            // Generate UPI link & Dynamic QR code matching calculated aggregate amount
+            const note = encodeURIComponent(`Kitty Month ${currentSelectedMonth} - ${globalKittyNumber}`);
             const payeeName = encodeURIComponent(config.name);
-            const upiUrl = `upi://pay?pa=${config.upiVpa}&pn=${payeeName}&am=${globalMonthlyAmount}&cu=INR&tn=${note}`;
+            const upiUrl = `upi://pay?pa=${config.upiVpa}&pn=${payeeName}&am=${totalAmountToPay}&cu=INR&tn=${note}`;
             document.getElementById('btnUpiAppPay').href = upiUrl;
 
-            // Generate dynamic QR Code URL matching exact amount
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
             document.getElementById('qrCodeImg').src = qrApiUrl;
-
-            document.getElementById('paymentModal').classList.remove('hidden-view');
+            document.getElementById('modalMonthTarget').innerText = `Submitting Proof for Month ${currentSelectedMonth} (Total Amount: ₹${totalAmountToPay})`;
         }
 
         function closePaymentModal() {
@@ -663,9 +712,9 @@
         function submitPaymentData() {
             const utr = document.getElementById('utrInput').value.trim();
             const fileBox = document.getElementById('fileInput').files[0];
-            if(!utr && !fileBox) return alert("Please specify your transaction tracker key or upload receipt slip.");
+            if(!utr && !fileBox) return alert("Please specify transaction UTR key or upload receipt screenshot.");
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Optimizing Resolution...";
+            submitPayBtn.innerText = "Processing Image Resolution...";
             submitPayBtn.disabled = true;
 
             if (fileBox) {
@@ -698,17 +747,34 @@
 
         function executePostSubmission(utrCode, embeddedBase64Str) {
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Updating Ledger...";
+            submitPayBtn.innerText = "Transmitting Ledger Records...";
             
             optimisticPendingMonths.add(Number(currentSelectedMonth));
+
+            // Extract selected Kitty account numbers (Comma separated for Multi-Kitty submission)
+            let selectedKitties = [globalKittyNumber];
+            let calculatedTotalAmount = globalMonthlyAmount;
+
+            if (activeMatches && activeMatches.length > 1) {
+                const checkboxes = document.querySelectorAll('input[name="kittyPaySelect"]:checked');
+                if (checkboxes.length > 0) {
+                    selectedKitties = [];
+                    let aggregate = 0;
+                    checkboxes.forEach(cb => {
+                        selectedKitties.push(cb.value);
+                        aggregate += Number(cb.getAttribute('data-amount')) || 0;
+                    });
+                    calculatedTotalAmount = aggregate;
+                }
+            }
 
             const payload = {
                 action: "submit",
                 id: globalCustomerPhone,
-                kittyNumber: globalKittyNumber, 
+                kittyNumber: selectedKitties.join(','), // Send comma-separated list
                 month: currentSelectedMonth,
-                amount: globalMonthlyAmount,
-                utr: utrCode || `Direct Bank Deposit`,
+                amount: calculatedTotalAmount,
+                utr: utrCode || `Direct Deposit`,
                 screenshotUrl: embeddedBase64Str
             };
 
@@ -727,7 +793,7 @@
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
-                alert("Payment proofs filed for administrative review!");
+                alert("Payment proofs transmitted for administrative review!");
                 executePassbookRender(globalCustomerPhone, globalKittyNumber, true);
             })
             .catch(e => {
@@ -742,15 +808,15 @@
         function loadAdminDashboard() {
             const desktopBody = document.getElementById('adminTableBody');
             const mobileWrapper = document.getElementById('adminMobileCardsWrapper');
-            desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-gray-500">Connecting live records...</td></tr>`;
-            mobileWrapper.innerHTML = `<div class="p-8 text-center text-gray-500 bg-white rounded-xl border">Connecting live records...</div>`;
+            desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Connecting live records...</td></tr>`;
+            mobileWrapper.innerHTML = `<div class="p-8 text-center text-slate-500 bg-white rounded-xl border">Connecting live records...</div>`;
             
             fetch(`${SCRIPT_URL}?action=getData&id=all_pending&_ts=${Date.now()}`)
             .then(r => r.json()).then(pendingList => {
                 if(!pendingList || pendingList.length === 0) {
-                    const cleanStateMsg = `🎉 All clean! No pending verifications left.`;
-                    desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-600 font-medium">${cleanStateMsg}</td></tr>`;
-                    mobileWrapper.innerHTML = `<div class="p-6 text-center text-emerald-600 bg-white border border-emerald-100 rounded-xl font-medium">${cleanStateMsg}</div>`;
+                    const cleanStateMsg = `All clean: No pending verifications queued.`;
+                    desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-700 font-semibold">${cleanStateMsg}</td></tr>`;
+                    mobileWrapper.innerHTML = `<div class="p-6 text-center text-emerald-700 bg-white border border-emerald-200 rounded-xl font-semibold">${cleanStateMsg}</div>`;
                     return;
                 }
                 
@@ -766,31 +832,31 @@
                     const extOtherDetails = item.otherDetails || "None";
 
                     const linkMarkup = isInline 
-                        ? `<button onclick="viewEmbeddedReceipt('${item.row}')" class="text-amber-600 underline font-medium block mt-1 cursor-pointer">View Slip Image ↗</button>
-                           <div id="hidden-img-${item.row}" class="hidden-view mt-2 max-w-xs border border-gray-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto mx-auto"></div>`
-                        : `<a href="${slipSrc}" target="_blank" class="text-amber-600 underline font-medium block mt-1">View Slip Receipt ↗</a>`;
+                        ? `<button onclick="viewEmbeddedReceipt('${item.row}')" class="text-slate-900 underline font-semibold block mt-1 cursor-pointer">View Receipt Image ↗</button>
+                           <div id="hidden-img-${item.row}" class="hidden-view mt-2 max-w-xs border border-slate-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto mx-auto"></div>`
+                        : `<a href="${slipSrc}" target="_blank" class="text-slate-900 underline font-semibold block mt-1">View Receipt Image ↗</a>`;
 
                     let actionButtonContent = "";
                     if (currentActiveAdminRole === "APPROVE") {
-                        actionButtonContent = `<button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-md hover:bg-emerald-700 font-medium transition-all cursor-pointer">Approve Instantly</button>`;
+                        actionButtonContent = `<button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-3 py-1.5 rounded font-semibold transition-all cursor-pointer">Approve Instantly</button>`;
                     } else {
-                        actionButtonContent = `<span class="text-xs text-gray-400 italic bg-gray-100 px-2.5 py-1 rounded-md font-medium select-none">Read-Only View</span>`;
+                        actionButtonContent = `<span class="text-xs text-slate-400 italic bg-slate-100 px-2.5 py-1 rounded font-medium select-none">Read-Only View</span>`;
                     }
 
                     desktopBody.innerHTML += `
                         <tr id="row-${item.row}">
                             <td class="p-4">
-                                <div class="font-bold text-gray-900">${extCustomerName}</div>
-                                <div class="text-xs text-gray-500 font-mono">${item.phone}</div>
+                                <div class="font-bold text-slate-900">${extCustomerName}</div>
+                                <div class="text-xs text-slate-500 font-mono">${item.phone}</div>
                             </td>
                             <td class="p-4 text-xs">
-                                <div><span class="text-gray-400 font-medium">ID:</span> ${extCustomerId}</div>
-                                <div><span class="text-gray-400 font-medium">Kit #:</span> ${extKittyNumber}</div>
-                                <div class="text-[10px] italic text-gray-400 truncate max-w-[120px]">${extOtherDetails}</div>
+                                <div><span class="text-slate-400 font-medium">ID:</span> ${extCustomerId}</div>
+                                <div><span class="text-slate-400 font-medium">Plan #:</span> ${extKittyNumber}</div>
+                                <div class="text-[10px] italic text-slate-400 truncate max-w-[120px]">${extOtherDetails}</div>
                             </td>
                             <td class="p-4 font-medium">Month ${item.month}</td>
-                            <td class="p-4 font-bold text-gray-800">₹${item.amount}</td>
-                            <td class="p-4 text-xs text-gray-500">
+                            <td class="p-4 font-bold text-slate-900 font-mono">₹${item.amount}</td>
+                            <td class="p-4 text-xs text-slate-500">
                                 <div class="font-mono">UTR: ${item.utr}</div>
                                 ${slipSrc ? linkMarkup : ''}
                             </td>
@@ -802,32 +868,32 @@
 
                     let mobileActionButtonContent = "";
                     if (currentActiveAdminRole === "APPROVE") {
-                        mobileActionButtonContent = `<button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs tracking-wider uppercase transition-all shadow-xs cursor-pointer mt-1">Approve Instantly</button>`;
+                        mobileActionButtonContent = `<button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition-all shadow-xs cursor-pointer mt-1">Approve Instantly</button>`;
                     }
 
                     mobileWrapper.innerHTML += `
-                        <div id="mob-card-${item.row}" class="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs space-y-3">
-                            <div class="flex justify-between items-start border-b border-gray-100 pb-2">
+                        <div id="mob-card-${item.row}" class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-3">
+                            <div class="flex justify-between items-start border-b border-slate-100 pb-2">
                                 <div>
-                                    <h4 class="font-bold text-gray-900 text-sm">${extCustomerName}</h4>
-                                    <p class="text-xs text-gray-500 font-mono">${item.phone}</p>
+                                    <h4 class="font-bold text-slate-900 text-sm">${extCustomerName}</h4>
+                                    <p class="text-xs text-slate-500 font-mono">${item.phone}</p>
                                 </div>
-                                <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md">Month ${item.month}</span>
+                                <span class="bg-slate-100 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded">Month ${item.month}</span>
                             </div>
-                            <div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
-                                <div><span class="text-gray-400 block text-[9px] uppercase font-bold">Customer ID</span><strong>${extCustomerId}</strong></div>
-                                <div><span class="text-gray-400 block text-[9px] uppercase font-bold">Kitty Number</span><strong>${extKittyNumber}</strong></div>
+                            <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Customer ID</span><strong>${extCustomerId}</strong></div>
+                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Kitty Plan</span><strong>${extKittyNumber}</strong></div>
                             </div>
-                            <div class="text-xs text-gray-600 bg-gray-50 p-2 rounded-xl border border-gray-100">
-                                <span class="text-gray-400 block text-[9px] uppercase font-bold">Other Details</span>
-                                <p class="italic text-gray-700 mt-0.5">${extOtherDetails}</p>
+                            <div class="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                <span class="text-slate-400 block text-[9px] uppercase font-bold">Other Details</span>
+                                <p class="italic text-slate-700 mt-0.5">${extOtherDetails}</p>
                             </div>
-                            <div class="flex justify-between items-center bg-amber-50/50 p-2.5 rounded-xl border border-amber-100/40">
-                                <span class="text-xs text-gray-500 font-medium">Deposit Amount:</span>
-                                <span class="text-sm font-black text-gray-900">₹${item.amount}</span>
+                            <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                                <span class="text-xs text-slate-500 font-medium">Deposit Amount:</span>
+                                <span class="text-sm font-bold font-mono text-slate-900">₹${item.amount}</span>
                             </div>
-                            <div class="text-xs border-t border-gray-100 pt-2 space-y-1">
-                                <div class="font-mono text-gray-500 text-[11px]"><span class="text-gray-400 font-sans font-medium">UTR Code:</span> ${item.utr}</div>
+                            <div class="text-xs border-t border-slate-100 pt-2 space-y-1">
+                                <div class="font-mono text-slate-500 text-[11px]"><span class="text-slate-400 font-sans font-medium">UTR Code:</span> ${item.utr}</div>
                                 ${slipSrc ? linkMarkup : ''}
                             </div>
                             ${mobileActionButtonContent}
@@ -844,7 +910,7 @@
 
         function promptGoldRateApproval(rowId, installmentAmount) {
             if (currentActiveAdminRole !== "APPROVE") {
-                alert("Security Authorization Breach! Read-only profile accounts are restricted.");
+                alert("Security Authorization Breach: Read-only accounts restricted.");
                 return;
             }
 
@@ -858,7 +924,7 @@
             var goldRatePerGram = goldRate10g / 10;
             var allocatedGrams = installmentAmount / goldRatePerGram;
 
-            if(!confirm("Confirm Gold Booking Data Details:\n- Rate / 10g: ₹" + goldRate10g + "\n- Weight: " + allocatedGrams.toFixed(3) + " grams\n\nCommit row update?")) return;
+            if(!confirm("Confirm Gold Booking Details:\n- Rate / 10g: ₹" + goldRate10g + "\n- Weight: " + allocatedGrams.toFixed(3) + " grams\n\nCommit row update?")) return;
 
             const desktopEl = document.getElementById("row-" + rowId);
             const mobileEl = document.getElementById("mob-card-" + rowId);
@@ -880,13 +946,13 @@
             .then(() => {
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
-                alert("Transaction verified successfully! " + allocatedGrams.toFixed(3) + "g gold booked inside spreadsheet.");
+                alert("Transaction verified successfully: " + allocatedGrams.toFixed(3) + "g gold booked.");
                 setTimeout(loadAdminDashboard, 1500);
             })
             .catch(err => {
                 if(desktopEl) desktopEl.remove();
                 if(mobileEl) mobileEl.remove();
-                alert("Ledger logs updated successfully!");
+                alert("Ledger logs updated successfully.");
                 setTimeout(loadAdminDashboard, 1500);
             });
         }
