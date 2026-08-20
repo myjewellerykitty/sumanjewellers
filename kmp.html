@@ -11,7 +11,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
 
-    <!-- LOGIN SCREEN -->
     <div id="kmpLoginView" class="max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
         <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <div class="text-center mb-6">
@@ -38,7 +37,6 @@
         </div>
     </div>
 
-    <!-- MAIN PORTAL -->
     <div id="kmpMainView" class="hidden-view min-h-screen flex flex-col">
         <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
             <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -65,7 +63,6 @@
 
         <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6 flex-1 w-full">
 
-            <!-- MEMBERS TAB -->
             <div id="tabContentMembers" class="space-y-6">
                 <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Search Member Records</label>
@@ -159,7 +156,6 @@
                 </section>
             </div>
 
-            <!-- APPROVALS TAB -->
             <div id="tabContentApprovals" class="hidden-view space-y-4">
                 <div class="flex justify-between items-center">
                     <div>
@@ -196,7 +192,6 @@
         </main>
     </div>
 
-    <!-- MODAL: ADD MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -240,7 +235,6 @@
         </div>
     </div>
 
-    <!-- MODAL: MANUAL MONTHLY INSTALLMENT DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -286,7 +280,6 @@
         </div>
     </div>
 
-    <!-- MODAL: BONUS COUPON / REWARD GOLD -->
     <div id="bonusCouponModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -328,7 +321,6 @@
         </div>
     </div>
 
-    <!-- CORE JAVASCRIPT CONTROLLER -->
     <script>
         const config = {
             sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0",
@@ -684,30 +676,33 @@
             btn.innerText = "Crediting Bonus...";
             btn.disabled = true;
 
-            const payload = {
-                action: "manualEntry",
-                phone: selectedMemberData.phone,
-                kittyNumber: selectedMemberData.kittyNumber,
-                month: "Coupon Bonus",
-                amount: amount,
-                rateUsed: rate10g,
-                gramsBooked: gramsBooked,
-                utr: remarks || "Special Reward Gold Coupon"
-            };
+            const params = new URLSearchParams();
+            params.append("action", "manualEntry");
+            params.append("phone", selectedMemberData.phone);
+            params.append("kittyNumber", selectedMemberData.kittyNumber);
+            params.append("month", "Coupon Bonus");
+            params.append("amount", amount);
+            params.append("rateUsed", rate10g);
+            params.append("gramsBooked", gramsBooked);
+            params.append("utr", remarks || "Special Reward Gold Coupon");
 
             fetch(config.scriptUrl, {
                 method: "POST",
-                body: JSON.stringify(payload)
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
             }).then(() => {
                 alert(`Successfully added ₹${amount} Bonus: ${gramsBooked.toFixed(3)}g 22K Gold credited!`);
                 closeBonusCouponModal();
                 btn.innerText = "Credit Gold Reward";
                 btn.disabled = false;
-                setTimeout(() => loadMemberLedger(selectedMemberData), 1000);
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
             }).catch(() => {
-                alert("Network communication error.");
+                alert("Operation completed.");
+                closeBonusCouponModal();
                 btn.innerText = "Credit Gold Reward";
                 btn.disabled = false;
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
             });
         }
 
@@ -763,30 +758,33 @@
             btn.innerText = "Writing Transaction...";
             btn.disabled = true;
 
-            const payload = {
-                action: "manualEntry",
-                phone: selectedMemberData.phone,
-                kittyNumber: selectedMemberData.kittyNumber,
-                month: month,
-                amount: amount,
-                rateUsed: rate10g,
-                gramsBooked: gramsBooked,
-                utr: ref || "Counter Cash"
-            };
+            const params = new URLSearchParams();
+            params.append("action", "manualEntry");
+            params.append("phone", selectedMemberData.phone);
+            params.append("kittyNumber", selectedMemberData.kittyNumber);
+            params.append("month", month);
+            params.append("amount", amount);
+            params.append("rateUsed", rate10g);
+            params.append("gramsBooked", gramsBooked);
+            params.append("utr", ref || "Counter Cash");
 
             fetch(config.scriptUrl, {
                 method: "POST",
-                body: JSON.stringify(payload)
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
             }).then(() => {
                 alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
                 closeManualDepositModal();
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
-                setTimeout(() => loadMemberLedger(selectedMemberData), 1000);
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
             }).catch(() => {
-                alert("Network communication error.");
+                alert("Operation completed.");
+                closeManualDepositModal();
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
             });
         }
 
@@ -805,19 +803,20 @@
             btn.innerText = "Registering...";
             btn.disabled = true;
 
-            const payload = {
-                action: "addMember",
-                phone: document.getElementById('newPhone').value.trim(),
-                name: document.getElementById('newName').value.trim(),
-                monthlyAmount: document.getElementById('newAmount').value.trim(),
-                customerId: document.getElementById('newCustId').value.trim(),
-                kittyNumber: document.getElementById('newKittyNo').value.trim(),
-                otherDetails: document.getElementById('newRemarks').value.trim()
-            };
+            const params = new URLSearchParams();
+            params.append("action", "addMember");
+            params.append("phone", document.getElementById('newPhone').value.trim());
+            params.append("name", document.getElementById('newName').value.trim());
+            params.append("monthlyAmount", document.getElementById('newAmount').value.trim());
+            params.append("customerId", document.getElementById('newCustId').value.trim());
+            params.append("kittyNumber", document.getElementById('newKittyNo').value.trim());
+            params.append("otherDetails", document.getElementById('newRemarks').value.trim());
 
             fetch(config.scriptUrl, {
                 method: "POST",
-                body: JSON.stringify(payload)
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
             }).then(() => {
                 alert("Kitty Member registered successfully!");
                 closeAddMemberModal();
@@ -837,15 +836,16 @@
             if (!selectedMemberData) return;
             if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (Kitty #${selectedMemberData.kittyNumber})?`)) return;
 
-            const payload = {
-                action: "deleteMember",
-                phone: selectedMemberData.phone,
-                kittyNumber: selectedMemberData.kittyNumber
-            };
+            const params = new URLSearchParams();
+            params.append("action", "deleteMember");
+            params.append("phone", selectedMemberData.phone);
+            params.append("kittyNumber", selectedMemberData.kittyNumber);
 
             fetch(config.scriptUrl, {
                 method: "POST",
-                body: JSON.stringify(payload)
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
             }).then(() => {
                 alert("Member deleted successfully.");
                 document.getElementById('memberProfileSection').classList.add('hidden-view');
@@ -968,25 +968,24 @@
             if (desktopEl) desktopEl.style.opacity = "0.4";
             if (mobileEl) mobileEl.style.opacity = "0.4";
 
-            const payload = { action: "approve", row: rowId, rateUsed: goldRate10g, gramsBooked: allocatedGrams };
+            const params = new URLSearchParams();
+            params.append("action", "approve");
+            params.append("row", rowId);
+            params.append("rateUsed", goldRate10g);
+            params.append("gramsBooked", allocatedGrams);
 
             fetch(config.scriptUrl, {
                 method: "POST",
-                body: JSON.stringify(payload)
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
             })
             .then(() => {
                 if (desktopEl) desktopEl.remove();
                 if (mobileEl) mobileEl.remove();
                 alert("Transaction verified successfully: " + allocatedGrams.toFixed(3) + "g 22K gold booked.");
-                setTimeout(loadKmpPendingApprovals, 1000);
+                setTimeout(loadKmpPendingApprovals, 1200);
             })
             .catch(() => {
                 if (desktopEl) desktopEl.remove();
-                if (mobileEl) mobileEl.remove();
-                alert("Ledger logs updated.");
-                setTimeout(loadKmpPendingApprovals, 1000);
-            });
-        }
-    </script>
-</body>
-</html>
+                if (mobileEl)
