@@ -40,7 +40,6 @@
 
     <!-- MAIN PORTAL -->
     <div id="kmpMainView" class="hidden-view min-h-screen flex flex-col">
-        <!-- Top Navigation Header -->
         <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
             <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
                 <div class="flex items-center gap-3">
@@ -68,12 +67,11 @@
 
             <!-- TAB 1: MEMBERS DIRECTORY -->
             <div id="tabContentMembers" class="space-y-6">
-                <!-- Search & Header Bar with Live Refresh -->
                 <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Search Member Records</label>
-                        <button onclick="refreshMembersView()" class="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer border border-slate-200 active:scale-95">
-                            <span class="inline-block animate-spin-hover">↻</span> Refresh Directory
+                        <button onclick="refreshCurrentLedger()" class="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer border border-slate-200 active:scale-95">
+                            ↻ Live Refresh
                         </button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
@@ -83,7 +81,6 @@
                         </button>
                     </div>
 
-                    <!-- Multi-Kitty Selector Dropdown -->
                     <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
                         <p class="text-xs font-bold text-amber-900 uppercase">Multiple Accounts Linked</p>
                         <p class="text-xs text-amber-800">Select active Kitty Plan to inspect:</p>
@@ -91,7 +88,6 @@
                     </div>
                 </section>
 
-                <!-- Customer Passbook & Action Center -->
                 <section id="memberProfileSection" class="hidden-view space-y-6">
                     <div class="bg-slate-900 text-white rounded-xl p-6 shadow-sm border border-slate-800 relative overflow-hidden">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-4">
@@ -144,7 +140,6 @@
                         </div>
                     </div>
 
-                    <!-- Ledger Table -->
                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment & Credit Ledger</h3>
@@ -169,7 +164,7 @@
                 </section>
             </div>
 
-            <!-- TAB 2: PENDING APPROVALS QUEUE -->
+            <!-- TAB 2: PENDING APPROVALS -->
             <div id="tabContentApprovals" class="hidden-view space-y-4">
                 <div class="flex justify-between items-center">
                     <div>
@@ -250,7 +245,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: MANUAL MONTHLY INSTALLMENT DEPOSIT -->
+    <!-- MODAL 2: MANUAL DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -296,7 +291,7 @@
         </div>
     </div>
 
-    <!-- CORE JAVASCRIPT CONTROLLER -->
+    <!-- CORE ENGINE CONTROLLER -->
     <script>
         const config = {
             sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0",
@@ -401,18 +396,11 @@
             return fields;
         }
 
-        // --- DIRECT REFRESH FUNCTIONS ---
-        function refreshMembersView() {
-            if (document.getElementById('searchInput').value.trim()) {
-                searchMemberRecords();
-            } else {
-                alert("Directory synced with live sheet data.");
-            }
-        }
-
         function refreshCurrentLedger() {
             if (selectedMemberData) {
                 loadMemberLedger(selectedMemberData);
+            } else if (document.getElementById('searchInput').value.trim()) {
+                searchMemberRecords();
             }
         }
 
@@ -511,47 +499,24 @@
             document.getElementById('viewMonthlyAmount').innerText = "₹" + member.monthlyAmount;
             document.getElementById('viewOtherDetails').innerText = member.otherDetails || "None";
 
-            const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions&_ts=${Date.now()}`;
-
-            fetch(txCsvUrl, { cache: "no-store" })
-            .then(r => r.text())
-            .then(csv => {
-                const lines = csv.split('\n');
-                const userTxs = [];
+            // Query direct API endpoint for 100% live un-cached transactions
+            fetch(`${config.scriptUrl}?action=getData&phone=${member.phone}&kittyNumber=${member.kittyNumber}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(data => {
                 let paidMonths = 0;
                 let totalDeposited = 0;
                 let totalGold = 0;
+                let txList = (data && data.transactions) ? data.transactions : [];
 
-                const cleanTargetPhone = member.phone.toString().replace(/\D/g, "").trim();
-                const cleanTargetKitty = member.kittyNumber.toString().replace(/^['"]|['"]$/g, '').trim().toLowerCase();
-
-                for (let j = 1; j < lines.length; j++) {
-                    if (!lines[j]) continue;
-                    let cols = parseCsv(lines[j]);
-                    if (!cols[0]) continue;
-
-                    let txPhone = cleanString(cols[0]).replace(/\D/g, "").trim();
-                    let txKitty = cleanString(cols[7]).replace(/^['"]|['"]$/g, '').trim().toLowerCase();
-
-                    if (txPhone === cleanTargetPhone && txKitty === cleanTargetKitty) {
-                        let month = cleanString(cols[1]);
-                        let amount = parseFloat(cleanString(cols[2])) || 0;
-                        let status = cleanString(cols[5]);
-                        let rate = cleanString(cols[8]);
-                        let grams = parseFloat(cleanString(cols[9])) || 0;
-                        let utr = cleanString(cols[3]);
-
-                        userTxs.push({ month, amount, status, rate, grams, utr });
-
-                        if (status.toLowerCase() === "paid") {
-                            if (!isNaN(Number(month)) && Number(month) >= 1 && Number(month) <= config.schemeMonths) {
-                                paidMonths++;
-                            }
-                            totalDeposited += amount;
-                            totalGold += grams;
+                txList.forEach(t => {
+                    if (t.status && t.status.toLowerCase() === "paid") {
+                        if (!isNaN(Number(t.month)) && Number(t.month) >= 1 && Number(t.month) <= config.schemeMonths) {
+                            paidMonths++;
                         }
+                        totalDeposited += Number(t.amount) || 0;
+                        totalGold += Number(t.bookedGrams) || 0;
                     }
-                }
+                });
 
                 document.getElementById('viewTotalBalance').innerText = "₹" + totalDeposited;
                 document.getElementById('viewTotalGoldGrams').innerText = `${totalGold.toFixed(3)} g`;
@@ -560,17 +525,17 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
-                // Regular 12 Months
+                // 12 Months Matrix
                 for (let m = 1; m <= config.schemeMonths; m++) {
-                    let record = userTxs.find(t => Number(t.month) === m);
+                    let record = txList.find(t => Number(t.month) === m);
                     if (record && record.status.toLowerCase() === "paid") {
                         tbody.innerHTML += `
                             <tr class="bg-emerald-50/40">
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
                                 <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PAID</span></td>
                                 <td class="p-3 font-mono font-bold text-slate-900">₹${record.amount}</td>
-                                <td class="p-3 font-mono text-slate-600">₹${record.rate || '-'}</td>
-                                <td class="p-3 font-mono font-bold text-amber-900">${record.grams.toFixed(3)} g</td>
+                                <td class="p-3 font-mono text-slate-600">Applied</td>
+                                <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.bookedGrams)||0).toFixed(3)} g</td>
                                 <td class="p-3 font-mono text-slate-500">${record.utr || 'Direct'}</td>
                             </tr>
                         `;
@@ -599,8 +564,8 @@
                     }
                 }
 
-                // Additional / Bonus Entries
-                userTxs.forEach(t => {
+                // Any Extra Months / Bonus Records
+                txList.forEach(t => {
                     if (isNaN(Number(t.month)) || Number(t.month) > config.schemeMonths) {
                         tbody.innerHTML += `
                             <tr class="bg-amber-50/70 border-t-2 border-amber-200">
@@ -609,8 +574,8 @@
                                 </td>
                                 <td class="p-3"><span class="bg-amber-200 text-amber-900 font-black px-2 py-0.5 rounded text-[10px]">CREDITED</span></td>
                                 <td class="p-3 font-mono font-bold text-amber-900">₹${t.amount}</td>
-                                <td class="p-3 font-mono text-slate-600">₹${t.rate || '-'}</td>
-                                <td class="p-3 font-mono font-bold text-amber-950">${t.grams.toFixed(3)} g</td>
+                                <td class="p-3 font-mono text-slate-600">Applied</td>
+                                <td class="p-3 font-mono font-bold text-amber-950">${(Number(t.bookedGrams)||0).toFixed(3)} g</td>
                                 <td class="p-3 font-mono text-slate-600 italic">${t.utr}</td>
                             </tr>
                         `;
@@ -618,6 +583,9 @@
                 });
 
                 document.getElementById('memberProfileSection').classList.remove('hidden-view');
+            })
+            .catch(() => {
+                alert("Error synchronizing live ledger.");
             });
         }
 
@@ -689,14 +657,14 @@
                 closeManualDepositModal();
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
-                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1000);
             })
             .catch(() => {
                 alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
                 closeManualDepositModal();
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
-                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1000);
             });
         }
 
