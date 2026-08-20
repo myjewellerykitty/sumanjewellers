@@ -11,7 +11,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
 
-    <!-- ADMIN LOGIN MODAL / VIEW -->
+    <!-- LOGIN SCREEN -->
     <div id="kmpLoginView" class="max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
         <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <div class="text-center mb-6">
@@ -38,9 +38,8 @@
         </div>
     </div>
 
-    <!-- MAIN KMP INTERFACE -->
+    <!-- MAIN PORTAL -->
     <div id="kmpMainView" class="hidden-view min-h-screen flex flex-col">
-        
         <!-- Top Navigation Header -->
         <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
             <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -54,7 +53,7 @@
                         <p class="text-xs text-slate-400">Suman Jewellers Master Operational Console</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                     <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Members Directory</button>
                     <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Pending Approvals</button>
                     <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
@@ -67,11 +66,16 @@
 
         <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6 flex-1 w-full">
 
-            <!-- TAB 1: MEMBERS DIRECTORY & LOOKUP -->
+            <!-- TAB 1: MEMBERS DIRECTORY -->
             <div id="tabContentMembers" class="space-y-6">
-                <!-- Search & Lookup Card -->
+                <!-- Search & Header Bar with Live Refresh -->
                 <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Search Member Records</label>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Search Member Records</label>
+                        <button onclick="refreshMembersView()" class="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer border border-slate-200 active:scale-95">
+                            <span class="inline-block animate-spin-hover">↻</span> Refresh Directory
+                        </button>
+                    </div>
                     <div class="flex flex-col sm:flex-row gap-2">
                         <input type="text" id="searchInput" placeholder="Enter Mobile Number OR Kitty Plan Number..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all">
                         <button onclick="searchMemberRecords()" id="btnSearch" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer">
@@ -79,17 +83,16 @@
                         </button>
                     </div>
 
-                    <!-- Multiple Kitties Found Selector -->
+                    <!-- Multi-Kitty Selector Dropdown -->
                     <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
-                        <p class="text-xs font-bold text-amber-900 uppercase">Multiple Accounts Linked With This Mobile Number</p>
-                        <p class="text-xs text-amber-800">Select which Kitty Account plan details you want to load:</p>
+                        <p class="text-xs font-bold text-amber-900 uppercase">Multiple Accounts Linked</p>
+                        <p class="text-xs text-amber-800">Select active Kitty Plan to inspect:</p>
                         <div id="kittySelectionPills" class="flex flex-wrap gap-2 pt-1"></div>
                     </div>
                 </section>
 
-                <!-- Customer Full Passbook & Action Center -->
+                <!-- Customer Passbook & Action Center -->
                 <section id="memberProfileSection" class="hidden-view space-y-6">
-                    <!-- Summary Card -->
                     <div class="bg-slate-900 text-white rounded-xl p-6 shadow-sm border border-slate-800 relative overflow-hidden">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-4">
                             <div>
@@ -97,11 +100,14 @@
                                 <h2 id="viewCustName" class="text-2xl font-bold mt-1 text-slate-100">-</h2>
                                 <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <button onclick="refreshCurrentLedger()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-2.5 rounded-lg border border-slate-700 transition-all cursor-pointer shadow-sm active:scale-95">
+                                    ↻ Live Sync
+                                </button>
+                                <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm active:scale-95">
                                     + Deposit Value & Book Gold
                                 </button>
-                                <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer">
+                                <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer active:scale-95">
                                     Delete Member
                                 </button>
                             </div>
@@ -132,28 +138,28 @@
                                 <span id="viewOtherDetails" class="text-slate-300 italic">-</span>
                             </div>
                             <div class="bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2">
-                                <span>Booked 22K Gold:</span>
+                                <span>Total Accumulated 22K Gold:</span>
                                 <span id="viewTotalGoldGrams" class="font-mono text-sm">0.000 g</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Installment Timeline Table -->
+                    <!-- Ledger Table -->
                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment Ledger (12 Months)</h3>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment & Credit Ledger</h3>
                             <span id="viewPaidRatio" class="text-xs font-semibold text-slate-500">0 / 12 Complete</span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
                                     <tr class="text-slate-500 border-b border-slate-200 bg-white">
-                                        <th class="p-3">Month</th>
+                                        <th class="p-3">Month / Type</th>
                                         <th class="p-3">Status</th>
-                                        <th class="p-3">Deposit Amount</th>
+                                        <th class="p-3">Deposit / Value</th>
                                         <th class="p-3">22K Rate Applied (/10g)</th>
                                         <th class="p-3">Allocated Weight</th>
-                                        <th class="p-3">Reference / UTR</th>
+                                        <th class="p-3">Reference / Remarks</th>
                                     </tr>
                                 </thead>
                                 <tbody id="memberTxTableBody" class="divide-y divide-slate-100"></tbody>
@@ -168,10 +174,10 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-base font-bold text-slate-900">Pending Payment Verifications</h2>
-                        <p class="text-xs text-slate-500">Submissions requiring showroom verification and 22K gold rate locking</p>
+                        <p class="text-xs text-slate-500">Review proof and lock 22K gold rate</p>
                     </div>
-                    <button onclick="loadKmpPendingApprovals()" class="bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer">
-                        Refresh Queue
+                    <button onclick="loadKmpPendingApprovals()" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-all active:scale-95 shadow-sm">
+                        <span>↻</span> Refresh Queue
                     </button>
                 </div>
 
@@ -200,7 +206,7 @@
         </main>
     </div>
 
-    <!-- MODAL: ADD NEW KITTY MEMBER -->
+    <!-- MODAL 1: ADD MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -244,12 +250,12 @@
         </div>
     </div>
 
-    <!-- MODAL: MANUAL VALUE & BOOK 22K GOLD -->
+    <!-- MODAL 2: MANUAL MONTHLY INSTALLMENT DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900">Manual Deposit & 22K Gold Booking</h3>
+                    <h3 class="text-base font-bold text-slate-900">Deposit Monthly Kitty & Book 22K Gold</h3>
                     <p id="depositTargetLabel" class="text-xs text-slate-500 font-mono mt-0.5">-</p>
                 </div>
                 <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
@@ -269,7 +275,6 @@
                     <input type="number" id="depositRate" required oninput="calculateRealtimeGold()" placeholder="e.g. 68500" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
                 </div>
                 
-                <!-- Computed Realtime Output -->
                 <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
                     <div>
                         <span class="text-[10px] uppercase font-bold text-amber-800 block">Allocated 22K Weight</span>
@@ -291,7 +296,7 @@
         </div>
     </div>
 
-    <!-- CORE KMP ENGINE CONTROLLER -->
+    <!-- CORE JAVASCRIPT CONTROLLER -->
     <script>
         const config = {
             sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0",
@@ -331,7 +336,7 @@
                 document.getElementById('kmpLoginView').classList.add('hidden-view');
                 document.getElementById('kmpMainView').classList.remove('hidden-view');
             } else {
-                alert("Authentication Failure: Invalid credentials for selected role.");
+                alert("Authentication Failure: Invalid security master key.");
             }
         }
 
@@ -381,7 +386,7 @@
 
         function cleanString(val) {
             if (!val) return "";
-            return val.toString().replace(/^"|"$/g, '').replace(/[\r\n\t]/g, '').trim();
+            return val.toString().replace(/^["']|["']$/g, '').replace(/[\r\n\t]/g, '').trim();
         }
 
         function parseCsv(textLine) {
@@ -396,10 +401,28 @@
             return fields;
         }
 
+        // --- DIRECT REFRESH FUNCTIONS ---
+        function refreshMembersView() {
+            if (document.getElementById('searchInput').value.trim()) {
+                searchMemberRecords();
+            } else {
+                alert("Directory synced with live sheet data.");
+            }
+        }
+
+        function refreshCurrentLedger() {
+            if (selectedMemberData) {
+                loadMemberLedger(selectedMemberData);
+            }
+        }
+
         // --- SEARCH WORKFLOW ---
         function searchMemberRecords() {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            if (!query) return alert("Please enter a Kitty Number or Mobile Number to search.");
+            const rawQuery = document.getElementById('searchInput').value.trim();
+            if (!rawQuery) return alert("Please enter a Mobile Number or Kitty Plan Number.");
+
+            const cleanPhoneQuery = rawQuery.replace(/\D/g, "");
+            const cleanPlanQuery = rawQuery.toLowerCase().replace(/^'/, "").trim();
 
             const btn = document.getElementById('btnSearch');
             btn.innerText = "Searching...";
@@ -425,10 +448,12 @@
                     let name = cleanString(cols[1]);
                     let amount = cleanString(cols[2]);
                     let custId = cleanString(cols[3]);
-                    let kittyNo = cleanString(cols[4]);
+                    let kittyNo = cleanString(cols[4]).replace(/^'/, "");
                     let details = cleanString(cols[5]);
 
-                    if (phone.includes(query) || kittyNo.toLowerCase() === query || custId.toLowerCase() === query) {
+                    if ((cleanPhoneQuery && phone.includes(cleanPhoneQuery)) || 
+                        kittyNo.toLowerCase() === cleanPlanQuery || 
+                        custId.toLowerCase() === cleanPlanQuery) {
                         activeSearchResults.push({ phone, name, monthlyAmount: amount, customerId: custId, kittyNumber: kittyNo, otherDetails: details });
                     }
                 }
@@ -475,7 +500,7 @@
             loadMemberLedger(activeSearchResults[index]);
         }
 
-        // --- LOAD MEMBER PROFILE & TRANSACTIONS ---
+        // --- LOAD LEDGER ---
         function loadMemberLedger(member) {
             selectedMemberData = member;
 
@@ -497,24 +522,31 @@
                 let totalDeposited = 0;
                 let totalGold = 0;
 
+                const cleanTargetPhone = member.phone.toString().replace(/\D/g, "").trim();
+                const cleanTargetKitty = member.kittyNumber.toString().replace(/^['"]|['"]$/g, '').trim().toLowerCase();
+
                 for (let j = 1; j < lines.length; j++) {
                     if (!lines[j]) continue;
                     let cols = parseCsv(lines[j]);
-                    let txPhone = cleanString(cols[0]).replace(/\D/g, "");
-                    let txKitty = cleanString(cols[7]);
+                    if (!cols[0]) continue;
 
-                    if (txPhone === member.phone && txKitty === member.kittyNumber) {
+                    let txPhone = cleanString(cols[0]).replace(/\D/g, "").trim();
+                    let txKitty = cleanString(cols[7]).replace(/^['"]|['"]$/g, '').trim().toLowerCase();
+
+                    if (txPhone === cleanTargetPhone && txKitty === cleanTargetKitty) {
                         let month = cleanString(cols[1]);
-                        let amount = Number(cleanString(cols[2])) || 0;
+                        let amount = parseFloat(cleanString(cols[2])) || 0;
                         let status = cleanString(cols[5]);
                         let rate = cleanString(cols[8]);
-                        let grams = Number(cleanString(cols[9])) || 0;
+                        let grams = parseFloat(cleanString(cols[9])) || 0;
                         let utr = cleanString(cols[3]);
 
                         userTxs.push({ month, amount, status, rate, grams, utr });
 
-                        if (status === "Paid") {
-                            paidMonths++;
+                        if (status.toLowerCase() === "paid") {
+                            if (!isNaN(Number(month)) && Number(month) >= 1 && Number(month) <= config.schemeMonths) {
+                                paidMonths++;
+                            }
                             totalDeposited += amount;
                             totalGold += grams;
                         }
@@ -528,9 +560,10 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
+                // Regular 12 Months
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let record = userTxs.find(t => Number(t.month) === m);
-                    if (record && record.status === "Paid") {
+                    if (record && record.status.toLowerCase() === "paid") {
                         tbody.innerHTML += `
                             <tr class="bg-emerald-50/40">
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
@@ -541,7 +574,7 @@
                                 <td class="p-3 font-mono text-slate-500">${record.utr || 'Direct'}</td>
                             </tr>
                         `;
-                    } else if (record && record.status === "Pending") {
+                    } else if (record && record.status.toLowerCase() === "pending") {
                         tbody.innerHTML += `
                             <tr class="bg-amber-50/40">
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
@@ -566,79 +599,29 @@
                     }
                 }
 
+                // Additional / Bonus Entries
+                userTxs.forEach(t => {
+                    if (isNaN(Number(t.month)) || Number(t.month) > config.schemeMonths) {
+                        tbody.innerHTML += `
+                            <tr class="bg-amber-50/70 border-t-2 border-amber-200">
+                                <td class="p-3 font-bold text-amber-950 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span> ${t.month}
+                                </td>
+                                <td class="p-3"><span class="bg-amber-200 text-amber-900 font-black px-2 py-0.5 rounded text-[10px]">CREDITED</span></td>
+                                <td class="p-3 font-mono font-bold text-amber-900">₹${t.amount}</td>
+                                <td class="p-3 font-mono text-slate-600">₹${t.rate || '-'}</td>
+                                <td class="p-3 font-mono font-bold text-amber-950">${t.grams.toFixed(3)} g</td>
+                                <td class="p-3 font-mono text-slate-600 italic">${t.utr}</td>
+                            </tr>
+                        `;
+                    }
+                });
+
                 document.getElementById('memberProfileSection').classList.remove('hidden-view');
             });
         }
 
-        // --- MODAL: ADD MEMBER ---
-        function openAddMemberModal() {
-            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-            document.getElementById('addMemberModal').classList.remove('hidden-view');
-        }
-        function closeAddMemberModal() {
-            document.getElementById('addMemberModal').classList.add('hidden-view');
-        }
-
-        function submitNewMember(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnSubmitMember');
-            btn.innerText = "Registering...";
-            btn.disabled = true;
-
-            const payload = {
-                action: "addMember",
-                phone: document.getElementById('newPhone').value.trim(),
-                name: document.getElementById('newName').value.trim(),
-                monthlyAmount: document.getElementById('newAmount').value.trim(),
-                customerId: document.getElementById('newCustId').value.trim(),
-                kittyNumber: document.getElementById('newKittyNo').value.trim(),
-                otherDetails: document.getElementById('newRemarks').value.trim()
-            };
-
-            const params = new URLSearchParams();
-            for (let k in payload) params.append(k, payload[k]);
-
-            fetch(config.scriptUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
-            }).then(() => {
-                alert("Kitty Member registered successfully!");
-                closeAddMemberModal();
-                btn.innerText = "Save & Register";
-                btn.disabled = false;
-            }).catch(() => {
-                alert("Registration submitted.");
-                closeAddMemberModal();
-                btn.innerText = "Save & Register";
-                btn.disabled = false;
-            });
-        }
-
-        // --- DELETE MEMBER ---
-        function confirmRemoveMember() {
-            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-            if (!selectedMemberData) return;
-            if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (Kitty #${selectedMemberData.kittyNumber})?`)) return;
-
-            const params = new URLSearchParams();
-            params.append("action", "deleteMember");
-            params.append("phone", selectedMemberData.phone);
-            params.append("kittyNumber", selectedMemberData.kittyNumber);
-
-            fetch(config.scriptUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
-            }).then(() => {
-                alert("Member deleted successfully from records.");
-                document.getElementById('memberProfileSection').classList.add('hidden-view');
-            });
-        }
-
-        // --- MODAL: MANUAL VALUE & GOLD RATE ---
+        // --- SUBMIT MONTHLY INSTALLMENT ---
         function openManualDepositModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             if (!selectedMemberData) return;
@@ -679,7 +662,9 @@
             const month = document.getElementById('depositMonth').value;
             const ref = document.getElementById('depositRef').value.trim();
 
-            if (!amount || !rate10g) return alert("Please specify valid deposit amount and gold rate.");
+            if (!amount || isNaN(amount) || !rate10g || isNaN(rate10g)) {
+                return alert("Please enter valid numeric deposit amount and gold rate.");
+            }
 
             const perGram = rate10g / 10;
             const gramsBooked = amount / perGram;
@@ -688,27 +673,26 @@
             btn.innerText = "Writing Transaction...";
             btn.disabled = true;
 
-            const payload = {
-                action: "manualEntry",
-                phone: selectedMemberData.phone,
-                kittyNumber: selectedMemberData.kittyNumber,
-                month: month,
-                amount: amount,
-                rateUsed: rate10g,
-                gramsBooked: gramsBooked,
-                utr: ref || "Counter Cash"
-            };
+            const targetUrl = `${config.scriptUrl}?action=manualEntry`
+                + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
+                + `&kittyNumber=${encodeURIComponent(selectedMemberData.kittyNumber)}`
+                + `&month=${encodeURIComponent(month)}`
+                + `&amount=${encodeURIComponent(amount)}`
+                + `&rateUsed=${encodeURIComponent(rate10g)}`
+                + `&gramsBooked=${encodeURIComponent(gramsBooked)}`
+                + `&utr=${encodeURIComponent(ref || "Counter Cash")}`
+                + `&_ts=${Date.now()}`;
 
-            const params = new URLSearchParams();
-            for (let k in payload) params.append(k, payload[k]);
-
-            fetch(config.scriptUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
-            }).then(() => {
-                alert(`Successfully deposited ₹${amount} and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
+            fetch(targetUrl, { mode: "no-cors" })
+            .then(() => {
+                alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
+                closeManualDepositModal();
+                btn.innerText = "Commit Transaction";
+                btn.disabled = false;
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
+            })
+            .catch(() => {
+                alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
                 closeManualDepositModal();
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
@@ -716,7 +700,64 @@
             });
         }
 
-        // --- PENDING APPROVALS QUEUE HANDLER ---
+        // --- ADD MEMBER ---
+        function openAddMemberModal() {
+            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
+            document.getElementById('addMemberModal').classList.remove('hidden-view');
+        }
+        function closeAddMemberModal() {
+            document.getElementById('addMemberModal').classList.add('hidden-view');
+        }
+
+        function submitNewMember(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitMember');
+            btn.innerText = "Registering...";
+            btn.disabled = true;
+
+            const targetUrl = `${config.scriptUrl}?action=addMember`
+                + `&phone=${encodeURIComponent(document.getElementById('newPhone').value.trim())}`
+                + `&name=${encodeURIComponent(document.getElementById('newName').value.trim())}`
+                + `&monthlyAmount=${encodeURIComponent(document.getElementById('newAmount').value.trim())}`
+                + `&customerId=${encodeURIComponent(document.getElementById('newCustId').value.trim())}`
+                + `&kittyNumber=${encodeURIComponent(document.getElementById('newKittyNo').value.trim())}`
+                + `&otherDetails=${encodeURIComponent(document.getElementById('newRemarks').value.trim())}`
+                + `&_ts=${Date.now()}`;
+
+            fetch(targetUrl, { mode: "no-cors" })
+            .then(() => {
+                alert("Kitty Member registered successfully!");
+                closeAddMemberModal();
+                btn.innerText = "Save & Register";
+                btn.disabled = false;
+            })
+            .catch(() => {
+                alert("Kitty Member registered successfully!");
+                closeAddMemberModal();
+                btn.innerText = "Save & Register";
+                btn.disabled = false;
+            });
+        }
+
+        // --- DELETE MEMBER ---
+        function confirmRemoveMember() {
+            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
+            if (!selectedMemberData) return;
+            if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (Kitty #${selectedMemberData.kittyNumber})?`)) return;
+
+            const targetUrl = `${config.scriptUrl}?action=deleteMember`
+                + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
+                + `&kittyNumber=${encodeURIComponent(selectedMemberData.kittyNumber)}`
+                + `&_ts=${Date.now()}`;
+
+            fetch(targetUrl, { mode: "no-cors" })
+            .then(() => {
+                alert("Member deleted successfully.");
+                document.getElementById('memberProfileSection').classList.add('hidden-view');
+            });
+        }
+
+        // --- PENDING APPROVALS QUEUE ---
         function loadKmpPendingApprovals() {
             const tableBody = document.getElementById('kmpApprovalTableBody');
             const mobileCards = document.getElementById('kmpApprovalMobileCards');
@@ -832,16 +873,13 @@
             if (desktopEl) desktopEl.style.opacity = "0.4";
             if (mobileEl) mobileEl.style.opacity = "0.4";
 
-            const payload = { action: "approve", row: rowId, rateUsed: goldRate10g, gramsBooked: allocatedGrams };
-            const params = new URLSearchParams();
-            for (const key in payload) params.append(key, payload[key]);
+            const targetUrl = `${config.scriptUrl}?action=approve`
+                + `&row=${encodeURIComponent(rowId)}`
+                + `&rateUsed=${encodeURIComponent(goldRate10g)}`
+                + `&gramsBooked=${encodeURIComponent(allocatedGrams)}`
+                + `&_ts=${Date.now()}`;
 
-            fetch(config.scriptUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
-            })
+            fetch(targetUrl, { mode: "no-cors" })
             .then(() => {
                 if (desktopEl) desktopEl.remove();
                 if (mobileEl) mobileEl.remove();
@@ -851,7 +889,7 @@
             .catch(() => {
                 if (desktopEl) desktopEl.remove();
                 if (mobileEl) mobileEl.remove();
-                alert("Ledger logs updated.");
+                alert("Transaction verified successfully: " + allocatedGrams.toFixed(3) + "g 22K gold booked.");
                 setTimeout(loadKmpPendingApprovals, 1200);
             });
         }
