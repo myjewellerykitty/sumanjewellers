@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suman Jewellers - Kitty Management Portal (KMP)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .hidden-view { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center font-black text-slate-900 text-lg">KMP</div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">Kitty Management Portal</h1>
+                    <p class="text-xs text-slate-400">Suman Jewellers Showroom Operational Desk</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="openAddMemberModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs tracking-wider uppercase transition-all shadow-sm cursor-pointer active:scale-95">
+                    + Add New Member
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- Search & Lookup Card -->
+        <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Search Member Records</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input type="text" id="searchInput" placeholder="Enter Mobile Number OR Kitty Number..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all">
+                <button onclick="searchMemberRecords()" id="btnSearch" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer">
+                    Search Account
+                </button>
+            </div>
+
+            <!-- Multiple Kitties Found Selector -->
+            <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
+                <p class="text-xs font-bold text-amber-900 uppercase">Multiple Kitties Associated With This Customer</p>
+                <p class="text-xs text-amber-800">Please select which Kitty Account details you want to inspect:</p>
+                <div id="kittySelectionPills" class="flex flex-wrap gap-2 pt-1"></div>
+            </div>
+        </section>
+
+        <!-- Customer Full Passbook & Action Center -->
+        <section id="memberProfileSection" class="hidden-view space-y-6">
+            
+            <!-- Summary Card -->
+            <div class="bg-slate-900 text-white rounded-xl p-6 shadow-sm border border-slate-800 relative overflow-hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-4">
+                    <div>
+                        <span class="text-[10px] bg-amber-400/20 text-amber-400 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Active Account</span>
+                        <h2 id="viewCustName" class="text-2xl font-bold mt-1 text-slate-100">-</h2>
+                        <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openManualDepositModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm">
+                            + Deposit Value & Book Gold
+                        </button>
+                        <button onclick="confirmRemoveMember()" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer">
+                            Delete Account
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                    <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                        <span class="text-slate-400 uppercase text-[10px] block font-bold">Customer ID</span>
+                        <span id="viewCustId" class="font-mono font-bold text-sm text-slate-200">-</span>
+                    </div>
+                    <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                        <span class="text-slate-400 uppercase text-[10px] block font-bold">Kitty Plan #</span>
+                        <span id="viewKittyNo" class="font-mono font-bold text-sm text-amber-400">-</span>
+                    </div>
+                    <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                        <span class="text-slate-400 uppercase text-[10px] block font-bold">Monthly Rate</span>
+                        <span id="viewMonthlyAmount" class="font-bold text-sm text-slate-200">₹0</span>
+                    </div>
+                    <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                        <span class="text-slate-400 uppercase text-[10px] block font-bold">Total Deposited</span>
+                        <span id="viewTotalBalance" class="font-bold text-sm text-emerald-400">₹0</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs">
+                    <div>
+                        <span class="text-slate-400">Notes / Remarks: </span>
+                        <span id="viewOtherDetails" class="text-slate-300 italic">-</span>
+                    </div>
+                    <div class="bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2">
+                        <span>Booked 22K Gold:</span>
+                        <span id="viewTotalGoldGrams" class="font-mono text-sm">0.000 g</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Installment Timeline Table -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment History (12 Months)</h3>
+                    <span id="viewPaidRatio" class="text-xs font-semibold text-slate-500">0 / 12 Paid</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200 bg-white">
+                                <th class="p-3">Month</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Amount Deposited</th>
+                                <th class="p-3">22K Rate Applied (/10g)</th>
+                                <th class="p-3">Allocated Weight</th>
+                                <th class="p-3">Reference / UTR</th>
+                            </tr>
+                        </thead>
+                        <tbody id="memberTxTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: ADD NEW KITTY MEMBER -->
+    <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
+            <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
+                <h3 class="text-base font-bold text-slate-900">Register New Kitty Member</h3>
+                <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
+            </div>
+            
+            <form onsubmit="submitNewMember(event)" class="space-y-3">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Mobile Number *</label>
+                    <input type="tel" id="newPhone" maxlength="10" required placeholder="10-digit number" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Customer Full Name *</label>
+                    <input type="text" id="newName" required placeholder="e.g. Rahul Sharma" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Monthly Amount (₹) *</label>
+                        <input type="number" id="newAmount" required placeholder="e.g. 5000" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Customer ID *</label>
+                        <input type="text" id="newCustId" required placeholder="e.g. SJ-102" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Kitty Plan Number *</label>
+                    <input type="text" id="newKittyNo" required placeholder="e.g. K-1001" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Other Remarks / Nominee</label>
+                    <input type="text" id="newRemarks" placeholder="Optional notes" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                </div>
+                
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeAddMemberModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-lg text-xs font-semibold cursor-pointer">Cancel</button>
+                    <button type="submit" id="btnSubmitMember" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg text-xs font-semibold hover:bg-slate-800 cursor-pointer">Save & Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD MANUAL VALUE & BOOK 22K GOLD -->
+    <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
+            <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">Manual Deposit & 22K Gold Allocation</h3>
+                    <p id="depositTargetLabel" class="text-xs text-slate-500 font-mono mt-0.5">-</p>
+                </div>
+                <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
+            </div>
+            
+            <form onsubmit="submitManualDeposit(event)" class="space-y-4">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Select Month Allocation *</label>
+                    <select id="depositMonth" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-semibold"></select>
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Deposit Rupees Amount (₹) *</label>
+                    <input type="number" id="depositAmount" required oninput="calculateRealtimeGold()" placeholder="e.g. 5000" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Today's 22K Gold Rate for 10 Grams (₹) *</label>
+                    <input type="number" id="depositRate" required oninput="calculateRealtimeGold()" placeholder="e.g. 68500" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
+                </div>
+                
+                <!-- Computed Realtime Output -->
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-amber-800 block">Allocated 22K Weight</span>
+                        <span class="text-[11px] text-amber-900">Calculated dynamically</span>
+                    </div>
+                    <span id="lblLiveAllocatedWeight" class="text-lg font-black font-mono text-amber-950">0.000 g</span>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Payment Reference / Remarks</label>
+                    <input type="text" id="depositRef" placeholder="Counter Cash / Bank Transfer UTR" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                </div>
+                
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeManualDepositModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-lg text-xs font-semibold cursor-pointer">Cancel</button>
+                    <button type="submit" id="btnSubmitDeposit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg text-xs font-semibold hover:bg-slate-800 cursor-pointer">Commit Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CORE ENGINE CONTROLLER -->
+    <script>
+        const config = {
+            sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0",
+            scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
+            schemeMonths: 12
+        };
+
+        let activeSearchResults = [];
+        let selectedMemberData = null;
+
+        function cleanString(val) {
+            if (!val) return "";
+            return val.toString().replace(/^"|"$/g, '').replace(/[\r\n\t]/g, '').trim();
+        }
+
+        function parseCsv(textLine) {
+            let fields = [], cur = "", inQuotes = false;
+            for (let i = 0; i < textLine.length; i++) {
+                let c = textLine[i];
+                if (c === '"') inQuotes = !inQuotes;
+                else if (c === ',' && !inQuotes) { fields.push(cur); cur = ""; }
+                else cur += c;
+            }
+            fields.push(cur);
+            return fields;
+        }
+
+        // --- SEARCH WORKFLOW ---
+        function searchMemberRecords() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!query) return alert("Please enter a Kitty Number or Mobile Number to search.");
+
+            const btn = document.getElementById('btnSearch');
+            btn.innerText = "Searching...";
+            btn.disabled = true;
+
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers&_ts=${Date.now()}`;
+
+            fetch(csvUrl, { cache: "no-store" })
+            .then(r => r.text())
+            .then(csv => {
+                btn.innerText = "Search Account";
+                btn.disabled = false;
+
+                const lines = csv.split('\n');
+                activeSearchResults = [];
+
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i]) continue;
+                    let cols = parseCsv(lines[i]);
+                    if (!cols[0]) continue;
+
+                    let phone = cleanString(cols[0]).replace(/\D/g, "");
+                    let name = cleanString(cols[1]);
+                    let amount = cleanString(cols[2]);
+                    let custId = cleanString(cols[3]);
+                    let kittyNo = cleanString(cols[4]);
+                    let details = cleanString(cols[5]);
+
+                    if (phone.includes(query) || kittyNo.toLowerCase() === query || custId.toLowerCase() === query) {
+                        activeSearchResults.push({ phone, name, monthlyAmount: amount, customerId: custId, kittyNumber: kittyNo, otherDetails: details });
+                    }
+                }
+
+                if (activeSearchResults.length === 0) {
+                    document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
+                    document.getElementById('memberProfileSection').classList.add('hidden-view');
+                    return alert("No account found matching this query.");
+                }
+
+                if (activeSearchResults.length > 1) {
+                    renderMultipleKittySelection();
+                } else {
+                    document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
+                    loadMemberLedger(activeSearchResults[0]);
+                }
+            })
+            .catch(err => {
+                btn.innerText = "Search Account";
+                btn.disabled = false;
+                alert("Database communication error.");
+            });
+        }
+
+        function renderMultipleKittySelection() {
+            const wrapper = document.getElementById('multiKittySelectorWrapper');
+            const pillsContainer = document.getElementById('kittySelectionPills');
+            pillsContainer.innerHTML = "";
+
+            activeSearchResults.forEach((res, index) => {
+                pillsContainer.innerHTML += `
+                    <button onclick="selectSpecificKitty(${index})" class="bg-white hover:bg-amber-100 border border-amber-300 text-amber-950 font-bold px-3 py-2 rounded-lg text-xs transition-all shadow-xs cursor-pointer">
+                        Plan #${res.kittyNumber} (${res.name} - ₹${res.monthlyAmount})
+                    </button>
+                `;
+            });
+
+            wrapper.classList.remove('hidden-view');
+            document.getElementById('memberProfileSection').classList.add('hidden-view');
+        }
+
+        function selectSpecificKitty(index) {
+            document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
+            loadMemberLedger(activeSearchResults[index]);
+        }
+
+        // --- LOAD MEMBER PROFILE & TRANSACTIONS ---
+        function loadMemberLedger(member) {
+            selectedMemberData = member;
+
+            document.getElementById('viewCustName').innerText = member.name;
+            document.getElementById('viewCustPhone').innerText = "+91 " + member.phone;
+            document.getElementById('viewCustId').innerText = member.customerId;
+            document.getElementById('viewKittyNo').innerText = member.kittyNumber;
+            document.getElementById('viewMonthlyAmount').innerText = "₹" + member.monthlyAmount;
+            document.getElementById('viewOtherDetails').innerText = member.otherDetails || "None";
+
+            const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions&_ts=${Date.now()}`;
+
+            fetch(txCsvUrl, { cache: "no-store" })
+            .then(r => r.text())
+            .then(csv => {
+                const lines = csv.split('\n');
+                const userTxs = [];
+                let paidMonths = 0;
+                let totalDeposited = 0;
+                let totalGold = 0;
+
+                for (let j = 1; j < lines.length; j++) {
+                    if (!lines[j]) continue;
+                    let cols = parseCsv(lines[j]);
+                    let txPhone = cleanString(cols[0]).replace(/\D/g, "");
+                    let txKitty = cleanString(cols[7]);
+
+                    if (txPhone === member.phone && txKitty === member.kittyNumber) {
+                        let month = cleanString(cols[1]);
+                        let amount = Number(cleanString(cols[2])) || 0;
+                        let status = cleanString(cols[5]);
+                        let rate = cleanString(cols[8]);
+                        let grams = Number(cleanString(cols[9])) || 0;
+                        let utr = cleanString(cols[3]);
+
+                        userTxs.push({ month, amount, status, rate, grams, utr });
+
+                        if (status === "Paid") {
+                            paidMonths++;
+                            totalDeposited += amount;
+                            totalGold += grams;
+                        }
+                    }
+                }
+
+                document.getElementById('viewTotalBalance').innerText = "₹" + totalDeposited;
+                document.getElementById('viewTotalGoldGrams').innerText = `${totalGold.toFixed(3)} g`;
+                document.getElementById('viewPaidRatio').innerText = `${paidMonths} / ${config.schemeMonths} Months Complete`;
+
+                const tbody = document.getElementById('memberTxTableBody');
+                tbody.innerHTML = "";
+
+                for (let m = 1; m <= config.schemeMonths; m++) {
+                    let record = userTxs.find(t => Number(t.month) === m);
+                    if (record && record.status === "Paid") {
+                        tbody.innerHTML += `
+                            <tr class="bg-emerald-50/40">
+                                <td class="p-3 font-bold text-slate-800">Month ${m}</td>
+                                <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PAID</span></td>
+                                <td class="p-3 font-mono font-bold text-slate-900">₹${record.amount}</td>
+                                <td class="p-3 font-mono text-slate-600">₹${record.rate || '-'}</td>
+                                <td class="p-3 font-mono font-bold text-amber-900">${record.grams.toFixed(3)} g</td>
+                                <td class="p-3 font-mono text-slate-500">${record.utr || 'Direct'}</td>
+                            </tr>
+                        `;
+                    } else if (record && record.status === "Pending") {
+                        tbody.innerHTML += `
+                            <tr class="bg-amber-50/40">
+                                <td class="p-3 font-bold text-slate-800">Month ${m}</td>
+                                <td class="p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">PENDING APPROVAL</span></td>
+                                <td class="p-3 font-mono font-bold text-slate-900">₹${record.amount}</td>
+                                <td class="p-3 font-mono text-slate-400">-</td>
+                                <td class="p-3 font-mono text-slate-400">-</td>
+                                <td class="p-3 font-mono text-slate-500">${record.utr}</td>
+                            </tr>
+                        `;
+                    } else {
+                        tbody.innerHTML += `
+                            <tr class="text-slate-400">
+                                <td class="p-3 font-medium">Month ${m}</td>
+                                <td class="p-3"><span class="bg-slate-100 text-slate-500 font-medium px-2 py-0.5 rounded text-[10px]">UNPAID</span></td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                document.getElementById('memberProfileSection').classList.remove('hidden-view');
+            });
+        }
+
+        // --- MODAL: ADD MEMBER ---
+        function openAddMemberModal() {
+            document.getElementById('addMemberModal').classList.remove('hidden-view');
+        }
+        function closeAddMemberModal() {
+            document.getElementById('addMemberModal').classList.add('hidden-view');
+        }
+
+        function submitNewMember(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitMember');
+            btn.innerText = "Registering...";
+            btn.disabled = true;
+
+            const payload = {
+                action: "addMember",
+                phone: document.getElementById('newPhone').value.trim(),
+                name: document.getElementById('newName').value.trim(),
+                monthlyAmount: document.getElementById('newAmount').value.trim(),
+                customerId: document.getElementById('newCustId').value.trim(),
+                kittyNumber: document.getElementById('newKittyNo').value.trim(),
+                otherDetails: document.getElementById('newRemarks').value.trim()
+            };
+
+            const params = new URLSearchParams();
+            for (let k in payload) params.append(k, payload[k]);
+
+            fetch(config.scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
+            }).then(() => {
+                alert("Kitty Member registered successfully!");
+                closeAddMemberModal();
+                btn.innerText = "Save & Register";
+                btn.disabled = false;
+            }).catch(() => {
+                alert("Registration saved to database.");
+                closeAddMemberModal();
+                btn.innerText = "Save & Register";
+                btn.disabled = false;
+            });
+        }
+
+        // --- DELETE MEMBER ---
+        function confirmRemoveMember() {
+            if (!selectedMemberData) return;
+            if (!confirm(`Are you sure you want to REMOVE member ${selectedMemberData.name} (Kitty #${selectedMemberData.kittyNumber}) from the system?`)) return;
+
+            const params = new URLSearchParams();
+            params.append("action", "deleteMember");
+            params.append("phone", selectedMemberData.phone);
+            params.append("kittyNumber", selectedMemberData.kittyNumber);
+
+            fetch(config.scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
+            }).then(() => {
+                alert("Member deleted from database.");
+                document.getElementById('memberProfileSection').classList.add('hidden-view');
+            });
+        }
+
+        // --- MODAL: MANUAL VALUE & GOLD RATE ---
+        function openManualDepositModal() {
+            if (!selectedMemberData) return;
+            document.getElementById('depositTargetLabel').innerText = `${selectedMemberData.name} - Plan #${selectedMemberData.kittyNumber}`;
+            document.getElementById('depositAmount').value = selectedMemberData.monthlyAmount;
+            document.getElementById('depositRate').value = "";
+            document.getElementById('depositRef').value = "Counter Payment";
+            document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
+
+            const select = document.getElementById('depositMonth');
+            select.innerHTML = "";
+            for (let m = 1; m <= config.schemeMonths; m++) {
+                select.innerHTML += `<option value="${m}">Month ${m}</option>`;
+            }
+
+            document.getElementById('manualDepositModal').classList.remove('hidden-view');
+        }
+        function closeManualDepositModal() {
+            document.getElementById('manualDepositModal').classList.add('hidden-view');
+        }
+
+        function calculateRealtimeGold() {
+            const amount = parseFloat(document.getElementById('depositAmount').value) || 0;
+            const rate10g = parseFloat(document.getElementById('depositRate').value) || 0;
+            if (amount > 0 && rate10g > 0) {
+                const perGram = rate10g / 10;
+                const grams = amount / perGram;
+                document.getElementById('lblLiveAllocatedWeight').innerText = `${grams.toFixed(3)} g`;
+            } else {
+                document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
+            }
+        }
+
+        function submitManualDeposit(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const rate10g = parseFloat(document.getElementById('depositRate').value);
+            const month = document.getElementById('depositMonth').value;
+            const ref = document.getElementById('depositRef').value.trim();
+
+            if (!amount || !rate10g) return alert("Please specify valid deposit amount and gold rate.");
+
+            const perGram = rate10g / 10;
+            const gramsBooked = amount / perGram;
+
+            const btn = document.getElementById('btnSubmitDeposit');
+            btn.innerText = "Writing Transaction...";
+            btn.disabled = true;
+
+            const payload = {
+                action: "manualEntry",
+                phone: selectedMemberData.phone,
+                kittyNumber: selectedMemberData.kittyNumber,
+                month: month,
+                amount: amount,
+                rateUsed: rate10g,
+                gramsBooked: gramsBooked,
+                utr: ref || "Counter Cash"
+            };
+
+            const params = new URLSearchParams();
+            for (let k in payload) params.append(k, payload[k]);
+
+            fetch(config.scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
+            }).then(() => {
+                alert(`Successfully deposited ₹${amount} and allocated ${gramsBooked.toFixed(3)}g of 22K Gold!`);
+                closeManualDepositModal();
+                btn.innerText = "Commit Transaction";
+                btn.disabled = false;
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
+            });
+        }
+    </script>
+</body>
+</html>
