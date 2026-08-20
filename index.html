@@ -85,7 +85,7 @@
                     <div class="bg-white border border-slate-200 text-slate-900 rounded-xl p-4 space-y-2 shadow-sm">
                         <div class="flex justify-between items-center">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                Total Booked Gold Weight (24K)
+                                Total Booked Gold Weight (22K)
                             </h4>
                             <span class="text-[10px] font-semibold text-slate-400 uppercase">Accumulated</span>
                         </div>
@@ -914,7 +914,7 @@
                 return;
             }
 
-            var inputRate10g = prompt("Installment Amount: ₹" + installmentAmount + "\nEnter current 24K Gold Rate for 10 GRAMS:", "");
+            var inputRate10g = prompt("Installment Amount: ₹" + installmentAmount + "\nEnter current 22K Gold Rate for 10 GRAMS:", "");
             if (inputRate10g === null) return;
             var goldRate10g = parseFloat(inputRate10g.trim());
             if (isNaN(goldRate10g) || goldRate10g <= 0) {
@@ -924,7 +924,7 @@
             var goldRatePerGram = goldRate10g / 10;
             var allocatedGrams = installmentAmount / goldRatePerGram;
 
-            if(!confirm("Confirm Gold Booking Details:\n- Rate / 10g: ₹" + goldRate10g + "\n- Weight: " + allocatedGrams.toFixed(3) + " grams\n\nCommit row update?")) return;
+            if(!confirm("Confirm 22K Gold Booking Details:\n- Rate / 10g: ₹" + goldRate10g + "\n- Weight: " + allocatedGrams.toFixed(3) + " grams\n\nCommit row update?")) return;
 
             const desktopEl = document.getElementById("row-" + rowId);
             const mobileEl = document.getElementById("mob-card-" + rowId);
