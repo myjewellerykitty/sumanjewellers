@@ -54,7 +54,7 @@
                         <p class="text-xs text-slate-400">Suman Jewellers Master Operational Console</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                     <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Members Directory</button>
                     <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Pending Approvals</button>
                     <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
@@ -97,10 +97,16 @@
                                 <h2 id="viewCustName" class="text-2xl font-bold mt-1 text-slate-100">-</h2>
                                 <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                             </div>
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <!-- Deposit Monthly Kitty Installment -->
                                 <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm">
                                     + Deposit Value & Book Gold
                                 </button>
+                                <!-- Custom Coupon / Bonus Gold Reward -->
+                                <button onclick="openBonusCouponModal()" id="btnActionBonus" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm">
+                                    + Credit Bonus / Reward Gold
+                                </button>
+                                <!-- Delete Account -->
                                 <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer">
                                     Delete Member
                                 </button>
@@ -132,7 +138,7 @@
                                 <span id="viewOtherDetails" class="text-slate-300 italic">-</span>
                             </div>
                             <div class="bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2">
-                                <span>Booked 22K Gold:</span>
+                                <span>Total Accumulated 22K Gold:</span>
                                 <span id="viewTotalGoldGrams" class="font-mono text-sm">0.000 g</span>
                             </div>
                         </div>
@@ -141,19 +147,19 @@
                     <!-- Installment Timeline Table -->
                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment Ledger (12 Months)</h3>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment & Credit Ledger</h3>
                             <span id="viewPaidRatio" class="text-xs font-semibold text-slate-500">0 / 12 Complete</span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
                                     <tr class="text-slate-500 border-b border-slate-200 bg-white">
-                                        <th class="p-3">Month</th>
+                                        <th class="p-3">Month / Type</th>
                                         <th class="p-3">Status</th>
-                                        <th class="p-3">Deposit Amount</th>
+                                        <th class="p-3">Deposit / Value</th>
                                         <th class="p-3">22K Rate Applied (/10g)</th>
                                         <th class="p-3">Allocated Weight</th>
-                                        <th class="p-3">Reference / UTR</th>
+                                        <th class="p-3">Reference / Remarks</th>
                                     </tr>
                                 </thead>
                                 <tbody id="memberTxTableBody" class="divide-y divide-slate-100"></tbody>
@@ -200,7 +206,7 @@
         </main>
     </div>
 
-    <!-- MODAL: ADD NEW KITTY MEMBER -->
+    <!-- MODAL 1: ADD NEW KITTY MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -244,12 +250,12 @@
         </div>
     </div>
 
-    <!-- MODAL: MANUAL VALUE & BOOK 22K GOLD -->
+    <!-- MODAL 2: MANUAL MONTHLY INSTALLMENT DEPOSIT & BOOK GOLD -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900">Manual Deposit & 22K Gold Booking</h3>
+                    <h3 class="text-base font-bold text-slate-900">Deposit Monthly Kitty & Book 22K Gold</h3>
                     <p id="depositTargetLabel" class="text-xs text-slate-500 font-mono mt-0.5">-</p>
                 </div>
                 <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
@@ -286,6 +292,49 @@
                 <div class="pt-2 flex gap-2">
                     <button type="button" onclick="closeManualDepositModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-lg text-xs font-semibold cursor-pointer">Cancel</button>
                     <button type="submit" id="btnSubmitDeposit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg text-xs font-semibold hover:bg-slate-800 cursor-pointer">Commit Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CUSTOM BONUS COUPON & EXTRA GOLD CREDIT -->
+    <div id="bonusCouponModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
+            <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">Credit Reward / Bonus Coupon Gold</h3>
+                    <p id="bonusTargetLabel" class="text-xs text-slate-500 font-mono mt-0.5">-</p>
+                </div>
+                <button onclick="closeBonusCouponModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
+            </div>
+            
+            <form onsubmit="submitBonusCoupon(event)" class="space-y-4">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Bonus / Coupon Value (₹) *</label>
+                    <input type="number" id="bonusAmount" required oninput="calculateBonusRealtimeGold()" placeholder="e.g. 2000" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 font-mono font-bold">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Today's 22K Gold Rate for 10 Grams (₹) *</label>
+                    <input type="number" id="bonusRate" required oninput="calculateBonusRealtimeGold()" placeholder="e.g. 68500" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 font-mono font-bold">
+                </div>
+                
+                <!-- Computed Realtime Output -->
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-amber-800 block">Bonus 22K Gold Added</span>
+                        <span class="text-[11px] text-amber-900">Credits directly to balance</span>
+                    </div>
+                    <span id="lblLiveBonusGoldWeight" class="text-lg font-black font-mono text-amber-950">0.000 g</span>
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Coupon Title / Description *</label>
+                    <input type="text" id="bonusRemarks" required placeholder="e.g. Festival Cashback / Special Reward Coupon" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                </div>
+                
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="closeBonusCouponModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-lg text-xs font-semibold cursor-pointer">Cancel</button>
+                    <button type="submit" id="btnSubmitBonus" class="w-1/2 bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer">Credit Gold Reward</button>
                 </div>
             </form>
         </div>
@@ -349,12 +398,14 @@
                 badge.innerText = "Super Admin";
                 if (document.getElementById('btnTopAddMember')) document.getElementById('btnTopAddMember').classList.remove('hidden-view');
                 if (document.getElementById('btnActionDeposit')) document.getElementById('btnActionDeposit').classList.remove('hidden-view');
+                if (document.getElementById('btnActionBonus')) document.getElementById('btnActionBonus').classList.remove('hidden-view');
                 if (document.getElementById('btnActionDelete')) document.getElementById('btnActionDelete').classList.remove('hidden-view');
             } else {
                 badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600";
                 badge.innerText = "Viewer Admin (Read-Only)";
                 if (document.getElementById('btnTopAddMember')) document.getElementById('btnTopAddMember').classList.add('hidden-view');
                 if (document.getElementById('btnActionDeposit')) document.getElementById('btnActionDeposit').classList.add('hidden-view');
+                if (document.getElementById('btnActionBonus')) document.getElementById('btnActionBonus').classList.add('hidden-view');
                 if (document.getElementById('btnActionDelete')) document.getElementById('btnActionDelete').classList.add('hidden-view');
             }
         }
@@ -514,7 +565,10 @@
                         userTxs.push({ month, amount, status, rate, grams, utr });
 
                         if (status === "Paid") {
-                            paidMonths++;
+                            // Count paid regular months
+                            if (!isNaN(Number(month)) && Number(month) >= 1 && Number(month) <= config.schemeMonths) {
+                                paidMonths++;
+                            }
                             totalDeposited += amount;
                             totalGold += grams;
                         }
@@ -528,6 +582,7 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
+                // Render 12 Regular Months Matrix
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let record = userTxs.find(t => Number(t.month) === m);
                     if (record && record.status === "Paid") {
@@ -565,6 +620,24 @@
                         `;
                     }
                 }
+
+                // Render Additional Coupons / Bonus Rewards Entries
+                userTxs.forEach(t => {
+                    if (isNaN(Number(t.month)) || Number(t.month) > config.schemeMonths) {
+                        tbody.innerHTML += `
+                            <tr class="bg-amber-50/70 border-t-2 border-amber-200">
+                                <td class="p-3 font-bold text-amber-950 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span> ${t.month}
+                                </td>
+                                <td class="p-3"><span class="bg-amber-200 text-amber-900 font-black px-2 py-0.5 rounded text-[10px]">BONUS CREDITED</span></td>
+                                <td class="p-3 font-mono font-bold text-amber-900">₹${t.amount}</td>
+                                <td class="p-3 font-mono text-slate-600">₹${t.rate || '-'}</td>
+                                <td class="p-3 font-mono font-bold text-amber-950">${t.grams.toFixed(3)} g</td>
+                                <td class="p-3 font-mono text-slate-600 italic">${t.utr}</td>
+                            </tr>
+                        `;
+                    }
+                });
 
                 document.getElementById('memberProfileSection').classList.remove('hidden-view');
             });
@@ -638,7 +711,7 @@
             });
         }
 
-        // --- MODAL: MANUAL VALUE & GOLD RATE ---
+        // --- MODAL: MONTHLY INSTALLMENT DEPOSIT ---
         function openManualDepositModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             if (!selectedMemberData) return;
@@ -708,9 +781,79 @@
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: params.toString()
             }).then(() => {
-                alert(`Successfully deposited ₹${amount} and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
+                alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
                 closeManualDepositModal();
                 btn.innerText = "Commit Transaction";
+                btn.disabled = false;
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
+            });
+        }
+
+        // --- MODAL: BONUS / COUPON REWARD GOLD ALLOCATION ---
+        function openBonusCouponModal() {
+            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
+            if (!selectedMemberData) return;
+            document.getElementById('bonusTargetLabel').innerText = `${selectedMemberData.name} - Plan #${selectedMemberData.kittyNumber}`;
+            document.getElementById('bonusAmount').value = "";
+            document.getElementById('bonusRate').value = "";
+            document.getElementById('bonusRemarks').value = "";
+            document.getElementById('lblLiveBonusGoldWeight').innerText = "0.000 g";
+            document.getElementById('bonusCouponModal').classList.remove('hidden-view');
+        }
+        function closeBonusCouponModal() {
+            document.getElementById('bonusCouponModal').classList.add('hidden-view');
+        }
+
+        function calculateBonusRealtimeGold() {
+            const amount = parseFloat(document.getElementById('bonusAmount').value) || 0;
+            const rate10g = parseFloat(document.getElementById('bonusRate').value) || 0;
+            if (amount > 0 && rate10g > 0) {
+                const perGram = rate10g / 10;
+                const grams = amount / perGram;
+                document.getElementById('lblLiveBonusGoldWeight').innerText = `${grams.toFixed(3)} g`;
+            } else {
+                document.getElementById('lblLiveBonusGoldWeight').innerText = "0.000 g";
+            }
+        }
+
+        function submitBonusCoupon(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('bonusAmount').value);
+            const rate10g = parseFloat(document.getElementById('bonusRate').value);
+            const remarks = document.getElementById('bonusRemarks').value.trim();
+
+            if (!amount || !rate10g) return alert("Please specify valid coupon value and gold rate.");
+
+            const perGram = rate10g / 10;
+            const gramsBooked = amount / perGram;
+
+            const btn = document.getElementById('btnSubmitBonus');
+            btn.innerText = "Crediting Bonus...";
+            btn.disabled = true;
+
+            const payload = {
+                action: "manualEntry",
+                phone: selectedMemberData.phone,
+                kittyNumber: selectedMemberData.kittyNumber,
+                month: "Coupon Bonus",
+                amount: amount,
+                rateUsed: rate10g,
+                gramsBooked: gramsBooked,
+                utr: remarks || "Special Reward Gold Coupon"
+            };
+
+            const params = new URLSearchParams();
+            for (let k in payload) params.append(k, payload[k]);
+
+            fetch(config.scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
+            }).then(() => {
+                alert(`Successfully added ₹${amount} Coupon Bonus: ${gramsBooked.toFixed(3)}g 22K Gold credited!`);
+                closeBonusCouponModal();
+                btn.innerText = "Credit Gold Reward";
                 btn.disabled = false;
                 setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
             });
