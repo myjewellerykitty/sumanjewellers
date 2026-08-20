@@ -11,7 +11,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
 
-    <!-- ADMIN LOGIN MODAL / VIEW -->
+    <!-- LOGIN SCREEN -->
     <div id="kmpLoginView" class="max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
         <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <div class="text-center mb-6">
@@ -38,10 +38,8 @@
         </div>
     </div>
 
-    <!-- MAIN KMP INTERFACE -->
+    <!-- MAIN PORTAL -->
     <div id="kmpMainView" class="hidden-view min-h-screen flex flex-col">
-        
-        <!-- Top Navigation Header -->
         <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
             <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
                 <div class="flex items-center gap-3">
@@ -67,9 +65,8 @@
 
         <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6 flex-1 w-full">
 
-            <!-- TAB 1: MEMBERS DIRECTORY & LOOKUP -->
+            <!-- MEMBERS TAB -->
             <div id="tabContentMembers" class="space-y-6">
-                <!-- Search & Lookup Card -->
                 <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Search Member Records</label>
                     <div class="flex flex-col sm:flex-row gap-2">
@@ -79,17 +76,14 @@
                         </button>
                     </div>
 
-                    <!-- Multiple Kitties Found Selector -->
                     <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
-                        <p class="text-xs font-bold text-amber-900 uppercase">Multiple Accounts Linked With This Mobile Number</p>
-                        <p class="text-xs text-amber-800">Select which Kitty Account plan details you want to load:</p>
+                        <p class="text-xs font-bold text-amber-900 uppercase">Multiple Accounts Linked</p>
+                        <p class="text-xs text-amber-800">Select active Kitty Plan to view:</p>
                         <div id="kittySelectionPills" class="flex flex-wrap gap-2 pt-1"></div>
                     </div>
                 </section>
 
-                <!-- Customer Full Passbook & Action Center -->
                 <section id="memberProfileSection" class="hidden-view space-y-6">
-                    <!-- Summary Card -->
                     <div class="bg-slate-900 text-white rounded-xl p-6 shadow-sm border border-slate-800 relative overflow-hidden">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-4">
                             <div>
@@ -98,15 +92,12 @@
                                 <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <!-- Deposit Monthly Kitty Installment -->
                                 <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm">
                                     + Deposit Value & Book Gold
                                 </button>
-                                <!-- Custom Coupon / Bonus Gold Reward -->
                                 <button onclick="openBonusCouponModal()" id="btnActionBonus" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm">
                                     + Credit Bonus / Reward Gold
                                 </button>
-                                <!-- Delete Account -->
                                 <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer">
                                     Delete Member
                                 </button>
@@ -144,7 +135,6 @@
                         </div>
                     </div>
 
-                    <!-- Installment Timeline Table -->
                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment & Credit Ledger</h3>
@@ -169,12 +159,12 @@
                 </section>
             </div>
 
-            <!-- TAB 2: PENDING APPROVALS QUEUE -->
+            <!-- APPROVALS TAB -->
             <div id="tabContentApprovals" class="hidden-view space-y-4">
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-base font-bold text-slate-900">Pending Payment Verifications</h2>
-                        <p class="text-xs text-slate-500">Submissions requiring showroom verification and 22K gold rate locking</p>
+                        <p class="text-xs text-slate-500">Review proof and lock 22K gold rate</p>
                     </div>
                     <button onclick="loadKmpPendingApprovals()" class="bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer">
                         Refresh Queue
@@ -206,7 +196,7 @@
         </main>
     </div>
 
-    <!-- MODAL 1: ADD NEW MEMBER -->
+    <!-- MODAL: ADD MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -250,7 +240,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: MANUAL MONTHLY INSTALLMENT DEPOSIT -->
+    <!-- MODAL: MANUAL MONTHLY INSTALLMENT DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -296,7 +286,7 @@
         </div>
     </div>
 
-    <!-- MODAL 3: CUSTOM BONUS COUPON & EXTRA GOLD CREDIT -->
+    <!-- MODAL: BONUS COUPON / REWARD GOLD -->
     <div id="bonusCouponModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -327,7 +317,7 @@
 
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Coupon Title / Description *</label>
-                    <input type="text" id="bonusRemarks" required placeholder="e.g. Festival Cashback / Special Reward Coupon" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    <input type="text" id="bonusRemarks" required placeholder="e.g. Special Festival Reward Coupon" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
                 </div>
                 
                 <div class="pt-2 flex gap-2">
@@ -338,7 +328,7 @@
         </div>
     </div>
 
-    <!-- CORE KMP ENGINE CONTROLLER -->
+    <!-- CORE JAVASCRIPT CONTROLLER -->
     <script>
         const config = {
             sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0",
@@ -378,7 +368,7 @@
                 document.getElementById('kmpLoginView').classList.add('hidden-view');
                 document.getElementById('kmpMainView').classList.remove('hidden-view');
             } else {
-                alert("Authentication Failure: Invalid credentials for selected role.");
+                alert("Authentication Failure: Invalid security key.");
             }
         }
 
@@ -448,7 +438,7 @@
         // --- SEARCH WORKFLOW ---
         function searchMemberRecords() {
             const rawQuery = document.getElementById('searchInput').value.trim();
-            if (!rawQuery) return alert("Please enter a Kitty Number or Mobile Number to search.");
+            if (!rawQuery) return alert("Please enter a Mobile Number or Kitty Plan Number.");
 
             const cleanPhoneQuery = rawQuery.replace(/\D/g, "");
             const cleanPlanQuery = rawQuery.toLowerCase().replace(/^'/, "").trim();
@@ -529,7 +519,7 @@
             loadMemberLedger(activeSearchResults[index]);
         }
 
-        // --- LOAD MEMBER PROFILE & TRANSACTIONS ---
+        // --- LOAD LEDGER ---
         function loadMemberLedger(member) {
             selectedMemberData = member;
 
@@ -589,7 +579,7 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
-                // Render 12 Regular Months
+                // Regular Months Matrix
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let record = userTxs.find(t => Number(t.month) === m);
                     if (record && record.status === "Paid") {
@@ -628,7 +618,7 @@
                     }
                 }
 
-                // Render Additional Coupons / Bonus Rewards Entries
+                // Reward / Bonus Entries
                 userTxs.forEach(t => {
                     if (isNaN(Number(t.month)) || Number(t.month) > config.schemeMonths) {
                         tbody.innerHTML += `
@@ -650,75 +640,78 @@
             });
         }
 
-        // --- MODAL: ADD MEMBER ---
-        function openAddMemberModal() {
+        // --- SUBMIT BONUS / COUPON REWARD ---
+        function openBonusCouponModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-            document.getElementById('addMemberModal').classList.remove('hidden-view');
+            if (!selectedMemberData) return;
+            document.getElementById('bonusTargetLabel').innerText = `${selectedMemberData.name} - Plan #${selectedMemberData.kittyNumber}`;
+            document.getElementById('bonusAmount').value = "";
+            document.getElementById('bonusRate').value = "";
+            document.getElementById('bonusRemarks').value = "";
+            document.getElementById('lblLiveBonusGoldWeight').innerText = "0.000 g";
+            document.getElementById('bonusCouponModal').classList.remove('hidden-view');
         }
-        function closeAddMemberModal() {
-            document.getElementById('addMemberModal').classList.add('hidden-view');
+        function closeBonusCouponModal() {
+            document.getElementById('bonusCouponModal').classList.add('hidden-view');
         }
 
-        function submitNewMember(e) {
+        function calculateBonusRealtimeGold() {
+            const amount = parseFloat(document.getElementById('bonusAmount').value) || 0;
+            const rate10g = parseFloat(document.getElementById('bonusRate').value) || 0;
+            if (amount > 0 && rate10g > 0) {
+                const perGram = rate10g / 10;
+                const grams = amount / perGram;
+                document.getElementById('lblLiveBonusGoldWeight').innerText = `${grams.toFixed(3)} g`;
+            } else {
+                document.getElementById('lblLiveBonusGoldWeight').innerText = "0.000 g";
+            }
+        }
+
+        function submitBonusCoupon(e) {
             e.preventDefault();
-            const btn = document.getElementById('btnSubmitMember');
-            btn.innerText = "Registering...";
+            const amount = parseFloat(document.getElementById('bonusAmount').value);
+            const rate10g = parseFloat(document.getElementById('bonusRate').value);
+            const remarks = document.getElementById('bonusRemarks').value.trim();
+
+            if (!amount || isNaN(amount) || !rate10g || isNaN(rate10g)) {
+                return alert("Please enter valid numeric coupon amount and gold rate.");
+            }
+
+            const perGram = rate10g / 10;
+            const gramsBooked = amount / perGram;
+
+            const btn = document.getElementById('btnSubmitBonus');
+            btn.innerText = "Crediting Bonus...";
             btn.disabled = true;
 
             const payload = {
-                action: "addMember",
-                phone: document.getElementById('newPhone').value.trim(),
-                name: document.getElementById('newName').value.trim(),
-                monthlyAmount: document.getElementById('newAmount').value.trim(),
-                customerId: document.getElementById('newCustId').value.trim(),
-                kittyNumber: document.getElementById('newKittyNo').value.trim(),
-                otherDetails: document.getElementById('newRemarks').value.trim()
+                action: "manualEntry",
+                phone: selectedMemberData.phone,
+                kittyNumber: selectedMemberData.kittyNumber,
+                month: "Coupon Bonus",
+                amount: amount,
+                rateUsed: rate10g,
+                gramsBooked: gramsBooked,
+                utr: remarks || "Special Reward Gold Coupon"
             };
 
-            const params = new URLSearchParams();
-            for (let k in payload) params.append(k, payload[k]);
-
             fetch(config.scriptUrl, {
                 method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
+                body: JSON.stringify(payload)
             }).then(() => {
-                alert("Kitty Member registered successfully!");
-                closeAddMemberModal();
-                btn.innerText = "Save & Register";
+                alert(`Successfully added ₹${amount} Bonus: ${gramsBooked.toFixed(3)}g 22K Gold credited!`);
+                closeBonusCouponModal();
+                btn.innerText = "Credit Gold Reward";
                 btn.disabled = false;
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1000);
             }).catch(() => {
-                alert("Registration submitted.");
-                closeAddMemberModal();
-                btn.innerText = "Save & Register";
+                alert("Network communication error.");
+                btn.innerText = "Credit Gold Reward";
                 btn.disabled = false;
             });
         }
 
-        // --- DELETE MEMBER ---
-        function confirmRemoveMember() {
-            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-            if (!selectedMemberData) return;
-            if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (Kitty #${selectedMemberData.kittyNumber})?`)) return;
-
-            const params = new URLSearchParams();
-            params.append("action", "deleteMember");
-            params.append("phone", selectedMemberData.phone);
-            params.append("kittyNumber", selectedMemberData.kittyNumber);
-
-            fetch(config.scriptUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
-            }).then(() => {
-                alert("Member deleted successfully from records.");
-                document.getElementById('memberProfileSection').classList.add('hidden-view');
-            });
-        }
-
-        // --- MODAL: MONTHLY INSTALLMENT DEPOSIT ---
+        // --- SUBMIT MONTHLY INSTALLMENT ---
         function openManualDepositModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             if (!selectedMemberData) return;
@@ -770,30 +763,26 @@
             btn.innerText = "Writing Transaction...";
             btn.disabled = true;
 
-            const params = new URLSearchParams();
-            params.append("action", "manualEntry");
-            params.append("phone", selectedMemberData.phone);
-            params.append("kittyNumber", selectedMemberData.kittyNumber);
-            params.append("month", month);
-            params.append("amount", amount);
-            params.append("rateUsed", rate10g);
-            params.append("gramsBooked", gramsBooked);
-            params.append("utr", ref || "Counter Cash");
+            const payload = {
+                action: "manualEntry",
+                phone: selectedMemberData.phone,
+                kittyNumber: selectedMemberData.kittyNumber,
+                month: month,
+                amount: amount,
+                rateUsed: rate10g,
+                gramsBooked: gramsBooked,
+                utr: ref || "Counter Cash"
+            };
 
             fetch(config.scriptUrl, {
                 method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
+                body: JSON.stringify(payload)
             }).then(() => {
                 alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
                 closeManualDepositModal();
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
-                
-                setTimeout(() => {
-                    loadMemberLedgerDirectApi(selectedMemberData);
-                }, 1200);
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1000);
             }).catch(() => {
                 alert("Network communication error.");
                 btn.innerText = "Commit Transaction";
@@ -801,95 +790,69 @@
             });
         }
 
-        // --- MODAL: BONUS / COUPON REWARD GOLD ALLOCATION ---
-        function openBonusCouponModal() {
+        // --- ADD MEMBER ---
+        function openAddMemberModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-            if (!selectedMemberData) return;
-            document.getElementById('bonusTargetLabel').innerText = `${selectedMemberData.name} - Plan #${selectedMemberData.kittyNumber}`;
-            document.getElementById('bonusAmount').value = "";
-            document.getElementById('bonusRate').value = "";
-            document.getElementById('bonusRemarks').value = "";
-            document.getElementById('lblLiveBonusGoldWeight').innerText = "0.000 g";
-            document.getElementById('bonusCouponModal').classList.remove('hidden-view');
+            document.getElementById('addMemberModal').classList.remove('hidden-view');
         }
-        function closeBonusCouponModal() {
-            document.getElementById('bonusCouponModal').classList.add('hidden-view');
+        function closeAddMemberModal() {
+            document.getElementById('addMemberModal').classList.add('hidden-view');
         }
 
-        function calculateBonusRealtimeGold() {
-            const amount = parseFloat(document.getElementById('bonusAmount').value) || 0;
-            const rate10g = parseFloat(document.getElementById('bonusRate').value) || 0;
-            if (amount > 0 && rate10g > 0) {
-                const perGram = rate10g / 10;
-                const grams = amount / perGram;
-                document.getElementById('lblLiveBonusGoldWeight').innerText = `${grams.toFixed(3)} g`;
-            } else {
-                document.getElementById('lblLiveBonusGoldWeight').innerText = "0.000 g";
-            }
-        }
-
-        function submitBonusCoupon(e) {
+        function submitNewMember(e) {
             e.preventDefault();
-            const amount = parseFloat(document.getElementById('bonusAmount').value);
-            const rate10g = parseFloat(document.getElementById('bonusRate').value);
-            const remarks = document.getElementById('bonusRemarks').value.trim();
-
-            if (!amount || isNaN(amount) || !rate10g || isNaN(rate10g)) {
-                return alert("Please enter valid numeric coupon amount and gold rate.");
-            }
-
-            const perGram = rate10g / 10;
-            const gramsBooked = amount / perGram;
-
-            const btn = document.getElementById('btnSubmitBonus');
-            btn.innerText = "Crediting Bonus...";
+            const btn = document.getElementById('btnSubmitMember');
+            btn.innerText = "Registering...";
             btn.disabled = true;
 
-            const params = new URLSearchParams();
-            params.append("action", "manualEntry");
-            params.append("phone", selectedMemberData.phone);
-            params.append("kittyNumber", selectedMemberData.kittyNumber);
-            params.append("month", "Coupon Bonus");
-            params.append("amount", amount);
-            params.append("rateUsed", rate10g);
-            params.append("gramsBooked", gramsBooked);
-            params.append("utr", remarks || "Bonus Coupon Reward");
+            const payload = {
+                action: "addMember",
+                phone: document.getElementById('newPhone').value.trim(),
+                name: document.getElementById('newName').value.trim(),
+                monthlyAmount: document.getElementById('newAmount').value.trim(),
+                customerId: document.getElementById('newCustId').value.trim(),
+                kittyNumber: document.getElementById('newKittyNo').value.trim(),
+                otherDetails: document.getElementById('newRemarks').value.trim()
+            };
 
             fetch(config.scriptUrl, {
                 method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
+                body: JSON.stringify(payload)
             }).then(() => {
-                alert(`Successfully added ₹${amount} Bonus: ${gramsBooked.toFixed(3)}g 22K Gold credited!`);
-                closeBonusCouponModal();
-                btn.innerText = "Credit Gold Reward";
+                alert("Kitty Member registered successfully!");
+                closeAddMemberModal();
+                btn.innerText = "Save & Register";
                 btn.disabled = false;
-                
-                setTimeout(() => {
-                    loadMemberLedgerDirectApi(selectedMemberData);
-                }, 1200);
             }).catch(() => {
-                alert("Network communication error.");
-                btn.innerText = "Credit Gold Reward";
+                alert("Registration submitted.");
+                closeAddMemberModal();
+                btn.innerText = "Save & Register";
                 btn.disabled = false;
             });
         }
 
-        function loadMemberLedgerDirectApi(member) {
-            fetch(`${config.scriptUrl}?action=getData&phone=${member.phone}&kittyNumber=${member.kittyNumber}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(data => {
-                if (data && data.profile) {
-                    loadMemberLedger(member);
-                }
-            })
-            .catch(() => {
-                loadMemberLedger(member);
+        // --- DELETE MEMBER ---
+        function confirmRemoveMember() {
+            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
+            if (!selectedMemberData) return;
+            if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (Kitty #${selectedMemberData.kittyNumber})?`)) return;
+
+            const payload = {
+                action: "deleteMember",
+                phone: selectedMemberData.phone,
+                kittyNumber: selectedMemberData.kittyNumber
+            };
+
+            fetch(config.scriptUrl, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            }).then(() => {
+                alert("Member deleted successfully.");
+                document.getElementById('memberProfileSection').classList.add('hidden-view');
             });
         }
 
-        // --- PENDING APPROVALS QUEUE HANDLER ---
+        // --- PENDING APPROVALS QUEUE ---
         function loadKmpPendingApprovals() {
             const tableBody = document.getElementById('kmpApprovalTableBody');
             const mobileCards = document.getElementById('kmpApprovalMobileCards');
@@ -1005,29 +968,23 @@
             if (desktopEl) desktopEl.style.opacity = "0.4";
             if (mobileEl) mobileEl.style.opacity = "0.4";
 
-            const params = new URLSearchParams();
-            params.append("action", "approve");
-            params.append("row", rowId);
-            params.append("rateUsed", goldRate10g);
-            params.append("gramsBooked", allocatedGrams);
+            const payload = { action: "approve", row: rowId, rateUsed: goldRate10g, gramsBooked: allocatedGrams };
 
             fetch(config.scriptUrl, {
                 method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
+                body: JSON.stringify(payload)
             })
             .then(() => {
                 if (desktopEl) desktopEl.remove();
                 if (mobileEl) mobileEl.remove();
                 alert("Transaction verified successfully: " + allocatedGrams.toFixed(3) + "g 22K gold booked.");
-                setTimeout(loadKmpPendingApprovals, 1200);
+                setTimeout(loadKmpPendingApprovals, 1000);
             })
             .catch(() => {
                 if (desktopEl) desktopEl.remove();
                 if (mobileEl) mobileEl.remove();
                 alert("Ledger logs updated.");
-                setTimeout(loadKmpPendingApprovals, 1200);
+                setTimeout(loadKmpPendingApprovals, 1000);
             });
         }
     </script>
