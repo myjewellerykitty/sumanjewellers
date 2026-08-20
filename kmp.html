@@ -430,9 +430,10 @@
             }
         }
 
+        // Clean string from CSV quotes and spaces
         function cleanString(val) {
             if (!val) return "";
-            return val.toString().replace(/^"|"$/g, '').replace(/[\r\n\t]/g, '').trim();
+            return val.toString().replace(/^["']|["']$/g, '').replace(/[\r\n\t]/g, '').trim();
         }
 
         function parseCsv(textLine) {
@@ -449,8 +450,9 @@
 
         // --- SEARCH WORKFLOW ---
         function searchMemberRecords() {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            if (!query) return alert("Please enter a Kitty Number or Mobile Number to search.");
+            const query = document.getElementById('searchInput').value.trim().toLowerCase().replace(/\D/g, "");
+            const rawQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!rawQuery) return alert("Please enter a Kitty Number or Mobile Number to search.");
 
             const btn = document.getElementById('btnSearch');
             btn.innerText = "Searching...";
@@ -476,10 +478,10 @@
                     let name = cleanString(cols[1]);
                     let amount = cleanString(cols[2]);
                     let custId = cleanString(cols[3]);
-                    let kittyNo = cleanString(cols[4]);
+                    let kittyNo = cleanString(cols[4]).replace(/^'/, '');
                     let details = cleanString(cols[5]);
 
-                    if (phone.includes(query) || kittyNo.toLowerCase() === query || custId.toLowerCase() === query) {
+                    if ((query && phone.includes(query)) || kittyNo.toLowerCase() === rawQuery || custId.toLowerCase() === rawQuery) {
                         activeSearchResults.push({ phone, name, monthlyAmount: amount, customerId: custId, kittyNumber: kittyNo, otherDetails: details });
                     }
                 }
@@ -548,24 +550,26 @@
                 let totalDeposited = 0;
                 let totalGold = 0;
 
+                const cleanTargetPhone = member.phone.replace(/\D/g, "").trim();
+                const cleanTargetKitty = member.kittyNumber.toString().replace(/^'/, '').trim().toLowerCase();
+
                 for (let j = 1; j < lines.length; j++) {
                     if (!lines[j]) continue;
                     let cols = parseCsv(lines[j]);
-                    let txPhone = cleanString(cols[0]).replace(/\D/g, "");
-                    let txKitty = cleanString(cols[7]);
+                    let txPhone = cleanString(cols[0]).replace(/\D/g, "").trim();
+                    let txKitty = cleanString(cols[7]).replace(/^'/, '').trim().toLowerCase();
 
-                    if (txPhone === member.phone && txKitty === member.kittyNumber) {
+                    if (txPhone === cleanTargetPhone && txKitty === cleanTargetKitty) {
                         let month = cleanString(cols[1]);
-                        let amount = Number(cleanString(cols[2])) || 0;
+                        let amount = parseFloat(cleanString(cols[2])) || 0;
                         let status = cleanString(cols[5]);
                         let rate = cleanString(cols[8]);
-                        let grams = Number(cleanString(cols[9])) || 0;
+                        let grams = parseFloat(cleanString(cols[9])) || 0;
                         let utr = cleanString(cols[3]);
 
                         userTxs.push({ month, amount, status, rate, grams, utr });
 
                         if (status === "Paid") {
-                            // Count paid regular months
                             if (!isNaN(Number(month)) && Number(month) >= 1 && Number(month) <= config.schemeMonths) {
                                 paidMonths++;
                             }
