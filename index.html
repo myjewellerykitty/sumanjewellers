@@ -103,7 +103,7 @@
                         <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5"></div>
                     </div>
 
-                    <!-- Help desk Link -->
+                    <!-- Help Desk Link -->
                     <div class="bg-white rounded-xl p-4 border border-slate-200 flex items-center justify-between shadow-sm">
                         <div>
                             <h4 class="text-xs font-bold text-slate-900">Payment Verification Issue?</h4>
@@ -130,71 +130,6 @@
         </div>
     </div>
 
-    <!-- ADMIN PORTAL LOGIN VIEW -->
-    <div id="adminLoginView" class="hidden-view max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-            <div class="text-center mb-6">
-                <h2 class="text-lg font-bold text-slate-900">Administrative Login</h2>
-                <p class="text-xs text-slate-500 mt-1">Authorized showroom access point</p>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Access Role Mode</label>
-                    <select id="adminRoleSelect" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none font-medium text-slate-800">
-                        <option value="PREVIEW">Viewer Admin (Read-Only Preview Access)</option>
-                        <option value="APPROVE">Super Admin (Full Read-Write Approval Controls)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Security Key</label>
-                    <input type="password" id="adminPass" placeholder="Enter Secure Master Password" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none">
-                </div>
-                <button onclick="handleAdminLogin()" id="adminLoginBtn" class="w-full bg-slate-900 text-white font-medium py-2.5 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.98]">Sign In To Panel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ADMINISTRATIVE PANEL VIEW -->
-    <div id="adminView" class="hidden-view max-w-5xl mx-auto p-4 sm:p-6">
-        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5 mb-6">
-            <div>
-                <h1 id="adminPanelTitle" class="text-xl font-bold text-slate-900">Master Control Dashboard</h1>
-                <p class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
-                    Authentication Status: 
-                    <span id="roleBadge" class="font-bold uppercase px-2 py-0.5 text-[10px] rounded">Checking...</span>
-                </p>
-            </div>
-            <div class="flex gap-2 w-full sm:w-auto">
-                <button onclick="loadAdminDashboard()" id="syncAdminBtn" class="flex-1 sm:flex-none bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer text-center active:scale-[0.98]">Sync Pending Records</button>
-                <button onclick="logoutAdmin()" class="bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-slate-200 cursor-pointer active:scale-[0.98]">Logout</button>
-            </div>
-        </header>
-
-        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="hidden md:block overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="text-xs font-semibold text-slate-500 bg-slate-50 border-b border-slate-200">
-                            <th class="p-4">Customer Details</th>
-                            <th class="p-4">Kitty Plan</th>
-                            <th class="p-4">Month</th>
-                            <th class="p-4">Deposit Amount</th>
-                            <th class="p-4">UTR Reference / Receipt</th>
-                            <th class="p-4 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTableBody" class="divide-y divide-slate-100 text-sm">
-                        <tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Click "Sync Pending Records" to refresh state.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="adminMobileCardsWrapper" class="block md:hidden p-4 space-y-4 bg-slate-50">
-                <p class="text-xs text-slate-400 text-center italic">Click "Sync Pending Records" to view incoming listings.</p>
-            </div>
-        </div>
-    </div>
-
     <!-- MULTI-CHANNEL SETTLEMENT & MULTI-KITTY PAYMENT MODAL -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-5 sm:p-6 w-full max-w-md shadow-xl my-auto border border-slate-100">
@@ -208,9 +143,7 @@
                 <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
                     Select Kitty Plans To Include In Payment:
                 </label>
-                <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1">
-                    <!-- Checkboxes injected dynamically -->
-                </div>
+                <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1"></div>
             </div>
             
             <!-- Direct UPI Application Deep Link Button -->
@@ -268,9 +201,6 @@
         const config = {
             name: "Suman Jewellers",
             upiVpa: "8052473033@upi",
-            themeText: "text-slate-900",
-            themeBg: "bg-slate-900 hover:bg-slate-800 focus:border-slate-800",
-            themeGradient: "from-slate-900 to-slate-800",
             sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0", 
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec", 
             whatsapp: "918052473033",
@@ -284,42 +214,23 @@
         let globalMonthlyAmount = 0;
         let currentPaymentChannel = "upi";
         let holdsMultiProfiles = false;
-        let currentActiveAdminRole = "PREVIEW"; 
 
         let optimisticPendingMonths = new Set();
         let isSyncingActive = false;
         let autoSyncTimer = null;
         let activeMatches = [];
 
-        document.title = `${config.name} - Kitty Management Tool`;
+        document.title = `${config.name} - Kitty Ledger System`;
         document.getElementById('brandTitle').innerText = config.name;
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
+            // Direct any legacy admin query to the dedicated KMP tool
             if (urlParams.get('view') === 'admin') {
-                document.getElementById('customerView').classList.add('hidden-view');
-                if (sessionStorage.getItem('adminAuthenticated') === 'true') {
-                    currentActiveAdminRole = sessionStorage.getItem('adminRole') || "PREVIEW";
-                    setupAdminRoleUI();
-                    document.getElementById('adminView').classList.remove('hidden-view');
-                    loadAdminDashboard();
-                } else {
-                    document.getElementById('adminLoginView').classList.remove('hidden-view');
-                }
+                window.location.href = "kmp.html";
             }
         });
-
-        function setupAdminRoleUI() {
-            const badge = document.getElementById('roleBadge');
-            if (currentActiveAdminRole === "APPROVE") {
-                badge.className = "font-bold uppercase px-2 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800";
-                badge.innerText = "Super Admin (Full Read-Write Controls)";
-            } else {
-                badge.className = "font-bold uppercase px-2 py-0.5 text-[10px] rounded bg-slate-100 text-slate-700";
-                badge.innerText = "Viewer Admin (Read-Only Preview Mode)";
-            }
-        }
 
         function copyUpiId() {
             navigator.clipboard.writeText(config.upiVpa);
@@ -341,37 +252,6 @@
                 upiBox.classList.remove('hidden-view');
                 toggleBtn.innerText = "Switch to Bank Account Credentials";
             }
-        }
-
-        function handleAdminLogin() {
-            const chosenRole = document.getElementById('adminRoleSelect').value;
-            const pass = document.getElementById('adminPass').value.trim();
-            
-            if (chosenRole === "PREVIEW" && pass === "ADMIN") {
-                sessionStorage.setItem('adminAuthenticated', 'true');
-                sessionStorage.setItem('adminRole', 'PREVIEW');
-                currentActiveAdminRole = "PREVIEW";
-                setupAdminRoleUI();
-                document.getElementById('adminLoginView').classList.add('hidden-view');
-                document.getElementById('adminView').classList.remove('hidden-view');
-                loadAdminDashboard();
-            } else if (chosenRole === "APPROVE" && pass === "1234") {
-                sessionStorage.setItem('adminAuthenticated', 'true');
-                sessionStorage.setItem('adminRole', 'APPROVE');
-                currentActiveAdminRole = "APPROVE";
-                setupAdminRoleUI();
-                document.getElementById('adminLoginView').classList.add('hidden-view');
-                document.getElementById('adminView').classList.remove('hidden-view');
-                loadAdminDashboard();
-            } else {
-                alert("Authentication Failure: Invalid security key.");
-            }
-        }
-
-        function logoutAdmin() {
-            sessionStorage.removeItem('adminAuthenticated');
-            sessionStorage.removeItem('adminRole');
-            window.location.search = ""; 
         }
 
         function cleanStringValue(val) {
@@ -450,7 +330,7 @@
                 }
                 routeProfileMatching(cleanPhoneInput);
             })
-            .catch(err => {
+            .catch(() => {
                 fetchLiveScriptLookupFallback(cleanPhoneInput);
             });
         }
@@ -478,7 +358,7 @@
                 }));
                 routeProfileMatching(cleanPhoneInput);
             })
-            .catch(e => {
+            .catch(() => {
                 fetchBtn.disabled = false;
                 fetchBtn.innerText = "Access Passbook";
                 alert("Database connection failed. Please check your network.");
@@ -634,7 +514,7 @@
                 })
                 .catch(() => { isSyncingActive = false; });
             })
-            .catch(err => {
+            .catch(() => {
                 isSyncingActive = false;
                 if (!isSilentSync) {
                     fetchBtn.innerText = "Access Passbook";
@@ -654,7 +534,6 @@
             document.getElementById('channelBankView').classList.add('hidden-view');
             document.getElementById('btnPaymentToggle').innerText = "Switch to Bank Account Credentials";
 
-            // SETUP MULTI-KITTY SELECTION LIST IF CUSTOMER HOLDS MULTIPLE ACCOUNTS
             const multiContainer = document.getElementById('multiKittySelectionContainer');
             const listContainer = document.getElementById('multiKittyCheckboxList');
             
@@ -694,7 +573,6 @@
                 totalAmountToPay = aggregate > 0 ? aggregate : globalMonthlyAmount;
             }
 
-            // Generate UPI link & Dynamic QR code matching calculated aggregate amount
             const note = encodeURIComponent(`Kitty Month ${currentSelectedMonth} - ${globalKittyNumber}`);
             const payeeName = encodeURIComponent(config.name);
             const upiUrl = `upi://pay?pa=${config.upiVpa}&pn=${payeeName}&am=${totalAmountToPay}&cu=INR&tn=${note}`;
@@ -751,7 +629,6 @@
             
             optimisticPendingMonths.add(Number(currentSelectedMonth));
 
-            // Extract selected Kitty account numbers (Comma separated for Multi-Kitty submission)
             let selectedKitties = [globalKittyNumber];
             let calculatedTotalAmount = globalMonthlyAmount;
 
@@ -771,7 +648,7 @@
             const payload = {
                 action: "submit",
                 id: globalCustomerPhone,
-                kittyNumber: selectedKitties.join(','), // Send comma-separated list
+                kittyNumber: selectedKitties.join(','),
                 month: currentSelectedMonth,
                 amount: calculatedTotalAmount,
                 utr: utrCode || `Direct Deposit`,
@@ -796,164 +673,12 @@
                 alert("Payment proofs transmitted for administrative review!");
                 executePassbookRender(globalCustomerPhone, globalKittyNumber, true);
             })
-            .catch(e => {
+            .catch(() => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment proof transmitted successfully!");
                 executePassbookRender(globalCustomerPhone, globalKittyNumber, true);
-            });
-        }
-
-        function loadAdminDashboard() {
-            const desktopBody = document.getElementById('adminTableBody');
-            const mobileWrapper = document.getElementById('adminMobileCardsWrapper');
-            desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Connecting live records...</td></tr>`;
-            mobileWrapper.innerHTML = `<div class="p-8 text-center text-slate-500 bg-white rounded-xl border">Connecting live records...</div>`;
-            
-            fetch(`${SCRIPT_URL}?action=getData&id=all_pending&_ts=${Date.now()}`)
-            .then(r => r.json()).then(pendingList => {
-                if(!pendingList || pendingList.length === 0) {
-                    const cleanStateMsg = `All clean: No pending verifications queued.`;
-                    desktopBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-700 font-semibold">${cleanStateMsg}</td></tr>`;
-                    mobileWrapper.innerHTML = `<div class="p-6 text-center text-emerald-700 bg-white border border-emerald-200 rounded-xl font-semibold">${cleanStateMsg}</div>`;
-                    return;
-                }
-                
-                desktopBody.innerHTML = "";
-                mobileWrapper.innerHTML = "";
-                
-                pendingList.forEach(item => {
-                    const slipSrc = item.screenshotUrl || item.screenshot || "";
-                    const isInline = slipSrc.startsWith("data:image");
-                    const extCustomerName = item.name || "Unknown Profile";
-                    const extKittyNumber = item.kittyNumber || "Unassigned";
-                    const extCustomerId = item.customerId || "Unallocated";
-                    const extOtherDetails = item.otherDetails || "None";
-
-                    const linkMarkup = isInline 
-                        ? `<button onclick="viewEmbeddedReceipt('${item.row}')" class="text-slate-900 underline font-semibold block mt-1 cursor-pointer">View Receipt Image ↗</button>
-                           <div id="hidden-img-${item.row}" class="hidden-view mt-2 max-w-xs border border-slate-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto mx-auto"></div>`
-                        : `<a href="${slipSrc}" target="_blank" class="text-slate-900 underline font-semibold block mt-1">View Receipt Image ↗</a>`;
-
-                    let actionButtonContent = "";
-                    if (currentActiveAdminRole === "APPROVE") {
-                        actionButtonContent = `<button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-3 py-1.5 rounded font-semibold transition-all cursor-pointer">Approve Instantly</button>`;
-                    } else {
-                        actionButtonContent = `<span class="text-xs text-slate-400 italic bg-slate-100 px-2.5 py-1 rounded font-medium select-none">Read-Only View</span>`;
-                    }
-
-                    desktopBody.innerHTML += `
-                        <tr id="row-${item.row}">
-                            <td class="p-4">
-                                <div class="font-bold text-slate-900">${extCustomerName}</div>
-                                <div class="text-xs text-slate-500 font-mono">${item.phone}</div>
-                            </td>
-                            <td class="p-4 text-xs">
-                                <div><span class="text-slate-400 font-medium">ID:</span> ${extCustomerId}</div>
-                                <div><span class="text-slate-400 font-medium">Plan #:</span> ${extKittyNumber}</div>
-                                <div class="text-[10px] italic text-slate-400 truncate max-w-[120px]">${extOtherDetails}</div>
-                            </td>
-                            <td class="p-4 font-medium">Month ${item.month}</td>
-                            <td class="p-4 font-bold text-slate-900 font-mono">₹${item.amount}</td>
-                            <td class="p-4 text-xs text-slate-500">
-                                <div class="font-mono">UTR: ${item.utr}</div>
-                                ${slipSrc ? linkMarkup : ''}
-                            </td>
-                            <td class="p-4 text-center">
-                                ${actionButtonContent}
-                            </td>
-                        </tr>
-                    `;
-
-                    let mobileActionButtonContent = "";
-                    if (currentActiveAdminRole === "APPROVE") {
-                        mobileActionButtonContent = `<button onclick="promptGoldRateApproval('${item.row}', ${item.amount})" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition-all shadow-xs cursor-pointer mt-1">Approve Instantly</button>`;
-                    }
-
-                    mobileWrapper.innerHTML += `
-                        <div id="mob-card-${item.row}" class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-3">
-                            <div class="flex justify-between items-start border-b border-slate-100 pb-2">
-                                <div>
-                                    <h4 class="font-bold text-slate-900 text-sm">${extCustomerName}</h4>
-                                    <p class="text-xs text-slate-500 font-mono">${item.phone}</p>
-                                </div>
-                                <span class="bg-slate-100 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded">Month ${item.month}</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
-                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Customer ID</span><strong>${extCustomerId}</strong></div>
-                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Kitty Plan</span><strong>${extKittyNumber}</strong></div>
-                            </div>
-                            <div class="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                <span class="text-slate-400 block text-[9px] uppercase font-bold">Other Details</span>
-                                <p class="italic text-slate-700 mt-0.5">${extOtherDetails}</p>
-                            </div>
-                            <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                                <span class="text-xs text-slate-500 font-medium">Deposit Amount:</span>
-                                <span class="text-sm font-bold font-mono text-slate-900">₹${item.amount}</span>
-                            </div>
-                            <div class="text-xs border-t border-slate-100 pt-2 space-y-1">
-                                <div class="font-mono text-slate-500 text-[11px]"><span class="text-slate-400 font-sans font-medium">UTR Code:</span> ${item.utr}</div>
-                                ${slipSrc ? linkMarkup : ''}
-                            </div>
-                            ${mobileActionButtonContent}
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        function viewEmbeddedReceipt(rowId) {
-            const boxes = document.querySelectorAll(`[id="hidden-img-${rowId}"]`);
-            boxes.forEach(box => box.classList.toggle('hidden-view'));
-        }
-
-        function promptGoldRateApproval(rowId, installmentAmount) {
-            if (currentActiveAdminRole !== "APPROVE") {
-                alert("Security Authorization Breach: Read-only accounts restricted.");
-                return;
-            }
-
-            var inputRate10g = prompt("Installment Amount: ₹" + installmentAmount + "\nEnter current 22K Gold Rate for 10 GRAMS:", "");
-            if (inputRate10g === null) return;
-            var goldRate10g = parseFloat(inputRate10g.trim());
-            if (isNaN(goldRate10g) || goldRate10g <= 0) {
-                alert("Please enter a valid numeric gold rate value.");
-                return;
-            }
-            var goldRatePerGram = goldRate10g / 10;
-            var allocatedGrams = installmentAmount / goldRatePerGram;
-
-            if(!confirm("Confirm 22K Gold Booking Details:\n- Rate / 10g: ₹" + goldRate10g + "\n- Weight: " + allocatedGrams.toFixed(3) + " grams\n\nCommit row update?")) return;
-
-            const desktopEl = document.getElementById("row-" + rowId);
-            const mobileEl = document.getElementById("mob-card-" + rowId);
-            if(desktopEl) desktopEl.style.opacity = "0.4";
-            if(mobileEl) mobileEl.style.opacity = "0.4";
-
-            const payload = { action: "approve", row: rowId, rateUsed: goldRate10g, gramsBooked: allocatedGrams };
-            const params = new URLSearchParams();
-            for (const key in payload) {
-                params.append(key, payload[key]);
-            }
-
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: params.toString()
-            })
-            .then(() => {
-                if(desktopEl) desktopEl.remove();
-                if(mobileEl) mobileEl.remove();
-                alert("Transaction verified successfully: " + allocatedGrams.toFixed(3) + "g gold booked.");
-                setTimeout(loadAdminDashboard, 1500);
-            })
-            .catch(err => {
-                if(desktopEl) desktopEl.remove();
-                if(mobileEl) mobileEl.remove();
-                alert("Ledger logs updated successfully.");
-                setTimeout(loadAdminDashboard, 1500);
             });
         }
     </script>
