@@ -69,7 +69,6 @@
 
             <!-- TAB 1: MEMBERS DIRECTORY & LOOKUP -->
             <div id="tabContentMembers" class="space-y-6">
-                <!-- Search & Lookup Card -->
                 <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Search Member Records</label>
                     <div class="flex flex-col sm:flex-row gap-2">
@@ -79,7 +78,6 @@
                         </button>
                     </div>
 
-                    <!-- Multiple Kitties Found Selector -->
                     <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
                         <p class="text-xs font-bold text-amber-900 uppercase">Multiple Accounts Linked With This Mobile Number</p>
                         <p class="text-xs text-amber-800">Select which Kitty Account plan details you want to load:</p>
@@ -87,9 +85,7 @@
                     </div>
                 </section>
 
-                <!-- Customer Full Passbook & Action Center -->
                 <section id="memberProfileSection" class="hidden-view space-y-6">
-                    <!-- Summary Card -->
                     <div class="bg-slate-900 text-white rounded-xl p-6 shadow-sm border border-slate-800 relative overflow-hidden">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-4">
                             <div>
@@ -98,15 +94,12 @@
                                 <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <!-- Deposit Monthly Kitty Installment -->
                                 <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm">
                                     + Deposit Value & Book Gold
                                 </button>
-                                <!-- Custom Coupon / Bonus Gold Reward -->
                                 <button onclick="openBonusCouponModal()" id="btnActionBonus" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm">
                                     + Credit Bonus / Reward Gold
                                 </button>
-                                <!-- Delete Account -->
                                 <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer">
                                     Delete Member
                                 </button>
@@ -144,7 +137,6 @@
                         </div>
                     </div>
 
-                    <!-- Installment Timeline Table -->
                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment & Credit Ledger</h3>
@@ -206,7 +198,7 @@
         </main>
     </div>
 
-    <!-- MODAL 1: ADD NEW KITTY MEMBER -->
+    <!-- MODAL 1: ADD NEW MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -250,7 +242,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: MANUAL MONTHLY INSTALLMENT DEPOSIT & BOOK GOLD -->
+    <!-- MODAL 2: MANUAL MONTHLY INSTALLMENT DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -275,7 +267,6 @@
                     <input type="number" id="depositRate" required oninput="calculateRealtimeGold()" placeholder="e.g. 68500" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
                 </div>
                 
-                <!-- Computed Realtime Output -->
                 <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
                     <div>
                         <span class="text-[10px] uppercase font-bold text-amber-800 block">Allocated 22K Weight</span>
@@ -318,7 +309,6 @@
                     <input type="number" id="bonusRate" required oninput="calculateBonusRealtimeGold()" placeholder="e.g. 68500" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 font-mono font-bold">
                 </div>
                 
-                <!-- Computed Realtime Output -->
                 <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
                     <div>
                         <span class="text-[10px] uppercase font-bold text-amber-800 block">Bonus 22K Gold Added</span>
@@ -430,7 +420,6 @@
             }
         }
 
-        // Clean string from CSV quotes and spaces
         function cleanString(val) {
             if (!val) return "";
             return val.toString().replace(/^["']|["']$/g, '').replace(/[\r\n\t]/g, '').trim();
@@ -450,9 +439,11 @@
 
         // --- SEARCH WORKFLOW ---
         function searchMemberRecords() {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase().replace(/\D/g, "");
-            const rawQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+            const rawQuery = document.getElementById('searchInput').value.trim();
             if (!rawQuery) return alert("Please enter a Kitty Number or Mobile Number to search.");
+
+            const cleanPhoneQuery = rawQuery.replace(/\D/g, "");
+            const cleanPlanQuery = rawQuery.toLowerCase().replace(/^'/, "").trim();
 
             const btn = document.getElementById('btnSearch');
             btn.innerText = "Searching...";
@@ -478,10 +469,12 @@
                     let name = cleanString(cols[1]);
                     let amount = cleanString(cols[2]);
                     let custId = cleanString(cols[3]);
-                    let kittyNo = cleanString(cols[4]).replace(/^'/, '');
+                    let kittyNo = cleanString(cols[4]).replace(/^'/, "");
                     let details = cleanString(cols[5]);
 
-                    if ((query && phone.includes(query)) || kittyNo.toLowerCase() === rawQuery || custId.toLowerCase() === rawQuery) {
+                    if ((cleanPhoneQuery && phone.includes(cleanPhoneQuery)) || 
+                        kittyNo.toLowerCase() === cleanPlanQuery || 
+                        custId.toLowerCase() === cleanPlanQuery) {
                         activeSearchResults.push({ phone, name, monthlyAmount: amount, customerId: custId, kittyNumber: kittyNo, otherDetails: details });
                     }
                 }
@@ -556,6 +549,8 @@
                 for (let j = 1; j < lines.length; j++) {
                     if (!lines[j]) continue;
                     let cols = parseCsv(lines[j]);
+                    if (!cols[0]) continue;
+
                     let txPhone = cleanString(cols[0]).replace(/\D/g, "").trim();
                     let txKitty = cleanString(cols[7]).replace(/^'/, '').trim().toLowerCase();
 
@@ -586,7 +581,7 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
-                // Render 12 Regular Months Matrix
+                // Render 12 Regular Months
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let record = userTxs.find(t => Number(t.month) === m);
                     if (record && record.status === "Paid") {
