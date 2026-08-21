@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Suman Jewellers - Kitty Ledger System</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
-    <!-- Google Identity Services (1-Click Google Sign In) -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-
     <style>
         .hidden-view { display: none !important; }
         .overflow-x-auto { -webkit-overflow-scrolling: touch; }
@@ -16,7 +12,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
 
-    <!-- CUSTOMER PORTAL VIEW -->
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
             <header class="text-center py-6 border-b border-slate-200 mb-6">
@@ -26,53 +21,106 @@
 
             <div id="interactiveContainer">
                 
-                <!-- LOGIN CONTAINER -->
-                <div id="loginMethodCard" class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-5">
-                    
-                    <!-- OPTION 1: 1-Click Google Sign-In -->
+                <!-- Step 1: Phone Card -->
+                <div id="phoneSection" class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
                     <div>
-                        <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2 text-center">Fast Login With Google</label>
-                        <div id="g_id_onload"
-                             data-client_id="438477160915-d6v8vl13cl6n8trc2cp4mb8p9cet6i6n.apps.googleusercontent.com"
-                             data-context="signin"
-                             data-ux_mode="popup"
-                             data-callback="handleGoogleCredentialResponse"
-                             data-auto_prompt="false">
-                        </div>
-                        <div class="g_id_signin flex justify-center" data-type="standard" data-shape="rectangular" data-theme="outline" data-text="signin_with" data-size="large" data-logo_alignment="left"></div>
+                        <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Registered Mobile Number</label>
+                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 focus:bg-white transition-all">
                     </div>
 
-                    <div class="relative flex py-1 items-center">
-                        <div class="flex-grow border-t border-slate-200"></div>
-                        <span class="flex-shrink mx-3 text-[10px] uppercase font-bold text-slate-400">Or Login Via Gmail OTP</span>
-                        <div class="flex-grow border-t border-slate-200"></div>
+                    <button onclick="handlePhoneContinue()" id="btnPhoneContinue" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.99]">
+                        Continue
+                    </button>
+                </div>
+
+                <!-- Step 2A: MPIN Login -->
+                <div id="mpinLoginSection" class="hidden-view bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-base font-bold text-slate-900">Enter Security MPIN</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Account: <span id="lblMpinPhone" class="font-bold text-slate-700"></span></p>
                     </div>
 
-                    <!-- OPTION 2: Gmail Address OTP -->
-                    <div id="emailInputBox" class="space-y-3">
+                    <div>
+                        <input type="password" id="mpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-slate-800">
+                    </div>
+
+                    <button onclick="verifyMpinAndProceed()" id="btnVerifyMpin" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.99]">
+                        Verify MPIN & Access Passbook
+                    </button>
+
+                    <div class="flex justify-between items-center text-xs pt-1">
+                        <button onclick="resetToPhoneStep()" class="text-slate-400 hover:text-slate-600 font-semibold cursor-pointer">
+                            ← Change Mobile
+                        </button>
+                        <button onclick="openForgotMpinFlow()" class="text-amber-700 hover:text-amber-900 font-bold underline cursor-pointer">
+                            Forgot / Reset MPIN?
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2B: First-Time Setup MPIN -->
+                <div id="firstTimeMpinSection" class="hidden-view bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-base font-bold text-slate-900">Create 4-Digit MPIN</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Welcome! Set a 4-digit PIN for future quick logins.</p>
+                    </div>
+
+                    <div class="space-y-3">
                         <div>
-                            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Registered Gmail / Email</label>
-                            <input type="email" id="emailInput" placeholder="example@gmail.com" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 focus:bg-white transition-all">
+                            <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Enter 4-Digit MPIN</label>
+                            <input type="password" id="firstMpin1" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-xl font-bold tracking-widest">
                         </div>
-
-                        <button onclick="requestEmailOtp()" id="btnSendEmailOtp" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.99]">
-                            Send Verification Code To Email
-                        </button>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Confirm 4-Digit MPIN</label>
+                            <input type="password" id="firstMpin2" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-xl font-bold tracking-widest">
+                        </div>
                     </div>
 
-                    <!-- OTP Code Entry (Hidden by default) -->
-                    <div id="emailOtpVerifyBox" class="hidden-view space-y-3 pt-2">
-                        <div class="text-center">
-                            <p class="text-xs text-slate-500">Enter 6-digit OTP code sent to <br><span id="lblTargetEmail" class="font-bold text-slate-800"></span></p>
-                        </div>
-                        <input type="number" id="emailOtpInput" placeholder="• • • • • •" maxlength="6" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-slate-800">
-                        <button onclick="verifyEmailOtp()" id="btnVerifyEmailOtp" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-sm transition-all cursor-pointer">
-                            Verify OTP & Open Passbook
-                        </button>
-                        <button onclick="cancelEmailOtp()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 font-semibold cursor-pointer">
-                            ← Change Email Address
-                        </button>
+                    <button onclick="saveInitialMpin()" id="btnSaveFirstMpin" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-sm transition-all cursor-pointer">
+                        Save MPIN & Open Passbook
+                    </button>
+                </div>
+
+                <!-- Step 2C: Forgot & Reset MPIN (With Old MPIN Request) -->
+                <div id="forgotMpinSection" class="hidden-view bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-base font-bold text-slate-900">Reset Security MPIN</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Need your old MPIN? Request it directly below.</p>
                     </div>
+
+                    <!-- Request Old MPIN Buttons -->
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center space-y-2">
+                        <p class="text-[11px] text-slate-600 font-medium">Forgot what your current MPIN is?</p>
+                        <button onclick="requestCurrentMpinRecovery()" id="btnRequestOldMpin" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-xs transition-all cursor-pointer">
+                            📩 Email Me My Old MPIN
+                        </button>
+                        <a id="btnWhatsappRecovery" href="#" target="_blank" class="w-full inline-block bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition-all cursor-pointer">
+                            💬 WhatsApp Support For Old MPIN
+                        </a>
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-700 uppercase block mb-1">1. Enter Old / Current MPIN</label>
+                            <input type="password" id="oldMpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-lg font-bold tracking-widest">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-700 uppercase block mb-1">2. Enter New 4-Digit MPIN</label>
+                            <input type="password" id="resetNewMpin1" placeholder="••••" maxlength="4" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-lg font-bold tracking-widest">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-700 uppercase block mb-1">3. Confirm New 4-Digit MPIN</label>
+                            <input type="password" id="resetNewMpin2" placeholder="••••" maxlength="4" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-lg font-bold tracking-widest">
+                        </div>
+                    </div>
+
+                    <button onclick="submitMpinResetWithOld()" id="btnConfirmReset" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-sm transition-all cursor-pointer">
+                        Verify & Update MPIN
+                    </button>
+
+                    <button onclick="cancelForgotFlow()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 font-semibold cursor-pointer">
+                        ← Back to Login
+                    </button>
                 </div>
 
                 <!-- Multi-Kitty Selection -->
@@ -157,7 +205,6 @@
                 </div>
             </div>
 
-            <!-- Terms Card -->
             <div id="termsContainer" class="mt-8 bg-slate-100 border border-slate-200 rounded-xl p-4 space-y-2">
                 <h4 id="termsHeading" class="text-xs font-bold text-slate-900 uppercase tracking-wider">
                     Terms & Conditions (12+1 Savings Scheme)
@@ -171,7 +218,7 @@
         </div>
     </div>
 
-    <!-- PAYMENT SETTLEMENT MODAL -->
+    <!-- PAYMENT MODAL -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-5 sm:p-6 w-full max-w-md shadow-xl my-auto border border-slate-100">
             <div class="border-b border-slate-100 pb-3 mb-4">
@@ -232,7 +279,7 @@
         </div>
     </div>
 
-    <!-- MAIN FRONTEND LOGIC -->
+    <!-- MAIN JAVASCRIPT CONTROLLER -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -253,141 +300,238 @@
         let optimisticPendingMonths = new Set();
         let isSyncingActive = false;
         let autoSyncTimer = null;
-        let activeEmail = "";
 
         document.title = `${config.name} - Kitty Ledger System`;
         document.getElementById('brandTitle').innerText = config.name;
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
-        // --- GOOGLE 1-CLICK AUTH HANDLER ---
-        function parseJwt(token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
+        // --- STEP 1: PHONE NUMBER LOOKUP ---
+        function handlePhoneContinue() {
+            const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
+            if (rawPhone.length !== 10) return alert("Please enter a valid 10-digit mobile number.");
 
-        function handleGoogleCredentialResponse(response) {
-            try {
-                const responsePayload = parseJwt(response.credential);
-                const googleEmail = responsePayload.email;
-                
-                fetch(`${SCRIPT_URL}?action=checkEmailProfile&email=${encodeURIComponent(googleEmail)}&_ts=${Date.now()}`)
-                .then(r => r.json())
-                .then(res => {
-                    if (res && res.success && res.results && res.results.length > 0) {
-                        document.getElementById('loginMethodCard').classList.add('hidden-view');
-                        activeMatches = res.results;
-                        if (activeMatches.length === 1) {
-                            executePassbookRender(activeMatches[0].phone, activeMatches[0].kittyNumber, false);
-                            initiateLiveAutoSync(activeMatches[0].phone, activeMatches[0].kittyNumber);
-                        } else {
-                            renderMultiKittySelection();
-                        }
-                    } else {
-                        alert(`No Kitty account found linked to ${googleEmail}. Please make sure this email is added in the Customers sheet.`);
-                    }
-                })
-                .catch(err => alert("Communication error with Google Sign-In."));
-            } catch(e) {
-                alert("Error authenticating with Google account.");
-            }
-        }
-
-        // --- GMAIL OTP HANDLERS ---
-        function requestEmailOtp() {
-            const email = document.getElementById('emailInput').value.trim();
-            if (!email || !email.includes('@')) return alert("Please enter a valid Gmail / Email address.");
-
-            const btn = document.getElementById('btnSendEmailOtp');
-            btn.innerText = "Dispatching OTP...";
+            const btn = document.getElementById('btnPhoneContinue');
+            btn.innerText = "Checking Account...";
             btn.disabled = true;
 
-            activeEmail = email;
+            globalCustomerPhone = rawPhone;
 
-            fetch(`${SCRIPT_URL}?action=sendEmailOtp&email=${encodeURIComponent(email)}&_ts=${Date.now()}`)
+            fetch(`${SCRIPT_URL}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "Send Verification Code To Email";
+                btn.innerText = "Continue";
                 btn.disabled = false;
 
-                if (res && res.success) {
-                    document.getElementById('lblTargetEmail').innerText = email;
-                    document.getElementById('emailInputBox').classList.add('hidden-view');
-                    document.getElementById('emailOtpVerifyBox').classList.remove('hidden-view');
+                if (!res.success) {
+                    return alert(res.error || "No active account found for this mobile number.");
+                }
+
+                document.getElementById('phoneSection').classList.add('hidden-view');
+
+                if (res.hasMpin) {
+                    document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
+                    document.getElementById('mpinInput').value = "";
+                    document.getElementById('mpinLoginSection').classList.remove('hidden-view');
                 } else {
-                    alert(res.error || "Failed to send OTP to this email address.");
+                    document.getElementById('firstMpin1').value = "";
+                    document.getElementById('firstMpin2').value = "";
+                    document.getElementById('firstTimeMpinSection').classList.remove('hidden-view');
                 }
             })
             .catch(err => {
                 console.error(err);
-                btn.innerText = "Send Verification Code To Email";
+                btn.innerText = "Continue";
                 btn.disabled = false;
                 alert("Server communication error.");
             });
         }
 
-        function verifyEmailOtp() {
-            const otp = document.getElementById('emailOtpInput').value.trim();
-            if (otp.length !== 6) return alert("Please enter the 6-digit OTP code.");
+        // --- STEP 2: MPIN LOGIN ---
+        function verifyMpinAndProceed() {
+            const mpin = document.getElementById('mpinInput').value.trim();
+            if (mpin.length !== 4) return alert("Please enter your 4-digit MPIN.");
 
-            const btn = document.getElementById('btnVerifyEmailOtp');
-            btn.innerText = "Verifying Code...";
+            const btn = document.getElementById('btnVerifyMpin');
+            btn.innerText = "Verifying...";
             btn.disabled = true;
 
-            fetch(`${SCRIPT_URL}?action=verifyEmailOtp&email=${encodeURIComponent(activeEmail)}&otp=${encodeURIComponent(otp)}&_ts=${Date.now()}`)
+            fetch(`${SCRIPT_URL}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "Verify OTP & Open Passbook";
+                btn.innerText = "Verify MPIN & Access Passbook";
                 btn.disabled = false;
 
-                if (res && res.success && res.profile && res.profile.results) {
-                    document.getElementById('loginMethodCard').classList.add('hidden-view');
-                    activeMatches = res.profile.results;
-
-                    if (activeMatches.length === 1) {
-                        executePassbookRender(activeMatches[0].phone, activeMatches[0].kittyNumber, false);
-                        initiateLiveAutoSync(activeMatches[0].phone, activeMatches[0].kittyNumber);
-                    } else {
-                        renderMultiKittySelection();
-                    }
+                if (res.success) {
+                    document.getElementById('mpinLoginSection').classList.add('hidden-view');
+                    fetchUserProfileAfterAuth(globalCustomerPhone);
                 } else {
-                    alert(res.error || "Invalid OTP code.");
+                    alert(res.error || "Incorrect MPIN.");
                 }
             })
             .catch(err => {
-                console.error(err);
-                btn.innerText = "Verify OTP & Open Passbook";
+                btn.innerText = "Verify MPIN & Access Passbook";
                 btn.disabled = false;
-                alert("Verification error.");
+                alert("Error connecting to server.");
             });
         }
 
-        function cancelEmailOtp() {
-            document.getElementById('emailOtpVerifyBox').classList.add('hidden-view');
-            document.getElementById('emailInputBox').classList.remove('hidden-view');
+        // --- STEP 3: INITIAL MPIN SETUP ---
+        function saveInitialMpin() {
+            const pin1 = document.getElementById('firstMpin1').value.trim();
+            const pin2 = document.getElementById('firstMpin2').value.trim();
+
+            if (pin1.length !== 4 || pin2.length !== 4) return alert("MPIN must be exactly 4 digits.");
+            if (pin1 !== pin2) return alert("MPIN confirmation does not match.");
+
+            const btn = document.getElementById('btnSaveFirstMpin');
+            btn.innerText = "Saving MPIN...";
+            btn.disabled = true;
+
+            fetch(`${SCRIPT_URL}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${pin1}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                btn.innerText = "Save MPIN & Open Passbook";
+                btn.disabled = false;
+
+                if (res.success) {
+                    alert("MPIN set successfully!");
+                    document.getElementById('firstTimeMpinSection').classList.add('hidden-view');
+                    fetchUserProfileAfterAuth(globalCustomerPhone);
+                } else {
+                    alert(res.error || "Could not save MPIN.");
+                }
+            })
+            .catch(err => {
+                btn.innerText = "Save MPIN & Open Passbook";
+                btn.disabled = false;
+                alert("Error connecting to server.");
+            });
         }
 
-        function renderMultiKittySelection() {
-            const wrapper = document.getElementById('multiKittyWrapper');
-            const select = document.getElementById('kittySelect');
-            select.innerHTML = "";
-            activeMatches.forEach(item => {
-                select.innerHTML += `<option value="${item.kittyNumber}">Kitty Account Plan #${item.kittyNumber} (${item.name})</option>`;
+        // --- STEP 4: FORGOT / RESET MPIN WITH OLD MPIN RECOVERY ---
+        function openForgotMpinFlow() {
+            document.getElementById('mpinLoginSection').classList.add('hidden-view');
+            document.getElementById('oldMpinInput').value = "";
+            document.getElementById('resetNewMpin1').value = "";
+            document.getElementById('resetNewMpin2').value = "";
+
+            const waMsg = encodeURIComponent(`Hello Suman Jewellers, I forgot my MPIN for registered mobile +91 ${globalCustomerPhone}. Please assist me with my account verification.`);
+            document.getElementById('btnWhatsappRecovery').href = `https://wa.me/${config.whatsapp}?text=${waMsg}`;
+
+            document.getElementById('forgotMpinSection').classList.remove('hidden-view');
+        }
+
+        function requestCurrentMpinRecovery() {
+            const btn = document.getElementById('btnRequestOldMpin');
+            btn.innerText = "Sending Old MPIN to Email...";
+            btn.disabled = true;
+
+            fetch(`${SCRIPT_URL}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                btn.innerText = "📩 Email Me My Old MPIN";
+                btn.disabled = false;
+
+                if (res.success) {
+                    if (res.method === "email") {
+                        alert(`Your existing MPIN has been sent to your registered email: ${res.email}\n\nPlease check your Inbox / Spam folder and enter it in the "Old MPIN" box below.`);
+                    } else {
+                        alert("No email address was registered on your Kitty account. Please use the WhatsApp button to get your old MPIN from our showroom desk.");
+                    }
+                } else {
+                    alert(res.error || "Could not retrieve existing MPIN.");
+                }
+            })
+            .catch(err => {
+                btn.innerText = "📩 Email Me My Old MPIN";
+                btn.disabled = false;
+                alert("Server communication error.");
             });
-            wrapper.classList.remove('hidden-view');
+        }
+
+        function submitMpinResetWithOld() {
+            const oldPin = document.getElementById('oldMpinInput').value.trim();
+            const newPin1 = document.getElementById('resetNewMpin1').value.trim();
+            const newPin2 = document.getElementById('resetNewMpin2').value.trim();
+
+            if (!oldPin) return alert("Please enter your Old / Current MPIN.");
+            if (newPin1.length !== 4 || newPin2.length !== 4) return alert("New MPIN must be exactly 4 digits.");
+            if (newPin1 !== newPin2) return alert("New MPIN and Confirm MPIN do not match.");
+
+            const btn = document.getElementById('btnConfirmReset');
+            btn.innerText = "Updating MPIN...";
+            btn.disabled = true;
+
+            fetch(`${SCRIPT_URL}?action=resetMpinWithOld&phone=${globalCustomerPhone}&oldMpin=${oldPin}&newMpin=${newPin1}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                btn.innerText = "Verify & Update MPIN";
+                btn.disabled = false;
+
+                if (res.success) {
+                    alert("MPIN updated successfully! Accessing your passbook now.");
+                    document.getElementById('forgotMpinSection').classList.add('hidden-view');
+                    fetchUserProfileAfterAuth(globalCustomerPhone);
+                } else {
+                    alert(res.error || "Reset failed. Please check the old MPIN.");
+                }
+            })
+            .catch(err => {
+                btn.innerText = "Verify & Update MPIN";
+                btn.disabled = false;
+                alert("Error connecting to database.");
+            });
+        }
+
+        function cancelForgotFlow() {
+            document.getElementById('forgotMpinSection').classList.add('hidden-view');
+            document.getElementById('mpinLoginSection').classList.remove('hidden-view');
+        }
+
+        function resetToPhoneStep() {
+            document.getElementById('mpinLoginSection').classList.add('hidden-view');
+            document.getElementById('firstTimeMpinSection').classList.add('hidden-view');
+            document.getElementById('forgotMpinSection').classList.add('hidden-view');
+            document.getElementById('phoneSection').classList.remove('hidden-view');
+        }
+
+        // --- STEP 5: PASSBOOK DATA WORKFLOW ---
+        function fetchUserProfileAfterAuth(cleanPhoneInput) {
+            const targetUrl = `${SCRIPT_URL}?action=searchMembers&query=${encodeURIComponent(cleanPhoneInput)}&_ts=${Date.now()}`;
+
+            fetch(targetUrl)
+            .then(r => r.json())
+            .then(res => {
+                if (!res || !res.success || !res.results || res.results.length === 0) {
+                    alert("Profile matching entity failure.");
+                    resetToPhoneStep();
+                    return;
+                }
+
+                activeMatches = res.results;
+
+                if (activeMatches.length === 1) {
+                    executePassbookRender(cleanPhoneInput, activeMatches[0].kittyNumber, false);
+                    initiateLiveAutoSync(cleanPhoneInput, activeMatches[0].kittyNumber);
+                } else {
+                    holdsMultiProfiles = true;
+                    const wrapper = document.getElementById('multiKittyWrapper');
+                    const select = document.getElementById('kittySelect');
+                    select.innerHTML = "";
+                    activeMatches.forEach(item => {
+                        select.innerHTML += `<option value="${item.kittyNumber}">Kitty Account Plan #${item.kittyNumber} (${item.name})</option>`;
+                    });
+                    wrapper.classList.remove('hidden-view');
+                }
+            })
+            .catch(err => alert("Database connection error."));
         }
 
         function confirmSelectedKitty() {
             const selectedKitty = document.getElementById('kittySelect').value;
             document.getElementById('multiKittyWrapper').classList.add('hidden-view');
-            const matched = activeMatches.find(m => m.kittyNumber === selectedKitty);
-            if (matched) {
-                executePassbookRender(matched.phone, matched.kittyNumber, false);
-                initiateLiveAutoSync(matched.phone, matched.kittyNumber);
-            }
+            executePassbookRender(globalCustomerPhone, selectedKitty, false);
+            initiateLiveAutoSync(globalCustomerPhone, selectedKitty);
         }
 
         function initiateLiveAutoSync(phone, kittyNumber) {
@@ -399,7 +543,6 @@
             }, 20000);
         }
 
-        // --- PASSBOOK RENDERING ---
         function executePassbookRender(phone, kittyNumber, isSilentSync = false) {
             if (isSyncingActive) return;
             isSyncingActive = true;
@@ -488,7 +631,7 @@
             });
         }
 
-        // --- PAYMENT & SETTLEMENT FLOW ---
+        // --- STEP 6: PAYMENT MODAL & SUBMISSION ---
         function copyUpiId() {
             navigator.clipboard.writeText(config.upiVpa);
             alert("Merchant UPI VPA copied to clipboard.");
@@ -658,7 +801,6 @@
                 setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber, true), 1500);
             })
             .catch((err) => {
-                console.error("Submission error:", err);
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
