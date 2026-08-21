@@ -65,7 +65,7 @@
 
         <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6 flex-1 w-full">
 
-            <!-- TAB 1: MEMBERS DIRECTORY -->
+            <!-- MEMBERS TAB -->
             <div id="tabContentMembers" class="space-y-6">
                 <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
@@ -142,7 +142,7 @@
 
                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment & Credit Ledger</h3>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment Ledger (12 Months)</h3>
                             <span id="viewPaidRatio" class="text-xs font-semibold text-slate-500">0 / 12 Complete</span>
                         </div>
                         <div class="overflow-x-auto">
@@ -488,7 +488,7 @@
             loadMemberLedger(activeSearchResults[index]);
         }
 
-        // --- LOAD LEDGER ---
+        // --- LOAD LEDGER DIRECT FROM API ---
         function loadMemberLedger(member) {
             selectedMemberData = member;
 
@@ -499,7 +499,7 @@
             document.getElementById('viewMonthlyAmount').innerText = "₹" + member.monthlyAmount;
             document.getElementById('viewOtherDetails').innerText = member.otherDetails || "None";
 
-            // Query direct API endpoint for 100% live un-cached transactions
+            // Direct Apps Script query: 100% immune to Google Sheet CSV filter bugs
             fetch(`${config.scriptUrl}?action=getData&phone=${member.phone}&kittyNumber=${member.kittyNumber}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(data => {
@@ -534,7 +534,7 @@
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
                                 <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PAID</span></td>
                                 <td class="p-3 font-mono font-bold text-slate-900">₹${record.amount}</td>
-                                <td class="p-3 font-mono text-slate-600">Applied</td>
+                                <td class="p-3 font-mono text-slate-600">₹${record.rate || '-'}</td>
                                 <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.bookedGrams)||0).toFixed(3)} g</td>
                                 <td class="p-3 font-mono text-slate-500">${record.utr || 'Direct'}</td>
                             </tr>
@@ -564,7 +564,7 @@
                     }
                 }
 
-                // Any Extra Months / Bonus Records
+                // Extra records if any
                 txList.forEach(t => {
                     if (isNaN(Number(t.month)) || Number(t.month) > config.schemeMonths) {
                         tbody.innerHTML += `
@@ -574,7 +574,7 @@
                                 </td>
                                 <td class="p-3"><span class="bg-amber-200 text-amber-900 font-black px-2 py-0.5 rounded text-[10px]">CREDITED</span></td>
                                 <td class="p-3 font-mono font-bold text-amber-900">₹${t.amount}</td>
-                                <td class="p-3 font-mono text-slate-600">Applied</td>
+                                <td class="p-3 font-mono text-slate-600">₹${t.rate || '-'}</td>
                                 <td class="p-3 font-mono font-bold text-amber-950">${(Number(t.bookedGrams)||0).toFixed(3)} g</td>
                                 <td class="p-3 font-mono text-slate-600 italic">${t.utr}</td>
                             </tr>
