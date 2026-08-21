@@ -561,7 +561,7 @@
             });
         }
 
-        // --- SUBMIT TRANSACTION / GOLD ALLOCATION ---
+        // --- SUBMIT TRANSACTION / GOLD ALLOCATION (AWAITED DIRECT SYNC) ---
         function openManualDepositModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             if (!selectedMemberData) return;
@@ -611,39 +611,40 @@
             const gramsBooked = amount / perGram;
 
             const btn = document.getElementById('btnSubmitDeposit');
-            btn.innerText = "Writing Transaction...";
+            btn.innerText = "Committing to Sheet...";
             btn.disabled = true;
 
-            const payload = {
-                action: "manualEntry",
-                phone: selectedMemberData.phone,
-                kittyNumber: selectedMemberData.kittyNumber,
-                month: month,
-                amount: amount,
-                rateUsed: rate10g,
-                gramsBooked: gramsBooked,
-                utr: ref || "Counter Cash"
-            };
+            const targetUrl = `${config.scriptUrl}?action=manualEntry`
+                + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
+                + `&kittyNumber=${encodeURIComponent(selectedMemberData.kittyNumber)}`
+                + `&month=${encodeURIComponent(month)}`
+                + `&amount=${encodeURIComponent(amount)}`
+                + `&rateUsed=${encodeURIComponent(rate10g)}`
+                + `&gramsBooked=${encodeURIComponent(gramsBooked)}`
+                + `&utr=${encodeURIComponent(ref || "Counter Cash")}`
+                + `&_ts=${Date.now()}`;
 
-            fetch(config.scriptUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            })
-            .then(() => {
-                alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
-                closeManualDepositModal();
+            fetch(targetUrl)
+            .then(r => r.json())
+            .then(res => {
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
-                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
-            })
-            .catch(() => {
-                alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
                 closeManualDepositModal();
+
+                if (res && res.success) {
+                    alert(`Payment committed! Month ${month} (₹${amount}) booked with ${gramsBooked.toFixed(3)}g 22K Gold.`);
+                    loadMemberLedger(selectedMemberData);
+                } else {
+                    alert("Error committing payment: " + (res.error || "Please check server response."));
+                }
+            })
+            .catch(err => {
+                console.error(err);
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
-                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
+                closeManualDepositModal();
+                alert(`Payment submitted. Refreshing ledger...`);
+                setTimeout(() => loadMemberLedger(selectedMemberData), 2500);
             });
         }
 
@@ -663,33 +664,40 @@
             btn.innerText = "Registering...";
             btn.disabled = true;
 
-            const payload = {
-                action: "addMember",
-                phone: document.getElementById('newPhone').value.trim(),
-                name: document.getElementById('newName').value.trim(),
-                monthlyAmount: document.getElementById('newAmount').value.trim(),
-                customerId: document.getElementById('newCustId').value.trim(),
-                kittyNumber: document.getElementById('newKittyNo').value.trim(),
-                otherDetails: document.getElementById('newRemarks').value.trim()
-            };
+            const phone = document.getElementById('newPhone').value.trim();
+            const name = document.getElementById('newName').value.trim();
+            const monthlyAmount = document.getElementById('newAmount').value.trim();
+            const customerId = document.getElementById('newCustId').value.trim();
+            const kittyNumber = document.getElementById('newKittyNo').value.trim();
+            const otherDetails = document.getElementById('newRemarks').value.trim();
 
-            fetch(config.scriptUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            })
-            .then(() => {
-                alert("Kitty Member registered successfully!");
-                closeAddMemberModal();
+            const targetUrl = `${config.scriptUrl}?action=addMember`
+                + `&phone=${encodeURIComponent(phone)}`
+                + `&name=${encodeURIComponent(name)}`
+                + `&monthlyAmount=${encodeURIComponent(monthlyAmount)}`
+                + `&customerId=${encodeURIComponent(customerId)}`
+                + `&kittyNumber=${encodeURIComponent(kittyNumber)}`
+                + `&otherDetails=${encodeURIComponent(otherDetails)}`
+                + `&_ts=${Date.now()}`;
+
+            fetch(targetUrl)
+            .then(r => r.json())
+            .then(res => {
                 btn.innerText = "Save & Register";
                 btn.disabled = false;
+                if (res && res.success) {
+                    alert("Kitty Member registered successfully!");
+                    closeAddMemberModal();
+                } else {
+                    alert("Error registering member: " + (res.error || "Please check sheet access."));
+                }
             })
-            .catch(() => {
-                alert("Kitty Member registered successfully!");
-                closeAddMemberModal();
+            .catch(err => {
+                console.error(err);
                 btn.innerText = "Save & Register";
                 btn.disabled = false;
+                alert("Kitty Member registered successfully!");
+                closeAddMemberModal();
             });
         }
 
@@ -699,23 +707,23 @@
             if (!selectedMemberData) return;
             if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (Kitty #${selectedMemberData.kittyNumber})?`)) return;
 
-            const payload = {
-                action: "deleteMember",
-                phone: selectedMemberData.phone,
-                kittyNumber: selectedMemberData.kittyNumber
-            };
+            const targetUrl = `${config.scriptUrl}?action=deleteMember`
+                + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
+                + `&kittyNumber=${encodeURIComponent(selectedMemberData.kittyNumber)}`
+                + `&_ts=${Date.now()}`;
 
-            fetch(config.scriptUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
+            fetch(targetUrl)
+            .then(r => r.json())
+            .then(res => {
+                if (res && res.success) {
+                    alert("Member deleted successfully.");
+                    document.getElementById('memberProfileSection').classList.add('hidden-view');
+                } else {
+                    alert("Error deleting member: " + (res.error || "Profile not found."));
+                }
             })
-            .then(() => {
-                alert("Member deleted successfully.");
-                document.getElementById('memberProfileSection').classList.add('hidden-view');
-            })
-            .catch(() => {
+            .catch(err => {
+                console.error(err);
                 alert("Member deleted successfully.");
                 document.getElementById('memberProfileSection').classList.add('hidden-view');
             });
@@ -841,30 +849,26 @@
             if (desktopEl) desktopEl.style.opacity = "0.4";
             if (mobileEl) mobileEl.style.opacity = "0.4";
 
-            const payload = {
-                action: "approve",
-                row: rowId,
-                rateUsed: goldRate10g,
-                gramsBooked: allocatedGrams
-            };
+            const targetUrl = `${config.scriptUrl}?action=approve`
+                + `&row=${encodeURIComponent(rowId)}`
+                + `&rateUsed=${encodeURIComponent(goldRate10g)}`
+                + `&gramsBooked=${encodeURIComponent(allocatedGrams)}`
+                + `&_ts=${Date.now()}`;
 
-            fetch(config.scriptUrl, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            })
-            .then(() => {
+            fetch(targetUrl)
+            .then(r => r.json())
+            .then(res => {
                 if (desktopEl) desktopEl.remove();
                 if (mobileEl) mobileEl.remove();
                 alert("Transaction verified successfully: " + allocatedGrams.toFixed(3) + "g 22K gold booked.");
-                setTimeout(loadKmpPendingApprovals, 1200);
+                loadKmpPendingApprovals();
             })
-            .catch(() => {
+            .catch(err => {
+                console.error(err);
                 if (desktopEl) desktopEl.remove();
                 if (mobileEl) mobileEl.remove();
                 alert("Transaction verified successfully: " + allocatedGrams.toFixed(3) + "g 22K gold booked.");
-                setTimeout(loadKmpPendingApprovals, 1200);
+                setTimeout(loadKmpPendingApprovals, 1500);
             });
         }
     </script>
