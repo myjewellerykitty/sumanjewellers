@@ -33,7 +33,7 @@
                     <div>
                         <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2 text-center">Fast Login With Google</label>
                         <div id="g_id_onload"
-                             data-client_id="391592848650-e5j5t4t8u7r75h4m1k4a6h2q.apps.googleusercontent.com"
+                             data-client_id="438477160915-d6v8vl13cl6n8trc2cp4mb8p9cet6i6n.apps.googleusercontent.com"
                              data-context="signin"
                              data-ux_mode="popup"
                              data-callback="handleGoogleCredentialResponse"
@@ -287,7 +287,7 @@
                             renderMultiKittySelection();
                         }
                     } else {
-                        alert(`No Kitty account found linked to ${googleEmail}. Please register your email with the showroom.`);
+                        alert(`No Kitty account found linked to ${googleEmail}. Please make sure this email is added in the Customers sheet.`);
                     }
                 })
                 .catch(err => alert("Communication error with Google Sign-In."));
@@ -658,6 +658,7 @@
                 setTimeout(() => executePassbookRender(globalCustomerPhone, globalKittyNumber, true), 1500);
             })
             .catch((err) => {
+                console.error("Submission error:", err);
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
                 closePaymentModal();
