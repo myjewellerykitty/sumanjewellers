@@ -38,7 +38,7 @@
         </div>
     </div>
 
-    <!-- MAIN PORTAL -->
+    <!-- MAIN PORTAL INTERFACE -->
     <div id="kmpMainView" class="hidden-view min-h-screen flex flex-col">
         <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
             <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
@@ -291,7 +291,7 @@
         </div>
     </div>
 
-    <!-- CORE ENGINE CONTROLLER -->
+    <!-- CORE JAVASCRIPT CONTROLLER -->
     <script>
         const config = {
             sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0",
@@ -488,7 +488,7 @@
             loadMemberLedger(activeSearchResults[index]);
         }
 
-        // --- LOAD LEDGER DIRECT FROM API ---
+        // --- LOAD LEDGER (CORS-PROOF & REAL-TIME CSV) ---
         function loadMemberLedger(member) {
             selectedMemberData = member;
 
@@ -499,24 +499,47 @@
             document.getElementById('viewMonthlyAmount').innerText = "₹" + member.monthlyAmount;
             document.getElementById('viewOtherDetails').innerText = member.otherDetails || "None";
 
-            // Direct Apps Script query: 100% immune to Google Sheet CSV filter bugs
-            fetch(`${config.scriptUrl}?action=getData&phone=${member.phone}&kittyNumber=${member.kittyNumber}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(data => {
+            const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions&_ts=${Date.now()}`;
+
+            fetch(txCsvUrl, { cache: "no-store" })
+            .then(r => r.text())
+            .then(csv => {
+                const lines = csv.split('\n');
+                const userTxs = [];
                 let paidMonths = 0;
                 let totalDeposited = 0;
                 let totalGold = 0;
-                let txList = (data && data.transactions) ? data.transactions : [];
 
-                txList.forEach(t => {
-                    if (t.status && t.status.toLowerCase() === "paid") {
-                        if (!isNaN(Number(t.month)) && Number(t.month) >= 1 && Number(t.month) <= config.schemeMonths) {
-                            paidMonths++;
+                const cleanTargetPhone = member.phone.toString().replace(/\D/g, "").trim();
+                const cleanTargetKitty = member.kittyNumber.toString().replace(/^['"]|['"]$/g, '').trim().toLowerCase();
+
+                for (let j = 1; j < lines.length; j++) {
+                    if (!lines[j]) continue;
+                    let cols = parseCsv(lines[j]);
+                    if (!cols[0]) continue;
+
+                    let txPhone = cleanString(cols[0]).replace(/\D/g, "").trim();
+                    let txKitty = cleanString(cols[7]).replace(/^['"]|['"]$/g, '').trim().toLowerCase();
+
+                    if (txPhone === cleanTargetPhone && txKitty === cleanTargetKitty) {
+                        let month = cleanString(cols[1]);
+                        let amount = parseFloat(cleanString(cols[2])) || 0;
+                        let status = cleanString(cols[5]);
+                        let rate = cleanString(cols[8]);
+                        let grams = parseFloat(cleanString(cols[9])) || 0;
+                        let utr = cleanString(cols[3]);
+
+                        userTxs.push({ month, amount, status, rate, grams, utr });
+
+                        if (status.toLowerCase() === "paid") {
+                            if (!isNaN(Number(month)) && Number(month) >= 1 && Number(month) <= config.schemeMonths) {
+                                paidMonths++;
+                            }
+                            totalDeposited += amount;
+                            totalGold += grams;
                         }
-                        totalDeposited += Number(t.amount) || 0;
-                        totalGold += Number(t.bookedGrams) || 0;
                     }
-                });
+                }
 
                 document.getElementById('viewTotalBalance').innerText = "₹" + totalDeposited;
                 document.getElementById('viewTotalGoldGrams').innerText = `${totalGold.toFixed(3)} g`;
@@ -527,15 +550,15 @@
 
                 // 12 Months Matrix
                 for (let m = 1; m <= config.schemeMonths; m++) {
-                    let record = txList.find(t => Number(t.month) === m);
+                    let record = userTxs.find(t => Number(t.month) === m);
                     if (record && record.status.toLowerCase() === "paid") {
                         tbody.innerHTML += `
                             <tr class="bg-emerald-50/40">
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
                                 <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PAID</span></td>
                                 <td class="p-3 font-mono font-bold text-slate-900">₹${record.amount}</td>
-                                <td class="p-3 font-mono text-slate-600">₹${record.rate || '-'}</td>
-                                <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.bookedGrams)||0).toFixed(3)} g</td>
+                                <td class="p-3 font-mono text-slate-600">${record.rate ? '₹' + record.rate : '-'}</td>
+                                <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.grams)||0).toFixed(3)} g</td>
                                 <td class="p-3 font-mono text-slate-500">${record.utr || 'Direct'}</td>
                             </tr>
                         `;
@@ -564,8 +587,8 @@
                     }
                 }
 
-                // Extra records if any
-                txList.forEach(t => {
+                // Extra records
+                userTxs.forEach(t => {
                     if (isNaN(Number(t.month)) || Number(t.month) > config.schemeMonths) {
                         tbody.innerHTML += `
                             <tr class="bg-amber-50/70 border-t-2 border-amber-200">
@@ -574,8 +597,8 @@
                                 </td>
                                 <td class="p-3"><span class="bg-amber-200 text-amber-900 font-black px-2 py-0.5 rounded text-[10px]">CREDITED</span></td>
                                 <td class="p-3 font-mono font-bold text-amber-900">₹${t.amount}</td>
-                                <td class="p-3 font-mono text-slate-600">₹${t.rate || '-'}</td>
-                                <td class="p-3 font-mono font-bold text-amber-950">${(Number(t.bookedGrams)||0).toFixed(3)} g</td>
+                                <td class="p-3 font-mono text-slate-600">${t.rate ? '₹' + t.rate : '-'}</td>
+                                <td class="p-3 font-mono font-bold text-amber-950">${(Number(t.grams)||0).toFixed(3)} g</td>
                                 <td class="p-3 font-mono text-slate-600 italic">${t.utr}</td>
                             </tr>
                         `;
@@ -585,7 +608,7 @@
                 document.getElementById('memberProfileSection').classList.remove('hidden-view');
             })
             .catch(() => {
-                alert("Error synchronizing live ledger.");
+                alert("Database connection error loading ledger.");
             });
         }
 
@@ -657,14 +680,14 @@
                 closeManualDepositModal();
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
-                setTimeout(() => loadMemberLedger(selectedMemberData), 1000);
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
             })
             .catch(() => {
                 alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
                 closeManualDepositModal();
                 btn.innerText = "Commit Transaction";
                 btn.disabled = false;
-                setTimeout(() => loadMemberLedger(selectedMemberData), 1000);
+                setTimeout(() => loadMemberLedger(selectedMemberData), 1200);
             });
         }
 
@@ -815,6 +838,9 @@
                         </div>
                     `;
                 });
+            })
+            .catch(() => {
+                alert("Queue connection error.");
             });
         }
 
