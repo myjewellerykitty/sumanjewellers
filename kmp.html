@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suman Jewellers - Kitty Management Portal (KMP)</title>
+    <title>Suman Jewellers - Golden Rose Magic (KMP)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
@@ -13,11 +13,11 @@
 
     <!-- LOGIN SCREEN -->
     <div id="kmpLoginView" class="max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
             <div class="text-center mb-6">
-                <div class="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center font-black text-slate-900 text-xl mx-auto mb-3">KMP</div>
-                <h2 class="text-lg font-bold text-slate-900">Showroom Portal Login</h2>
-                <p class="text-xs text-slate-500 mt-1">Authorized Kitty Management Console</p>
+                <div class="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center font-black text-slate-900 text-xl mx-auto mb-3 shadow-sm">GRM</div>
+                <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">KMP Showroom Desk</h2>
+                <p class="text-xs text-amber-800 font-semibold mt-0.5">Golden Rose Magic Scheme Console</p>
             </div>
             <div class="space-y-4">
                 <div>
@@ -32,7 +32,7 @@
                     <input type="password" id="kmpPassInput" placeholder="Enter Role Password" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 focus:outline-none">
                 </div>
                 <button onclick="handleKmpLogin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-[0.98]">
-                    Sign In To Portal
+                    Sign In To Console
                 </button>
             </div>
         </div>
@@ -43,20 +43,20 @@
         <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
             <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center font-black text-slate-900 text-lg">KMP</div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center font-black text-slate-900 text-lg">GRM</div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="text-base font-bold tracking-tight">Kitty Management Portal</h1>
+                            <h1 class="text-base font-bold tracking-tight uppercase">Golden Rose Magic Desk</h1>
                             <span id="kmpRoleBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded">Checking...</span>
                         </div>
-                        <p class="text-xs text-slate-400">Suman Jewellers Master Operational Console</p>
+                        <p class="text-xs text-slate-400">Suman Jewellers Master Operational Console (11 Months)</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                     <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Members Directory</button>
                     <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Pending Approvals</button>
                     <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
-                        + Add Member
+                        + New Member
                     </button>
                     <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-rose-950/60 text-slate-300 hover:text-rose-300 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Logout</button>
                 </div>
@@ -67,93 +67,105 @@
 
             <!-- TAB 1: MEMBERS DIRECTORY -->
             <div id="tabContentMembers" class="space-y-6">
-                <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Search Member Records</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Search GRMS Accounts</label>
                         <button onclick="refreshCurrentLedger()" class="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer border border-slate-200 active:scale-95">
                             ↻ Live Refresh
                         </button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="searchInput" placeholder="Enter Mobile Number, Customer ID, Name, or Kitty Plan #..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all">
-                        <button onclick="searchMemberRecords()" id="btnSearch" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer">
+                        <input type="text" id="searchInput" placeholder="Enter Mobile Number, Customer ID / Token, Name, or A/C Code..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all">
+                        <button onclick="searchMemberRecords()" id="btnSearch" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer">
                             Search Account
                         </button>
                     </div>
 
-                    <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
-                        <p class="text-xs font-bold text-amber-900 uppercase">Multiple Accounts Linked</p>
-                        <p class="text-xs text-amber-800">Select active Kitty Plan to inspect:</p>
+                    <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
+                        <p class="text-xs font-bold text-amber-900 uppercase">Multiple GRMS Plans Linked</p>
+                        <p class="text-xs text-amber-800">Select active Account to inspect:</p>
                         <div id="kittySelectionPills" class="flex flex-wrap gap-2 pt-1"></div>
                     </div>
                 </section>
 
+                <!-- ACTIVE MEMBER PROFILE & 11-MONTH LEDGER -->
                 <section id="memberProfileSection" class="hidden-view space-y-6">
-                    <div class="bg-slate-900 text-white rounded-xl p-6 shadow-sm border border-slate-800 relative overflow-hidden">
+                    <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-sm border border-slate-800 relative overflow-hidden">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-4">
                             <div>
-                                <span class="text-[10px] bg-amber-400/20 text-amber-400 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Active Account</span>
-                                <h2 id="viewCustName" class="text-2xl font-bold mt-1 text-slate-100">-</h2>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] bg-amber-400/20 text-amber-400 font-bold px-2 py-0.5 rounded uppercase tracking-wider">GRMS Active</span>
+                                    <span id="viewWinBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">0x Winner</span>
+                                </div>
+                                <h2 id="viewCustName" class="text-2xl font-bold mt-1 text-slate-100 uppercase tracking-tight">-</h2>
                                 <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <button onclick="refreshCurrentLedger()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-2.5 rounded-lg border border-slate-700 transition-all cursor-pointer shadow-sm active:scale-95">
-                                    ↻ Live Sync
+                                <!-- Lucky Winner Selector -->
+                                <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-1 text-xs">
+                                    <span class="text-[10px] font-bold text-amber-400 uppercase px-2">Draw Wins:</span>
+                                    <select id="selWinCount" class="bg-slate-900 text-white border border-slate-700 rounded-lg text-xs font-bold px-2 py-1.5 focus:outline-none">
+                                        <option value="0">0 (Non-Winner)</option>
+                                        <option value="1">1 Time Winner</option>
+                                        <option value="2">2 Times Winner</option>
+                                        <option value="3">3 Times Winner</option>
+                                    </select>
+                                    <button onclick="saveWinnerCount()" class="ml-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-2.5 py-1.5 rounded-lg text-xs cursor-pointer">Save</button>
+                                </div>
+
+                                <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm active:scale-95">
+                                    + Counter Deposit
                                 </button>
-                                <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm active:scale-95">
-                                    + Deposit Value & Book Gold
-                                </button>
-                                <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-lg transition-all cursor-pointer active:scale-95">
-                                    Delete Member
+                                <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer active:scale-95">
+                                    Delete
                                 </button>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                            <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                                <span class="text-slate-400 uppercase text-[10px] block font-bold">Customer ID</span>
-                                <span id="viewCustId" class="font-mono font-bold text-sm text-slate-200">-</span>
-                            </div>
-                            <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                                <span class="text-slate-400 uppercase text-[10px] block font-bold">Kitty Plan #</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">A/C Code</span>
                                 <span id="viewKittyNo" class="font-mono font-bold text-sm text-amber-400">-</span>
                             </div>
-                            <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                                <span class="text-slate-400 uppercase text-[10px] block font-bold">Monthly Installment</span>
-                                <span id="viewMonthlyAmount" class="font-bold text-sm text-slate-200">₹0</span>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Token / Cust ID</span>
+                                <span id="viewCustId" class="font-mono font-bold text-sm text-slate-200">-</span>
                             </div>
-                            <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                                <span class="text-slate-400 uppercase text-[10px] block font-bold">Total Deposited</span>
-                                <span id="viewTotalBalance" class="font-bold text-sm text-emerald-400">₹0</span>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Date of Joining</span>
+                                <span id="viewOtherDetails" class="font-mono font-bold text-sm text-slate-200">-</span>
+                            </div>
+                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Monthly Plan</span>
+                                <span id="viewMonthlyAmount" class="font-bold text-sm text-slate-200">₹0</span>
                             </div>
                         </div>
 
-                        <div class="mt-4 pt-4 border-t border-slate-800/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs">
-                            <div>
-                                <span class="text-slate-400">Remarks / Nominee: </span>
-                                <span id="viewOtherDetails" class="text-slate-300 italic">-</span>
+                        <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-2 gap-3 text-xs">
+                            <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-700/40">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Total Deposited</span>
+                                <span id="viewTotalBalance" class="font-black text-sm text-emerald-400 font-mono">₹0</span>
                             </div>
-                            <div class="bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2">
-                                <span>Total Accumulated 22K Gold:</span>
-                                <span id="viewTotalGoldGrams" class="font-mono text-sm">0.000 g</span>
+                            <div class="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
+                                <span class="text-amber-400 uppercase text-[9px] block font-bold">Projected Maturity (11M)</span>
+                                <span id="viewMaturityTotal" class="font-black text-sm text-amber-400 font-mono">₹0</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <!-- 11-MONTH LEDGER TABLE -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Installment Ledger (12 Months)</h3>
-                            <span id="viewPaidRatio" class="text-xs font-semibold text-slate-500">0 / 12 Complete</span>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">GRMS Installment Ledger (11 Months)</h3>
+                            <span id="viewPaidRatio" class="text-xs font-semibold text-slate-500">0 / 11 Complete</span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
                                     <tr class="text-slate-500 border-b border-slate-200 bg-white">
-                                        <th class="p-3">Month / Type</th>
+                                        <th class="p-3">Month</th>
                                         <th class="p-3">Status</th>
-                                        <th class="p-3">Deposit / Value</th>
-                                        <th class="p-3">22K Rate Applied (/10g)</th>
-                                        <th class="p-3">Allocated Weight</th>
+                                        <th class="p-3">Installment Deposit</th>
                                         <th class="p-3">Reference / Remarks</th>
                                     </tr>
                                 </thead>
@@ -165,24 +177,24 @@
             </div>
 
             <!-- TAB 2: PENDING APPROVALS -->
-            <div id="tabContentApprovals" class="hidden-view space-y-4">
-                <div class="flex justify-between items-center">
+            <div id="tabContentApprovals" class="space-view space-y-4 hidden-view">
+                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <div>
-                        <h2 class="text-base font-bold text-slate-900">Pending Payment Verifications</h2>
-                        <p class="text-xs text-slate-500">Review proof and lock 22K gold rate</p>
+                        <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Pending Payment Verifications</h2>
+                        <p class="text-xs text-slate-500">Review online customer slips and UTR reference keys</p>
                     </div>
-                    <button onclick="loadKmpPendingApprovals()" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-all active:scale-95 shadow-sm">
+                    <button onclick="loadKmpPendingApprovals()" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer transition-all active:scale-95 shadow-sm">
                         <span>↻</span> Refresh Queue
                     </button>
                 </div>
 
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="hidden md:block overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="text-xs font-semibold text-slate-500 bg-slate-50 border-b border-slate-200">
                                     <th class="p-4">Customer Details</th>
-                                    <th class="p-4">Kitty Plan</th>
+                                    <th class="p-4">A/C Code & Token</th>
                                     <th class="p-4">Month</th>
                                     <th class="p-4">Deposit Amount</th>
                                     <th class="p-4">UTR Reference / Slip</th>
@@ -201,56 +213,68 @@
         </main>
     </div>
 
-    <!-- MODAL 1: REGISTER NEW MEMBER -->
+    <!-- MODAL 1: REGISTER NEW GRMS MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
-                <h3 class="text-base font-bold text-slate-900">Register New Kitty Member</h3>
+                <div>
+                    <h3 class="text-base font-black text-slate-900 uppercase">Enroll GRMS Member</h3>
+                    <p class="text-xs text-amber-800 font-semibold">11-Month Golden Rose Magic Scheme</p>
+                </div>
                 <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
             </div>
             
             <form onsubmit="submitNewMember(event)" class="space-y-3">
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Mobile Number *</label>
-                    <input type="tel" id="newPhone" maxlength="10" required placeholder="10-digit mobile number" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Mobile Number (Col A) *</label>
+                    <input type="tel" id="newPhone" maxlength="10" required placeholder="10-digit mobile number" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-slate-900">
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Customer Full Name *</label>
-                    <input type="text" id="newName" required placeholder="e.g. Rahul Sharma" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Full Name (Col B) *</label>
+                    <input type="text" id="newName" required placeholder="Customer Full Name" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Monthly Amount (₹) *</label>
-                        <input type="number" id="newAmount" required placeholder="e.g. 5000" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Monthly Plan (Col C) *</label>
+                        <select id="newAmount" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:ring-2 focus:ring-slate-900">
+                            <option value="5000">₹5,000 / Month</option>
+                            <option value="8000">₹8,000 / Month</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Customer ID *</label>
-                        <input type="text" id="newCustId" required placeholder="e.g. SJ-102" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Token ID (Col D)</label>
+                        <input type="text" id="newCustId" placeholder="e.g. GRM-101" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-slate-900">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">A/C Code (Col E) *</label>
+                        <input type="text" id="newKittyNo" required placeholder="e.g. A-01" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-slate-900">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Date of Joining (Col F)</label>
+                        <input type="date" id="newRemarks" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-slate-900">
                     </div>
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Kitty Plan Number *</label>
-                    <input type="text" id="newKittyNo" required placeholder="e.g. K-1001" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
-                </div>
-                <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Other Remarks / Nominee</label>
-                    <input type="text" id="newRemarks" placeholder="Optional notes" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Email Address (Col G)</label>
+                    <input type="email" id="newEmail" placeholder="customer@gmail.com (for MPIN recovery)" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
                 </div>
                 
                 <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeAddMemberModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-lg text-xs font-semibold cursor-pointer">Cancel</button>
-                    <button type="submit" id="btnSubmitMember" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg text-xs font-semibold hover:bg-slate-800 cursor-pointer">Save & Register</button>
+                    <button type="button" onclick="closeAddMemberModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Cancel</button>
+                    <button type="submit" id="btnSubmitMember" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 cursor-pointer">Save Member</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL 2: MANUAL DEPOSIT & GOLD ALLOCATION -->
+    <!-- MODAL 2: MANUAL COUNTER DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900">Deposit Monthly Kitty & Book 22K Gold</h3>
+                    <h3 class="text-base font-bold text-slate-900">Showroom Counter Deposit</h3>
                     <p id="depositTargetLabel" class="text-xs text-slate-500 font-mono mt-0.5">-</p>
                 </div>
                 <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
@@ -258,34 +282,21 @@
             
             <form onsubmit="submitManualDeposit(event)" class="space-y-4">
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Select Month Allocation *</label>
-                    <select id="depositMonth" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-semibold"></select>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Select Month (1 - 11) *</label>
+                    <select id="depositMonth" required class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-semibold"></select>
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Deposit Rupees Amount (₹) *</label>
-                    <input type="number" id="depositAmount" required oninput="calculateRealtimeGold()" placeholder="e.g. 5000" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Deposit Amount (₹) *</label>
+                    <input type="number" id="depositAmount" required placeholder="e.g. 5000" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold" readonly>
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Current 22K Gold Rate for 10 Grams (₹) *</label>
-                    <input type="number" id="depositRate" required oninput="calculateRealtimeGold()" placeholder="e.g. 68500" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
-                </div>
-                
-                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg flex justify-between items-center">
-                    <div>
-                        <span class="text-[10px] uppercase font-bold text-amber-800 block">Allocated 22K Weight</span>
-                        <span class="text-[11px] text-amber-900">Calculated automatically</span>
-                    </div>
-                    <span id="lblLiveAllocatedWeight" class="text-lg font-black font-mono text-amber-950">0.000 g</span>
-                </div>
-
-                <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Payment Reference / Remarks</label>
-                    <input type="text" id="depositRef" placeholder="Counter Cash / Bank Transfer UTR" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Receipt Number / UTR Reference</label>
+                    <input type="text" id="depositRef" placeholder="Showroom Cash Counter" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
                 </div>
                 
                 <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeManualDepositModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-lg text-xs font-semibold cursor-pointer">Cancel</button>
-                    <button type="submit" id="btnSubmitDeposit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg text-xs font-semibold hover:bg-slate-800 cursor-pointer">Commit Transaction</button>
+                    <button type="button" onclick="closeManualDepositModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Cancel</button>
+                    <button type="submit" id="btnSubmitDeposit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 cursor-pointer">Confirm Deposit</button>
                 </div>
             </form>
         </div>
@@ -295,7 +306,7 @@
     <script>
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
-            schemeMonths: 12
+            schemeMonths: 11
         };
 
         let currentKmpRole = "PREVIEW";
@@ -386,24 +397,22 @@
             }
         }
 
-        // --- DIRECT SEARCH WORKFLOW ---
+        // --- SEARCH WORKFLOW ---
         function searchMemberRecords() {
             const rawQuery = document.getElementById('searchInput').value.trim();
-            if (!rawQuery) return alert("Please enter a Mobile Number, Customer ID, Name, or Kitty Plan Number.");
+            if (!rawQuery) return alert("Please enter a Mobile Number, Token ID, Name, or A/C Code.");
 
             const btn = document.getElementById('btnSearch');
-            btn.innerText = "Searching Live Records...";
+            btn.innerText = "Searching...";
             btn.disabled = true;
 
-            const targetUrl = `${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(rawQuery)}&_ts=${Date.now()}`;
-
-            fetch(targetUrl)
+            fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(rawQuery)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 btn.innerText = "Search Account";
                 btn.disabled = false;
 
-                if (!res || !res.success || !res.results || res.results.length === 0) {
+                if (!res || !res.results || res.results.length === 0) {
                     document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
                     document.getElementById('memberProfileSection').classList.add('hidden-view');
                     return alert("No account found matching this query.");
@@ -418,11 +427,10 @@
                     loadMemberLedger(activeSearchResults[0]);
                 }
             })
-            .catch(err => {
-                console.error(err);
+            .catch(() => {
                 btn.innerText = "Search Account";
                 btn.disabled = false;
-                alert("Database communication error connecting to live server.");
+                alert("Database connection error.");
             });
         }
 
@@ -434,7 +442,7 @@
             activeSearchResults.forEach((res, index) => {
                 pillsContainer.innerHTML += `
                     <button onclick="selectSpecificKitty(${index})" class="bg-white hover:bg-amber-100 border border-amber-300 text-amber-950 font-bold px-3 py-2 rounded-lg text-xs transition-all shadow-xs cursor-pointer">
-                        Plan #${res.kittyNumber} (${res.name} - ₹${res.monthlyAmount})
+                        A/C: ${res.acCode || res.kittyNumber} (${res.name} - ₹${res.monthlyAmount})
                     </button>
                 `;
             });
@@ -448,54 +456,59 @@
             loadMemberLedger(activeSearchResults[index]);
         }
 
-        // --- DIRECT SERVER PASSBOOK SYNC ---
+        // --- LOAD MEMBER PASSBOOK (11 MONTHS) ---
         function loadMemberLedger(member) {
             selectedMemberData = member;
 
             document.getElementById('viewCustName').innerText = member.name;
             document.getElementById('viewCustPhone').innerText = "+91 " + member.phone;
-            document.getElementById('viewCustId').innerText = member.customerId;
-            document.getElementById('viewKittyNo').innerText = member.kittyNumber;
-            document.getElementById('viewMonthlyAmount').innerText = "₹" + member.monthlyAmount;
-            document.getElementById('viewOtherDetails').innerText = member.otherDetails || "None";
+            document.getElementById('viewCustId').innerText = member.customerId || "-";
+            document.getElementById('viewKittyNo').innerText = member.acCode || member.kittyNumber;
+            document.getElementById('viewMonthlyAmount').innerText = "₹" + Number(member.monthlyAmount).toLocaleString('en-IN');
+            document.getElementById('viewOtherDetails').innerText = member.doj || member.otherDetails || "-";
 
-            const targetUrl = `${config.scriptUrl}?action=getData`
-                + `&phone=${encodeURIComponent(member.phone)}`
-                + `&kittyNumber=${encodeURIComponent(member.kittyNumber)}`
-                + `&_ts=${Date.now()}`;
+            const winCount = Number(member.winCount) || 0;
+            document.getElementById('selWinCount').value = winCount;
+            const winBadge = document.getElementById('viewWinBadge');
+            winBadge.innerText = winCount > 0 ? `${winCount}x Draw Winner` : `Non-Winner`;
+            winBadge.className = winCount > 0 ? "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300" : "text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300";
 
-            fetch(targetUrl)
+            fetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode || member.kittyNumber)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                if (!res || !res.profile) {
-                    alert("Customer profile not found or ledger is empty.");
-                    return;
-                }
+                if (!res || !res.profile) return alert("Customer record not found.");
 
                 const userTxs = res.transactions || [];
                 let paidMonths = 0;
                 let totalDeposited = 0;
-                let totalGold = 0;
 
                 userTxs.forEach(t => {
                     if (t.status && t.status.toLowerCase() === "paid") {
-                        const mNum = Number(t.month);
-                        if (!isNaN(mNum) && mNum >= 1 && mNum <= config.schemeMonths) {
-                            paidMonths++;
-                        }
+                        paidMonths++;
                         totalDeposited += parseFloat(t.amount) || 0;
-                        totalGold += parseFloat(t.bookedGrams) || 0;
                     }
                 });
 
-                document.getElementById('viewTotalBalance').innerText = "₹" + totalDeposited;
-                document.getElementById('viewTotalGoldGrams').innerText = `${totalGold.toFixed(3)} g`;
-                document.getElementById('viewPaidRatio').innerText = `${paidMonths} / ${config.schemeMonths} Months Complete`;
+                document.getElementById('viewTotalBalance').innerText = "₹" + totalDeposited.toLocaleString('en-IN');
+                document.getElementById('viewPaidRatio').innerText = `${paidMonths} / ${config.schemeMonths} Complete`;
+
+                // Maturity Calculation
+                const mAmount = Number(member.monthlyAmount) || 0;
+                let fullPrincipal = 11 * mAmount;
+                let maturityVal = 0;
+                if (winCount > 0) {
+                    let prizePerWin = (mAmount === 8000) ? 15000 : 10000;
+                    maturityVal = fullPrincipal + (winCount * prizePerWin);
+                } else {
+                    let interest = (mAmount === 8000) ? 3000 : 2000;
+                    maturityVal = fullPrincipal + interest;
+                }
+                document.getElementById('viewMaturityTotal').innerText = "₹" + maturityVal.toLocaleString('en-IN');
 
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
-                // 12-Month Matrix
+                // 11 Months Grid
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let record = userTxs.find(t => Number(t.month) === m);
 
@@ -504,10 +517,8 @@
                             <tr class="bg-emerald-50/40">
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
                                 <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PAID</span></td>
-                                <td class="p-3 font-mono font-bold text-slate-900">₹${record.amount}</td>
-                                <td class="p-3 font-mono text-slate-600">${record.rate ? '₹' + record.rate : '-'}</td>
-                                <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.bookedGrams)||0).toFixed(3)} g</td>
-                                <td class="p-3 font-mono text-slate-500">${record.utr || 'Direct'}</td>
+                                <td class="p-3 font-mono font-bold text-slate-900">₹${Number(record.amount).toLocaleString('en-IN')}</td>
+                                <td class="p-3 font-mono text-slate-500">${record.utr || 'Showroom Counter'}</td>
                             </tr>
                         `;
                     } else if (record && record.status.toLowerCase() === "pending") {
@@ -515,9 +526,7 @@
                             <tr class="bg-amber-50/40">
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
                                 <td class="p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">PENDING APPROVAL</span></td>
-                                <td class="p-3 font-mono font-bold text-slate-900">₹${record.amount}</td>
-                                <td class="p-3 font-mono text-slate-400">-</td>
-                                <td class="p-3 font-mono text-slate-400">-</td>
+                                <td class="p-3 font-mono font-bold text-slate-900">₹${Number(record.amount).toLocaleString('en-IN')}</td>
                                 <td class="p-3 font-mono text-slate-500">${record.utr}</td>
                             </tr>
                         `;
@@ -528,48 +537,37 @@
                                 <td class="p-3"><span class="bg-slate-100 text-slate-500 font-medium px-2 py-0.5 rounded text-[10px]">UNPAID</span></td>
                                 <td class="p-3 font-mono">-</td>
                                 <td class="p-3 font-mono">-</td>
-                                <td class="p-3 font-mono">-</td>
-                                <td class="p-3 font-mono">-</td>
                             </tr>
                         `;
                     }
                 }
 
-                // Additional / Credited Months
-                userTxs.forEach(t => {
-                    if (isNaN(Number(t.month)) || Number(t.month) > config.schemeMonths) {
-                        tbody.innerHTML += `
-                            <tr class="bg-amber-50/70 border-t-2 border-amber-200">
-                                <td class="p-3 font-bold text-amber-950 flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span> ${t.month}
-                                </td>
-                                <td class="p-3"><span class="bg-amber-200 text-amber-900 font-black px-2 py-0.5 rounded text-[10px]">CREDITED</span></td>
-                                <td class="p-3 font-mono font-bold text-amber-900">₹${t.amount}</td>
-                                <td class="p-3 font-mono text-slate-600">${t.rate ? '₹' + t.rate : '-'}</td>
-                                <td class="p-3 font-mono font-bold text-amber-950">${(Number(t.bookedGrams)||0).toFixed(3)} g</td>
-                                <td class="p-3 font-mono text-slate-600 italic">${t.utr}</td>
-                            </tr>
-                        `;
-                    }
-                });
-
                 document.getElementById('memberProfileSection').classList.remove('hidden-view');
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Failed to synchronize live passbook data from server.");
             });
         }
 
-        // --- SUBMIT TRANSACTION / GOLD ALLOCATION (AWAITED DIRECT SYNC) ---
+        function saveWinnerCount() {
+            if (!selectedMemberData) return;
+            const newCount = document.getElementById('selWinCount').value;
+
+            fetch(`${config.scriptUrl}?action=updateWinCount&phone=${selectedMemberData.phone}&acCode=${selectedMemberData.acCode || selectedMemberData.kittyNumber}&winCount=${newCount}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    alert("Draw winner count updated!");
+                    selectedMemberData.winCount = newCount;
+                    loadMemberLedger(selectedMemberData);
+                } else alert("Failed to update.");
+            });
+        }
+
+        // --- SHOWROOM MANUAL COUNTER DEPOSIT ---
         function openManualDepositModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             if (!selectedMemberData) return;
-            document.getElementById('depositTargetLabel').innerText = `${selectedMemberData.name} - Plan #${selectedMemberData.kittyNumber}`;
+            document.getElementById('depositTargetLabel').innerText = `${selectedMemberData.name} - A/C: ${selectedMemberData.acCode || selectedMemberData.kittyNumber}`;
             document.getElementById('depositAmount').value = selectedMemberData.monthlyAmount;
-            document.getElementById('depositRate').value = "";
             document.getElementById('depositRef').value = "Counter Payment";
-            document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
 
             const select = document.getElementById('depositMonth');
             select.innerHTML = "";
@@ -584,71 +582,50 @@
             document.getElementById('manualDepositModal').classList.add('hidden-view');
         }
 
-        function calculateRealtimeGold() {
-            const amount = parseFloat(document.getElementById('depositAmount').value) || 0;
-            const rate10g = parseFloat(document.getElementById('depositRate').value) || 0;
-            if (amount > 0 && rate10g > 0) {
-                const perGram = rate10g / 10;
-                const grams = amount / perGram;
-                document.getElementById('lblLiveAllocatedWeight').innerText = `${grams.toFixed(3)} g`;
-            } else {
-                document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
-            }
-        }
-
         function submitManualDeposit(e) {
             e.preventDefault();
-            const amount = parseFloat(document.getElementById('depositAmount').value);
-            const rate10g = parseFloat(document.getElementById('depositRate').value);
+            const amount = document.getElementById('depositAmount').value;
             const month = document.getElementById('depositMonth').value;
-            const ref = document.getElementById('depositRef').value.trim();
-
-            if (!amount || isNaN(amount) || !rate10g || isNaN(rate10g)) {
-                return alert("Please enter valid numeric deposit amount and gold rate.");
-            }
-
-            const perGram = rate10g / 10;
-            const gramsBooked = amount / perGram;
+            const ref = document.getElementById('depositRef').value.trim() || "Counter Cash";
 
             const btn = document.getElementById('btnSubmitDeposit');
-            btn.innerText = "Committing to Sheet...";
+            btn.innerText = "Committing...";
             btn.disabled = true;
 
             const targetUrl = `${config.scriptUrl}?action=manualEntry`
                 + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
-                + `&kittyNumber=${encodeURIComponent(selectedMemberData.kittyNumber)}`
+                + `&kittyNumber=${encodeURIComponent(selectedMemberData.acCode || selectedMemberData.kittyNumber)}`
                 + `&month=${encodeURIComponent(month)}`
                 + `&amount=${encodeURIComponent(amount)}`
-                + `&rateUsed=${encodeURIComponent(rate10g)}`
-                + `&gramsBooked=${encodeURIComponent(gramsBooked)}`
-                + `&utr=${encodeURIComponent(ref || "Counter Cash")}`
+                + `&rateUsed=0`
+                + `&gramsBooked=0`
+                + `&utr=${encodeURIComponent(ref)}`
                 + `&_ts=${Date.now()}`;
 
             fetch(targetUrl)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "Commit Transaction";
+                btn.innerText = "Confirm Deposit";
                 btn.disabled = false;
                 closeManualDepositModal();
 
                 if (res && res.success) {
-                    alert(`Payment committed! Month ${month} (₹${amount}) booked with ${gramsBooked.toFixed(3)}g 22K Gold.`);
+                    alert(`Payment saved for Month ${month} (₹${amount})!`);
                     loadMemberLedger(selectedMemberData);
                 } else {
-                    alert("Error committing payment: " + (res.error || "Please check server response."));
+                    alert("Error committing payment.");
                 }
             })
-            .catch(err => {
-                console.error(err);
-                btn.innerText = "Commit Transaction";
+            .catch(() => {
+                btn.innerText = "Confirm Deposit";
                 btn.disabled = false;
                 closeManualDepositModal();
                 alert(`Payment submitted. Refreshing ledger...`);
-                setTimeout(() => loadMemberLedger(selectedMemberData), 2500);
+                setTimeout(() => loadMemberLedger(selectedMemberData), 2000);
             });
         }
 
-        // --- REGISTER MEMBER ---
+        // --- ENROLL MEMBER (GRMS) ---
         function openAddMemberModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             document.getElementById('addMemberModal').classList.remove('hidden-view');
@@ -666,37 +643,38 @@
 
             const phone = document.getElementById('newPhone').value.trim();
             const name = document.getElementById('newName').value.trim();
-            const monthlyAmount = document.getElementById('newAmount').value.trim();
+            const monthlyAmount = document.getElementById('newAmount').value;
             const customerId = document.getElementById('newCustId').value.trim();
-            const kittyNumber = document.getElementById('newKittyNo').value.trim();
-            const otherDetails = document.getElementById('newRemarks').value.trim();
+            const acCode = document.getElementById('newKittyNo').value.trim();
+            const doj = document.getElementById('newRemarks').value;
+            const email = document.getElementById('newEmail').value.trim();
 
             const targetUrl = `${config.scriptUrl}?action=addMember`
                 + `&phone=${encodeURIComponent(phone)}`
                 + `&name=${encodeURIComponent(name)}`
                 + `&monthlyAmount=${encodeURIComponent(monthlyAmount)}`
-                + `&customerId=${encodeURIComponent(customerId)}`
-                + `&kittyNumber=${encodeURIComponent(kittyNumber)}`
-                + `&otherDetails=${encodeURIComponent(otherDetails)}`
+                + `&customerId=${encodeURIComponent(customerId || "GRM-" + Math.floor(100 + Math.random() * 900))}`
+                + `&kittyNumber=${encodeURIComponent(acCode)}`
+                + `&otherDetails=${encodeURIComponent(doj)}`
+                + `&email=${encodeURIComponent(email)}`
                 + `&_ts=${Date.now()}`;
 
             fetch(targetUrl)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "Save & Register";
+                btn.innerText = "Save Member";
                 btn.disabled = false;
                 if (res && res.success) {
-                    alert("Kitty Member registered successfully!");
+                    alert("GRMS Member enrolled successfully!");
                     closeAddMemberModal();
                 } else {
-                    alert("Error registering member: " + (res.error || "Please check sheet access."));
+                    alert("Error enrolling member: " + (res.error || "Check sheet access."));
                 }
             })
-            .catch(err => {
-                console.error(err);
-                btn.innerText = "Save & Register";
+            .catch(() => {
+                btn.innerText = "Save Member";
                 btn.disabled = false;
-                alert("Kitty Member registered successfully!");
+                alert("Member saved. Refreshing directory...");
                 closeAddMemberModal();
             });
         }
@@ -705,31 +683,24 @@
         function confirmRemoveMember() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             if (!selectedMemberData) return;
-            if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (Kitty #${selectedMemberData.kittyNumber})?`)) return;
+            if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (A/C: ${selectedMemberData.acCode || selectedMemberData.kittyNumber})?`)) return;
 
             const targetUrl = `${config.scriptUrl}?action=deleteMember`
                 + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
-                + `&kittyNumber=${encodeURIComponent(selectedMemberData.kittyNumber)}`
+                + `&kittyNumber=${encodeURIComponent(selectedMemberData.acCode || selectedMemberData.kittyNumber)}`
                 + `&_ts=${Date.now()}`;
 
             fetch(targetUrl)
             .then(r => r.json())
             .then(res => {
                 if (res && res.success) {
-                    alert("Member deleted successfully.");
+                    alert("Member record deleted.");
                     document.getElementById('memberProfileSection').classList.add('hidden-view');
-                } else {
-                    alert("Error deleting member: " + (res.error || "Profile not found."));
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Member deleted successfully.");
-                document.getElementById('memberProfileSection').classList.add('hidden-view');
+                } else alert("Error deleting member.");
             });
         }
 
-        // --- PENDING APPROVALS QUEUE ---
+        // --- PENDING PROOFS QUEUE ---
         function loadKmpPendingApprovals() {
             const tableBody = document.getElementById('kmpApprovalTableBody');
             const mobileCards = document.getElementById('kmpApprovalMobileCards');
@@ -740,7 +711,7 @@
             .then(r => r.json())
             .then(pendingList => {
                 if (!pendingList || pendingList.length === 0) {
-                    const cleanMsg = "All clean: No pending verifications queued.";
+                    const cleanMsg = "All clean: No pending payment proofs in queue.";
                     tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-700 font-semibold">${cleanMsg}</td></tr>`;
                     mobileCards.innerHTML = `<div class="p-6 text-center text-emerald-700 bg-white border border-emerald-200 rounded-xl font-semibold">${cleanMsg}</div>`;
                     return;
@@ -752,77 +723,65 @@
                 pendingList.forEach(item => {
                     const slipSrc = item.screenshotUrl || item.screenshot || "";
                     const isInline = slipSrc.startsWith("data:image");
-                    const extCustomerName = item.name || "Unknown Profile";
-                    const extKittyNumber = item.kittyNumber || "Unassigned";
-                    const extCustomerId = item.customerId || "Unallocated";
-                    const extOtherDetails = item.otherDetails || "None";
 
                     const linkMarkup = isInline 
-                        ? `<button onclick="viewKmpReceipt('${item.row}')" class="text-slate-900 underline font-semibold block mt-1 cursor-pointer">View Receipt ↗</button>
+                        ? `<button onclick="viewKmpReceipt('${item.row}')" class="text-slate-900 underline font-semibold block mt-1 cursor-pointer">View Slip ↗</button>
                            <div id="kmp-img-${item.row}" class="hidden-view mt-2 max-w-xs border border-slate-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto mx-auto"></div>`
-                        : `<a href="${slipSrc}" target="_blank" class="text-slate-900 underline font-semibold block mt-1">View Receipt ↗</a>`;
+                        : `<a href="${slipSrc}" target="_blank" class="text-slate-900 underline font-semibold block mt-1">View Slip ↗</a>`;
 
-                    let actionContent = "";
-                    if (currentKmpRole === "APPROVE") {
-                        actionContent = `<button onclick="promptKmpGoldApproval('${item.row}', ${item.amount})" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-3 py-1.5 rounded font-semibold transition-all cursor-pointer">Approve Instantly</button>`;
-                    } else {
-                        actionContent = `<span class="text-xs text-slate-400 italic bg-slate-100 px-2.5 py-1 rounded font-medium select-none">Read-Only</span>`;
-                    }
+                    let actionContent = (currentKmpRole === "APPROVE")
+                        ? `<button onclick="approveTransaction('${item.row}')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer">Approve</button>`
+                        : `<span class="text-xs text-slate-400 italic bg-slate-100 px-2.5 py-1 rounded font-medium">Read-Only</span>`;
 
                     tableBody.innerHTML += `
                         <tr id="kmp-row-${item.row}">
                             <td class="p-4">
-                                <div class="font-bold text-slate-900">${extCustomerName}</div>
-                                <div class="text-xs text-slate-500 font-mono">${item.phone}</div>
+                                <div class="font-bold text-slate-900 uppercase">${item.name}</div>
+                                <div class="text-xs text-slate-500 font-mono">+91 ${item.phone}</div>
                             </td>
                             <td class="p-4 text-xs">
-                                <div><span class="text-slate-400 font-medium">ID:</span> ${extCustomerId}</div>
-                                <div><span class="text-slate-400 font-medium">Plan #:</span> ${extKittyNumber}</div>
-                                <div class="text-[10px] italic text-slate-400 truncate max-w-[120px]">${extOtherDetails}</div>
+                                <div><span class="text-slate-400 font-medium">A/C:</span> <strong class="text-amber-800 font-mono">${item.kittyNumber}</strong></div>
+                                <div><span class="text-slate-400 font-medium">Token:</span> ${item.customerId}</div>
                             </td>
                             <td class="p-4 font-medium">Month ${item.month}</td>
-                            <td class="p-4 font-bold text-slate-900 font-mono">₹${item.amount}</td>
+                            <td class="p-4 font-bold text-slate-900 font-mono">₹${Number(item.amount).toLocaleString('en-IN')}</td>
                             <td class="p-4 text-xs text-slate-500">
-                                <div class="font-mono">UTR: ${item.utr}</div>
+                                <div class="font-mono font-bold">UTR: ${item.utr}</div>
                                 ${slipSrc ? linkMarkup : ''}
                             </td>
                             <td class="p-4 text-center">${actionContent}</td>
                         </tr>
                     `;
 
-                    let mobileAction = currentKmpRole === "APPROVE" 
-                        ? `<button onclick="promptKmpGoldApproval('${item.row}', ${item.amount})" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition-all shadow-xs cursor-pointer mt-1">Approve Instantly</button>` 
+                    let mobileAction = (currentKmpRole === "APPROVE")
+                        ? `<button onclick="approveTransaction('${item.row}')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer mt-1">Approve Deposit</button>`
                         : '';
 
                     mobileCards.innerHTML += `
-                        <div id="kmp-mob-card-${item.row}" class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-3">
+                        <div id="kmp-mob-card-${item.row}" class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3">
                             <div class="flex justify-between items-start border-b border-slate-100 pb-2">
                                 <div>
-                                    <h4 class="font-bold text-slate-900 text-sm">${extCustomerName}</h4>
-                                    <p class="text-xs text-slate-500 font-mono">${item.phone}</p>
+                                    <h4 class="font-bold text-slate-900 text-sm uppercase">${item.name}</h4>
+                                    <p class="text-xs text-slate-500 font-mono">+91 ${item.phone}</p>
                                 </div>
-                                <span class="bg-slate-100 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded">Month ${item.month}</span>
+                                <span class="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded">Month ${item.month}</span>
                             </div>
                             <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
-                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Customer ID</span><strong>${extCustomerId}</strong></div>
-                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Kitty Plan</span><strong>${extKittyNumber}</strong></div>
+                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">A/C Code</span><strong class="font-mono text-amber-800">${item.kittyNumber}</strong></div>
+                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Token ID</span><strong>${item.customerId}</strong></div>
                             </div>
-                            <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                            <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                                 <span class="text-xs text-slate-500 font-medium">Deposit Amount:</span>
-                                <span class="text-sm font-bold font-mono text-slate-900">₹${item.amount}</span>
+                                <span class="text-sm font-bold font-mono text-slate-900">₹${Number(item.amount).toLocaleString('en-IN')}</span>
                             </div>
                             <div class="text-xs border-t border-slate-100 pt-2 space-y-1">
-                                <div class="font-mono text-slate-500 text-[11px]"><span class="text-slate-400 font-sans font-medium">UTR Code:</span> ${item.utr}</div>
+                                <div class="font-mono text-slate-700 text-[11px] font-bold">UTR: ${item.utr}</div>
                                 ${slipSrc ? linkMarkup : ''}
                             </div>
                             ${mobileAction}
                         </div>
                     `;
                 });
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Queue connection error.");
             });
         }
 
@@ -831,44 +790,24 @@
             boxes.forEach(box => box.classList.toggle('hidden-view'));
         }
 
-        function promptKmpGoldApproval(rowId, installmentAmount) {
+        function approveTransaction(rowId) {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-
-            var inputRate10g = prompt("Installment Amount: ₹" + installmentAmount + "\nEnter current 22K Gold Rate for 10 GRAMS:", "");
-            if (inputRate10g === null) return;
-            var goldRate10g = parseFloat(inputRate10g.trim());
-            if (isNaN(goldRate10g) || goldRate10g <= 0) return alert("Please enter a valid numeric gold rate value.");
-
-            var goldRatePerGram = goldRate10g / 10;
-            var allocatedGrams = installmentAmount / goldRatePerGram;
-
-            if (!confirm("Confirm 22K Gold Booking Details:\n- Rate / 10g: ₹" + goldRate10g + "\n- Weight: " + allocatedGrams.toFixed(3) + " grams\n\nCommit row update?")) return;
+            if (!confirm(`Approve payment record at row ${rowId}?`)) return;
 
             const desktopEl = document.getElementById("kmp-row-" + rowId);
             const mobileEl = document.getElementById("kmp-mob-card-" + rowId);
             if (desktopEl) desktopEl.style.opacity = "0.4";
             if (mobileEl) mobileEl.style.opacity = "0.4";
 
-            const targetUrl = `${config.scriptUrl}?action=approve`
-                + `&row=${encodeURIComponent(rowId)}`
-                + `&rateUsed=${encodeURIComponent(goldRate10g)}`
-                + `&gramsBooked=${encodeURIComponent(allocatedGrams)}`
-                + `&_ts=${Date.now()}`;
-
-            fetch(targetUrl)
+            fetch(`${config.scriptUrl}?action=approve&row=${rowId}&rateUsed=0&gramsBooked=0&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                if (desktopEl) desktopEl.remove();
-                if (mobileEl) mobileEl.remove();
-                alert("Transaction verified successfully: " + allocatedGrams.toFixed(3) + "g 22K gold booked.");
-                loadKmpPendingApprovals();
-            })
-            .catch(err => {
-                console.error(err);
-                if (desktopEl) desktopEl.remove();
-                if (mobileEl) mobileEl.remove();
-                alert("Transaction verified successfully: " + allocatedGrams.toFixed(3) + "g 22K gold booked.");
-                setTimeout(loadKmpPendingApprovals, 1500);
+                if (res.success) {
+                    if (desktopEl) desktopEl.remove();
+                    if (mobileEl) mobileEl.remove();
+                    alert("Transaction approved successfully!");
+                    loadKmpPendingApprovals();
+                } else alert("Approval failed.");
             });
         }
     </script>
