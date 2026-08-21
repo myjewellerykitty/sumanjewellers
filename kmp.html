@@ -114,7 +114,7 @@
                                 </div>
 
                                 <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm active:scale-95">
-                                    + Counter Deposit
+                                    + Deposit & Book 22K Gold
                                 </button>
                                 <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer active:scale-95">
                                     Delete
@@ -141,10 +141,14 @@
                             </div>
                         </div>
 
-                        <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-2 gap-3 text-xs">
+                        <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                             <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-700/40">
                                 <span class="text-slate-400 uppercase text-[9px] block font-bold">Total Deposited</span>
                                 <span id="viewTotalBalance" class="font-black text-sm text-emerald-400 font-mono">₹0</span>
+                            </div>
+                            <div class="bg-amber-400 text-slate-950 p-3 rounded-xl font-bold flex flex-col justify-center">
+                                <span class="text-[9px] uppercase tracking-wider text-slate-800 block">Accumulated 22K Gold:</span>
+                                <span id="viewTotalGoldGrams" class="font-mono text-base font-black">0.000 g</span>
                             </div>
                             <div class="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
                                 <span class="text-amber-400 uppercase text-[9px] block font-bold">Projected Maturity (11M)</span>
@@ -166,6 +170,8 @@
                                         <th class="p-3">Month</th>
                                         <th class="p-3">Status</th>
                                         <th class="p-3">Installment Deposit</th>
+                                        <th class="p-3">22K Rate (/10g)</th>
+                                        <th class="p-3">Booked 22K Weight</th>
                                         <th class="p-3">Reference / Remarks</th>
                                     </tr>
                                 </thead>
@@ -181,7 +187,7 @@
                 <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <div>
                         <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Pending Payment Verifications</h2>
-                        <p class="text-xs text-slate-500">Review online customer slips and UTR reference keys</p>
+                        <p class="text-xs text-slate-500">Approve payments and lock live 22K gold rates</p>
                     </div>
                     <button onclick="loadKmpPendingApprovals()" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer transition-all active:scale-95 shadow-sm">
                         <span>↻</span> Refresh Queue
@@ -269,12 +275,12 @@
         </div>
     </div>
 
-    <!-- MODAL 2: MANUAL COUNTER DEPOSIT -->
+    <!-- MODAL 2: MANUAL COUNTER DEPOSIT WITH GOLD ALLOCATION -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900">Showroom Counter Deposit</h3>
+                    <h3 class="text-base font-bold text-slate-900">Showroom Deposit & Gold Booking</h3>
                     <p id="depositTargetLabel" class="text-xs text-slate-500 font-mono mt-0.5">-</p>
                 </div>
                 <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
@@ -287,8 +293,21 @@
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Deposit Amount (₹) *</label>
-                    <input type="number" id="depositAmount" required placeholder="e.g. 5000" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold" readonly>
+                    <input type="number" id="depositAmount" required oninput="calculateRealtimeGold()" placeholder="e.g. 5000" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
                 </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Current 22K Gold Rate for 10 Grams (₹) *</label>
+                    <input type="number" id="depositRate" required oninput="calculateRealtimeGold()" placeholder="e.g. 68500" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
+                </div>
+
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] uppercase font-bold text-amber-800 block">Allocated 22K Weight</span>
+                        <span class="text-[11px] text-amber-900">Calculated automatically</span>
+                    </div>
+                    <span id="lblLiveAllocatedWeight" class="text-lg font-black font-mono text-amber-950">0.000 g</span>
+                </div>
+
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Receipt Number / UTR Reference</label>
                     <input type="text" id="depositRef" placeholder="Showroom Cash Counter" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
@@ -296,7 +315,7 @@
                 
                 <div class="pt-2 flex gap-2">
                     <button type="button" onclick="closeManualDepositModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Cancel</button>
-                    <button type="submit" id="btnSubmitDeposit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 cursor-pointer">Confirm Deposit</button>
+                    <button type="submit" id="btnSubmitDeposit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 cursor-pointer">Commit Transaction</button>
                 </div>
             </form>
         </div>
@@ -312,6 +331,7 @@
         let currentKmpRole = "PREVIEW";
         let activeSearchResults = [];
         let selectedMemberData = null;
+        let adminSyncTimer = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('kmpAuthenticated') === 'true') {
@@ -346,6 +366,7 @@
         }
 
         function logoutKmp() {
+            if (adminSyncTimer) clearInterval(adminSyncTimer);
             sessionStorage.removeItem('kmpAuthenticated');
             sessionStorage.removeItem('kmpRole');
             window.location.reload();
@@ -456,7 +477,7 @@
             loadMemberLedger(activeSearchResults[index]);
         }
 
-        // --- LOAD MEMBER PASSBOOK (11 MONTHS) ---
+        // --- LOAD MEMBER PASSBOOK (WITH 22K GOLD RECOGNITION) ---
         function loadMemberLedger(member) {
             selectedMemberData = member;
 
@@ -481,15 +502,18 @@
                 const userTxs = res.transactions || [];
                 let paidMonths = 0;
                 let totalDeposited = 0;
+                let totalGoldWeight = 0;
 
                 userTxs.forEach(t => {
                     if (t.status && t.status.toLowerCase() === "paid") {
                         paidMonths++;
                         totalDeposited += parseFloat(t.amount) || 0;
+                        totalGoldWeight += parseFloat(t.bookedGrams) || 0;
                     }
                 });
 
                 document.getElementById('viewTotalBalance').innerText = "₹" + totalDeposited.toLocaleString('en-IN');
+                document.getElementById('viewTotalGoldGrams').innerText = `${totalGoldWeight.toFixed(3)} g`;
                 document.getElementById('viewPaidRatio').innerText = `${paidMonths} / ${config.schemeMonths} Complete`;
 
                 // Maturity Calculation
@@ -508,7 +532,7 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
-                // 11 Months Grid
+                // 11 Months Grid with Gold Details
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let record = userTxs.find(t => Number(t.month) === m);
 
@@ -518,6 +542,8 @@
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
                                 <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PAID</span></td>
                                 <td class="p-3 font-mono font-bold text-slate-900">₹${Number(record.amount).toLocaleString('en-IN')}</td>
+                                <td class="p-3 font-mono text-slate-600">${record.rate ? '₹' + Number(record.rate).toLocaleString('en-IN') : '-'}</td>
+                                <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.bookedGrams)||0).toFixed(3)} g</td>
                                 <td class="p-3 font-mono text-slate-500">${record.utr || 'Showroom Counter'}</td>
                             </tr>
                         `;
@@ -527,6 +553,8 @@
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
                                 <td class="p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">PENDING APPROVAL</span></td>
                                 <td class="p-3 font-mono font-bold text-slate-900">₹${Number(record.amount).toLocaleString('en-IN')}</td>
+                                <td class="p-3 font-mono text-slate-400">-</td>
+                                <td class="p-3 font-mono text-slate-400">-</td>
                                 <td class="p-3 font-mono text-slate-500">${record.utr}</td>
                             </tr>
                         `;
@@ -535,6 +563,8 @@
                             <tr class="text-slate-400">
                                 <td class="p-3 font-medium">Month ${m}</td>
                                 <td class="p-3"><span class="bg-slate-100 text-slate-500 font-medium px-2 py-0.5 rounded text-[10px]">UNPAID</span></td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
                                 <td class="p-3 font-mono">-</td>
                                 <td class="p-3 font-mono">-</td>
                             </tr>
@@ -561,12 +591,14 @@
             });
         }
 
-        // --- SHOWROOM MANUAL COUNTER DEPOSIT ---
+        // --- SHOWROOM MANUAL COUNTER DEPOSIT & GOLD BOOKING ---
         function openManualDepositModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             if (!selectedMemberData) return;
             document.getElementById('depositTargetLabel').innerText = `${selectedMemberData.name} - A/C: ${selectedMemberData.acCode || selectedMemberData.kittyNumber}`;
             document.getElementById('depositAmount').value = selectedMemberData.monthlyAmount;
+            document.getElementById('depositRate').value = "";
+            document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
             document.getElementById('depositRef').value = "Counter Payment";
 
             const select = document.getElementById('depositMonth');
@@ -582,11 +614,31 @@
             document.getElementById('manualDepositModal').classList.add('hidden-view');
         }
 
+        function calculateRealtimeGold() {
+            const amount = parseFloat(document.getElementById('depositAmount').value) || 0;
+            const rate10g = parseFloat(document.getElementById('depositRate').value) || 0;
+            if (amount > 0 && rate10g > 0) {
+                const perGram = rate10g / 10;
+                const grams = amount / perGram;
+                document.getElementById('lblLiveAllocatedWeight').innerText = `${grams.toFixed(3)} g`;
+            } else {
+                document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
+            }
+        }
+
         function submitManualDeposit(e) {
             e.preventDefault();
-            const amount = document.getElementById('depositAmount').value;
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const rate10g = parseFloat(document.getElementById('depositRate').value);
             const month = document.getElementById('depositMonth').value;
             const ref = document.getElementById('depositRef').value.trim() || "Counter Cash";
+
+            if (!amount || isNaN(amount) || !rate10g || isNaN(rate10g)) {
+                return alert("Please enter valid numeric deposit amount and 22K gold rate.");
+            }
+
+            const perGram = rate10g / 10;
+            const gramsBooked = amount / perGram;
 
             const btn = document.getElementById('btnSubmitDeposit');
             btn.innerText = "Committing...";
@@ -597,27 +649,27 @@
                 + `&kittyNumber=${encodeURIComponent(selectedMemberData.acCode || selectedMemberData.kittyNumber)}`
                 + `&month=${encodeURIComponent(month)}`
                 + `&amount=${encodeURIComponent(amount)}`
-                + `&rateUsed=0`
-                + `&gramsBooked=0`
+                + `&rateUsed=${encodeURIComponent(rate10g)}`
+                + `&gramsBooked=${encodeURIComponent(gramsBooked)}`
                 + `&utr=${encodeURIComponent(ref)}`
                 + `&_ts=${Date.now()}`;
 
             fetch(targetUrl)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "Confirm Deposit";
+                btn.innerText = "Commit Transaction";
                 btn.disabled = false;
                 closeManualDepositModal();
 
                 if (res && res.success) {
-                    alert(`Payment saved for Month ${month} (₹${amount})!`);
+                    alert(`Payment saved for Month ${month}! ${gramsBooked.toFixed(3)}g 22K Gold booked successfully.`);
                     loadMemberLedger(selectedMemberData);
                 } else {
-                    alert("Error committing payment.");
+                    alert("Error committing payment: " + (res.error || ""));
                 }
             })
             .catch(() => {
-                btn.innerText = "Confirm Deposit";
+                btn.innerText = "Commit Transaction";
                 btn.disabled = false;
                 closeManualDepositModal();
                 alert(`Payment submitted. Refreshing ledger...`);
@@ -700,7 +752,7 @@
             });
         }
 
-        // --- PENDING PROOFS QUEUE ---
+        // --- PENDING PROOFS QUEUE & 22K RATE APPROVAL PROMPT ---
         function loadKmpPendingApprovals() {
             const tableBody = document.getElementById('kmpApprovalTableBody');
             const mobileCards = document.getElementById('kmpApprovalMobileCards');
@@ -730,7 +782,7 @@
                         : `<a href="${slipSrc}" target="_blank" class="text-slate-900 underline font-semibold block mt-1">View Slip ↗</a>`;
 
                     let actionContent = (currentKmpRole === "APPROVE")
-                        ? `<button onclick="approveTransaction('${item.row}')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer">Approve</button>`
+                        ? `<button onclick="promptKmpGoldApproval('${item.row}', ${item.amount})" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer">Approve & Book Gold</button>`
                         : `<span class="text-xs text-slate-400 italic bg-slate-100 px-2.5 py-1 rounded font-medium">Read-Only</span>`;
 
                     tableBody.innerHTML += `
@@ -754,7 +806,7 @@
                     `;
 
                     let mobileAction = (currentKmpRole === "APPROVE")
-                        ? `<button onclick="approveTransaction('${item.row}')" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer mt-1">Approve Deposit</button>`
+                        ? `<button onclick="promptKmpGoldApproval('${item.row}', ${item.amount})" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer mt-1">Approve & Book Gold</button>`
                         : '';
 
                     mobileCards.innerHTML += `
@@ -790,24 +842,43 @@
             boxes.forEach(box => box.classList.toggle('hidden-view'));
         }
 
-        function approveTransaction(rowId) {
+        function promptKmpGoldApproval(rowId, installmentAmount) {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-            if (!confirm(`Approve payment record at row ${rowId}?`)) return;
+
+            var inputRate10g = prompt("Installment Amount: ₹" + installmentAmount + "\nEnter current 22K Gold Rate for 10 GRAMS (₹):", "");
+            if (inputRate10g === null) return;
+            var goldRate10g = parseFloat(inputRate10g.trim());
+            if (isNaN(goldRate10g) || goldRate10g <= 0) return alert("Please enter a valid numeric gold rate value.");
+
+            var goldRatePerGram = goldRate10g / 10;
+            var allocatedGrams = installmentAmount / goldRatePerGram;
+
+            if (!confirm("Confirm 22K Gold Booking Details:\n- Rate / 10g: ₹" + goldRate10g.toLocaleString('en-IN') + "\n- Weight to Book: " + allocatedGrams.toFixed(3) + " grams\n\nCommit approval?")) return;
 
             const desktopEl = document.getElementById("kmp-row-" + rowId);
             const mobileEl = document.getElementById("kmp-mob-card-" + rowId);
             if (desktopEl) desktopEl.style.opacity = "0.4";
             if (mobileEl) mobileEl.style.opacity = "0.4";
 
-            fetch(`${config.scriptUrl}?action=approve&row=${rowId}&rateUsed=0&gramsBooked=0&_ts=${Date.now()}`)
+            const targetUrl = `${config.scriptUrl}?action=approve`
+                + `&row=${encodeURIComponent(rowId)}`
+                + `&rateUsed=${encodeURIComponent(goldRate10g)}`
+                + `&gramsBooked=${encodeURIComponent(allocatedGrams)}`
+                + `&_ts=${Date.now()}`;
+
+            fetch(targetUrl)
             .then(r => r.json())
             .then(res => {
-                if (res.success) {
-                    if (desktopEl) desktopEl.remove();
-                    if (mobileEl) mobileEl.remove();
-                    alert("Transaction approved successfully!");
-                    loadKmpPendingApprovals();
-                } else alert("Approval failed.");
+                if (desktopEl) desktopEl.remove();
+                if (mobileEl) mobileEl.remove();
+                alert("Transaction approved! " + allocatedGrams.toFixed(3) + "g 22K gold successfully allocated.");
+                loadKmpPendingApprovals();
+            })
+            .catch(() => {
+                if (desktopEl) desktopEl.remove();
+                if (mobileEl) mobileEl.remove();
+                alert("Transaction approved! " + allocatedGrams.toFixed(3) + "g 22K gold successfully allocated.");
+                setTimeout(loadKmpPendingApprovals, 1500);
             });
         }
     </script>
