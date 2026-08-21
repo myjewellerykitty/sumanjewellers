@@ -26,7 +26,7 @@
             </header>
 
             <div id="interactiveContainer">
-                <!-- Invisible reCAPTCHA Anchor -->
+                <!-- Invisible reCAPTCHA Container -->
                 <div id="recaptcha-container"></div>
 
                 <!-- Step 1: Phone Lookup Card -->
@@ -66,7 +66,7 @@
                     </div>
                 </div>
 
-                <!-- Step 2B: OTP Verification Card (First-time setup or MPIN Reset) -->
+                <!-- Step 2B: OTP Verification Card (First-Time Setup / MPIN Reset) -->
                 <div id="otpSection" class="hidden-view bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
                     <div class="text-center">
                         <h3 class="text-base font-bold text-slate-900" id="lblOtpHeading">SMS Security Verification</h3>
@@ -117,7 +117,7 @@
                     <p class="text-[11px] text-amber-800 leading-tight">Select active Kitty Account to view:</p>
                     <select id="kittySelect" class="w-full px-3 py-2.5 bg-white border border-amber-300 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none">
                     </select>
-                    <button onclick="confirmSelectedKitty()" class="w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg text-xs">
+                    <button onclick="confirmSelectedKitty()" class="w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg text-xs cursor-pointer">
                         Confirm Selected Plan
                     </button>
                 </div>
@@ -269,15 +269,16 @@
     <!-- CORE ENGINE CONTROLLER -->
     <script>
         // ==========================================
-        // 1. FIREBASE CONFIGURATION (REPLACE WITH YOUR KEYS)
+        // 1. FIREBASE CONFIGURATION
         // ==========================================
         const firebaseConfig = {
-            apiKey: "AIzaSyYOUR_API_KEY_HERE",
+            apiKey: "AIzaSyAPPZOPokqc2sTrqIugzpgShCTenwdLssc",
             authDomain: "suman-jewellers-auth.firebaseapp.com",
             projectId: "suman-jewellers-auth",
             storageBucket: "suman-jewellers-auth.firebasestorage.app",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef123456"
+            messagingSenderId: "391592848650",
+            appId: "1:391592848650:web:136c1d1f7c2cfd5def1ef3",
+            measurementId: "G-PKP7WDKQV6"
         };
         firebase.initializeApp(firebaseConfig);
 
@@ -327,7 +328,6 @@
 
             globalCustomerPhone = rawPhone;
 
-            // Check if user has an MPIN set in Google Sheet
             fetch(`${SCRIPT_URL}?action=checkMpinStatus&phone=${rawPhone}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
@@ -341,12 +341,10 @@
                 document.getElementById('phoneSection').classList.add('hidden-view');
 
                 if (res.hasMpin) {
-                    // Existing User -> Ask for MPIN
                     document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
                     document.getElementById('mpinInput').value = "";
                     document.getElementById('mpinLoginSection').classList.remove('hidden-view');
                 } else {
-                    // First Time User -> Trigger Firebase SMS OTP to Setup MPIN
                     isResetMode = false;
                     document.getElementById('lblOtpHeading').innerText = "First-Time Security Setup";
                     triggerFirebaseOtpSend(rawPhone);
@@ -431,7 +429,6 @@
                     btn.disabled = false;
                     document.getElementById('otpSection').classList.add('hidden-view');
 
-                    // Show Set/Reset MPIN UI
                     document.getElementById('lblSetMpinTitle').innerText = isResetMode ? "Reset 4-Digit MPIN" : "Create 4-Digit MPIN";
                     document.getElementById('newMpinInput').value = "";
                     document.getElementById('confirmMpinInput').value = "";
