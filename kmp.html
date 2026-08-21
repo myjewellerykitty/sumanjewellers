@@ -65,7 +65,7 @@
 
         <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6 flex-1 w-full">
 
-            <!-- MEMBERS TAB -->
+            <!-- TAB 1: MEMBERS DIRECTORY -->
             <div id="tabContentMembers" class="space-y-6">
                 <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
@@ -75,7 +75,7 @@
                         </button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="searchInput" placeholder="Enter Mobile Number OR Kitty Plan Number..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all">
+                        <input type="text" id="searchInput" placeholder="Enter Mobile Number, Customer ID, Name, or Kitty Plan #..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all">
                         <button onclick="searchMemberRecords()" id="btnSearch" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-lg text-sm font-semibold transition-all cursor-pointer">
                             Search Account
                         </button>
@@ -201,7 +201,7 @@
         </main>
     </div>
 
-    <!-- MODAL 1: ADD MEMBER -->
+    <!-- MODAL 1: REGISTER NEW MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -245,7 +245,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: MANUAL DEPOSIT -->
+    <!-- MODAL 2: MANUAL DEPOSIT & GOLD ALLOCATION -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -294,7 +294,6 @@
     <!-- CORE JAVASCRIPT CONTROLLER -->
     <script>
         const config = {
-            sheetId: "1mTpKBbtHFxZ182Fw1RILode5_eCGd927P2lHfGr1nY0",
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             schemeMonths: 12
         };
@@ -379,23 +378,6 @@
             }
         }
 
-        function cleanString(val) {
-            if (!val) return "";
-            return val.toString().replace(/^["']|["']$/g, '').replace(/[\r\n\t]/g, '').trim();
-        }
-
-        function parseCsv(textLine) {
-            let fields = [], cur = "", inQuotes = false;
-            for (let i = 0; i < textLine.length; i++) {
-                let c = textLine[i];
-                if (c === '"') inQuotes = !inQuotes;
-                else if (c === ',' && !inQuotes) { fields.push(cur); cur = ""; }
-                else cur += c;
-            }
-            fields.push(cur);
-            return fields;
-        }
-
         function refreshCurrentLedger() {
             if (selectedMemberData) {
                 loadMemberLedger(selectedMemberData);
@@ -404,53 +386,30 @@
             }
         }
 
-        // --- SEARCH WORKFLOW ---
+        // --- DIRECT SEARCH WORKFLOW ---
         function searchMemberRecords() {
             const rawQuery = document.getElementById('searchInput').value.trim();
-            if (!rawQuery) return alert("Please enter a Mobile Number or Kitty Plan Number.");
-
-            const cleanPhoneQuery = rawQuery.replace(/\D/g, "");
-            const cleanPlanQuery = rawQuery.toLowerCase().replace(/^'/, "").trim();
+            if (!rawQuery) return alert("Please enter a Mobile Number, Customer ID, Name, or Kitty Plan Number.");
 
             const btn = document.getElementById('btnSearch');
-            btn.innerText = "Searching...";
+            btn.innerText = "Searching Live Records...";
             btn.disabled = true;
 
-            const csvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Customers&_ts=${Date.now()}`;
+            const targetUrl = `${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(rawQuery)}&_ts=${Date.now()}`;
 
-            fetch(csvUrl, { cache: "no-store" })
-            .then(r => r.text())
-            .then(csv => {
+            fetch(targetUrl)
+            .then(r => r.json())
+            .then(res => {
                 btn.innerText = "Search Account";
                 btn.disabled = false;
 
-                const lines = csv.split('\n');
-                activeSearchResults = [];
-
-                for (let i = 1; i < lines.length; i++) {
-                    if (!lines[i]) continue;
-                    let cols = parseCsv(lines[i]);
-                    if (!cols[0]) continue;
-
-                    let phone = cleanString(cols[0]).replace(/\D/g, "");
-                    let name = cleanString(cols[1]);
-                    let amount = cleanString(cols[2]);
-                    let custId = cleanString(cols[3]);
-                    let kittyNo = cleanString(cols[4]).replace(/^'/, "");
-                    let details = cleanString(cols[5]);
-
-                    if ((cleanPhoneQuery && phone.includes(cleanPhoneQuery)) || 
-                        kittyNo.toLowerCase() === cleanPlanQuery || 
-                        custId.toLowerCase() === cleanPlanQuery) {
-                        activeSearchResults.push({ phone, name, monthlyAmount: amount, customerId: custId, kittyNumber: kittyNo, otherDetails: details });
-                    }
-                }
-
-                if (activeSearchResults.length === 0) {
+                if (!res || !res.success || !res.results || res.results.length === 0) {
                     document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
                     document.getElementById('memberProfileSection').classList.add('hidden-view');
                     return alert("No account found matching this query.");
                 }
+
+                activeSearchResults = res.results;
 
                 if (activeSearchResults.length > 1) {
                     renderMultipleKittySelection();
@@ -459,10 +418,11 @@
                     loadMemberLedger(activeSearchResults[0]);
                 }
             })
-            .catch(() => {
+            .catch(err => {
+                console.error(err);
                 btn.innerText = "Search Account";
                 btn.disabled = false;
-                alert("Database communication error.");
+                alert("Database communication error connecting to live server.");
             });
         }
 
@@ -488,7 +448,7 @@
             loadMemberLedger(activeSearchResults[index]);
         }
 
-        // --- LOAD LEDGER (CORS-PROOF & REAL-TIME CSV) ---
+        // --- DIRECT SERVER PASSBOOK SYNC ---
         function loadMemberLedger(member) {
             selectedMemberData = member;
 
@@ -499,47 +459,34 @@
             document.getElementById('viewMonthlyAmount').innerText = "₹" + member.monthlyAmount;
             document.getElementById('viewOtherDetails').innerText = member.otherDetails || "None";
 
-            const txCsvUrl = `https://docs.google.com/spreadsheets/d/${config.sheetId}/gviz/tq?tqx=out:csv&sheet=Transactions&_ts=${Date.now()}`;
+            const targetUrl = `${config.scriptUrl}?action=getData`
+                + `&phone=${encodeURIComponent(member.phone)}`
+                + `&kittyNumber=${encodeURIComponent(member.kittyNumber)}`
+                + `&_ts=${Date.now()}`;
 
-            fetch(txCsvUrl, { cache: "no-store" })
-            .then(r => r.text())
-            .then(csv => {
-                const lines = csv.split('\n');
-                const userTxs = [];
+            fetch(targetUrl)
+            .then(r => r.json())
+            .then(res => {
+                if (!res || !res.profile) {
+                    alert("Customer profile not found or ledger is empty.");
+                    return;
+                }
+
+                const userTxs = res.transactions || [];
                 let paidMonths = 0;
                 let totalDeposited = 0;
                 let totalGold = 0;
 
-                const cleanTargetPhone = member.phone.toString().replace(/\D/g, "").trim();
-                const cleanTargetKitty = member.kittyNumber.toString().replace(/^['"]|['"]$/g, '').trim().toLowerCase();
-
-                for (let j = 1; j < lines.length; j++) {
-                    if (!lines[j]) continue;
-                    let cols = parseCsv(lines[j]);
-                    if (!cols[0]) continue;
-
-                    let txPhone = cleanString(cols[0]).replace(/\D/g, "").trim();
-                    let txKitty = cleanString(cols[7]).replace(/^['"]|['"]$/g, '').trim().toLowerCase();
-
-                    if (txPhone === cleanTargetPhone && txKitty === cleanTargetKitty) {
-                        let month = cleanString(cols[1]);
-                        let amount = parseFloat(cleanString(cols[2])) || 0;
-                        let status = cleanString(cols[5]);
-                        let rate = cleanString(cols[8]);
-                        let grams = parseFloat(cleanString(cols[9])) || 0;
-                        let utr = cleanString(cols[3]);
-
-                        userTxs.push({ month, amount, status, rate, grams, utr });
-
-                        if (status.toLowerCase() === "paid") {
-                            if (!isNaN(Number(month)) && Number(month) >= 1 && Number(month) <= config.schemeMonths) {
-                                paidMonths++;
-                            }
-                            totalDeposited += amount;
-                            totalGold += grams;
+                userTxs.forEach(t => {
+                    if (t.status && t.status.toLowerCase() === "paid") {
+                        const mNum = Number(t.month);
+                        if (!isNaN(mNum) && mNum >= 1 && mNum <= config.schemeMonths) {
+                            paidMonths++;
                         }
+                        totalDeposited += parseFloat(t.amount) || 0;
+                        totalGold += parseFloat(t.bookedGrams) || 0;
                     }
-                }
+                });
 
                 document.getElementById('viewTotalBalance').innerText = "₹" + totalDeposited;
                 document.getElementById('viewTotalGoldGrams').innerText = `${totalGold.toFixed(3)} g`;
@@ -548,9 +495,10 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
-                // 12 Months Matrix
+                // 12-Month Matrix
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let record = userTxs.find(t => Number(t.month) === m);
+
                     if (record && record.status.toLowerCase() === "paid") {
                         tbody.innerHTML += `
                             <tr class="bg-emerald-50/40">
@@ -558,7 +506,7 @@
                                 <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PAID</span></td>
                                 <td class="p-3 font-mono font-bold text-slate-900">₹${record.amount}</td>
                                 <td class="p-3 font-mono text-slate-600">${record.rate ? '₹' + record.rate : '-'}</td>
-                                <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.grams)||0).toFixed(3)} g</td>
+                                <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.bookedGrams)||0).toFixed(3)} g</td>
                                 <td class="p-3 font-mono text-slate-500">${record.utr || 'Direct'}</td>
                             </tr>
                         `;
@@ -587,7 +535,7 @@
                     }
                 }
 
-                // Extra records
+                // Additional / Credited Months
                 userTxs.forEach(t => {
                     if (isNaN(Number(t.month)) || Number(t.month) > config.schemeMonths) {
                         tbody.innerHTML += `
@@ -598,7 +546,7 @@
                                 <td class="p-3"><span class="bg-amber-200 text-amber-900 font-black px-2 py-0.5 rounded text-[10px]">CREDITED</span></td>
                                 <td class="p-3 font-mono font-bold text-amber-900">₹${t.amount}</td>
                                 <td class="p-3 font-mono text-slate-600">${t.rate ? '₹' + t.rate : '-'}</td>
-                                <td class="p-3 font-mono font-bold text-amber-950">${(Number(t.grams)||0).toFixed(3)} g</td>
+                                <td class="p-3 font-mono font-bold text-amber-950">${(Number(t.bookedGrams)||0).toFixed(3)} g</td>
                                 <td class="p-3 font-mono text-slate-600 italic">${t.utr}</td>
                             </tr>
                         `;
@@ -607,12 +555,13 @@
 
                 document.getElementById('memberProfileSection').classList.remove('hidden-view');
             })
-            .catch(() => {
-                alert("Database connection error loading ledger.");
+            .catch(err => {
+                console.error(err);
+                alert("Failed to synchronize live passbook data from server.");
             });
         }
 
-        // --- SUBMIT MONTHLY INSTALLMENT ---
+        // --- SUBMIT TRANSACTION / GOLD ALLOCATION ---
         function openManualDepositModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             if (!selectedMemberData) return;
@@ -630,6 +579,7 @@
 
             document.getElementById('manualDepositModal').classList.remove('hidden-view');
         }
+
         function closeManualDepositModal() {
             document.getElementById('manualDepositModal').classList.add('hidden-view');
         }
@@ -664,17 +614,23 @@
             btn.innerText = "Writing Transaction...";
             btn.disabled = true;
 
-            const targetUrl = `${config.scriptUrl}?action=manualEntry`
-                + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
-                + `&kittyNumber=${encodeURIComponent(selectedMemberData.kittyNumber)}`
-                + `&month=${encodeURIComponent(month)}`
-                + `&amount=${encodeURIComponent(amount)}`
-                + `&rateUsed=${encodeURIComponent(rate10g)}`
-                + `&gramsBooked=${encodeURIComponent(gramsBooked)}`
-                + `&utr=${encodeURIComponent(ref || "Counter Cash")}`
-                + `&_ts=${Date.now()}`;
+            const payload = {
+                action: "manualEntry",
+                phone: selectedMemberData.phone,
+                kittyNumber: selectedMemberData.kittyNumber,
+                month: month,
+                amount: amount,
+                rateUsed: rate10g,
+                gramsBooked: gramsBooked,
+                utr: ref || "Counter Cash"
+            };
 
-            fetch(targetUrl, { mode: "no-cors" })
+            fetch(config.scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
             .then(() => {
                 alert(`Successfully deposited Month ${month} (₹${amount}) and booked ${gramsBooked.toFixed(3)}g 22K Gold!`);
                 closeManualDepositModal();
@@ -691,11 +647,12 @@
             });
         }
 
-        // --- ADD MEMBER ---
+        // --- REGISTER MEMBER ---
         function openAddMemberModal() {
             if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             document.getElementById('addMemberModal').classList.remove('hidden-view');
         }
+
         function closeAddMemberModal() {
             document.getElementById('addMemberModal').classList.add('hidden-view');
         }
@@ -706,16 +663,22 @@
             btn.innerText = "Registering...";
             btn.disabled = true;
 
-            const targetUrl = `${config.scriptUrl}?action=addMember`
-                + `&phone=${encodeURIComponent(document.getElementById('newPhone').value.trim())}`
-                + `&name=${encodeURIComponent(document.getElementById('newName').value.trim())}`
-                + `&monthlyAmount=${encodeURIComponent(document.getElementById('newAmount').value.trim())}`
-                + `&customerId=${encodeURIComponent(document.getElementById('newCustId').value.trim())}`
-                + `&kittyNumber=${encodeURIComponent(document.getElementById('newKittyNo').value.trim())}`
-                + `&otherDetails=${encodeURIComponent(document.getElementById('newRemarks').value.trim())}`
-                + `&_ts=${Date.now()}`;
+            const payload = {
+                action: "addMember",
+                phone: document.getElementById('newPhone').value.trim(),
+                name: document.getElementById('newName').value.trim(),
+                monthlyAmount: document.getElementById('newAmount').value.trim(),
+                customerId: document.getElementById('newCustId').value.trim(),
+                kittyNumber: document.getElementById('newKittyNo').value.trim(),
+                otherDetails: document.getElementById('newRemarks').value.trim()
+            };
 
-            fetch(targetUrl, { mode: "no-cors" })
+            fetch(config.scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
             .then(() => {
                 alert("Kitty Member registered successfully!");
                 closeAddMemberModal();
@@ -736,13 +699,23 @@
             if (!selectedMemberData) return;
             if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (Kitty #${selectedMemberData.kittyNumber})?`)) return;
 
-            const targetUrl = `${config.scriptUrl}?action=deleteMember`
-                + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
-                + `&kittyNumber=${encodeURIComponent(selectedMemberData.kittyNumber)}`
-                + `&_ts=${Date.now()}`;
+            const payload = {
+                action: "deleteMember",
+                phone: selectedMemberData.phone,
+                kittyNumber: selectedMemberData.kittyNumber
+            };
 
-            fetch(targetUrl, { mode: "no-cors" })
+            fetch(config.scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
             .then(() => {
+                alert("Member deleted successfully.");
+                document.getElementById('memberProfileSection').classList.add('hidden-view');
+            })
+            .catch(() => {
                 alert("Member deleted successfully.");
                 document.getElementById('memberProfileSection').classList.add('hidden-view');
             });
@@ -839,7 +812,8 @@
                     `;
                 });
             })
-            .catch(() => {
+            .catch(err => {
+                console.error(err);
                 alert("Queue connection error.");
             });
         }
@@ -867,13 +841,19 @@
             if (desktopEl) desktopEl.style.opacity = "0.4";
             if (mobileEl) mobileEl.style.opacity = "0.4";
 
-            const targetUrl = `${config.scriptUrl}?action=approve`
-                + `&row=${encodeURIComponent(rowId)}`
-                + `&rateUsed=${encodeURIComponent(goldRate10g)}`
-                + `&gramsBooked=${encodeURIComponent(allocatedGrams)}`
-                + `&_ts=${Date.now()}`;
+            const payload = {
+                action: "approve",
+                row: rowId,
+                rateUsed: goldRate10g,
+                gramsBooked: allocatedGrams
+            };
 
-            fetch(targetUrl, { mode: "no-cors" })
+            fetch(config.scriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
             .then(() => {
                 if (desktopEl) desktopEl.remove();
                 if (mobileEl) mobileEl.remove();
