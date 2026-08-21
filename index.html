@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Suman Jewellers - Kitty Ledger System</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Firebase Compatibility SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
     <style>
         .hidden-view { display: none !important; }
         .overflow-x-auto { -webkit-overflow-scrolling: touch; }
@@ -21,31 +26,104 @@
             </header>
 
             <div id="interactiveContainer">
-                <!-- Phone Lookup Card -->
-                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
+                <!-- Invisible reCAPTCHA Anchor -->
+                <div id="recaptcha-container"></div>
+
+                <!-- Step 1: Phone Lookup Card -->
+                <div id="phoneSection" class="bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
                     <div>
                         <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Registered Mobile Number</label>
                         <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-800 focus:bg-white transition-all">
                     </div>
-                    
-                    <!-- Dynamic Step 2 Selector Dropdown Panel -->
-                    <div id="multiKittyWrapper" class="hidden-view bg-amber-50/60 p-4 rounded-lg border border-amber-200 space-y-2">
-                        <label class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">
-                            Multiple Accounts Linked
-                        </label>
-                        <p class="text-[11px] text-amber-800 leading-tight">Select active Kitty Account to load default view:</p>
-                        <select id="kittySelect" class="w-full px-3 py-2.5 bg-white border border-amber-300 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none">
-                        </select>
-                    </div>
 
-                    <button onclick="handleFetchWorkflow()" id="fetchBtn" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.99]">
-                        Access Passbook
+                    <button onclick="handlePhoneContinue()" id="btnPhoneContinue" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.99]">
+                        Continue
                     </button>
                 </div>
 
-                <!-- Passbook Ledger Content Drawer -->
+                <!-- Step 2A: MPIN Login Card (For Returning Users) -->
+                <div id="mpinLoginSection" class="hidden-view bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-base font-bold text-slate-900">Enter Security MPIN</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Account: <span id="lblMpinPhone" class="font-bold text-slate-700"></span></p>
+                    </div>
+
+                    <div>
+                        <input type="password" id="mpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-slate-800 focus:bg-white transition-all">
+                    </div>
+
+                    <button onclick="verifyMpinAndProceed()" id="btnVerifyMpin" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.99]">
+                        Verify MPIN & Access Passbook
+                    </button>
+
+                    <div class="flex justify-between items-center text-xs pt-1">
+                        <button onclick="resetToPhoneStep()" class="text-slate-400 hover:text-slate-600 font-semibold cursor-pointer">
+                            ← Change Mobile
+                        </button>
+                        <button onclick="initiateResetMpinOtp()" id="btnForgotMpin" class="text-amber-700 hover:text-amber-900 font-bold underline cursor-pointer">
+                            Forgot / Reset MPIN?
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2B: OTP Verification Card (First-time setup or MPIN Reset) -->
+                <div id="otpSection" class="hidden-view bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-base font-bold text-slate-900" id="lblOtpHeading">SMS Security Verification</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">6-digit OTP sent to <span id="lblOtpPhone" class="font-bold text-slate-700"></span></p>
+                    </div>
+
+                    <div>
+                        <input type="number" id="otpInput" placeholder="• • • • • •" maxlength="6" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-slate-800 focus:bg-white transition-all">
+                    </div>
+
+                    <button onclick="verifyFirebaseOtp()" id="btnVerifyOtp" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.99]">
+                        Verify OTP
+                    </button>
+
+                    <button onclick="resetToPhoneStep()" class="w-full text-center text-xs text-slate-400 hover:text-slate-600 font-semibold cursor-pointer">
+                        ← Cancel
+                    </button>
+                </div>
+
+                <!-- Step 2C: Set / Reset 4-Digit MPIN Card -->
+                <div id="setMpinSection" class="hidden-view bg-white rounded-xl shadow-sm p-5 border border-slate-200 mb-6 space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-base font-bold text-slate-900" id="lblSetMpinTitle">Create 4-Digit MPIN</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Set a fast 4-digit PIN for future logins</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Enter 4-Digit MPIN</label>
+                            <input type="password" id="newMpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-xl font-bold tracking-widest">
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Confirm 4-Digit MPIN</label>
+                            <input type="password" id="confirmMpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-center font-mono text-xl font-bold tracking-widest">
+                        </div>
+                    </div>
+
+                    <button onclick="submitNewMpin()" id="btnSubmitNewMpin" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-sm transition-all cursor-pointer active:scale-[0.99]">
+                        Save MPIN & Proceed
+                    </button>
+                </div>
+
+                <!-- Step 3: Multi-Kitty Selection (If linked to multiple plans) -->
+                <div id="multiKittyWrapper" class="hidden-view bg-amber-50/60 p-4 rounded-lg border border-amber-200 space-y-3 mb-6">
+                    <label class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">
+                        Multiple Accounts Linked
+                    </label>
+                    <p class="text-[11px] text-amber-800 leading-tight">Select active Kitty Account to view:</p>
+                    <select id="kittySelect" class="w-full px-3 py-2.5 bg-white border border-amber-300 rounded-lg text-sm font-semibold text-slate-900 focus:outline-none">
+                    </select>
+                    <button onclick="confirmSelectedKitty()" class="w-full bg-slate-900 text-white font-semibold py-2.5 rounded-lg text-xs">
+                        Confirm Selected Plan
+                    </button>
+                </div>
+
+                <!-- Passbook Content Area -->
                 <div id="passbookContainer" class="hidden-view space-y-4">
-                    <!-- Profile Summary Card -->
                     <div id="brandCard" class="bg-slate-900 text-white rounded-xl p-5 shadow-sm relative overflow-hidden">
                         <div class="relative z-10 space-y-3">
                             <div class="flex justify-between items-start">
@@ -54,7 +132,7 @@
                                     <p id="custPhone" class="text-xs text-slate-400 font-mono mt-0.5">-</p>
                                 </div>
                                 <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Synchronized
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Verified
                                 </span>
                             </div>
                             
@@ -74,14 +152,13 @@
                                     <span id="custAmount" class="text-base font-bold text-slate-100">₹0</span>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-[10px] uppercase text-slate-400 block tracking-wider">Total Amount Deposited</span>
+                                    <span class="text-[10px] uppercase text-slate-400 block tracking-wider">Total Deposited</span>
                                     <span id="custLiveBalance" class="text-base font-bold text-amber-400">₹0</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Live Gold Module -->
                     <div class="bg-white border border-slate-200 text-slate-900 rounded-xl p-4 space-y-2 shadow-sm">
                         <div class="flex justify-between items-center">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -94,7 +171,6 @@
                         </div>
                     </div>
                     
-                    <!-- 12-Month Matrix Grid -->
                     <div class="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-sm">
                         <div class="flex justify-between items-center mb-3">
                             <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Installment Ledger (12 Months)</p>
@@ -103,7 +179,6 @@
                         <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5"></div>
                     </div>
 
-                    <!-- Help Desk Link -->
                     <div class="bg-white rounded-xl p-4 border border-slate-200 flex items-center justify-between shadow-sm">
                         <div>
                             <h4 class="text-xs font-bold text-slate-900">Payment Verification Issue?</h4>
@@ -130,7 +205,7 @@
         </div>
     </div>
 
-    <!-- MULTI-CHANNEL SETTLEMENT & MULTI-KITTY PAYMENT MODAL -->
+    <!-- PAYMENT MODAL -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-5 sm:p-6 w-full max-w-md shadow-xl my-auto border border-slate-100">
             <div class="border-b border-slate-100 pb-3 mb-4">
@@ -138,7 +213,6 @@
                 <p id="modalMonthTarget" class="text-xs font-medium text-slate-500 mt-0.5">Month Allocation</p>
             </div>
 
-            <!-- MULTI-KITTY SELECTION SECTION -->
             <div id="multiKittySelectionContainer" class="hidden-view mb-4 bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-2">
                 <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
                     Select Kitty Plans To Include In Payment:
@@ -146,7 +220,6 @@
                 <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1"></div>
             </div>
             
-            <!-- Direct UPI Application Deep Link Button -->
             <a id="btnUpiAppPay" href="#" class="w-full mb-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]">
                 Pay Via UPI App (GPay / PhonePe / Paytm)
             </a>
@@ -155,7 +228,6 @@
                 Switch to Bank Account Credentials
             </button>
 
-            <!-- UPI Payment View -->
             <div id="channelUpiView" class="bg-slate-50 rounded-lg p-4 border border-slate-200 flex flex-col items-center justify-center mb-4">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Scan QR Code via Any UPI App</p>
                 <div class="w-36 h-36 bg-white p-2 rounded border border-slate-200 shadow-sm flex items-center justify-center">
@@ -166,7 +238,6 @@
                 </button>
             </div>
 
-            <!-- Bank Credentials View -->
             <div id="channelBankView" class="hidden-view bg-slate-50 rounded-lg p-4 border border-slate-200 mb-4 space-y-2 text-xs text-slate-800">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">Showroom Bank Transfer Credentials</p>
                 <div><span class="text-slate-400 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold">State Bank of India</span></div>
@@ -177,7 +248,6 @@
                 </div>
             </div>
 
-            <!-- Form Submission Details -->
             <div class="space-y-3 mb-5">
                 <div>
                     <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Transaction UTR Key / Ref Number</label>
@@ -198,6 +268,19 @@
 
     <!-- CORE ENGINE CONTROLLER -->
     <script>
+        // ==========================================
+        // 1. FIREBASE CONFIGURATION (REPLACE WITH YOUR KEYS)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyYOUR_API_KEY_HERE",
+            authDomain: "suman-jewellers-auth.firebaseapp.com",
+            projectId: "suman-jewellers-auth",
+            storageBucket: "suman-jewellers-auth.firebasestorage.app",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef123456"
+        };
+        firebase.initializeApp(firebaseConfig);
+
         const config = {
             name: "Suman Jewellers",
             upiVpa: "8052473033@upi",
@@ -218,109 +301,239 @@
         let isSyncingActive = false;
         let autoSyncTimer = null;
         let activeMatches = [];
+        let confirmationResultObject = null;
+        let isResetMode = false;
 
         document.title = `${config.name} - Kitty Ledger System`;
         document.getElementById('brandTitle').innerText = config.name;
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
         window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('view') === 'admin') {
-                window.location.href = "kmp.html";
-            }
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                'size': 'invisible'
+            });
         });
 
-        function copyUpiId() {
-            navigator.clipboard.writeText(config.upiVpa);
-            alert("Merchant UPI VPA copied to clipboard.");
+        // ==========================================
+        // 2. AUTHENTICATION & MPIN ROUTING WORKFLOW
+        // ==========================================
+        function handlePhoneContinue() {
+            const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
+            if (rawPhone.length !== 10) return alert("Please enter a valid 10-digit mobile number.");
+
+            const btn = document.getElementById('btnPhoneContinue');
+            btn.innerText = "Checking Account...";
+            btn.disabled = true;
+
+            globalCustomerPhone = rawPhone;
+
+            // Check if user has an MPIN set in Google Sheet
+            fetch(`${SCRIPT_URL}?action=checkMpinStatus&phone=${rawPhone}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                btn.innerText = "Continue";
+                btn.disabled = false;
+
+                if (!res.success) {
+                    return alert(res.error || "No active account found for this mobile number.");
+                }
+
+                document.getElementById('phoneSection').classList.add('hidden-view');
+
+                if (res.hasMpin) {
+                    // Existing User -> Ask for MPIN
+                    document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
+                    document.getElementById('mpinInput').value = "";
+                    document.getElementById('mpinLoginSection').classList.remove('hidden-view');
+                } else {
+                    // First Time User -> Trigger Firebase SMS OTP to Setup MPIN
+                    isResetMode = false;
+                    document.getElementById('lblOtpHeading').innerText = "First-Time Security Setup";
+                    triggerFirebaseOtpSend(rawPhone);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                btn.innerText = "Continue";
+                btn.disabled = false;
+                alert("Server communication error checking profile.");
+            });
         }
 
-        function togglePaymentMethodView() {
-            const upiBox = document.getElementById('channelUpiView');
-            const bankBox = document.getElementById('channelBankView');
-            const toggleBtn = document.getElementById('btnPaymentToggle');
-            if (currentPaymentChannel === "upi") {
-                currentPaymentChannel = "bank";
-                upiBox.classList.add('hidden-view');
-                bankBox.classList.remove('hidden-view');
-                toggleBtn.innerText = "Switch to Instant UPI QR Display";
-            } else {
-                currentPaymentChannel = "upi";
-                bankBox.classList.add('hidden-view');
-                upiBox.classList.remove('hidden-view');
-                toggleBtn.innerText = "Switch to Bank Account Credentials";
+        function verifyMpinAndProceed() {
+            const mpin = document.getElementById('mpinInput').value.trim();
+            if (mpin.length !== 4) return alert("Please enter your 4-digit MPIN.");
+
+            const btn = document.getElementById('btnVerifyMpin');
+            btn.innerText = "Verifying MPIN...";
+            btn.disabled = true;
+
+            fetch(`${SCRIPT_URL}?action=verifyMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                btn.innerText = "Verify MPIN & Access Passbook";
+                btn.disabled = false;
+
+                if (res.success) {
+                    document.getElementById('mpinLoginSection').classList.add('hidden-view');
+                    fetchUserProfileAfterAuth(globalCustomerPhone);
+                } else {
+                    alert(res.error || "Incorrect MPIN.");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                btn.innerText = "Verify MPIN & Access Passbook";
+                btn.disabled = false;
+                alert("Database verification failure.");
+            });
+        }
+
+        function initiateResetMpinOtp() {
+            isResetMode = true;
+            document.getElementById('lblOtpHeading').innerText = "Reset Security MPIN Verification";
+            document.getElementById('mpinLoginSection').classList.add('hidden-view');
+            triggerFirebaseOtpSend(globalCustomerPhone);
+        }
+
+        function triggerFirebaseOtpSend(phoneNum) {
+            const fullPhoneNumber = "+91" + phoneNum;
+            const appVerifier = window.recaptchaVerifier;
+
+            firebase.auth().signInWithPhoneNumber(fullPhoneNumber, appVerifier)
+                .then((confirmationResult) => {
+                    confirmationResultObject = confirmationResult;
+                    document.getElementById('lblOtpPhone').innerText = "+91 " + phoneNum;
+                    document.getElementById('otpInput').value = "";
+                    document.getElementById('otpSection').classList.remove('hidden-view');
+                })
+                .catch((error) => {
+                    console.error("Firebase SMS Error:", error);
+                    if (window.recaptchaVerifier) {
+                        window.recaptchaVerifier.render().then(widgetId => grecaptcha.reset(widgetId));
+                    }
+                    alert("Failed to dispatch SMS OTP: " + error.message);
+                    resetToPhoneStep();
+                });
+        }
+
+        function verifyFirebaseOtp() {
+            const code = document.getElementById('otpInput').value.trim();
+            if (code.length !== 6) return alert("Please enter the complete 6-digit OTP.");
+
+            const btn = document.getElementById('btnVerifyOtp');
+            btn.innerText = "Verifying OTP...";
+            btn.disabled = true;
+
+            confirmationResultObject.confirm(code)
+                .then(() => {
+                    btn.innerText = "Verify OTP";
+                    btn.disabled = false;
+                    document.getElementById('otpSection').classList.add('hidden-view');
+
+                    // Show Set/Reset MPIN UI
+                    document.getElementById('lblSetMpinTitle').innerText = isResetMode ? "Reset 4-Digit MPIN" : "Create 4-Digit MPIN";
+                    document.getElementById('newMpinInput').value = "";
+                    document.getElementById('confirmMpinInput').value = "";
+                    document.getElementById('setMpinSection').classList.remove('hidden-view');
+                })
+                .catch((error) => {
+                    console.error("OTP Verification Error:", error);
+                    btn.innerText = "Verify OTP";
+                    btn.disabled = false;
+                    alert("Invalid OTP code. Please try again.");
+                });
+        }
+
+        function submitNewMpin() {
+            const pin1 = document.getElementById('newMpinInput').value.trim();
+            const pin2 = document.getElementById('confirmMpinInput').value.trim();
+
+            if (pin1.length !== 4 || pin2.length !== 4) {
+                return alert("MPIN must be exactly 4 digits.");
             }
-        }
-
-        function cleanStringValue(val) {
-            if (!val) return "";
-            return val.toString().replace(/^"|"$/g, '').replace(/[\r\n\t]/g, '').trim();
-        }
-
-        // --- AUTHENTICATION & DIRECT APPS SCRIPT LOOKUP ---
-        function handleFetchWorkflow() {
-            const rawPhone = document.getElementById('phoneInput').value.trim();
-            if (!rawPhone) return alert("Please enter your registered mobile number.");
-            
-            const cleanPhoneInput = rawPhone.replace(/\D/g, "");
-            if (cleanPhoneInput.length < 10) return alert("Please enter a valid 10-digit mobile number.");
-            
-            const fetchBtn = document.getElementById('fetchBtn');
-
-            if (holdsMultiProfiles) {
-                const selectedKitty = cleanStringValue(document.getElementById('kittySelect').value);
-                if (!selectedKitty) return alert("Please select a specific Kitty Plan.");
-                executePassbookRender(cleanPhoneInput, selectedKitty, false);
-                initiateLiveAutoSync(cleanPhoneInput, selectedKitty);
-                return;
+            if (pin1 !== pin2) {
+                return alert("MPIN confirmation does not match. Please re-enter.");
             }
 
-            fetchBtn.innerText = "Authenticating Mobile Number...";
-            fetchBtn.disabled = true;
+            const btn = document.getElementById('btnSubmitNewMpin');
+            btn.innerText = "Saving MPIN...";
+            btn.disabled = true;
 
+            fetch(`${SCRIPT_URL}?action=setMpin&phone=${globalCustomerPhone}&mpin=${pin1}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                btn.innerText = "Save MPIN & Proceed";
+                btn.disabled = false;
+
+                if (res.success) {
+                    alert(isResetMode ? "MPIN reset successfully!" : "Security MPIN set successfully!");
+                    document.getElementById('setMpinSection').classList.add('hidden-view');
+                    fetchUserProfileAfterAuth(globalCustomerPhone);
+                } else {
+                    alert("Error saving MPIN: " + (res.error || "Sheet update failed."));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                btn.innerText = "Save MPIN & Proceed";
+                btn.disabled = false;
+                alert("Database communication error saving MPIN.");
+            });
+        }
+
+        function resetToPhoneStep() {
+            document.getElementById('mpinLoginSection').classList.add('hidden-view');
+            document.getElementById('otpSection').classList.add('hidden-view');
+            document.getElementById('setMpinSection').classList.add('hidden-view');
+            document.getElementById('phoneSection').classList.remove('hidden-view');
+            const btn = document.getElementById('btnPhoneContinue');
+            btn.innerText = "Continue";
+            btn.disabled = false;
+        }
+
+        // ==========================================
+        // 3. PASSBOOK DATA WORKFLOW
+        // ==========================================
+        function fetchUserProfileAfterAuth(cleanPhoneInput) {
             const targetUrl = `${SCRIPT_URL}?action=searchMembers&query=${encodeURIComponent(cleanPhoneInput)}&_ts=${Date.now()}`;
 
             fetch(targetUrl)
             .then(r => r.json())
             .then(res => {
-                fetchBtn.disabled = false;
-                fetchBtn.innerText = "Access Passbook";
-
                 if (!res || !res.success || !res.results || res.results.length === 0) {
-                    return alert("No active profiles found for this mobile number.");
+                    alert("Profile matching entity failure.");
+                    resetToPhoneStep();
+                    return;
                 }
 
                 activeMatches = res.results;
-                routeProfileMatching(cleanPhoneInput);
+
+                if (activeMatches.length === 1) {
+                    executePassbookRender(cleanPhoneInput, activeMatches[0].kittyNumber, false);
+                    initiateLiveAutoSync(cleanPhoneInput, activeMatches[0].kittyNumber);
+                } else {
+                    holdsMultiProfiles = true;
+                    const wrapper = document.getElementById('multiKittyWrapper');
+                    const select = document.getElementById('kittySelect');
+                    select.innerHTML = "";
+                    activeMatches.forEach(item => {
+                        select.innerHTML += `<option value="${item.kittyNumber}">Kitty Account Plan #${item.kittyNumber} (${item.name})</option>`;
+                    });
+                    wrapper.classList.remove('hidden-view');
+                }
             })
             .catch(err => {
                 console.error(err);
-                fetchBtn.disabled = false;
-                fetchBtn.innerText = "Access Passbook";
-                alert("Database connection failed. Please check your network.");
+                alert("Database connection error loading verified account.");
             });
         }
 
-        function routeProfileMatching(cleanPhoneInput) {
-            const fetchBtn = document.getElementById('fetchBtn');
-            if (activeMatches.length === 1) {
-                fetchBtn.disabled = false;
-                fetchBtn.innerText = "Access Passbook";
-                executePassbookRender(cleanPhoneInput, activeMatches[0].kittyNumber, false);
-                initiateLiveAutoSync(cleanPhoneInput, activeMatches[0].kittyNumber);
-            } else {
-                holdsMultiProfiles = true;
-                const wrapper = document.getElementById('multiKittyWrapper');
-                const select = document.getElementById('kittySelect');
-                select.innerHTML = "";
-                activeMatches.forEach(item => {
-                    select.innerHTML += `<option value="${item.kittyNumber}">Kitty Account Plan #${item.kittyNumber} (${item.name})</option>`;
-                });
-                wrapper.classList.remove('hidden-view');
-                
-                fetchBtn.disabled = false; 
-                fetchBtn.innerText = "Confirm Selected Kitty & View";
-            }
+        function confirmSelectedKitty() {
+            const selectedKitty = document.getElementById('kittySelect').value;
+            document.getElementById('multiKittyWrapper').classList.add('hidden-view');
+            executePassbookRender(globalCustomerPhone, selectedKitty, false);
+            initiateLiveAutoSync(globalCustomerPhone, selectedKitty);
         }
 
         function initiateLiveAutoSync(phone, kittyNumber) {
@@ -332,30 +545,17 @@
             }, 20000);
         }
 
-        // --- DIRECT PASSBOOK SYNC ---
         function executePassbookRender(phone, kittyNumber, isSilentSync = false) {
             if (isSyncingActive) return;
             isSyncingActive = true;
-
-            const fetchBtn = document.getElementById('fetchBtn');
-            if (!isSilentSync) {
-                fetchBtn.innerText = "Opening Passbook...";
-                fetchBtn.disabled = true;
-            }
 
             const targetUrl = `${SCRIPT_URL}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(kittyNumber)}&_ts=${Date.now()}`;
 
             fetch(targetUrl)
             .then(r => r.json())
             .then(data => {
-                if (!isSilentSync) {
-                    fetchBtn.innerText = "Access Passbook";
-                    fetchBtn.disabled = false;
-                }
-                
                 if (!data || !data.profile) {
                     isSyncingActive = false;
-                    if (!isSilentSync) alert("Ledger serialization failure matching row entities.");
                     return;
                 }
                 
@@ -368,7 +568,7 @@
                 document.getElementById('custAmount').innerText = "₹" + globalMonthlyAmount;
                 document.getElementById('lblCustId').innerText = data.profile.customerId;
                 document.getElementById('lblKittyNo').innerText = data.profile.kittyNumber;
-                document.getElementById('lblOtherDetails').innerText = data.profile.otherDetails;
+                document.getElementById('lblOtherDetails').innerText = data.profile.otherDetails || "None";
                 
                 document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20I%20have%20an%20inquiry%20regarding%20my%20Kitty%20Account%20ID%20${encodeURIComponent(data.profile.customerId || '')}.`;
 
@@ -430,15 +630,34 @@
             .catch(err => {
                 console.error(err);
                 isSyncingActive = false;
-                if (!isSilentSync) {
-                    fetchBtn.innerText = "Access Passbook";
-                    fetchBtn.disabled = false;
-                    alert("Database communication error loading passbook.");
-                }
             });
         }
 
-        // --- PAYMENT MODAL WORKFLOW ---
+        // ==========================================
+        // 4. PAYMENT & PROOF SUBMISSION
+        // ==========================================
+        function copyUpiId() {
+            navigator.clipboard.writeText(config.upiVpa);
+            alert("Merchant UPI VPA copied to clipboard.");
+        }
+
+        function togglePaymentMethodView() {
+            const upiBox = document.getElementById('channelUpiView');
+            const bankBox = document.getElementById('channelBankView');
+            const toggleBtn = document.getElementById('btnPaymentToggle');
+            if (currentPaymentChannel === "upi") {
+                currentPaymentChannel = "bank";
+                upiBox.classList.add('hidden-view');
+                bankBox.classList.remove('hidden-view');
+                toggleBtn.innerText = "Switch to Instant UPI QR Display";
+            } else {
+                currentPaymentChannel = "upi";
+                bankBox.classList.add('hidden-view');
+                upiBox.classList.remove('hidden-view');
+                toggleBtn.innerText = "Switch to Bank Account Credentials";
+            }
+        }
+
         function openPaymentModal(monthNum) {
             currentSelectedMonth = monthNum;
             document.getElementById('modalMonthTarget').innerText = `Submitting Proof for Month ${monthNum}`;
@@ -539,7 +758,6 @@
             }
         }
 
-        // --- CLEAN JSON POST SUBMISSION ---
         function executePostSubmission(utrCode, embeddedBase64Str) {
             const submitPayBtn = document.getElementById('submitPayBtn');
             submitPayBtn.innerText = "Transmitting Ledger Records...";
