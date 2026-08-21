@@ -91,7 +91,7 @@
                     <button onclick="cancelForgotFlow()" class="w-full text-center text-xs text-slate-400 font-semibold cursor-pointer">← Back to Login</button>
                 </div>
 
-                <!-- MULTI-ACCOUNT SELECTOR -->
+                <!-- MULTI-ACCOUNT SELECTOR (Initial choice if multiple) -->
                 <div id="multiKittyWrapper" class="hidden-view bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3 mb-5">
                     <label class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">Multiple GRMS Plans Linked</label>
                     <select id="kittySelect" class="w-full px-3 py-2.5 bg-white border border-amber-300 rounded-xl text-sm font-semibold text-slate-900"></select>
@@ -247,7 +247,7 @@
         </div>
     </div>
 
-    <!-- PAYMENT MODAL -->
+    <!-- PAYMENT SETTLEMENT MODAL (WITH MULTI-KITTY & BANK TRANSFER VIEWS) -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-xl my-auto border border-slate-100">
             <div class="border-b border-slate-100 pb-3 mb-4">
@@ -255,10 +255,25 @@
                 <p id="modalMonthTarget" class="text-xs font-medium text-slate-500 mt-0.5">Month Allocation</p>
             </div>
 
-            <a id="btnUpiAppPay" href="#" class="w-full mb-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer">
+            <!-- MULTI-KITTY PAYMENT SELECTION CHECKBOXES -->
+            <div id="multiKittySelectionContainer" class="hidden-view mb-4 bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                    Select GRMS Accounts To Include In Payment:
+                </label>
+                <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1"></div>
+            </div>
+
+            <!-- 1-CLICK UPI DEEP LINK BUTTON -->
+            <a id="btnUpiAppPay" href="#" class="w-full mb-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]">
                 Pay Via UPI App (GPay / PhonePe / Paytm)
             </a>
 
+            <!-- SWITCH TO BANK DETAILS TOGGLE -->
+            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-4 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold py-2 rounded-xl transition-all cursor-pointer text-center">
+                Switch to Bank Account Credentials
+            </button>
+
+            <!-- UPI QR CODE CHANNEL -->
             <div id="channelUpiView" class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col items-center justify-center mb-4">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Scan Official Showroom QR Code</p>
                 <div class="w-36 h-36 bg-white p-2 rounded-lg border border-slate-200 shadow-sm flex items-center justify-center">
@@ -269,6 +284,18 @@
                 </button>
             </div>
 
+            <!-- SHOWROOM BANK CREDENTIALS CHANNEL -->
+            <div id="channelBankView" class="hidden-view bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4 space-y-2 text-xs text-slate-800">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">Showroom Bank Transfer Credentials</p>
+                <div><span class="text-slate-400 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold">State Bank of India</span></div>
+                <div><span class="text-slate-400 block text-[9px] uppercase">Account Title</span><span class="font-semibold">Suman Jewellers Retail Private Limited</span></div>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Account Number</span><span class="font-bold font-mono">39485720194</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">IFSC Code</span><span class="font-bold font-mono">SBIN0001824</span></div>
+                </div>
+            </div>
+
+            <!-- PROOF SUBMISSION FORM -->
             <div class="space-y-3 mb-5">
                 <div>
                     <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Transaction UTR Key / Ref Number</label>
@@ -287,7 +314,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT CONTROLLER (WITH LIVE AUTO-SYNC) -->
+    <!-- MAIN JAVASCRIPT CONTROLLER -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -307,6 +334,7 @@
         let optimisticPendingMonths = new Set();
         let isSyncingActive = false;
         let customerSyncTimer = null;
+        let currentPaymentChannel = "upi";
 
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
@@ -482,7 +510,7 @@
             startCustomerAutoSync(globalCustomerPhone, selectedAc);
         }
 
-        // Live Auto Sync Engine (Har 15 seconds me background check)
+        // Live Auto Sync Engine (Every 15s)
         function startCustomerAutoSync(phone, acCode) {
             if (customerSyncTimer) clearInterval(customerSyncTimer);
             customerSyncTimer = setInterval(() => {
@@ -587,6 +615,7 @@
             .catch(() => isSyncingActive = false);
         }
 
+        // --- TERMS & CONDITIONS MODAL CONTROLLERS ---
         function openTermsModal() {
             document.getElementById('termsModal').classList.remove('hidden-view');
         }
@@ -595,23 +624,88 @@
             document.getElementById('termsModal').classList.add('hidden-view');
         }
 
+        // --- PAYMENT MODAL & RESTORED MULTI-KITTY + BANK CONTROLLERS ---
         function copyUpiId() {
             navigator.clipboard.writeText(config.upiVpa);
-            alert("Showroom UPI VPA copied.");
+            alert("Merchant UPI VPA copied to clipboard.");
+        }
+
+        function togglePaymentMethodView() {
+            const upiBox = document.getElementById('channelUpiView');
+            const bankBox = document.getElementById('channelBankView');
+            const toggleBtn = document.getElementById('btnPaymentToggle');
+            if (currentPaymentChannel === "upi") {
+                currentPaymentChannel = "bank";
+                upiBox.classList.add('hidden-view');
+                bankBox.classList.remove('hidden-view');
+                toggleBtn.innerText = "Switch to Instant UPI QR Display";
+            } else {
+                currentPaymentChannel = "upi";
+                bankBox.classList.add('hidden-view');
+                upiBox.classList.remove('hidden-view');
+                toggleBtn.innerText = "Switch to Bank Account Credentials";
+            }
         }
 
         function openPaymentModal(monthNum) {
             currentSelectedMonth = monthNum;
-            document.getElementById('modalMonthTarget').innerText = `Submitting Installment for Month ${monthNum} (₹${globalMonthlyAmount.toLocaleString('en-IN')})`;
             document.getElementById('utrInput').value = "";
             document.getElementById('fileInput').value = "";
+            currentPaymentChannel = "upi";
+            document.getElementById('channelUpiView').classList.remove('hidden-view');
+            document.getElementById('channelBankView').classList.add('hidden-view');
+            document.getElementById('btnPaymentToggle').innerText = "Switch to Bank Account Credentials";
 
-            const note = encodeURIComponent(`GRMS M${monthNum} - ${globalAcCode}`);
-            const upiUrl = `upi://pay?pa=${config.upiVpa}&pn=${encodeURIComponent(config.name)}&am=${globalMonthlyAmount}&cu=INR&tn=${note}`;
-            document.getElementById('btnUpiAppPay').href = upiUrl;
-            document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
+            const multiContainer = document.getElementById('multiKittySelectionContainer');
+            const listContainer = document.getElementById('multiKittyCheckboxList');
+            
+            // Check if customer has multiple accounts linked
+            if (activeMatches && activeMatches.length > 1) {
+                multiContainer.classList.remove('hidden-view');
+                listContainer.innerHTML = "";
+                activeMatches.forEach(item => {
+                    const isCurrent = item.acCode === globalAcCode;
+                    const monthlyVal = Number(item.monthlyAmount) || globalMonthlyAmount;
+                    listContainer.innerHTML += `
+                        <label class="flex items-center justify-between p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer text-xs">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" name="kittyPaySelect" value="${item.acCode}" data-amount="${monthlyVal}" ${isCurrent ? 'checked' : ''} onchange="updateMultiPaymentTotal()" class="rounded border-slate-300 text-slate-900 focus:ring-slate-900">
+                                <span class="font-bold text-slate-800">A/C: ${item.acCode} (${item.name})</span>
+                            </div>
+                            <span class="font-mono font-bold text-slate-600">₹${monthlyVal.toLocaleString('en-IN')}</span>
+                        </label>
+                    `;
+                });
+            } else {
+                multiContainer.classList.add('hidden-view');
+            }
 
+            updateMultiPaymentTotal();
             document.getElementById('paymentModal').classList.remove('hidden-view');
+        }
+
+        function updateMultiPaymentTotal() {
+            let totalAmountToPay = globalMonthlyAmount;
+            let selectedAcCodes = [globalAcCode];
+
+            if (activeMatches && activeMatches.length > 1) {
+                const checkboxes = document.querySelectorAll('input[name="kittyPaySelect"]:checked');
+                let aggregate = 0;
+                selectedAcCodes = [];
+                checkboxes.forEach(cb => {
+                    selectedAcCodes.push(cb.value);
+                    aggregate += Number(cb.getAttribute('data-amount')) || 0;
+                });
+                totalAmountToPay = aggregate > 0 ? aggregate : globalMonthlyAmount;
+            }
+
+            const note = encodeURIComponent(`GRMS M${currentSelectedMonth} - ${selectedAcCodes.join(',')}`);
+            const upiUrl = `upi://pay?pa=${config.upiVpa}&pn=${encodeURIComponent(config.name)}&am=${totalAmountToPay}&cu=INR&tn=${note}`;
+            document.getElementById('btnUpiAppPay').href = upiUrl;
+
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
+            document.getElementById('qrCodeImg').src = qrApiUrl;
+            document.getElementById('modalMonthTarget').innerText = `Submitting Installment for Month ${currentSelectedMonth} (Total Amount: ₹${totalAmountToPay.toLocaleString('en-IN')})`;
         }
 
         function closePaymentModal() {
@@ -621,28 +715,56 @@
         function submitPaymentData() {
             const utr = document.getElementById('utrInput').value.trim();
             const fileBox = document.getElementById('fileInput').files[0];
-            if (!utr && !fileBox) return alert("Please specify transaction UTR or attach screenshot.");
+            if (!utr && !fileBox) return alert("Please specify transaction UTR key or upload receipt screenshot.");
 
             const btn = document.getElementById('submitPayBtn');
-            btn.innerText = "Submitting...";
+            btn.innerText = "Processing Image...";
             btn.disabled = true;
 
             const postProof = (base64) => {
+                btn.innerText = "Transmitting Proof...";
                 optimisticPendingMonths.add(Number(currentSelectedMonth));
+
+                let selectedAcCodes = [globalAcCode];
+                let calculatedTotalAmount = globalMonthlyAmount;
+
+                if (activeMatches && activeMatches.length > 1) {
+                    const checkboxes = document.querySelectorAll('input[name="kittyPaySelect"]:checked');
+                    if (checkboxes.length > 0) {
+                        selectedAcCodes = [];
+                        let aggregate = 0;
+                        checkboxes.forEach(cb => {
+                            selectedAcCodes.push(cb.value);
+                            aggregate += Number(cb.getAttribute('data-amount')) || 0;
+                        });
+                        calculatedTotalAmount = aggregate;
+                    }
+                }
+
+                const payload = {
+                    action: "submit",
+                    id: globalCustomerPhone,
+                    acCode: selectedAcCodes.join(','),
+                    month: currentSelectedMonth,
+                    amount: calculatedTotalAmount,
+                    utr: utr || "Direct Deposit",
+                    screenshotUrl: base64 || ""
+                };
+
                 fetch(SCRIPT_URL, {
                     method: "POST",
                     mode: "no-cors",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({
-                        action: "submit",
-                        id: globalCustomerPhone,
-                        acCode: globalAcCode,
-                        month: currentSelectedMonth,
-                        amount: globalMonthlyAmount,
-                        utr: utr || "Direct Deposit",
-                        screenshotUrl: base64 || ""
-                    })
-                }).then(() => {
+                    body: JSON.stringify(payload)
+                })
+                .then(() => {
+                    btn.innerText = "Submit Proof";
+                    btn.disabled = false;
+                    closePaymentModal();
+                    alert("Installment proof submitted successfully for administrative review!");
+                    setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 1500);
+                })
+                .catch(() => {
                     btn.innerText = "Submit Proof";
                     btn.disabled = false;
                     closePaymentModal();
