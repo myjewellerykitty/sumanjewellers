@@ -14,12 +14,12 @@
 
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-3 sm:p-4 flex flex-col justify-between">
         <div>
-            <!-- BRAND HEADER (Always visible) -->
+            <!-- BRAND HEADER -->
             <header class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-5">
-                <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Golden Rose Magic Banner" class="w-full h-32 object-cover object-center">
+                <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-32 object-cover object-center">
                 <div class="p-4 text-center relative pt-7">
                     <div class="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden bg-white">
-                        <img src="https://i.pinimg.com/736x/9f/08/47/9f0847af5e7a99e2bef8814fa1416357.jpg" alt="Suman Jewellers Logo" class="w-full h-full object-cover">
+                        <img src="https://i.pinimg.com/736x/9f/08/47/9f0847af5e7a99e2bef8814fa1416357.jpg" alt="Logo" class="w-full h-full object-cover">
                     </div>
                     <h1 class="text-xl font-black text-slate-900 tracking-tight uppercase">Golden Rose Magic</h1>
                     <p class="text-xs font-semibold text-amber-700 tracking-wider mt-0.5">For Easy Jewellery Purchase</p>
@@ -27,10 +27,9 @@
                 </div>
             </header>
 
-            <!-- AUTH & LOGIN SCREENS (Hidden after successful login) -->
+            <!-- AUTH & LOGIN SCREENS (Hidden after login) -->
             <div id="authContainer">
-                
-                <!-- STEP 1: MOBILE ENTRY -->
+                <!-- STEP 1: MOBILE -->
                 <div id="phoneSection" class="bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
                     <div>
                         <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">Registered Mobile Number</label>
@@ -72,11 +71,11 @@
                     <button onclick="saveInitialMpin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Save & Access</button>
                 </div>
 
-                <!-- STEP 2C: FORGOT MPIN FLOW (EMAIL ONLY) -->
+                <!-- STEP 2C: FORGOT MPIN (EMAIL ONLY) -->
                 <div id="forgotMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
                     <div class="text-center">
                         <h3 class="text-base font-bold text-slate-900">Reset Security MPIN</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">We will send your current MPIN to your registered email.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Request your old MPIN directly to your registered email.</p>
                     </div>
                     <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
                         <button onclick="requestCurrentMpinRecovery()" id="btnRequestOldMpin" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">
@@ -100,7 +99,7 @@
                 </div>
             </div>
 
-            <!-- DEDICATED PASSBOOK VIEW (Shown ONLY upon login) -->
+            <!-- DEDICATED PASSBOOK (Shown upon login) -->
             <div id="passbookContainer" class="hidden-view space-y-4">
                 
                 <!-- CUSTOMER SCHEME CARD -->
@@ -112,8 +111,8 @@
                                 <p id="custPhone" class="text-xs text-slate-400 font-mono mt-0.5">-</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] uppercase font-bold px-2 py-0.5 rounded">
-                                    GRMS Active
+                                <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> GRMS Active
                                 </span>
                                 <button onclick="logoutCustomer()" class="text-[10px] bg-slate-800 hover:bg-rose-900/60 text-slate-300 px-2 py-0.5 rounded cursor-pointer">
                                     Logout
@@ -123,7 +122,7 @@
                         
                         <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-[11px]">
                             <div><span class="text-slate-500 block text-[9px] uppercase font-bold">A/C Code:</span> <span id="lblAcCode" class="font-bold font-mono text-amber-400">-</span></div>
-                            <div><span class="text-slate-500 block text-[9px] uppercase font-bold">Token / ID:</span> <span id="lblCustId" class="font-semibold font-mono text-slate-200">-</span></div>
+                            <div><span class="text-slate-500 block text-[9px] uppercase font-bold">Token ID:</span> <span id="lblCustId" class="font-semibold font-mono text-slate-200">-</span></div>
                             <div><span class="text-slate-500 block text-[9px] uppercase font-bold">Join Date:</span> <span id="lblDoj" class="font-semibold font-mono text-slate-200">-</span></div>
                         </div>
 
@@ -140,6 +139,19 @@
                     </div>
                 </div>
 
+                <!-- ACCUMULATED 22K GOLD WEIGHT CARD -->
+                <div class="bg-white border border-slate-200 text-slate-900 rounded-2xl p-4 shadow-sm space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            Total Booked Gold Weight (22K)
+                        </h4>
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Live Accumulated</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
+                        <span id="lblTotalGoldGrams" class="text-2xl font-black text-slate-900 font-mono">0.000 g</span>
+                    </div>
+                </div>
+
                 <!-- MATURITY PROJECTION CARD -->
                 <div id="rewardCard" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-2">
@@ -148,7 +160,7 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3 text-center">
                         <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                            <span class="text-[10px] text-slate-500 uppercase block font-semibold">Draw Bonus</span>
+                            <span class="text-[10px] text-slate-500 uppercase block font-semibold">Draw Bonus / Interest</span>
                             <span id="lblRewardBenefit" class="text-sm font-black text-emerald-600 font-mono">+₹0</span>
                         </div>
                         <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-100">
@@ -168,7 +180,7 @@
                     <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
                 </div>
 
-                <!-- DESK SUPPORT & T&C ACTION BUTTONS -->
+                <!-- ACTION BUTTONS -->
                 <div class="space-y-2">
                     <div class="bg-white rounded-xl p-4 border border-slate-200 flex items-center justify-between shadow-sm">
                         <div>
@@ -180,7 +192,6 @@
                         </a>
                     </div>
 
-                    <!-- TERMS & CONDITIONS MODAL TRIGGER BUTTON -->
                     <button onclick="openTermsModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold py-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5">
                         <span>📜</span> View Scheme Terms & Conditions
                     </button>
@@ -189,7 +200,7 @@
         </div>
     </div>
 
-    <!-- TERMS & CONDITIONS MODAL POPUP -->
+    <!-- TERMS & CONDITIONS MODAL -->
     <div id="termsModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-lg shadow-xl my-auto border border-slate-200 max-h-[85vh] flex flex-col justify-between">
             <div>
@@ -276,7 +287,7 @@
         </div>
     </div>
 
-    <!-- MAIN JAVASCRIPT CONTROLLER -->
+    <!-- JAVASCRIPT CONTROLLER (WITH LIVE AUTO-SYNC) -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -295,6 +306,7 @@
         let activeMatches = [];
         let optimisticPendingMonths = new Set();
         let isSyncingActive = false;
+        let customerSyncTimer = null;
 
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
@@ -392,7 +404,7 @@
                 if (res.success && res.method === "email") {
                     alert(`Your MPIN was sent to your registered email: ${res.email}.\n\nEnter it below to reset.`);
                 } else {
-                    alert("No email is registered on this account. Please visit the showroom desk for assistance.");
+                    alert(res.error || "No email is registered on this account. Please visit the showroom desk for assistance.");
                 }
             })
             .catch(() => {
@@ -431,6 +443,7 @@
         }
 
         function logoutCustomer() {
+            if (customerSyncTimer) clearInterval(customerSyncTimer);
             document.getElementById('passbookContainer').classList.add('hidden-view');
             document.getElementById('authContainer').classList.remove('hidden-view');
             document.getElementById('phoneSection').classList.remove('hidden-view');
@@ -447,9 +460,9 @@
                 activeMatches = res.results;
 
                 if (activeMatches.length === 1) {
-                    // Hide auth container entirely
                     document.getElementById('authContainer').classList.add('hidden-view');
                     executePassbookRender(cleanPhone, activeMatches[0].acCode);
+                    startCustomerAutoSync(cleanPhone, activeMatches[0].acCode);
                 } else {
                     const wrapper = document.getElementById('multiKittyWrapper');
                     const select = document.getElementById('kittySelect');
@@ -466,16 +479,30 @@
             const selectedAc = document.getElementById('kittySelect').value;
             document.getElementById('authContainer').classList.add('hidden-view');
             executePassbookRender(globalCustomerPhone, selectedAc);
+            startCustomerAutoSync(globalCustomerPhone, selectedAc);
         }
 
-        function executePassbookRender(phone, acCode) {
+        // Live Auto Sync Engine (Har 15 seconds me background check)
+        function startCustomerAutoSync(phone, acCode) {
+            if (customerSyncTimer) clearInterval(customerSyncTimer);
+            customerSyncTimer = setInterval(() => {
+                if (!isSyncingActive) {
+                    executePassbookRender(phone, acCode, true);
+                }
+            }, 15000);
+        }
+
+        function executePassbookRender(phone, acCode, isSilentSync = false) {
             if (isSyncingActive) return;
             isSyncingActive = true;
 
             fetch(`${SCRIPT_URL}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(data => {
-                if (!data || !data.profile) return;
+                if (!data || !data.profile) {
+                    isSyncingActive = false;
+                    return;
+                }
                 
                 globalCustomerPhone = data.profile.phone;
                 globalAcCode = data.profile.acCode;
@@ -493,14 +520,19 @@
 
                 const userTransactions = data.transactions || [];
                 let paidMonthsCount = 0;
+                let accumulatedGoldWeight = 0;
 
                 userTransactions.forEach(t => {
-                    if (t.status === "Paid") paidMonthsCount++;
+                    if (t.status === "Paid") {
+                        paidMonthsCount++;
+                        accumulatedGoldWeight += Number(t.bookedGrams) || 0;
+                    }
                     if (t.status === "Pending" || t.status === "Paid") optimisticPendingMonths.delete(Number(t.month));
                 });
 
                 let principalPaid = paidMonthsCount * globalMonthlyAmount;
                 document.getElementById('custLiveBalance').innerText = "₹" + principalPaid.toLocaleString('en-IN');
+                document.getElementById('lblTotalGoldGrams').innerText = `${accumulatedGoldWeight.toFixed(3)} g`;
 
                 // Dynamic Reward & Maturity Calculations
                 let totalMaturity = 0;
@@ -536,8 +568,9 @@
                     let label = "Pay Now", style = "bg-slate-50 border border-slate-200 text-slate-700 font-semibold cursor-pointer hover:bg-slate-100", action = `onclick="openPaymentModal(${m})"`;
                     
                     if (tx && tx.status === "Paid") {
-                        label = "Paid";
-                        style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold";
+                        var gWeight = (Number(tx.bookedGrams) || 0).toFixed(3);
+                        label = (Number(gWeight) > 0) ? `Paid (${gWeight}g)` : `Paid`;
+                        style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[10px]";
                         action = "";
                     } else if ((tx && tx.status === "Pending") || optimisticPendingMonths.has(m)) {
                         label = "Pending";
@@ -554,7 +587,6 @@
             .catch(() => isSyncingActive = false);
         }
 
-        // --- TERMS & CONDITIONS MODAL CONTROLLERS ---
         function openTermsModal() {
             document.getElementById('termsModal').classList.remove('hidden-view');
         }
@@ -563,7 +595,6 @@
             document.getElementById('termsModal').classList.add('hidden-view');
         }
 
-        // --- PAYMENT MODAL & SUBMISSION ---
         function copyUpiId() {
             navigator.clipboard.writeText(config.upiVpa);
             alert("Showroom UPI VPA copied.");
