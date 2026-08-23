@@ -55,6 +55,9 @@
                 <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                     <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Members Directory</button>
                     <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Pending Approvals</button>
+                    <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-rose-900/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all">
+                        ⚠️ Overdue (Post-20th)
+                    </button>
                     <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
                         + New Member
                     </button>
@@ -216,6 +219,47 @@
                 </div>
             </div>
 
+            <!-- TAB 3: OVERDUE DEFAULTERS (POST-20TH TRACKER) -->
+            <div id="tabContentDefaulters" class="space-view space-y-4 hidden-view">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Overdue Defaulters Tracker</h2>
+                            <span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Joined $\ge$ Jan 2026</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Policy: Installments unpaid past the 20th of the calendar month</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="broadcastRemindersToAll()" id="btnBroadcastAll" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
+                            <span>📢</span> Send WhatsApp Reminder To All
+                        </button>
+                        <button onclick="loadOverdueDefaulters()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2.5 rounded-xl cursor-pointer transition-all shadow-sm">
+                            ↻ Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="text-slate-500 bg-slate-50 border-b border-slate-200">
+                                    <th class="p-4 font-bold uppercase">Member Details</th>
+                                    <th class="p-4 font-bold uppercase">A/C Code</th>
+                                    <th class="p-4 font-bold uppercase">Start Date</th>
+                                    <th class="p-4 font-bold uppercase">Unpaid Months</th>
+                                    <th class="p-4 font-bold uppercase">Total Overdue Amount</th>
+                                    <th class="p-4 font-bold uppercase text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="defaulterTableBody" class="divide-y divide-slate-100">
+                                <tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Click "Refresh" to calculate overdue installments.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -325,13 +369,15 @@
     <script>
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
-            schemeMonths: 11
+            schemeMonths: 11,
+            upiVpa: "8052473033@upi",
+            brandName: "Suman Jewellers"
         };
 
         let currentKmpRole = "PREVIEW";
         let activeSearchResults = [];
         let selectedMemberData = null;
-        let adminSyncTimer = null;
+        let activeDefaultersList = [];
 
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('kmpAuthenticated') === 'true') {
@@ -366,7 +412,6 @@
         }
 
         function logoutKmp() {
-            if (adminSyncTimer) clearInterval(adminSyncTimer);
             sessionStorage.removeItem('kmpAuthenticated');
             sessionStorage.removeItem('kmpRole');
             window.location.reload();
@@ -391,22 +436,25 @@
         }
 
         function switchKmpTab(tab) {
-            const tabMembers = document.getElementById('tabContentMembers');
-            const tabApprovals = document.getElementById('tabContentApprovals');
-            const btnMembers = document.getElementById('tabBtnMembers');
-            const btnApprovals = document.getElementById('tabBtnApprovals');
+            document.getElementById('tabContentMembers').classList.add('hidden-view');
+            document.getElementById('tabContentApprovals').classList.add('hidden-view');
+            document.getElementById('tabContentDefaulters').classList.add('hidden-view');
+
+            document.getElementById('tabBtnMembers').className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
+            document.getElementById('tabBtnApprovals').className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
+            document.getElementById('tabBtnDefaulters').className = "bg-rose-900/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all";
 
             if (tab === 'members') {
-                tabMembers.classList.remove('hidden-view');
-                tabApprovals.classList.add('hidden-view');
-                btnMembers.className = "bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
-                btnApprovals.className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
-            } else {
-                tabMembers.classList.add('hidden-view');
-                tabApprovals.classList.remove('hidden-view');
-                btnApprovals.className = "bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
-                btnMembers.className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
+                document.getElementById('tabContentMembers').classList.remove('hidden-view');
+                document.getElementById('tabBtnMembers').className = "bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
+            } else if (tab === 'approvals') {
+                document.getElementById('tabContentApprovals').classList.remove('hidden-view');
+                document.getElementById('tabBtnApprovals').className = "bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
                 loadKmpPendingApprovals();
+            } else if (tab === 'defaulters') {
+                document.getElementById('tabContentDefaulters').classList.remove('hidden-view');
+                document.getElementById('tabBtnDefaulters').className = "bg-rose-700 text-white border border-rose-600 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all";
+                loadOverdueDefaulters();
             }
         }
 
@@ -879,6 +927,71 @@
                 if (mobileEl) mobileEl.remove();
                 alert("Transaction approved! " + allocatedGrams.toFixed(3) + "g 22K gold successfully allocated.");
                 setTimeout(loadKmpPendingApprovals, 1500);
+            });
+        }
+
+        // --- OVERDUE TRACKER & WHATSAPP REMINDERS ---
+        function loadOverdueDefaulters() {
+            const tbody = document.getElementById('defaulterTableBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Checking payment schedules & cutoff dates...</td></tr>`;
+
+            fetch(`${config.scriptUrl}?action=getOverdueDefaulters&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                if (!res || !res.success || !res.defaulters || res.defaulters.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-700 font-bold bg-emerald-50/50">✨ All clear! No members have overdue installments past the 20th cutoff date.</td></tr>`;
+                    activeDefaultersList = [];
+                    return;
+                }
+
+                activeDefaultersList = res.defaulters;
+                tbody.innerHTML = "";
+
+                res.defaulters.forEach((item, index) => {
+                    const monthsLabel = item.overdueMonths.map(m => `Month ${m}`).join(', ');
+                    const waText = encodeURIComponent(`Dear ${item.name},\n\nThis is a gentle payment reminder from *${config.brandName}* regarding your Golden Rose Magic Scheme (A/C: *${item.acCode}*).\n\nYour installment for *${monthsLabel}* (Due Amount: *₹${item.totalDue.toLocaleString('en-IN')}*) is currently overdue past the 20th policy cutoff date.\n\nPlease complete your payment via UPI to *${config.upiVpa}* or visit our showroom counter to keep your draw eligibility active.\n\nThank you!`);
+                    const waLink = `https://wa.me/91${item.phone}?text=${waText}`;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="p-4 font-semibold text-slate-900">
+                                <div class="font-bold">${item.name}</div>
+                                <div class="text-xs text-slate-500 font-mono">+91 ${item.phone}</div>
+                            </td>
+                            <td class="p-4 font-mono font-bold text-amber-800">${item.acCode}</td>
+                            <td class="p-4 font-mono text-slate-600">${item.doj}</td>
+                            <td class="p-4">
+                                <span class="bg-rose-100 text-rose-800 px-2.5 py-1 rounded-md font-bold text-[11px]">${monthsLabel}</span>
+                            </td>
+                            <td class="p-4 font-mono font-black text-rose-600 text-sm">₹${item.totalDue.toLocaleString('en-IN')}</td>
+                            <td class="p-4 text-center">
+                                <a href="${waLink}" target="_blank" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer">
+                                    <span>💬</span> Send WhatsApp
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(() => {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-600 font-semibold">Error communicating with database.</td></tr>`;
+            });
+        }
+
+        function broadcastRemindersToAll() {
+            if (!activeDefaultersList || activeDefaultersList.length === 0) {
+                return alert("No overdue members to send reminders to.");
+            }
+
+            if (!confirm(`Are you sure you want to initiate WhatsApp payment reminders for ${activeDefaultersList.length} members?`)) return;
+
+            let count = 0;
+            activeDefaultersList.forEach((item, index) => {
+                setTimeout(() => {
+                    const monthsLabel = item.overdueMonths.map(m => `Month ${m}`).join(', ');
+                    const waText = encodeURIComponent(`Dear ${item.name},\n\nThis is a gentle payment reminder from *${config.brandName}* regarding your Golden Rose Magic Scheme (A/C: *${item.acCode}*).\n\nYour installment for *${monthsLabel}* (Due Amount: *₹${item.totalDue.toLocaleString('en-IN')}*) is currently overdue past the 20th policy cutoff date.\n\nPlease complete your payment via UPI to *${config.upiVpa}* or visit our showroom counter to keep your draw eligibility active.\n\nThank you!`);
+                    window.open(`https://wa.me/91${item.phone}?text=${waText}`, '_blank');
+                }, index * 800); // 800ms throttle between browser popups
             });
         }
     </script>
