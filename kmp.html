@@ -981,7 +981,7 @@
                 return alert("No overdue members to notify.");
             }
 
-            if (!confirm(`Dispatch automated background reminder emails to all ${activeDefaultersList.length} overdue members via digitalsolutionofindia@gmail.com?`)) return;
+            if (!confirm(`Dispatch automated consolidated reminder emails with unified QR codes to all ${activeDefaultersList.length} overdue accounts via digitalsolutionofindia@gmail.com?`)) return;
 
             const btn = document.getElementById('btnBulkEmail');
             btn.innerText = "📧 Sending Bulk Emails...";
@@ -994,7 +994,7 @@
                 btn.disabled = false;
 
                 if (res && res.success) {
-                    alert(`✅ Bulk Email Dispatch Complete!\n\n• Successfully Sent: ${res.sentCount} emails\n• Skipped (No valid email registered): ${res.skippedNoEmail}`);
+                    alert(`✅ Bulk Email Dispatch Complete!\n\n• Successfully Sent: ${res.sentCount} consolidated emails\n• Skipped (No registered email): ${res.skippedNoEmail}`);
                 } else {
                     alert("Error sending emails: " + (res.error || "Unknown error"));
                 }
