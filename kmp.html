@@ -56,7 +56,7 @@
                     <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Members Directory</button>
                     <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Pending Approvals</button>
                     <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-rose-900/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all">
-                    Overdue (Post-20th)
+                        ⚠️ Overdue (Post-20th)
                     </button>
                     <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
                         + New Member
@@ -227,11 +227,11 @@
                             <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Overdue Defaulters Tracker</h2>
                             <span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Joined $\ge$ Jan 2026</span>
                         </div>
-                        <p class="text-xs text-slate-500 mt-0.5">Policy: Installments unpaid past the 20th of the calendar month</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Policy: Installments unpaid past the 20th cutoff date</p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="broadcastRemindersToAll()" id="btnBroadcastAll" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
-                            <span>📢</span> Send WhatsApp Reminder To All
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="sendBulkEmailReminders()" id="btnBulkEmail" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
+                            <span>📧</span> Send Bulk Email Reminders
                         </button>
                         <button onclick="loadOverdueDefaulters()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2.5 rounded-xl cursor-pointer transition-all shadow-sm">
                             ↻ Refresh
@@ -564,7 +564,6 @@
                 document.getElementById('viewTotalGoldGrams').innerText = `${totalGoldWeight.toFixed(3)} g`;
                 document.getElementById('viewPaidRatio').innerText = `${paidMonths} / ${config.schemeMonths} Complete`;
 
-                // Maturity Calculation
                 const mAmount = Number(member.monthlyAmount) || 0;
                 let fullPrincipal = 11 * mAmount;
                 let maturityVal = 0;
@@ -580,7 +579,6 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
-                // 11 Months Grid with Gold Details
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let record = userTxs.find(t => Number(t.month) === m);
 
@@ -930,7 +928,7 @@
             });
         }
 
-        // --- OVERDUE TRACKER & WHATSAPP REMINDERS ---
+        // --- OVERDUE TRACKER, BULK EMAIL & INDIVIDUAL WHATSAPP ---
         function loadOverdueDefaulters() {
             const tbody = document.getElementById('defaulterTableBody');
             tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Checking payment schedules & cutoff dates...</td></tr>`;
@@ -947,7 +945,7 @@
                 activeDefaultersList = res.defaulters;
                 tbody.innerHTML = "";
 
-                res.defaulters.forEach((item, index) => {
+                res.defaulters.forEach(item => {
                     const monthsLabel = item.overdueMonths.map(m => `Month ${m}`).join(', ');
                     const waText = encodeURIComponent(`Dear ${item.name},\n\nThis is a gentle payment reminder from *${config.brandName}* regarding your Golden Rose Magic Scheme (A/C: *${item.acCode}*).\n\nYour installment for *${monthsLabel}* (Due Amount: *₹${item.totalDue.toLocaleString('en-IN')}*) is currently overdue past the 20th policy cutoff date.\n\nPlease complete your payment via UPI to *${config.upiVpa}* or visit our showroom counter to keep your draw eligibility active.\n\nThank you!`);
                     const waLink = `https://wa.me/91${item.phone}?text=${waText}`;
@@ -978,20 +976,33 @@
             });
         }
 
-        function broadcastRemindersToAll() {
+        function sendBulkEmailReminders() {
             if (!activeDefaultersList || activeDefaultersList.length === 0) {
-                return alert("No overdue members to send reminders to.");
+                return alert("No overdue members to notify.");
             }
 
-            if (!confirm(`Are you sure you want to initiate WhatsApp payment reminders for ${activeDefaultersList.length} members?`)) return;
+            if (!confirm(`Dispatch automated background reminder emails to all ${activeDefaultersList.length} overdue members via digitalsolutionofindia@gmail.com?`)) return;
 
-            let count = 0;
-            activeDefaultersList.forEach((item, index) => {
-                setTimeout(() => {
-                    const monthsLabel = item.overdueMonths.map(m => `Month ${m}`).join(', ');
-                    const waText = encodeURIComponent(`Dear ${item.name},\n\nThis is a gentle payment reminder from *${config.brandName}* regarding your Golden Rose Magic Scheme (A/C: *${item.acCode}*).\n\nYour installment for *${monthsLabel}* (Due Amount: *₹${item.totalDue.toLocaleString('en-IN')}*) is currently overdue past the 20th policy cutoff date.\n\nPlease complete your payment via UPI to *${config.upiVpa}* or visit our showroom counter to keep your draw eligibility active.\n\nThank you!`);
-                    window.open(`https://wa.me/91${item.phone}?text=${waText}`, '_blank');
-                }, index * 800); // 800ms throttle between browser popups
+            const btn = document.getElementById('btnBulkEmail');
+            btn.innerText = "📧 Sending Bulk Emails...";
+            btn.disabled = true;
+
+            fetch(`${config.scriptUrl}?action=sendBulkOverdueEmails&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                btn.innerText = "📧 Send Bulk Email Reminders";
+                btn.disabled = false;
+
+                if (res && res.success) {
+                    alert(`✅ Bulk Email Dispatch Complete!\n\n• Successfully Sent: ${res.sentCount} emails\n• Skipped (No valid email registered): ${res.skippedNoEmail}`);
+                } else {
+                    alert("Error sending emails: " + (res.error || "Unknown error"));
+                }
+            })
+            .catch(() => {
+                btn.innerText = "📧 Send Bulk Email Reminders";
+                btn.disabled = false;
+                alert("Server communication error during email dispatch.");
             });
         }
     </script>
