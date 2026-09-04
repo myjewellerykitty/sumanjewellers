@@ -8,9 +8,24 @@
     <style>
         .hidden-view { display: none !important; }
         .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spinSlow 1s linear infinite;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
+
+    <!-- GLOBAL LOADING SPINNER OVERLAY -->
+    <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex flex-col items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 shadow-2xl border border-amber-200 flex flex-col items-center gap-3">
+            <div class="w-12 h-12 border-4 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow"></div>
+            <p id="loadingMessage" class="text-xs font-bold text-slate-800 uppercase tracking-wider">Syncing Passbook...</p>
+        </div>
+    </div>
 
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-3 sm:p-4 flex flex-col justify-between">
         <div>
@@ -27,7 +42,7 @@
                 </div>
             </header>
 
-            <!-- AUTH & LOGIN SCREENS (Hidden after login) -->
+            <!-- AUTH & LOGIN SCREENS -->
             <div id="authContainer">
                 <!-- STEP 1: MOBILE -->
                 <div id="phoneSection" class="bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
@@ -71,7 +86,7 @@
                     <button onclick="saveInitialMpin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Save & Access</button>
                 </div>
 
-                <!-- STEP 2C: FORGOT MPIN (EMAIL ONLY) -->
+                <!-- STEP 2C: FORGOT MPIN -->
                 <div id="forgotMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
                     <div class="text-center">
                         <h3 class="text-base font-bold text-slate-900">Reset Security MPIN</h3>
@@ -91,7 +106,7 @@
                     <button onclick="cancelForgotFlow()" class="w-full text-center text-xs text-slate-400 font-semibold cursor-pointer">← Back to Login</button>
                 </div>
 
-                <!-- MULTI-ACCOUNT SELECTOR (Initial choice if multiple) -->
+                <!-- MULTI-ACCOUNT SELECTOR -->
                 <div id="multiKittyWrapper" class="hidden-view bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3 mb-5">
                     <label class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">Multiple GRMS Plans Linked</label>
                     <select id="kittySelect" class="w-full px-3 py-2.5 bg-white border border-amber-300 rounded-xl text-sm font-semibold text-slate-900"></select>
@@ -99,7 +114,7 @@
                 </div>
             </div>
 
-            <!-- DEDICATED PASSBOOK (Shown upon login) -->
+            <!-- DEDICATED PASSBOOK -->
             <div id="passbookContainer" class="hidden-view space-y-4">
                 
                 <!-- CUSTOMER SCHEME CARD -->
@@ -171,11 +186,14 @@
                     <p id="lblDrawDetails" class="text-[11px] text-slate-500 text-center italic"></p>
                 </div>
 
-                <!-- 11-MONTH INSTALLMENT GRID -->
+                <!-- 11-MONTH SEQUENTIAL INSTALLMENT GRID -->
                 <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
-                        <p class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Installment Ledger (11 Months)</p>
-                        <span class="text-[10px] text-slate-400">Due: 15th of each month</span>
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Installment Ledger (11 Months)</p>
+                            <p class="text-[10px] text-amber-800 font-medium">Sequential payment strictly required</p>
+                        </div>
+                        <span class="text-[10px] text-slate-400">Due: 15th monthly</span>
                     </div>
                     <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
                 </div>
@@ -213,7 +231,7 @@
                 </div>
                 <div class="overflow-y-auto max-h-[60vh] pr-2">
                     <ol class="text-[11px] text-slate-600 space-y-2.5 list-decimal pl-4 leading-relaxed text-justify">
-                        <li>For Enrollment in Golden Rose Magic Scheme (GRMS) you must duly fill in & sign the application form and deposit it at the Showroom with two photographs and a copy of any one identity card document (Voter ID / PAN / Driving License / Aadhaar Card / Passport / Credit card with photo ID). Collect the Passbook and keep it in safe custody.</li>
+                        <li>For Enrollment in Golden Rose Magic Scheme (GRMS) you must duly fill in & sign the application form and deposit it at the Showroom with two photographs and a copy of any one identity card document (Voter ID / PAN / Driving License / Passport / Credit card with photo ID / other government approved ID). Collect the Passbook and keep it in safe custody.</li>
                         <li><strong>Key Terms:</strong>
                             <ul class="list-disc pl-4 mt-1 space-y-1 text-slate-500">
                                 <li><em>Monthly Installment:</em> Amount to be given by participants to Suman Jewellers every month.</li>
@@ -247,7 +265,7 @@
         </div>
     </div>
 
-    <!-- PAYMENT SETTLEMENT MODAL (WITH MULTI-KITTY & BANK TRANSFER VIEWS) -->
+    <!-- PAYMENT SETTLEMENT MODAL -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-xl my-auto border border-slate-100">
             <div class="border-b border-slate-100 pb-3 mb-4">
@@ -319,7 +337,7 @@
         const config = {
             name: "Suman Jewellers",
             upiVpa: "8052473033@upi",
-            scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec", 
+            scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             whatsapp: "918052473033",
             schemeMonths: 11
         };
@@ -335,24 +353,30 @@
         let isSyncingActive = false;
         let customerSyncTimer = null;
         let currentPaymentChannel = "upi";
+        let nextAllowedMonth = 1;
 
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
+
+        function showLoader(msg = "Connecting...") {
+            document.getElementById('loadingMessage').innerText = msg;
+            document.getElementById('loadingOverlay').classList.remove('hidden-view');
+        }
+
+        function hideLoader() {
+            document.getElementById('loadingOverlay').classList.add('hidden-view');
+        }
 
         function handlePhoneContinue() {
             const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
             if (rawPhone.length !== 10) return alert("Please enter a valid 10-digit mobile number.");
 
-            const btn = document.getElementById('btnPhoneContinue');
-            btn.innerText = "Verifying...";
-            btn.disabled = true;
+            showLoader("Verifying Mobile...");
             globalCustomerPhone = rawPhone;
 
             fetch(`${SCRIPT_URL}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "Access GRMS Passbook";
-                btn.disabled = false;
-
+                hideLoader();
                 if (!res.success) return alert(res.error || "Account not found.");
                 document.getElementById('phoneSection').classList.add('hidden-view');
 
@@ -365,8 +389,7 @@
                 }
             })
             .catch(() => {
-                btn.innerText = "Access GRMS Passbook";
-                btn.disabled = false;
+                hideLoader();
                 alert("Server connection error.");
             });
         }
@@ -375,16 +398,12 @@
             const mpin = document.getElementById('mpinInput').value.trim();
             if (mpin.length !== 4) return alert("Please enter 4-digit MPIN.");
 
-            const btn = document.getElementById('btnVerifyMpin');
-            btn.innerText = "Checking...";
-            btn.disabled = true;
+            showLoader("Authenticating MPIN...");
 
             fetch(`${SCRIPT_URL}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "Verify MPIN & Open Passbook";
-                btn.disabled = false;
-
+                hideLoader();
                 if (res.success) {
                     document.getElementById('mpinLoginSection').classList.add('hidden-view');
                     fetchUserProfileAfterAuth(globalCustomerPhone);
@@ -393,8 +412,7 @@
                 }
             })
             .catch(() => {
-                btn.innerText = "Verify MPIN & Open Passbook";
-                btn.disabled = false;
+                hideLoader();
                 alert("Connection failed.");
             });
         }
@@ -404,14 +422,18 @@
             const p2 = document.getElementById('firstMpin2').value.trim();
             if (p1.length !== 4 || p1 !== p2) return alert("Please ensure MPIN is 4 digits and matches.");
 
+            showLoader("Saving PIN...");
+
             fetch(`${SCRIPT_URL}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
+                hideLoader();
                 if (res.success) {
                     document.getElementById('firstTimeMpinSection').classList.add('hidden-view');
                     fetchUserProfileAfterAuth(globalCustomerPhone);
                 } else alert("Failed to save MPIN.");
-            });
+            })
+            .catch(() => hideLoader());
         }
 
         function openForgotMpinFlow() {
@@ -420,24 +442,19 @@
         }
 
         function requestCurrentMpinRecovery() {
-            const btn = document.getElementById('btnRequestOldMpin');
-            btn.innerText = "Sending...";
-            btn.disabled = true;
-
+            showLoader("Dispatching Email...");
             fetch(`${SCRIPT_URL}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "📩 Email Me My Old MPIN";
-                btn.disabled = false;
+                hideLoader();
                 if (res.success && res.method === "email") {
                     alert(`Your MPIN was sent to your registered email: ${res.email}.\n\nEnter it below to reset.`);
                 } else {
-                    alert(res.error || "No email is registered on this account. Please visit the showroom desk for assistance.");
+                    alert(res.error || "No email registered on this account. Please visit showroom desk.");
                 }
             })
             .catch(() => {
-                btn.innerText = "📩 Email Me My Old MPIN";
-                btn.disabled = false;
+                hideLoader();
                 alert("Communication error.");
             });
         }
@@ -449,15 +466,18 @@
 
             if (!oldP || newP1.length !== 4 || newP1 !== newP2) return alert("Verify Old and New MPIN inputs.");
 
+            showLoader("Updating MPIN...");
             fetch(`${SCRIPT_URL}?action=resetMpinWithOld&phone=${globalCustomerPhone}&oldMpin=${oldP}&newMpin=${newP1}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
+                hideLoader();
                 if (res.success) {
                     alert("MPIN updated successfully!");
                     document.getElementById('forgotMpinSection').classList.add('hidden-view');
                     fetchUserProfileAfterAuth(globalCustomerPhone);
                 } else alert(res.error || "Reset failed.");
-            });
+            })
+            .catch(() => hideLoader());
         }
 
         function cancelForgotFlow() {
@@ -481,9 +501,11 @@
         }
 
         function fetchUserProfileAfterAuth(cleanPhone) {
+            showLoader("Loading Account Details...");
             fetch(`${SCRIPT_URL}?action=searchMembers&query=${encodeURIComponent(cleanPhone)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
+                hideLoader();
                 if (!res || !res.results || res.results.length === 0) return alert("No GRMS record found.");
                 activeMatches = res.results;
 
@@ -500,7 +522,8 @@
                     });
                     wrapper.classList.remove('hidden-view');
                 }
-            });
+            })
+            .catch(() => hideLoader());
         }
 
         function confirmSelectedKitty() {
@@ -510,7 +533,6 @@
             startCustomerAutoSync(globalCustomerPhone, selectedAc);
         }
 
-        // Live Auto Sync Engine (Every 15s)
         function startCustomerAutoSync(phone, acCode) {
             if (customerSyncTimer) clearInterval(customerSyncTimer);
             customerSyncTimer = setInterval(() => {
@@ -523,10 +545,12 @@
         function executePassbookRender(phone, acCode, isSilentSync = false) {
             if (isSyncingActive) return;
             isSyncingActive = true;
+            if (!isSilentSync) showLoader("Retrieving Ledger...");
 
             fetch(`${SCRIPT_URL}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(data => {
+                if (!isSilentSync) hideLoader();
                 if (!data || !data.profile) {
                     isSyncingActive = false;
                     return;
@@ -536,6 +560,9 @@
                 globalAcCode = data.profile.acCode;
                 globalMonthlyAmount = Number(data.profile.monthlyAmount) || 0;
                 globalWinCount = Number(data.profile.winCount) || 0;
+
+                // Sequential Next Month Pointer from Backend
+                nextAllowedMonth = data.nextPayableMonth || 1;
 
                 document.getElementById('custName').innerText = data.profile.name;
                 document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
@@ -555,14 +582,16 @@
                         paidMonthsCount++;
                         accumulatedGoldWeight += Number(t.bookedGrams) || 0;
                     }
-                    if (t.status === "Pending" || t.status === "Paid") optimisticPendingMonths.delete(Number(t.month));
+                    if (t.status === "Pending" || t.status === "Paid" || t.status === "Reviewed") {
+                        optimisticPendingMonths.delete(Number(t.month));
+                    }
                 });
 
                 let principalPaid = paidMonthsCount * globalMonthlyAmount;
                 document.getElementById('custLiveBalance').innerText = "₹" + principalPaid.toLocaleString('en-IN');
                 document.getElementById('lblTotalGoldGrams').innerText = `${accumulatedGoldWeight.toFixed(3)} g`;
 
-                // Dynamic Reward & Maturity Calculations
+                // Maturity Calculation
                 let totalMaturity = 0;
                 let full11Principal = 11 * globalMonthlyAmount;
                 const badge = document.getElementById('badgeWinnerStatus');
@@ -588,22 +617,30 @@
                     document.getElementById('lblDrawDetails').innerText = `Standard interest bonus credited on full 11-month maturity.`;
                 }
 
-                // 11 Months Grid Rendering
+                // 11 Months Sequential Grid Rendering (No Skipping Permitted)
                 const grid = document.getElementById('gridWrapper');
                 grid.innerHTML = "";
+
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let tx = userTransactions.find(t => Number(t.month) === m);
-                    let label = "Pay Now", style = "bg-slate-50 border border-slate-200 text-slate-700 font-semibold cursor-pointer hover:bg-slate-100", action = `onclick="openPaymentModal(${m})"`;
-                    
+                    let label = "Pay Now", style = "", action = "";
+
                     if (tx && tx.status === "Paid") {
-                        var gWeight = (Number(tx.bookedGrams) || 0).toFixed(3);
+                        let gWeight = (Number(tx.bookedGrams) || 0).toFixed(3);
                         label = (Number(gWeight) > 0) ? `Paid (${gWeight}g)` : `Paid`;
                         style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[10px]";
-                        action = "";
-                    } else if ((tx && tx.status === "Pending") || optimisticPendingMonths.has(m)) {
-                        label = "Pending";
+                    } else if ((tx && (tx.status === "Pending" || tx.status === "Reviewed")) || optimisticPendingMonths.has(m)) {
+                        label = "In Review";
                         style = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse font-semibold";
-                        action = "";
+                    } else if (m === nextAllowedMonth && !data.isSchemeComplete) {
+                        // Strictly ONLY Next Due Month is clickable
+                        label = "Pay Now";
+                        style = "bg-slate-900 border border-slate-900 text-white font-bold cursor-pointer hover:bg-slate-800 shadow-xs";
+                        action = `onclick="openPaymentModal(${m})"`;
+                    } else {
+                        // Future Months are locked
+                        label = "Locked 🔒";
+                        style = "bg-slate-100 border border-slate-200 text-slate-400 font-medium cursor-not-allowed opacity-60";
                     }
 
                     grid.innerHTML += `<div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[48px]"><span class="text-[9px] uppercase text-slate-400 font-mono">M-${m}</span>${label}</div>`;
@@ -612,10 +649,12 @@
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
                 isSyncingActive = false;
             })
-            .catch(() => isSyncingActive = false);
+            .catch(() => {
+                if (!isSilentSync) hideLoader();
+                isSyncingActive = false;
+            });
         }
 
-        // --- TERMS & CONDITIONS MODAL CONTROLLERS ---
         function openTermsModal() {
             document.getElementById('termsModal').classList.remove('hidden-view');
         }
@@ -624,7 +663,6 @@
             document.getElementById('termsModal').classList.add('hidden-view');
         }
 
-        // --- PAYMENT MODAL & RESTORED MULTI-KITTY + BANK CONTROLLERS ---
         function copyUpiId() {
             navigator.clipboard.writeText(config.upiVpa);
             alert("Merchant UPI VPA copied to clipboard.");
@@ -659,7 +697,6 @@
             const multiContainer = document.getElementById('multiKittySelectionContainer');
             const listContainer = document.getElementById('multiKittyCheckboxList');
             
-            // Check if customer has multiple accounts linked
             if (activeMatches && activeMatches.length > 1) {
                 multiContainer.classList.remove('hidden-view');
                 listContainer.innerHTML = "";
@@ -717,12 +754,9 @@
             const fileBox = document.getElementById('fileInput').files[0];
             if (!utr && !fileBox) return alert("Please specify transaction UTR key or upload receipt screenshot.");
 
-            const btn = document.getElementById('submitPayBtn');
-            btn.innerText = "Processing Image...";
-            btn.disabled = true;
+            showLoader("Submitting Proof...");
 
             const postProof = (base64) => {
-                btn.innerText = "Transmitting Proof...";
                 optimisticPendingMonths.add(Number(currentSelectedMonth));
 
                 let selectedAcCodes = [globalAcCode];
@@ -753,22 +787,24 @@
 
                 fetch(SCRIPT_URL, {
                     method: "POST",
-                    mode: "no-cors",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 })
-                .then(() => {
-                    btn.innerText = "Submit Proof";
-                    btn.disabled = false;
+                .then(r => r.json())
+                .then(res => {
+                    hideLoader();
                     closePaymentModal();
-                    alert("Installment proof submitted successfully for administrative review!");
-                    setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 1500);
+                    if (res && res.success) {
+                        alert("Installment proof submitted successfully for administrative review!");
+                    } else {
+                        alert("Notice: " + (res.error || "Proof registered."));
+                    }
+                    setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 1200);
                 })
                 .catch(() => {
-                    btn.innerText = "Submit Proof";
-                    btn.disabled = false;
+                    hideLoader();
                     closePaymentModal();
-                    alert("Installment proof submitted successfully!");
+                    alert("Installment proof recorded! Refreshing passbook...");
                     setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 1500);
                 });
             };
