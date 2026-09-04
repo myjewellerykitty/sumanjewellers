@@ -7,9 +7,24 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spinSlow 1s linear infinite;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
+
+    <!-- GLOBAL LOADING SPINNER -->
+    <div id="kmpLoader" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex flex-col items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 shadow-2xl border border-amber-200 flex flex-col items-center gap-3">
+            <div class="w-12 h-12 border-4 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow"></div>
+            <p id="kmpLoaderMsg" class="text-xs font-bold text-slate-800 uppercase tracking-wider">Processing Database...</p>
+        </div>
+    </div>
 
     <!-- LOGIN SCREEN -->
     <div id="kmpLoginView" class="max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
@@ -19,22 +34,19 @@
                 <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">KMP Showroom Desk</h2>
                 <p class="text-xs text-amber-800 font-semibold mt-0.5">Golden Rose Magic Scheme Console</p>
             </div>
-            <div class="space-y-4">
+            <form onsubmit="handleKmpLogin(event)" class="space-y-4">
                 <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Access Role Mode</label>
-                    <select id="kmpRoleSelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none text-slate-800">
-                        <option value="PREVIEW">Viewer Admin (Read-Only Preview Access)</option>
-                        <option value="APPROVE">Super Admin (Full Read-Write Approval Controls)</option>
-                    </select>
+                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Staff / Admin Username</label>
+                    <input type="text" id="kmpUserInput" required placeholder="e.g. Admin, Mohit, Priya" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 focus:outline-none font-semibold">
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Security Master Key</label>
-                    <input type="password" id="kmpPassInput" placeholder="Enter Role Password" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 focus:outline-none">
+                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Security PIN</label>
+                    <input type="password" id="kmpPassInput" required placeholder="Enter 4-Digit Security PIN" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 focus:outline-none font-mono">
                 </div>
-                <button onclick="handleKmpLogin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-[0.98]">
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-[0.98]">
                     Sign In To Console
                 </button>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -49,14 +61,17 @@
                             <h1 class="text-base font-bold tracking-tight uppercase">Golden Rose Magic Desk</h1>
                             <span id="kmpRoleBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded">Checking...</span>
                         </div>
-                        <p class="text-xs text-slate-400">Suman Jewellers Master Operational Console (11 Months)</p>
+                        <p class="text-xs text-slate-400">Logged in as: <strong id="lblActiveUser" class="text-amber-400 font-mono">Admin</strong></p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                     <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Members Directory</button>
                     <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Pending Approvals</button>
                     <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-rose-900/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all">
-                        ⚠️ Overdue (Post-20th)
+                        ⚠️ Overdue
+                    </button>
+                    <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-indigo-900/40 hover:bg-indigo-900/60 text-indigo-300 border border-indigo-800/50 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all">
+                        👥 Staff Access (RBAC)
                     </button>
                     <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
                         + New Member
@@ -86,12 +101,11 @@
 
                     <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
                         <p class="text-xs font-bold text-amber-900 uppercase">Multiple GRMS Plans Linked</p>
-                        <p class="text-xs text-amber-800">Select active Account to inspect:</p>
                         <div id="kittySelectionPills" class="flex flex-wrap gap-2 pt-1"></div>
                     </div>
                 </section>
 
-                <!-- ACTIVE MEMBER PROFILE & 11-MONTH LEDGER -->
+                <!-- ACTIVE MEMBER PROFILE & LEDGER -->
                 <section id="memberProfileSection" class="hidden-view space-y-6">
                     <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-sm border border-slate-800 relative overflow-hidden">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-4">
@@ -104,7 +118,6 @@
                                 <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <!-- Lucky Winner Selector -->
                                 <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-1 text-xs">
                                     <span class="text-[10px] font-bold text-amber-400 uppercase px-2">Draw Wins:</span>
                                     <select id="selWinCount" class="bg-slate-900 text-white border border-slate-700 rounded-lg text-xs font-bold px-2 py-1.5 focus:outline-none">
@@ -185,12 +198,12 @@
                 </section>
             </div>
 
-            <!-- TAB 2: PENDING APPROVALS -->
+            <!-- TAB 2: PENDING APPROVALS WITH 2-STEP WORKFLOW -->
             <div id="tabContentApprovals" class="space-view space-y-4 hidden-view">
                 <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                     <div>
                         <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Pending Payment Verifications</h2>
-                        <p class="text-xs text-slate-500">Approve payments and lock live 22K gold rates</p>
+                        <p class="text-xs text-slate-500">Multi-tier validation: Staff review gold rate $\rightarrow$ Admin posts final credit</p>
                     </div>
                     <button onclick="loadKmpPendingApprovals()" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer transition-all active:scale-95 shadow-sm">
                         <span>↻</span> Refresh Queue
@@ -198,7 +211,7 @@
                 </div>
 
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="hidden md:block overflow-x-auto">
+                    <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="text-xs font-semibold text-slate-500 bg-slate-50 border-b border-slate-200">
@@ -206,20 +219,20 @@
                                     <th class="p-4">A/C Code & Token</th>
                                     <th class="p-4">Month</th>
                                     <th class="p-4">Deposit Amount</th>
+                                    <th class="p-4">Status & Calculation</th>
                                     <th class="p-4">UTR Reference / Slip</th>
-                                    <th class="p-4 text-center">Action</th>
+                                    <th class="p-4 text-center">Action Controls</th>
                                 </tr>
                             </thead>
                             <tbody id="kmpApprovalTableBody" class="divide-y divide-slate-100 text-sm">
-                                <tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Click "Refresh Queue" to load records.</td></tr>
+                                <tr><td colspan="7" class="p-8 text-center text-slate-400 italic">Click "Refresh Queue" to load records.</td></tr>
                             </tbody>
                         </table>
                     </div>
-                    <div id="kmpApprovalMobileCards" class="block md:hidden p-4 space-y-4 bg-slate-50"></div>
                 </div>
             </div>
 
-            <!-- TAB 3: OVERDUE DEFAULTERS (POST-20TH TRACKER) -->
+            <!-- TAB 3: OVERDUE DEFAULTERS -->
             <div id="tabContentDefaulters" class="space-view space-y-4 hidden-view">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm gap-3">
                     <div>
@@ -260,10 +273,84 @@
                 </div>
             </div>
 
+            <!-- TAB 4: STAFF PERMISSIONS MANAGEMENT (ADMIN ONLY) -->
+            <div id="tabContentUsers" class="space-view space-y-4 hidden-view">
+                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Staff Role-Based Access Control (RBAC)</h2>
+                        <p class="text-xs text-slate-500">Configure permission privileges for Mohit, Priya, and counter teams</p>
+                    </div>
+                    <button onclick="openUserEditModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer shadow-sm">
+                        + Add Staff User
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="text-slate-500 bg-slate-50 border-b border-slate-200">
+                                    <th class="p-4 font-bold uppercase">User</th>
+                                    <th class="p-4 font-bold uppercase">Role</th>
+                                    <th class="p-4 font-bold uppercase">Rate Review</th>
+                                    <th class="p-4 font-bold uppercase">Final Ledger Sign-off</th>
+                                    <th class="p-4 font-bold uppercase">Bypass 2SV</th>
+                                    <th class="p-4 font-bold uppercase">Status</th>
+                                    <th class="p-4 font-bold uppercase text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <!-- MODAL 1: REGISTER NEW GRMS MEMBER -->
+    <!-- MODAL: ADD / EDIT STAFF USER -->
+    <div id="userModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-200">
+            <h3 id="userModalTitle" class="text-base font-bold text-slate-900 mb-4">Edit Staff Credentials & Access</h3>
+            <form onsubmit="saveStaffUser(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="font-bold text-slate-600 block mb-1">Username</label>
+                    <input type="text" id="usrNameInput" required class="w-full px-3 py-2 border rounded-lg font-semibold">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-600 block mb-1">Security PIN</label>
+                    <input type="password" id="usrPinInput" required maxlength="6" class="w-full px-3 py-2 border rounded-lg font-mono">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-600 block mb-1">Role Type</label>
+                    <select id="usrRoleInput" class="w-full px-3 py-2 border rounded-lg font-semibold">
+                        <option value="Staff">Staff</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <div class="space-y-2 pt-2 border-t">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" id="usrCanApprove" class="rounded">
+                        <span class="font-semibold text-slate-700">Can Review Payments & Input Gold Rate</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" id="usrCanFinalApprove" class="rounded">
+                        <span class="font-semibold text-slate-700">Can Perform Final Sign-Off & Credit Ledger</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" id="usrBypass2SV" class="rounded">
+                        <span class="font-semibold text-slate-700">Bypass 2-Step Verification PIN on Approvals</span>
+                    </label>
+                </div>
+                <div class="flex gap-2 pt-3">
+                    <button type="button" onclick="closeUserModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-xl font-semibold cursor-pointer">Cancel</button>
+                    <button type="submit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl font-semibold cursor-pointer">Save Privileges</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTER NEW GRMS MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -319,7 +406,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: MANUAL COUNTER DEPOSIT WITH GOLD ALLOCATION -->
+    <!-- MODAL: MANUAL COUNTER DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
@@ -374,113 +461,112 @@
             brandName: "Suman Jewellers"
         };
 
-        let currentKmpRole = "PREVIEW";
+        let sessionUser = null;
         let activeSearchResults = [];
         let selectedMemberData = null;
         let activeDefaultersList = [];
 
+        function showLoader(msg = "Processing...") {
+            document.getElementById('kmpLoaderMsg').innerText = msg;
+            document.getElementById('kmpLoader').classList.remove('hidden-view');
+        }
+
+        function hideLoader() {
+            document.getElementById('kmpLoader').classList.add('hidden-view');
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem('kmpAuthenticated') === 'true') {
-                currentKmpRole = sessionStorage.getItem('kmpRole') || "PREVIEW";
-                setupKmpRoleUI();
+            const stored = sessionStorage.getItem('kmpUserSession');
+            if (stored) {
+                sessionUser = JSON.parse(stored);
+                renderUserUI();
                 document.getElementById('kmpLoginView').classList.add('hidden-view');
                 document.getElementById('kmpMainView').classList.remove('hidden-view');
             }
         });
 
-        function handleKmpLogin() {
-            const role = document.getElementById('kmpRoleSelect').value;
-            const pass = document.getElementById('kmpPassInput').value.trim();
+        function handleKmpLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('kmpUserInput').value.trim();
+            const pin = document.getElementById('kmpPassInput').value.trim();
 
-            if (role === "PREVIEW" && pass === "ADMIN") {
-                sessionStorage.setItem('kmpAuthenticated', 'true');
-                sessionStorage.setItem('kmpRole', 'PREVIEW');
-                currentKmpRole = "PREVIEW";
-                setupKmpRoleUI();
-                document.getElementById('kmpLoginView').classList.add('hidden-view');
-                document.getElementById('kmpMainView').classList.remove('hidden-view');
-            } else if (role === "APPROVE" && pass === "1234") {
-                sessionStorage.setItem('kmpAuthenticated', 'true');
-                sessionStorage.setItem('kmpRole', 'APPROVE');
-                currentKmpRole = "APPROVE";
-                setupKmpRoleUI();
-                document.getElementById('kmpLoginView').classList.add('hidden-view');
-                document.getElementById('kmpMainView').classList.remove('hidden-view');
-            } else {
-                alert("Authentication Failure: Invalid security master key.");
-            }
+            showLoader("Authenticating Staff...");
+
+            fetch(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                hideLoader();
+                if (res.success && res.user) {
+                    sessionUser = res.user;
+                    sessionUser.pin = pin; // Cached for auth headers
+                    sessionStorage.setItem('kmpUserSession', JSON.stringify(sessionUser));
+                    renderUserUI();
+                    document.getElementById('kmpLoginView').classList.add('hidden-view');
+                    document.getElementById('kmpMainView').classList.remove('hidden-view');
+                } else {
+                    alert(res.error || "Login Failed: Invalid credentials.");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                alert("Network communication failure.");
+            });
         }
 
         function logoutKmp() {
-            sessionStorage.removeItem('kmpAuthenticated');
-            sessionStorage.removeItem('kmpRole');
+            sessionStorage.removeItem('kmpUserSession');
             window.location.reload();
         }
 
-        function setupKmpRoleUI() {
+        function renderUserUI() {
+            document.getElementById('lblActiveUser').innerText = sessionUser.username;
             const badge = document.getElementById('kmpRoleBadge');
-            const isSuper = currentKmpRole === "APPROVE";
-            if (isSuper) {
-                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
-                badge.innerText = "Super Admin";
-                if (document.getElementById('btnTopAddMember')) document.getElementById('btnTopAddMember').classList.remove('hidden-view');
-                if (document.getElementById('btnActionDeposit')) document.getElementById('btnActionDeposit').classList.remove('hidden-view');
-                if (document.getElementById('btnActionDelete')) document.getElementById('btnActionDelete').classList.remove('hidden-view');
+            badge.innerText = sessionUser.role;
+
+            if (sessionUser.role === "Admin") {
+                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-400 text-slate-950";
+                document.getElementById('tabBtnUsers').classList.remove('hidden-view');
+                document.getElementById('btnTopAddMember').classList.remove('hidden-view');
             } else {
-                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600";
-                badge.innerText = "Viewer Admin (Read-Only)";
-                if (document.getElementById('btnTopAddMember')) document.getElementById('btnTopAddMember').classList.add('hidden-view');
-                if (document.getElementById('btnActionDeposit')) document.getElementById('btnActionDeposit').classList.add('hidden-view');
-                if (document.getElementById('btnActionDelete')) document.getElementById('btnActionDelete').classList.add('hidden-view');
+                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-700 text-slate-300";
+                document.getElementById('tabBtnUsers').classList.add('hidden-view');
             }
         }
 
         function switchKmpTab(tab) {
-            document.getElementById('tabContentMembers').classList.add('hidden-view');
-            document.getElementById('tabContentApprovals').classList.add('hidden-view');
-            document.getElementById('tabContentDefaulters').classList.add('hidden-view');
+            ['Members', 'Approvals', 'Defaulters', 'Users'].forEach(t => {
+                const el = document.getElementById('tabContent' + t);
+                const btn = document.getElementById('tabBtn' + t);
+                if (el) el.classList.add('hidden-view');
+                if (btn) btn.className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
+            });
 
-            document.getElementById('tabBtnMembers').className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
-            document.getElementById('tabBtnApprovals').className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
-            document.getElementById('tabBtnDefaulters').className = "bg-rose-900/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all";
+            const activeContent = document.getElementById('tabContent' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
+            if (activeContent) activeContent.classList.remove('hidden-view');
+            if (activeBtn) activeBtn.className = "bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
 
-            if (tab === 'members') {
-                document.getElementById('tabContentMembers').classList.remove('hidden-view');
-                document.getElementById('tabBtnMembers').className = "bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
-            } else if (tab === 'approvals') {
-                document.getElementById('tabContentApprovals').classList.remove('hidden-view');
-                document.getElementById('tabBtnApprovals').className = "bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
-                loadKmpPendingApprovals();
-            } else if (tab === 'defaulters') {
-                document.getElementById('tabContentDefaulters').classList.remove('hidden-view');
-                document.getElementById('tabBtnDefaulters').className = "bg-rose-700 text-white border border-rose-600 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all";
-                loadOverdueDefaulters();
-            }
+            if (tab === 'approvals') loadKmpPendingApprovals();
+            if (tab === 'defaulters') loadOverdueDefaulters();
+            if (tab === 'users') loadStaffUsersList();
         }
 
         function refreshCurrentLedger() {
-            if (selectedMemberData) {
-                loadMemberLedger(selectedMemberData);
-            } else if (document.getElementById('searchInput').value.trim()) {
-                searchMemberRecords();
-            }
+            if (selectedMemberData) loadMemberLedger(selectedMemberData);
+            else if (document.getElementById('searchInput').value.trim()) searchMemberRecords();
         }
 
-        // --- SEARCH WORKFLOW ---
+        // --- SEARCH MEMBERS ---
         function searchMemberRecords() {
             const rawQuery = document.getElementById('searchInput').value.trim();
-            if (!rawQuery) return alert("Please enter a Mobile Number, Token ID, Name, or A/C Code.");
+            if (!rawQuery) return alert("Enter Mobile, Token ID, Name, or A/C Code.");
 
-            const btn = document.getElementById('btnSearch');
-            btn.innerText = "Searching...";
-            btn.disabled = true;
+            showLoader("Searching Directory...");
 
             fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(rawQuery)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "Search Account";
-                btn.disabled = false;
-
+                hideLoader();
                 if (!res || !res.results || res.results.length === 0) {
                     document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
                     document.getElementById('memberProfileSection').classList.add('hidden-view');
@@ -488,7 +574,6 @@
                 }
 
                 activeSearchResults = res.results;
-
                 if (activeSearchResults.length > 1) {
                     renderMultipleKittySelection();
                 } else {
@@ -497,9 +582,8 @@
                 }
             })
             .catch(() => {
-                btn.innerText = "Search Account";
-                btn.disabled = false;
-                alert("Database connection error.");
+                hideLoader();
+                alert("Database communication error.");
             });
         }
 
@@ -515,7 +599,6 @@
                     </button>
                 `;
             });
-
             wrapper.classList.remove('hidden-view');
             document.getElementById('memberProfileSection').classList.add('hidden-view');
         }
@@ -525,9 +608,9 @@
             loadMemberLedger(activeSearchResults[index]);
         }
 
-        // --- LOAD MEMBER PASSBOOK (WITH 22K GOLD RECOGNITION) ---
         function loadMemberLedger(member) {
             selectedMemberData = member;
+            showLoader("Fetching Member Ledger...");
 
             document.getElementById('viewCustName').innerText = member.name;
             document.getElementById('viewCustPhone').innerText = "+91 " + member.phone;
@@ -540,17 +623,15 @@
             document.getElementById('selWinCount').value = winCount;
             const winBadge = document.getElementById('viewWinBadge');
             winBadge.innerText = winCount > 0 ? `${winCount}x Draw Winner` : `Non-Winner`;
-            winBadge.className = winCount > 0 ? "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300" : "text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300";
 
             fetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode || member.kittyNumber)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
+                hideLoader();
                 if (!res || !res.profile) return alert("Customer record not found.");
 
                 const userTxs = res.transactions || [];
-                let paidMonths = 0;
-                let totalDeposited = 0;
-                let totalGoldWeight = 0;
+                let paidMonths = 0, totalDeposited = 0, totalGoldWeight = 0;
 
                 userTxs.forEach(t => {
                     if (t.status && t.status.toLowerCase() === "paid") {
@@ -564,24 +645,11 @@
                 document.getElementById('viewTotalGoldGrams').innerText = `${totalGoldWeight.toFixed(3)} g`;
                 document.getElementById('viewPaidRatio').innerText = `${paidMonths} / ${config.schemeMonths} Complete`;
 
-                const mAmount = Number(member.monthlyAmount) || 0;
-                let fullPrincipal = 11 * mAmount;
-                let maturityVal = 0;
-                if (winCount > 0) {
-                    let prizePerWin = (mAmount === 8000) ? 15000 : 10000;
-                    maturityVal = fullPrincipal + (winCount * prizePerWin);
-                } else {
-                    let interest = (mAmount === 8000) ? 3000 : 2000;
-                    maturityVal = fullPrincipal + interest;
-                }
-                document.getElementById('viewMaturityTotal').innerText = "₹" + maturityVal.toLocaleString('en-IN');
-
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let record = userTxs.find(t => Number(t.month) === m);
-
                     if (record && record.status.toLowerCase() === "paid") {
                         tbody.innerHTML += `
                             <tr class="bg-emerald-50/40">
@@ -593,14 +661,14 @@
                                 <td class="p-3 font-mono text-slate-500">${record.utr || 'Showroom Counter'}</td>
                             </tr>
                         `;
-                    } else if (record && record.status.toLowerCase() === "pending") {
+                    } else if (record && (record.status.toLowerCase() === "pending" || record.status.toLowerCase() === "reviewed")) {
                         tbody.innerHTML += `
                             <tr class="bg-amber-50/40">
                                 <td class="p-3 font-bold text-slate-800">Month ${m}</td>
-                                <td class="p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">PENDING APPROVAL</span></td>
+                                <td class="p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">${record.status.toUpperCase()}</span></td>
                                 <td class="p-3 font-mono font-bold text-slate-900">₹${Number(record.amount).toLocaleString('en-IN')}</td>
-                                <td class="p-3 font-mono text-slate-400">-</td>
-                                <td class="p-3 font-mono text-slate-400">-</td>
+                                <td class="p-3 font-mono text-slate-400">${record.rate || '-'}</td>
+                                <td class="p-3 font-mono text-slate-400">${record.bookedGrams || '-'}</td>
                                 <td class="p-3 font-mono text-slate-500">${record.utr}</td>
                             </tr>
                         `;
@@ -609,64 +677,335 @@
                             <tr class="text-slate-400">
                                 <td class="p-3 font-medium">Month ${m}</td>
                                 <td class="p-3"><span class="bg-slate-100 text-slate-500 font-medium px-2 py-0.5 rounded text-[10px]">UNPAID</span></td>
-                                <td class="p-3 font-mono">-</td>
-                                <td class="p-3 font-mono">-</td>
-                                <td class="p-3 font-mono">-</td>
-                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td>
                             </tr>
                         `;
                     }
                 }
-
                 document.getElementById('memberProfileSection').classList.remove('hidden-view');
-            });
+            })
+            .catch(() => hideLoader());
         }
 
-        function saveWinnerCount() {
-            if (!selectedMemberData) return;
-            const newCount = document.getElementById('selWinCount').value;
+        // --- PENDING QUEUE & MULTI-TIER APPROVAL FLOW ---
+        function loadKmpPendingApprovals() {
+            const tableBody = document.getElementById('kmpApprovalTableBody');
+            showLoader("Refreshing Queue...");
 
-            fetch(`${config.scriptUrl}?action=updateWinCount&phone=${selectedMemberData.phone}&acCode=${selectedMemberData.acCode || selectedMemberData.kittyNumber}&winCount=${newCount}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(pendingList => {
+                hideLoader();
+                if (!pendingList || pendingList.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-emerald-700 font-semibold">Queue Clear: No pending transactions awaiting review.</td></tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = "";
+                pendingList.forEach(item => {
+                    const slipSrc = item.screenshotUrl || "";
+                    const linkMarkup = slipSrc 
+                        ? `<a href="${slipSrc}" target="_blank" class="text-slate-900 underline font-semibold block mt-1">View Slip ↗</a>` 
+                        : `<span class="text-slate-400 italic">No file attached</span>`;
+
+                    let actionHtml = "";
+                    const isReviewed = (item.status || "").toLowerCase() === "reviewed";
+
+                    if (!isReviewed) {
+                        // Step 1: Staff Rate Review Button
+                        actionHtml = `
+                            <button onclick="initiateRateReview('${item.row}', ${item.amount})" class="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer">
+                                1. Review & Set Rate
+                            </button>
+                        `;
+                    }
+
+                    // Step 2: Final Sign-off Button (Admin or CanFinalApprove)
+                    if (sessionUser.role === "Admin" || sessionUser.canFinalApprove) {
+                        actionHtml += `
+                            <button onclick="initiateFinalApproval('${item.row}')" class="ml-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer">
+                                ${isReviewed ? '2. Final Post' : 'Direct Approve'}
+                            </button>
+                        `;
+                    }
+
+                    tableBody.innerHTML += `
+                        <tr id="row-kmp-${item.row}">
+                            <td class="p-4">
+                                <div class="font-bold text-slate-900 uppercase">${item.name}</div>
+                                <div class="text-xs text-slate-500 font-mono">+91 ${item.phone}</div>
+                            </td>
+                            <td class="p-4 text-xs font-mono">
+                                <strong class="text-amber-800">${item.acCode}</strong><br>
+                                <span class="text-slate-400">${item.customerId}</span>
+                            </td>
+                            <td class="p-4 font-bold text-slate-800">Month ${item.month}</td>
+                            <td class="p-4 font-bold text-slate-900 font-mono">₹${Number(item.amount).toLocaleString('en-IN')}</td>
+                            <td class="p-4 text-xs">
+                                <span class="px-2 py-0.5 rounded font-bold ${isReviewed ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800'}">${item.status}</span>
+                                ${item.bookedGrams ? `<div class="font-mono text-slate-600 mt-1 font-bold">${item.bookedGrams}g @ ₹${item.rateApplied}</div>` : ''}
+                            </td>
+                            <td class="p-4 text-xs font-mono">
+                                <div>UTR: ${item.utr}</div>
+                                ${linkMarkup}
+                            </td>
+                            <td class="p-4 text-center whitespace-nowrap">${actionHtml}</td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(() => hideLoader());
+        }
+
+        // STEP 1: Staff Rate Review with optional 2SV check
+        function initiateRateReview(rowId, amount) {
+            var inputRate = prompt(`[Step 1 Review] Installment: ₹${amount}\nEnter Current 22K Gold Rate for 10g (₹):`);
+            if (!inputRate) return;
+            var rate10g = parseFloat(inputRate.trim());
+            if (isNaN(rate10g) || rate10g <= 0) return alert("Enter valid numeric gold rate.");
+
+            var grams = amount / (rate10g / 10);
+            var secondPin = "";
+
+            // Check if 2SV is required for this staff account
+            if (!sessionUser.bypass2SV && sessionUser.role !== "Admin") {
+                secondPin = prompt("2-Step Verification Required:\nEnter your Security PIN again to authorize:");
+                if (!secondPin) return alert("Approval aborted: Secondary verification required.");
+            }
+
+            showLoader("Submitting Rate Review...");
+
+            fetch(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "reviewTransaction",
+                    row: rowId,
+                    rateUsed: rate10g,
+                    gramsBooked: grams.toFixed(3),
+                    authUser: sessionUser.username,
+                    authPin: sessionUser.pin,
+                    secondPin: secondPin
+                })
+            })
             .then(r => r.json())
             .then(res => {
+                hideLoader();
                 if (res.success) {
-                    alert("Draw winner count updated!");
-                    selectedMemberData.winCount = newCount;
-                    loadMemberLedger(selectedMemberData);
-                } else alert("Failed to update.");
+                    alert(`Reviewed! Booked weight: ${grams.toFixed(3)}g. Awaiting final Admin posting.`);
+                    loadKmpPendingApprovals();
+                } else {
+                    alert("Verification Failed: " + (res.error || ""));
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                alert("Communication error.");
             });
         }
 
-        // --- SHOWROOM MANUAL COUNTER DEPOSIT & GOLD BOOKING ---
+        // STEP 2: Final Ledger Credit
+        function initiateFinalApproval(rowId) {
+            if (!confirm("Final Review: Commit and credit this payment into member passbook?")) return;
+            showLoader("Posting Final Approval...");
+
+            fetch(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "finalApprove",
+                    row: rowId,
+                    authUser: sessionUser.username,
+                    authPin: sessionUser.pin
+                })
+            })
+            .then(r => r.json())
+            .then(res => {
+                hideLoader();
+                if (res.success) {
+                    alert("Transaction committed to permanent ledger!");
+                    loadKmpPendingApprovals();
+                } else {
+                    alert("Failed: " + (res.error || ""));
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                alert("Communication error.");
+            });
+        }
+
+        // --- STAFF USERS & RBAC MANAGEMENT ---
+        function loadStaffUsersList() {
+            if (sessionUser.role !== "Admin") return;
+            showLoader("Loading Staff Directory...");
+
+            fetch(`${config.scriptUrl}?action=getStaffUsers&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                hideLoader();
+                if (!res.success) return alert(res.error || "Access denied.");
+                const tbody = document.getElementById('userTableBody');
+                tbody.innerHTML = "";
+
+                res.users.forEach(u => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-4 font-bold text-slate-900">${u.username}</td>
+                            <td class="p-4 font-semibold">${u.role}</td>
+                            <td class="p-4">${u.canApprove ? '✅ Yes' : '❌ No'}</td>
+                            <td class="p-4">${u.canFinalApprove ? '✅ Yes' : '❌ No'}</td>
+                            <td class="p-4">${u.bypass2SV ? '⚡ Yes' : '🔒 Requires 2SV'}</td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded font-bold ${u.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${u.status}</span></td>
+                            <td class="p-4 text-center">
+                                ${u.username.toLowerCase() !== 'admin' ? `
+                                    <button onclick='editUserRow(${JSON.stringify(u)})' class="text-indigo-600 font-bold mr-2">Edit</button>
+                                    <button onclick="deleteStaffUser('${u.username}')" class="text-rose-600 font-bold">Delete</button>
+                                ` : '<span class="text-slate-400 italic">Protected</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(() => hideLoader());
+        }
+
+        function openUserEditModal() {
+            document.getElementById('userModalTitle').innerText = "Add Staff User";
+            document.getElementById('usrNameInput').value = "";
+            document.getElementById('usrNameInput').readOnly = false;
+            document.getElementById('usrPinInput').value = "";
+            document.getElementById('usrRoleInput').value = "Staff";
+            document.getElementById('usrCanApprove').checked = true;
+            document.getElementById('usrCanFinalApprove').checked = false;
+            document.getElementById('usrBypass2SV').checked = false;
+            document.getElementById('userModal').classList.remove('hidden-view');
+        }
+
+        function editUserRow(u) {
+            document.getElementById('userModalTitle').innerText = "Edit " + u.username;
+            document.getElementById('usrNameInput').value = u.username;
+            document.getElementById('usrNameInput').readOnly = true;
+            document.getElementById('usrPinInput').value = u.pin;
+            document.getElementById('usrRoleInput').value = u.role;
+            document.getElementById('usrCanApprove').checked = u.canApprove;
+            document.getElementById('usrCanFinalApprove').checked = u.canFinalApprove;
+            document.getElementById('usrBypass2SV').checked = u.bypass2SV;
+            document.getElementById('userModal').classList.remove('hidden-view');
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.add('hidden-view');
+        }
+
+        function saveStaffUser(e) {
+            e.preventDefault();
+            showLoader("Saving User...");
+
+            const payload = {
+                action: "saveStaffUser",
+                adminUser: sessionUser.username,
+                adminPin: sessionUser.pin,
+                username: document.getElementById('usrNameInput').value.trim(),
+                pin: document.getElementById('usrPinInput').value.trim(),
+                role: document.getElementById('usrRoleInput').value,
+                canApprove: document.getElementById('usrCanApprove').checked,
+                canFinalApprove: document.getElementById('usrCanFinalApprove').checked,
+                bypass2SV: document.getElementById('usrBypass2SV').checked,
+                status: "Active"
+            };
+
+            fetch(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(res => {
+                hideLoader();
+                if (res.success) {
+                    alert("User privileges saved!");
+                    closeUserModal();
+                    loadStaffUsersList();
+                } else alert("Error: " + res.error);
+            })
+            .catch(() => hideLoader());
+        }
+
+        function deleteStaffUser(targetUser) {
+            if (!confirm(`Permanently remove staff user ${targetUser}?`)) return;
+            showLoader("Deleting Staff...");
+
+            fetch(`${config.scriptUrl}?action=deleteStaffUser&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&targetUser=${encodeURIComponent(targetUser)}&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                hideLoader();
+                if (res.success) {
+                    alert("Staff member deleted.");
+                    loadStaffUsersList();
+                } else alert("Error: " + res.error);
+            })
+            .catch(() => hideLoader());
+        }
+
+        // --- ENROLL & DEPOSIT MODALS ---
+        function openAddMemberModal() { document.getElementById('addMemberModal').classList.remove('hidden-view'); }
+        function closeAddMemberModal() { document.getElementById('addMemberModal').classList.add('hidden-view'); }
+
+        function submitNewMember(e) {
+            e.preventDefault();
+            showLoader("Enrolling Member...");
+
+            const payload = {
+                action: "addMember",
+                phone: document.getElementById('newPhone').value.trim(),
+                name: document.getElementById('newName').value.trim(),
+                monthlyAmount: document.getElementById('newAmount').value,
+                customerId: document.getElementById('newCustId').value.trim() || "GRM-" + Math.floor(100 + Math.random() * 900),
+                kittyNumber: document.getElementById('newKittyNo').value.trim(),
+                otherDetails: document.getElementById('newRemarks').value,
+                email: document.getElementById('newEmail').value.trim()
+            };
+
+            fetch(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(res => {
+                hideLoader();
+                if (res && res.success) {
+                    alert("GRMS Member enrolled successfully!");
+                    closeAddMemberModal();
+                } else alert("Error: " + (res.error || ""));
+            })
+            .catch(() => hideLoader());
+        }
+
         function openManualDepositModal() {
-            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
             if (!selectedMemberData) return;
             document.getElementById('depositTargetLabel').innerText = `${selectedMemberData.name} - A/C: ${selectedMemberData.acCode || selectedMemberData.kittyNumber}`;
             document.getElementById('depositAmount').value = selectedMemberData.monthlyAmount;
             document.getElementById('depositRate').value = "";
             document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
-            document.getElementById('depositRef').value = "Counter Payment";
 
             const select = document.getElementById('depositMonth');
             select.innerHTML = "";
             for (let m = 1; m <= config.schemeMonths; m++) {
                 select.innerHTML += `<option value="${m}">Month ${m}</option>`;
             }
-
             document.getElementById('manualDepositModal').classList.remove('hidden-view');
         }
 
-        function closeManualDepositModal() {
-            document.getElementById('manualDepositModal').classList.add('hidden-view');
-        }
+        function closeManualDepositModal() { document.getElementById('manualDepositModal').classList.add('hidden-view'); }
 
         function calculateRealtimeGold() {
             const amount = parseFloat(document.getElementById('depositAmount').value) || 0;
             const rate10g = parseFloat(document.getElementById('depositRate').value) || 0;
             if (amount > 0 && rate10g > 0) {
                 const perGram = rate10g / 10;
-                const grams = amount / perGram;
-                document.getElementById('lblLiveAllocatedWeight').innerText = `${grams.toFixed(3)} g`;
+                document.getElementById('lblLiveAllocatedWeight').innerText = `${(amount / perGram).toFixed(3)} g`;
             } else {
                 document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
             }
@@ -679,263 +1018,47 @@
             const month = document.getElementById('depositMonth').value;
             const ref = document.getElementById('depositRef').value.trim() || "Counter Cash";
 
-            if (!amount || isNaN(amount) || !rate10g || isNaN(rate10g)) {
-                return alert("Please enter valid numeric deposit amount and 22K gold rate.");
-            }
+            if (!amount || !rate10g) return alert("Verify amount and gold rate.");
 
+            showLoader("Recording Counter Deposit...");
             const perGram = rate10g / 10;
-            const gramsBooked = amount / perGram;
+            const grams = amount / perGram;
 
-            const btn = document.getElementById('btnSubmitDeposit');
-            btn.innerText = "Committing...";
-            btn.disabled = true;
+            const payload = {
+                action: "manualEntry",
+                phone: selectedMemberData.phone,
+                kittyNumber: selectedMemberData.acCode || selectedMemberData.kittyNumber,
+                month: month,
+                amount: amount,
+                rateUsed: rate10g,
+                gramsBooked: grams.toFixed(3),
+                utr: ref
+            };
 
-            const targetUrl = `${config.scriptUrl}?action=manualEntry`
-                + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
-                + `&kittyNumber=${encodeURIComponent(selectedMemberData.acCode || selectedMemberData.kittyNumber)}`
-                + `&month=${encodeURIComponent(month)}`
-                + `&amount=${encodeURIComponent(amount)}`
-                + `&rateUsed=${encodeURIComponent(rate10g)}`
-                + `&gramsBooked=${encodeURIComponent(gramsBooked)}`
-                + `&utr=${encodeURIComponent(ref)}`
-                + `&_ts=${Date.now()}`;
-
-            fetch(targetUrl)
+            fetch(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "Commit Transaction";
-                btn.disabled = false;
+                hideLoader();
                 closeManualDepositModal();
-
-                if (res && res.success) {
-                    alert(`Payment saved for Month ${month}! ${gramsBooked.toFixed(3)}g 22K Gold booked successfully.`);
-                    loadMemberLedger(selectedMemberData);
-                } else {
-                    alert("Error committing payment: " + (res.error || ""));
-                }
+                alert(`Payment recorded! ${grams.toFixed(3)}g 22K Gold added.`);
+                loadMemberLedger(selectedMemberData);
             })
-            .catch(() => {
-                btn.innerText = "Commit Transaction";
-                btn.disabled = false;
-                closeManualDepositModal();
-                alert(`Payment submitted. Refreshing ledger...`);
-                setTimeout(() => loadMemberLedger(selectedMemberData), 2000);
-            });
+            .catch(() => hideLoader());
         }
 
-        // --- ENROLL MEMBER (GRMS) ---
-        function openAddMemberModal() {
-            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-            document.getElementById('addMemberModal').classList.remove('hidden-view');
-        }
-
-        function closeAddMemberModal() {
-            document.getElementById('addMemberModal').classList.add('hidden-view');
-        }
-
-        function submitNewMember(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btnSubmitMember');
-            btn.innerText = "Registering...";
-            btn.disabled = true;
-
-            const phone = document.getElementById('newPhone').value.trim();
-            const name = document.getElementById('newName').value.trim();
-            const monthlyAmount = document.getElementById('newAmount').value;
-            const customerId = document.getElementById('newCustId').value.trim();
-            const acCode = document.getElementById('newKittyNo').value.trim();
-            const doj = document.getElementById('newRemarks').value;
-            const email = document.getElementById('newEmail').value.trim();
-
-            const targetUrl = `${config.scriptUrl}?action=addMember`
-                + `&phone=${encodeURIComponent(phone)}`
-                + `&name=${encodeURIComponent(name)}`
-                + `&monthlyAmount=${encodeURIComponent(monthlyAmount)}`
-                + `&customerId=${encodeURIComponent(customerId || "GRM-" + Math.floor(100 + Math.random() * 900))}`
-                + `&kittyNumber=${encodeURIComponent(acCode)}`
-                + `&otherDetails=${encodeURIComponent(doj)}`
-                + `&email=${encodeURIComponent(email)}`
-                + `&_ts=${Date.now()}`;
-
-            fetch(targetUrl)
-            .then(r => r.json())
-            .then(res => {
-                btn.innerText = "Save Member";
-                btn.disabled = false;
-                if (res && res.success) {
-                    alert("GRMS Member enrolled successfully!");
-                    closeAddMemberModal();
-                } else {
-                    alert("Error enrolling member: " + (res.error || "Check sheet access."));
-                }
-            })
-            .catch(() => {
-                btn.innerText = "Save Member";
-                btn.disabled = false;
-                alert("Member saved. Refreshing directory...");
-                closeAddMemberModal();
-            });
-        }
-
-        // --- DELETE MEMBER ---
-        function confirmRemoveMember() {
-            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-            if (!selectedMemberData) return;
-            if (!confirm(`Are you sure you want to delete member ${selectedMemberData.name} (A/C: ${selectedMemberData.acCode || selectedMemberData.kittyNumber})?`)) return;
-
-            const targetUrl = `${config.scriptUrl}?action=deleteMember`
-                + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
-                + `&kittyNumber=${encodeURIComponent(selectedMemberData.acCode || selectedMemberData.kittyNumber)}`
-                + `&_ts=${Date.now()}`;
-
-            fetch(targetUrl)
-            .then(r => r.json())
-            .then(res => {
-                if (res && res.success) {
-                    alert("Member record deleted.");
-                    document.getElementById('memberProfileSection').classList.add('hidden-view');
-                } else alert("Error deleting member.");
-            });
-        }
-
-        // --- PENDING PROOFS QUEUE & 22K RATE APPROVAL PROMPT ---
-        function loadKmpPendingApprovals() {
-            const tableBody = document.getElementById('kmpApprovalTableBody');
-            const mobileCards = document.getElementById('kmpApprovalMobileCards');
-            tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Connecting live records...</td></tr>`;
-            mobileCards.innerHTML = `<div class="p-8 text-center text-slate-500 bg-white rounded-xl border">Connecting live records...</div>`;
-
-            fetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(pendingList => {
-                if (!pendingList || pendingList.length === 0) {
-                    const cleanMsg = "All clean: No pending payment proofs in queue.";
-                    tableBody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-700 font-semibold">${cleanMsg}</td></tr>`;
-                    mobileCards.innerHTML = `<div class="p-6 text-center text-emerald-700 bg-white border border-emerald-200 rounded-xl font-semibold">${cleanMsg}</div>`;
-                    return;
-                }
-
-                tableBody.innerHTML = "";
-                mobileCards.innerHTML = "";
-
-                pendingList.forEach(item => {
-                    const slipSrc = item.screenshotUrl || item.screenshot || "";
-                    const isInline = slipSrc.startsWith("data:image");
-
-                    const linkMarkup = isInline 
-                        ? `<button onclick="viewKmpReceipt('${item.row}')" class="text-slate-900 underline font-semibold block mt-1 cursor-pointer">View Slip ↗</button>
-                           <div id="kmp-img-${item.row}" class="hidden-view mt-2 max-w-xs border border-slate-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto mx-auto"></div>`
-                        : `<a href="${slipSrc}" target="_blank" class="text-slate-900 underline font-semibold block mt-1">View Slip ↗</a>`;
-
-                    let actionContent = (currentKmpRole === "APPROVE")
-                        ? `<button onclick="promptKmpGoldApproval('${item.row}', ${item.amount})" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all cursor-pointer">Approve & Book Gold</button>`
-                        : `<span class="text-xs text-slate-400 italic bg-slate-100 px-2.5 py-1 rounded font-medium">Read-Only</span>`;
-
-                    tableBody.innerHTML += `
-                        <tr id="kmp-row-${item.row}">
-                            <td class="p-4">
-                                <div class="font-bold text-slate-900 uppercase">${item.name}</div>
-                                <div class="text-xs text-slate-500 font-mono">+91 ${item.phone}</div>
-                            </td>
-                            <td class="p-4 text-xs">
-                                <div><span class="text-slate-400 font-medium">A/C:</span> <strong class="text-amber-800 font-mono">${item.kittyNumber}</strong></div>
-                                <div><span class="text-slate-400 font-medium">Token:</span> ${item.customerId}</div>
-                            </td>
-                            <td class="p-4 font-medium">Month ${item.month}</td>
-                            <td class="p-4 font-bold text-slate-900 font-mono">₹${Number(item.amount).toLocaleString('en-IN')}</td>
-                            <td class="p-4 text-xs text-slate-500">
-                                <div class="font-mono font-bold">UTR: ${item.utr}</div>
-                                ${slipSrc ? linkMarkup : ''}
-                            </td>
-                            <td class="p-4 text-center">${actionContent}</td>
-                        </tr>
-                    `;
-
-                    let mobileAction = (currentKmpRole === "APPROVE")
-                        ? `<button onclick="promptKmpGoldApproval('${item.row}', ${item.amount})" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer mt-1">Approve & Book Gold</button>`
-                        : '';
-
-                    mobileCards.innerHTML += `
-                        <div id="kmp-mob-card-${item.row}" class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3">
-                            <div class="flex justify-between items-start border-b border-slate-100 pb-2">
-                                <div>
-                                    <h4 class="font-bold text-slate-900 text-sm uppercase">${item.name}</h4>
-                                    <p class="text-xs text-slate-500 font-mono">+91 ${item.phone}</p>
-                                </div>
-                                <span class="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded">Month ${item.month}</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
-                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">A/C Code</span><strong class="font-mono text-amber-800">${item.kittyNumber}</strong></div>
-                                <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Token ID</span><strong>${item.customerId}</strong></div>
-                            </div>
-                            <div class="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                                <span class="text-xs text-slate-500 font-medium">Deposit Amount:</span>
-                                <span class="text-sm font-bold font-mono text-slate-900">₹${Number(item.amount).toLocaleString('en-IN')}</span>
-                            </div>
-                            <div class="text-xs border-t border-slate-100 pt-2 space-y-1">
-                                <div class="font-mono text-slate-700 text-[11px] font-bold">UTR: ${item.utr}</div>
-                                ${slipSrc ? linkMarkup : ''}
-                            </div>
-                            ${mobileAction}
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        function viewKmpReceipt(rowId) {
-            const boxes = document.querySelectorAll(`[id="kmp-img-${rowId}"]`);
-            boxes.forEach(box => box.classList.toggle('hidden-view'));
-        }
-
-        function promptKmpGoldApproval(rowId, installmentAmount) {
-            if (currentKmpRole !== "APPROVE") return alert("Restricted: Super Admin credentials required.");
-
-            var inputRate10g = prompt("Installment Amount: ₹" + installmentAmount + "\nEnter current 22K Gold Rate for 10 GRAMS (₹):", "");
-            if (inputRate10g === null) return;
-            var goldRate10g = parseFloat(inputRate10g.trim());
-            if (isNaN(goldRate10g) || goldRate10g <= 0) return alert("Please enter a valid numeric gold rate value.");
-
-            var goldRatePerGram = goldRate10g / 10;
-            var allocatedGrams = installmentAmount / goldRatePerGram;
-
-            if (!confirm("Confirm 22K Gold Booking Details:\n- Rate / 10g: ₹" + goldRate10g.toLocaleString('en-IN') + "\n- Weight to Book: " + allocatedGrams.toFixed(3) + " grams\n\nCommit approval?")) return;
-
-            const desktopEl = document.getElementById("kmp-row-" + rowId);
-            const mobileEl = document.getElementById("kmp-mob-card-" + rowId);
-            if (desktopEl) desktopEl.style.opacity = "0.4";
-            if (mobileEl) mobileEl.style.opacity = "0.4";
-
-            const targetUrl = `${config.scriptUrl}?action=approve`
-                + `&row=${encodeURIComponent(rowId)}`
-                + `&rateUsed=${encodeURIComponent(goldRate10g)}`
-                + `&gramsBooked=${encodeURIComponent(allocatedGrams)}`
-                + `&_ts=${Date.now()}`;
-
-            fetch(targetUrl)
-            .then(r => r.json())
-            .then(res => {
-                if (desktopEl) desktopEl.remove();
-                if (mobileEl) mobileEl.remove();
-                alert("Transaction approved! " + allocatedGrams.toFixed(3) + "g 22K gold successfully allocated.");
-                loadKmpPendingApprovals();
-            })
-            .catch(() => {
-                if (desktopEl) desktopEl.remove();
-                if (mobileEl) mobileEl.remove();
-                alert("Transaction approved! " + allocatedGrams.toFixed(3) + "g 22K gold successfully allocated.");
-                setTimeout(loadKmpPendingApprovals, 1500);
-            });
-        }
-
-        // --- OVERDUE TRACKER, BULK EMAIL & INDIVIDUAL WHATSAPP ---
+        // --- DEFAULTERS & BULK REMINDERS ---
         function loadOverdueDefaulters() {
             const tbody = document.getElementById('defaulterTableBody');
-            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Checking payment schedules & cutoff dates...</td></tr>`;
+            showLoader("Scanning Cutoff Defaulters...");
 
             fetch(`${config.scriptUrl}?action=getOverdueDefaulters&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
+                hideLoader();
                 if (!res || !res.success || !res.defaulters || res.defaulters.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-700 font-bold bg-emerald-50/50">✨ All clear! No members have overdue installments past the 20th cutoff date.</td></tr>`;
                     activeDefaultersList = [];
@@ -944,66 +1067,45 @@
 
                 activeDefaultersList = res.defaulters;
                 tbody.innerHTML = "";
-
                 res.defaulters.forEach(item => {
                     const monthsLabel = item.overdueMonths.map(m => `Month ${m}`).join(', ');
-                    const waText = encodeURIComponent(`Dear ${item.name},\n\nThis is a gentle payment reminder from *${config.brandName}* regarding your Golden Rose Magic Scheme (A/C: *${item.acCode}*).\n\nYour installment for *${monthsLabel}* (Due Amount: *₹${item.totalDue.toLocaleString('en-IN')}*) is currently overdue past the 20th policy cutoff date.\n\nPlease complete your payment via UPI to *${config.upiVpa}* or visit our showroom counter to keep your draw eligibility active.\n\nThank you!`);
-                    const waLink = `https://wa.me/91${item.phone}?text=${waText}`;
-
+                    const waText = encodeURIComponent(`Dear ${item.name},\n\nPayment reminder from ${config.brandName} regarding GRMS A/C: ${item.acCode}.\n\nInstallment for ${monthsLabel} (₹${item.totalDue.toLocaleString('en-IN')}) is overdue.\n\nPlease clear payment via UPI (${config.upiVpa}) to remain eligible for the draw.`);
                     tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50/80 transition-colors">
+                        <tr>
                             <td class="p-4 font-semibold text-slate-900">
                                 <div class="font-bold">${item.name}</div>
                                 <div class="text-xs text-slate-500 font-mono">+91 ${item.phone}</div>
                             </td>
                             <td class="p-4 font-mono font-bold text-amber-800">${item.acCode}</td>
                             <td class="p-4 font-mono text-slate-600">${item.doj}</td>
-                            <td class="p-4">
-                                <span class="bg-rose-100 text-rose-800 px-2.5 py-1 rounded-md font-bold text-[11px]">${monthsLabel}</span>
-                            </td>
+                            <td class="p-4"><span class="bg-rose-100 text-rose-800 px-2.5 py-1 rounded-md font-bold">${monthsLabel}</span></td>
                             <td class="p-4 font-mono font-black text-rose-600 text-sm">₹${item.totalDue.toLocaleString('en-IN')}</td>
                             <td class="p-4 text-center">
-                                <a href="${waLink}" target="_blank" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer">
-                                    <span>💬</span> Send WhatsApp
+                                <a href="https://wa.me/91${item.phone}?text=${waText}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
+                                    Send WhatsApp
                                 </a>
                             </td>
                         </tr>
                     `;
                 });
             })
-            .catch(() => {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-600 font-semibold">Error communicating with database.</td></tr>`;
-            });
+            .catch(() => hideLoader());
         }
 
         function sendBulkEmailReminders() {
-            if (!activeDefaultersList || activeDefaultersList.length === 0) {
-                return alert("No overdue members to notify.");
-            }
+            if (!activeDefaultersList || activeDefaultersList.length === 0) return alert("No defaulters in list.");
+            if (!confirm(`Dispatch automated email reminders to all ${activeDefaultersList.length} overdue members?`)) return;
 
-            if (!confirm(`Dispatch automated consolidated reminder emails with unified QR codes to all ${activeDefaultersList.length} overdue accounts via digitalsolutionofindia@gmail.com?`)) return;
-
-            const btn = document.getElementById('btnBulkEmail');
-            btn.innerText = "📧 Sending Bulk Emails...";
-            btn.disabled = true;
-
+            showLoader("Sending Consolidated Emails...");
             fetch(`${config.scriptUrl}?action=sendBulkOverdueEmails&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                btn.innerText = "📧 Send Bulk Email Reminders";
-                btn.disabled = false;
-
+                hideLoader();
                 if (res && res.success) {
-                    alert(`✅ Bulk Email Dispatch Complete!\n\n• Successfully Sent: ${res.sentCount} consolidated emails\n• Skipped (No registered email): ${res.skippedNoEmail}`);
-                } else {
-                    alert("Error sending emails: " + (res.error || "Unknown error"));
-                }
+                    alert(`✅ Emails Sent: ${res.sentCount}\nSkipped (No Email): ${res.skippedNoEmail}`);
+                } else alert("Error: " + res.error);
             })
-            .catch(() => {
-                btn.innerText = "📧 Send Bulk Email Reminders";
-                btn.disabled = false;
-                alert("Server communication error during email dispatch.");
-            });
+            .catch(() => hideLoader());
         }
     </script>
 </body>
