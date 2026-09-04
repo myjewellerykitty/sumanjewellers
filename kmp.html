@@ -3,80 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suman Jewellers - Golden Rose Magic (KMP)</title>
+    <title>Suman Jewellers - Enterprise Operations Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
-        @keyframes spinSlow {
+        @keyframes spinAnimation {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        .animate-spin-slow {
-            animation: spinSlow 1s linear infinite;
+        .enterprise-spinner {
+            animation: spinAnimation 0.9s linear infinite;
         }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
 
-    <!-- GLOBAL LOADING SPINNER -->
-    <div id="kmpLoader" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex flex-col items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 shadow-2xl border border-amber-200 flex flex-col items-center gap-3">
-            <div class="w-12 h-12 border-4 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow"></div>
-            <p id="kmpLoaderMsg" class="text-xs font-bold text-slate-800 uppercase tracking-wider">Processing Database...</p>
+    <!-- ENTERPRISE LOADING OVERLAY -->
+    <div id="kmpLoader" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex flex-col items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-6 shadow-2xl border border-slate-200 flex flex-col items-center gap-3">
+            <div class="w-10 h-10 border-3 border-slate-200 border-t-amber-800 rounded-full enterprise-spinner"></div>
+            <p id="kmpLoaderMsg" class="text-xs font-bold text-slate-900 tracking-wider uppercase">Processing Request...</p>
         </div>
     </div>
 
-    <!-- LOGIN SCREEN -->
+    <!-- AUTHENTICATION SCREEN -->
     <div id="kmpLoginView" class="max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <div class="text-center mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center font-black text-slate-900 text-xl mx-auto mb-3 shadow-sm">GRM</div>
-                <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight">KMP Showroom Desk</h2>
-                <p class="text-xs text-amber-800 font-semibold mt-0.5">Golden Rose Magic Scheme Console</p>
+                <div class="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center font-bold text-white text-base mx-auto mb-3">SJ</div>
+                <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Suman Jewellers</h2>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">Operations &amp; Scheme Management</p>
             </div>
             <form onsubmit="handleKmpLogin(event)" class="space-y-4">
                 <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Staff / Admin Username</label>
-                    <input type="text" id="kmpUserInput" required placeholder="e.g. Admin, Mohit, Priya" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 focus:outline-none font-semibold">
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Operator Identifier</label>
+                    <input type="text" id="kmpUserInput" required placeholder="Enter Username" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-1 focus:ring-slate-900 focus:outline-none">
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Security PIN</label>
-                    <input type="password" id="kmpPassInput" required placeholder="Enter 4-Digit Security PIN" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 focus:outline-none font-mono">
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Security PIN</label>
+                    <input type="password" id="kmpPassInput" required placeholder="Enter PIN" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-slate-900 focus:outline-none">
                 </div>
-                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-[0.98]">
-                    Sign In To Console
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
+                    Authenticate Session
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- MAIN PORTAL INTERFACE -->
+    <!-- MAIN CONSOLE INTERFACE -->
     <div id="kmpMainView" class="hidden-view min-h-screen flex flex-col">
-        <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md">
-            <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-sm border-b border-slate-800">
+            <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center font-black text-slate-900 text-lg">GRM</div>
+                    <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center font-bold text-white text-xs">GRM</div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="text-base font-bold tracking-tight uppercase">Golden Rose Magic Desk</h1>
-                            <span id="kmpRoleBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded">Checking...</span>
+                            <h1 class="text-sm font-bold tracking-tight uppercase">Operational Console</h1>
+                            <span id="kmpRoleBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Evaluating...</span>
                         </div>
-                        <p class="text-xs text-slate-400">Logged in as: <strong id="lblActiveUser" class="text-amber-400 font-mono">Admin</strong></p>
+                        <p class="text-[11px] text-slate-400">Authenticated Operator: <strong id="lblActiveUser" class="text-white font-mono">User</strong></p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                    <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Members Directory</button>
-                    <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Pending Approvals</button>
-                    <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-rose-900/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all">
-                        ⚠️ Overdue
+                    <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Directory</button>
+                    <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Pending Verification</button>
+                    <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Overdue Accounts</button>
+                    <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Access Permissions</button>
+                    <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-3 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
+                        Enroll Account
                     </button>
-                    <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-indigo-900/40 hover:bg-indigo-900/60 text-indigo-300 border border-indigo-800/50 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-all">
-                        👥 Staff Access (RBAC)
-                    </button>
-                    <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3.5 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
-                        + New Member
-                    </button>
-                    <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-rose-950/60 text-slate-300 hover:text-rose-300 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Logout</button>
+                    <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Terminate Session</button>
                 </div>
             </div>
         </header>
@@ -85,110 +81,110 @@
 
             <!-- TAB 1: MEMBERS DIRECTORY -->
             <div id="tabContentMembers" class="space-y-6">
-                <section class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Search GRMS Accounts</label>
-                        <button onclick="refreshCurrentLedger()" class="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer border border-slate-200 active:scale-95">
-                            ↻ Live Refresh
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Database Search</label>
+                        <button onclick="refreshCurrentLedger()" class="text-xs font-bold text-slate-700 hover:text-black transition-all cursor-pointer">
+                            Synchronize Current View
                         </button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="searchInput" placeholder="Enter Mobile Number, Customer ID / Token, Name, or A/C Code..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all">
-                        <button onclick="searchMemberRecords()" id="btnSearch" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer">
-                            Search Account
+                        <input type="text" id="searchInput" placeholder="Search by Mobile, Token Identifier, Name, or Account Code..." class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition-all">
+                        <button onclick="searchMemberRecords()" id="btnSearch" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer">
+                            Search Records
                         </button>
                     </div>
 
-                    <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
-                        <p class="text-xs font-bold text-amber-900 uppercase">Multiple GRMS Plans Linked</p>
+                    <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+                        <p class="text-xs font-bold text-slate-800 uppercase">Multiple Active Accounts Associated</p>
                         <div id="kittySelectionPills" class="flex flex-wrap gap-2 pt-1"></div>
                     </div>
                 </section>
 
-                <!-- ACTIVE MEMBER PROFILE & LEDGER -->
+                <!-- ACTIVE MEMBER PROFILE SECTION -->
                 <section id="memberProfileSection" class="hidden-view space-y-6">
-                    <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-sm border border-slate-800 relative overflow-hidden">
+                    <div class="bg-slate-900 text-white rounded-xl p-6 shadow-sm border border-slate-800">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-4">
                             <div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[10px] bg-amber-400/20 text-amber-400 font-bold px-2 py-0.5 rounded uppercase tracking-wider">GRMS Active</span>
-                                    <span id="viewWinBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">0x Winner</span>
+                                    <span class="text-[10px] bg-slate-800 text-slate-300 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Account Active</span>
+                                    <span id="viewWinBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">Regular Plan</span>
                                 </div>
-                                <h2 id="viewCustName" class="text-2xl font-bold mt-1 text-slate-100 uppercase tracking-tight">-</h2>
+                                <h2 id="viewCustName" class="text-xl font-bold mt-1 text-white uppercase tracking-tight">-</h2>
                                 <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl p-1 text-xs">
-                                    <span class="text-[10px] font-bold text-amber-400 uppercase px-2">Draw Wins:</span>
-                                    <select id="selWinCount" class="bg-slate-900 text-white border border-slate-700 rounded-lg text-xs font-bold px-2 py-1.5 focus:outline-none">
-                                        <option value="0">0 (Non-Winner)</option>
-                                        <option value="1">1 Time Winner</option>
-                                        <option value="2">2 Times Winner</option>
-                                        <option value="3">3 Times Winner</option>
+                                <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 text-xs">
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase px-2">Draw Allocations:</span>
+                                    <select id="selWinCount" class="bg-slate-900 text-white border border-slate-700 rounded text-xs font-bold px-2 py-1 focus:outline-none">
+                                        <option value="0">0 (Standard Plan)</option>
+                                        <option value="1">1 Event Winner</option>
+                                        <option value="2">2 Events Winner</option>
+                                        <option value="3">3 Events Winner</option>
                                     </select>
-                                    <button onclick="saveWinnerCount()" class="ml-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-2.5 py-1.5 rounded-lg text-xs cursor-pointer">Save</button>
+                                    <button onclick="saveWinnerCount()" class="ml-1 bg-amber-700 hover:bg-amber-600 text-white font-bold px-2 py-1 rounded text-xs cursor-pointer">Commit</button>
                                 </div>
 
-                                <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm active:scale-95">
-                                    + Deposit & Book 22K Gold
+                                <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer border border-slate-700">
+                                    Post Counter Payment
                                 </button>
-                                <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer active:scale-95">
-                                    Delete
+                                <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-950/40 hover:bg-rose-900 border border-rose-800 text-rose-300 text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer">
+                                    Delete Record
                                 </button>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
-                                <span class="text-slate-400 uppercase text-[9px] block font-bold">A/C Code</span>
+                            <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Account Code</span>
                                 <span id="viewKittyNo" class="font-mono font-bold text-sm text-amber-400">-</span>
                             </div>
-                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
-                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Token / Cust ID</span>
+                            <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Token Identifier</span>
                                 <span id="viewCustId" class="font-mono font-bold text-sm text-slate-200">-</span>
                             </div>
-                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
-                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Date of Joining</span>
+                            <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Enrollment Date</span>
                                 <span id="viewOtherDetails" class="font-mono font-bold text-sm text-slate-200">-</span>
                             </div>
-                            <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
-                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Monthly Plan</span>
-                                <span id="viewMonthlyAmount" class="font-bold text-sm text-slate-200">₹0</span>
+                            <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Scheduled Installment</span>
+                                <span id="viewMonthlyAmount" class="font-bold text-sm text-slate-200">INR 0</span>
                             </div>
                         </div>
 
                         <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                            <div class="bg-slate-800/40 p-3 rounded-xl border border-slate-700/40">
-                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Total Deposited</span>
-                                <span id="viewTotalBalance" class="font-black text-sm text-emerald-400 font-mono">₹0</span>
+                            <div class="bg-slate-800/40 p-3 rounded-lg border border-slate-700/40">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Total Deposited Principal</span>
+                                <span id="viewTotalBalance" class="font-bold text-sm text-white font-mono">INR 0</span>
                             </div>
-                            <div class="bg-amber-400 text-slate-950 p-3 rounded-xl font-bold flex flex-col justify-center">
-                                <span class="text-[9px] uppercase tracking-wider text-slate-800 block">Accumulated 22K Gold:</span>
-                                <span id="viewTotalGoldGrams" class="font-mono text-base font-black">0.000 g</span>
+                            <div class="bg-amber-900/30 p-3 rounded-lg border border-amber-800/40">
+                                <span class="text-[9px] uppercase tracking-wider text-amber-300 block font-bold">Total Booked Gold (22K)</span>
+                                <span id="viewTotalGoldGrams" class="font-mono text-sm font-bold text-amber-200">0.000 g</span>
                             </div>
-                            <div class="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
-                                <span class="text-amber-400 uppercase text-[9px] block font-bold">Projected Maturity (11M)</span>
-                                <span id="viewMaturityTotal" class="font-black text-sm text-amber-400 font-mono">₹0</span>
+                            <div class="bg-slate-800/40 p-3 rounded-lg border border-slate-700/40">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Projected Maturity Valuation</span>
+                                <span id="viewMaturityTotal" class="font-bold text-sm text-white font-mono">INR 0</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 11-MONTH LEDGER TABLE -->
-                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <!-- LEDGER TABLE -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">GRMS Installment Ledger (11 Months)</h3>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Scheme Ledger Statement (11 Months)</h3>
                             <span id="viewPaidRatio" class="text-xs font-semibold text-slate-500">0 / 11 Complete</span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
                                     <tr class="text-slate-500 border-b border-slate-200 bg-white">
-                                        <th class="p-3">Month</th>
+                                        <th class="p-3">Schedule</th>
                                         <th class="p-3">Status</th>
-                                        <th class="p-3">Installment Deposit</th>
+                                        <th class="p-3">Remittance</th>
                                         <th class="p-3">22K Rate (/10g)</th>
-                                        <th class="p-3">Booked 22K Weight</th>
-                                        <th class="p-3">Reference / Remarks</th>
+                                        <th class="p-3">Booked Weight</th>
+                                        <th class="p-3">Reference Identifier</th>
                                     </tr>
                                 </thead>
                                 <tbody id="memberTxTableBody" class="divide-y divide-slate-100"></tbody>
@@ -198,34 +194,34 @@
                 </section>
             </div>
 
-            <!-- TAB 2: PENDING APPROVALS WITH 2-STEP WORKFLOW -->
+            <!-- TAB 2: PENDING APPROVALS QUEUE -->
             <div id="tabContentApprovals" class="space-view space-y-4 hidden-view">
-                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div>
-                        <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Pending Payment Verifications</h2>
-                        <p class="text-xs text-slate-500">Multi-tier validation: Staff review gold rate $\rightarrow$ Admin posts final credit</p>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Payment Verification Queue</h2>
+                        <p class="text-xs text-slate-500">Tier 1: Staff Rate Entry &rarr; Tier 2: Final Ledger Audit</p>
                     </div>
-                    <button onclick="loadKmpPendingApprovals()" class="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer transition-all active:scale-95 shadow-sm">
-                        <span>↻</span> Refresh Queue
+                    <button onclick="loadKmpPendingApprovals()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-all">
+                        Refresh Queue
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse text-xs">
                             <thead>
-                                <tr class="text-xs font-semibold text-slate-500 bg-slate-50 border-b border-slate-200">
-                                    <th class="p-4">Customer Details</th>
-                                    <th class="p-4">A/C Code & Token</th>
-                                    <th class="p-4">Month</th>
-                                    <th class="p-4">Deposit Amount</th>
-                                    <th class="p-4">Status & Calculation</th>
-                                    <th class="p-4">UTR Reference / Slip</th>
-                                    <th class="p-4 text-center">Action Controls</th>
+                                <tr class="text-slate-500 bg-slate-50 border-b border-slate-200">
+                                    <th class="p-3">Member Details</th>
+                                    <th class="p-3">Account Code</th>
+                                    <th class="p-3">Installment</th>
+                                    <th class="p-3">Deposit Amount</th>
+                                    <th class="p-3">Review Status</th>
+                                    <th class="p-3">Reference / Slip</th>
+                                    <th class="p-3 text-center">Authorization Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="kmpApprovalTableBody" class="divide-y divide-slate-100 text-sm">
-                                <tr><td colspan="7" class="p-8 text-center text-slate-400 italic">Click "Refresh Queue" to load records.</td></tr>
+                            <tbody id="kmpApprovalTableBody" class="divide-y divide-slate-100">
+                                <tr><td colspan="7" class="p-6 text-center text-slate-400">Loading pending verification items...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -234,69 +230,66 @@
 
             <!-- TAB 3: OVERDUE DEFAULTERS -->
             <div id="tabContentDefaulters" class="space-view space-y-4 hidden-view">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm gap-3">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-3">
                     <div>
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Overdue Defaulters Tracker</h2>
-                            <span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Joined $\ge$ Jan 2026</span>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-0.5">Policy: Installments unpaid past the 20th cutoff date</p>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Overdue Account Tracker</h2>
+                        <p class="text-xs text-slate-500">Accounts past the standard 20th calendar cutoff</p>
                     </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <button onclick="sendBulkEmailReminders()" id="btnBulkEmail" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
-                            <span>📧</span> Send Bulk Email Reminders
+                    <div class="flex items-center gap-2">
+                        <button onclick="sendBulkEmailReminders()" id="btnBulkEmail" class="bg-amber-800 hover:bg-amber-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer">
+                            Dispatch Email Notifications
                         </button>
-                        <button onclick="loadOverdueDefaulters()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2.5 rounded-xl cursor-pointer transition-all shadow-sm">
-                            ↻ Refresh
+                        <button onclick="loadOverdueDefaulters()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer">
+                            Refresh
                         </button>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="text-slate-500 bg-slate-50 border-b border-slate-200">
-                                    <th class="p-4 font-bold uppercase">Member Details</th>
-                                    <th class="p-4 font-bold uppercase">A/C Code</th>
-                                    <th class="p-4 font-bold uppercase">Start Date</th>
-                                    <th class="p-4 font-bold uppercase">Unpaid Months</th>
-                                    <th class="p-4 font-bold uppercase">Total Overdue Amount</th>
-                                    <th class="p-4 font-bold uppercase text-center">Action</th>
+                                    <th class="p-3 uppercase">Member Details</th>
+                                    <th class="p-3 uppercase">Account</th>
+                                    <th class="p-3 uppercase">Effective Date</th>
+                                    <th class="p-3 uppercase">Unpaid Schedules</th>
+                                    <th class="p-3 uppercase">Total Overdue</th>
+                                    <th class="p-3 uppercase text-center">Communication</th>
                                 </tr>
                             </thead>
                             <tbody id="defaulterTableBody" class="divide-y divide-slate-100">
-                                <tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Click "Refresh" to calculate overdue installments.</td></tr>
+                                <tr><td colspan="6" class="p-6 text-center text-slate-400">Loading overdue account register...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 4: STAFF PERMISSIONS MANAGEMENT (ADMIN ONLY) -->
+            <!-- TAB 4: ACCESS CONTROL (ADMINISTRATOR ONLY) -->
             <div id="tabContentUsers" class="space-view space-y-4 hidden-view">
-                <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div>
-                        <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Staff Role-Based Access Control (RBAC)</h2>
-                        <p class="text-xs text-slate-500">Configure permission privileges for Mohit, Priya, and counter teams</p>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Access Control &amp; Role Permissions</h2>
+                        <p class="text-xs text-slate-500">Manage operator privileges, validation authority, and authentication modes</p>
                     </div>
-                    <button onclick="openUserEditModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl cursor-pointer shadow-sm">
-                        + Add Staff User
+                    <button onclick="openUserEditModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer">
+                        Add Operator
                     </button>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="text-slate-500 bg-slate-50 border-b border-slate-200">
-                                    <th class="p-4 font-bold uppercase">User</th>
-                                    <th class="p-4 font-bold uppercase">Role</th>
-                                    <th class="p-4 font-bold uppercase">Rate Review</th>
-                                    <th class="p-4 font-bold uppercase">Final Ledger Sign-off</th>
-                                    <th class="p-4 font-bold uppercase">Bypass 2SV</th>
-                                    <th class="p-4 font-bold uppercase">Status</th>
-                                    <th class="p-4 font-bold uppercase text-center">Action</th>
+                                    <th class="p-3 uppercase">Operator</th>
+                                    <th class="p-3 uppercase">Role</th>
+                                    <th class="p-3 uppercase">Rate Verification</th>
+                                    <th class="p-3 uppercase">Final Ledger Posting</th>
+                                    <th class="p-3 uppercase">Secondary Verification</th>
+                                    <th class="p-3 uppercase">Account Status</th>
+                                    <th class="p-3 uppercase text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="userTableBody" class="divide-y divide-slate-100"></tbody>
@@ -308,156 +301,152 @@
         </main>
     </div>
 
-    <!-- MODAL: ADD / EDIT STAFF USER -->
+    <!-- MODAL: ADD / EDIT STAFF PERMISSIONS -->
     <div id="userModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-200">
-            <h3 id="userModalTitle" class="text-base font-bold text-slate-900 mb-4">Edit Staff Credentials & Access</h3>
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-slate-200">
+            <h3 id="userModalTitle" class="text-sm font-bold text-slate-900 mb-4 uppercase">Configure Operator Privileges</h3>
             <form onsubmit="saveStaffUser(event)" class="space-y-3 text-xs">
                 <div>
-                    <label class="font-bold text-slate-600 block mb-1">Username</label>
+                    <label class="font-semibold text-slate-700 block mb-1">Operator Username</label>
                     <input type="text" id="usrNameInput" required class="w-full px-3 py-2 border rounded-lg font-semibold">
                 </div>
                 <div>
-                    <label class="font-bold text-slate-600 block mb-1">Security PIN</label>
+                    <label class="font-semibold text-slate-700 block mb-1">Security PIN</label>
                     <input type="password" id="usrPinInput" required maxlength="6" class="w-full px-3 py-2 border rounded-lg font-mono">
                 </div>
                 <div>
-                    <label class="font-bold text-slate-600 block mb-1">Role Type</label>
+                    <label class="font-semibold text-slate-700 block mb-1">Role Type</label>
                     <select id="usrRoleInput" class="w-full px-3 py-2 border rounded-lg font-semibold">
                         <option value="Staff">Staff</option>
                         <option value="Admin">Admin</option>
                     </select>
                 </div>
                 <div class="space-y-2 pt-2 border-t">
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" id="usrCanApprove" class="rounded">
-                        <span class="font-semibold text-slate-700">Can Review Payments & Input Gold Rate</span>
+                        <span class="font-medium text-slate-800">Authorized to review payments and enter daily gold rates</span>
                     </label>
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" id="usrCanFinalApprove" class="rounded">
-                        <span class="font-semibold text-slate-700">Can Perform Final Sign-Off & Credit Ledger</span>
+                        <span class="font-medium text-slate-800">Authorized for direct posting and final ledger commitment</span>
                     </label>
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" id="usrBypass2SV" class="rounded">
-                        <span class="font-semibold text-slate-700">Bypass 2-Step Verification PIN on Approvals</span>
+                        <span class="font-medium text-slate-800">Bypass secondary PIN verification prompt</span>
                     </label>
                 </div>
                 <div class="flex gap-2 pt-3">
-                    <button type="button" onclick="closeUserModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-xl font-semibold cursor-pointer">Cancel</button>
-                    <button type="submit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl font-semibold cursor-pointer">Save Privileges</button>
+                    <button type="button" onclick="closeUserModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-lg font-semibold cursor-pointer">Cancel</button>
+                    <button type="submit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg font-semibold cursor-pointer">Save Credentials</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: REGISTER NEW GRMS MEMBER -->
+    <!-- MODAL: ENROLL NEW MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
-                <div>
-                    <h3 class="text-base font-black text-slate-900 uppercase">Enroll GRMS Member</h3>
-                    <p class="text-xs text-amber-800 font-semibold">11-Month Golden Rose Magic Scheme</p>
-                </div>
-                <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
+                <h3 class="text-sm font-bold text-slate-900 uppercase">Enroll Scheme Participant</h3>
+                <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-700 font-bold text-base cursor-pointer">&times;</button>
             </div>
             
-            <form onsubmit="submitNewMember(event)" class="space-y-3">
+            <form onsubmit="submitNewMember(event)" class="space-y-3 text-xs">
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Mobile Number (Col A) *</label>
-                    <input type="tel" id="newPhone" maxlength="10" required placeholder="10-digit mobile number" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-slate-900">
+                    <label class="font-semibold text-slate-700 block mb-1">Mobile Number (10 Digits) *</label>
+                    <input type="tel" id="newPhone" maxlength="10" required class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono">
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Full Name (Col B) *</label>
-                    <input type="text" id="newName" required placeholder="Customer Full Name" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    <label class="font-semibold text-slate-700 block mb-1">Full Legal Name *</label>
+                    <input type="text" id="newName" required class="w-full px-3 py-2 border border-slate-200 rounded-lg">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Monthly Plan (Col C) *</label>
-                        <select id="newAmount" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:ring-2 focus:ring-slate-900">
-                            <option value="5000">₹5,000 / Month</option>
-                            <option value="8000">₹8,000 / Month</option>
+                        <label class="font-semibold text-slate-700 block mb-1">Monthly Plan *</label>
+                        <select id="newAmount" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-bold">
+                            <option value="5000">INR 5,000 / Month</option>
+                            <option value="8000">INR 8,000 / Month</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Token ID (Col D)</label>
-                        <input type="text" id="newCustId" placeholder="e.g. GRM-101" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-slate-900">
+                        <label class="font-semibold text-slate-700 block mb-1">Token Reference</label>
+                        <input type="text" id="newCustId" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">A/C Code (Col E) *</label>
-                        <input type="text" id="newKittyNo" required placeholder="e.g. A-01" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-slate-900">
+                        <label class="font-semibold text-slate-700 block mb-1">Account Code *</label>
+                        <input type="text" id="newKittyNo" required class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono font-bold">
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Date of Joining (Col F)</label>
-                        <input type="date" id="newRemarks" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs font-mono focus:ring-2 focus:ring-slate-900">
+                        <label class="font-semibold text-slate-700 block mb-1">Effective Enrollment Date</label>
+                        <input type="date" id="newRemarks" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono">
                     </div>
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Email Address (Col G)</label>
-                    <input type="email" id="newEmail" placeholder="customer@gmail.com (for MPIN recovery)" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    <label class="font-semibold text-slate-700 block mb-1">Email Address</label>
+                    <input type="email" id="newEmail" class="w-full px-3 py-2 border border-slate-200 rounded-lg">
                 </div>
                 
                 <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeAddMemberModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Cancel</button>
-                    <button type="submit" id="btnSubmitMember" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 cursor-pointer">Save Member</button>
+                    <button type="button" onclick="closeAddMemberModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-lg font-semibold cursor-pointer">Cancel</button>
+                    <button type="submit" id="btnSubmitMember" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg font-semibold hover:bg-slate-800 cursor-pointer">Commit Registration</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL: MANUAL COUNTER DEPOSIT -->
+    <!-- MODAL: COUNTER DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl my-auto border border-slate-200">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900">Showroom Deposit & Gold Booking</h3>
+                    <h3 class="text-sm font-bold text-slate-900 uppercase">Post Counter Payment</h3>
                     <p id="depositTargetLabel" class="text-xs text-slate-500 font-mono mt-0.5">-</p>
                 </div>
-                <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer">&times;</button>
+                <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-slate-700 font-bold text-base cursor-pointer">&times;</button>
             </div>
             
-            <form onsubmit="submitManualDeposit(event)" class="space-y-4">
+            <form onsubmit="submitManualDeposit(event)" class="space-y-3 text-xs">
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Select Month (1 - 11) *</label>
-                    <select id="depositMonth" required class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-semibold"></select>
+                    <label class="font-semibold text-slate-700 block mb-1">Installment Schedule (Month 1 - 11) *</label>
+                    <select id="depositMonth" required class="w-full px-3 py-2 border border-slate-200 rounded-lg font-semibold"></select>
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Deposit Amount (₹) *</label>
-                    <input type="number" id="depositAmount" required oninput="calculateRealtimeGold()" placeholder="e.g. 5000" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
+                    <label class="font-semibold text-slate-700 block mb-1">Remittance Amount (INR) *</label>
+                    <input type="number" id="depositAmount" required oninput="calculateRealtimeGold()" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono font-bold">
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Current 22K Gold Rate for 10 Grams (₹) *</label>
-                    <input type="number" id="depositRate" required oninput="calculateRealtimeGold()" placeholder="e.g. 68500" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 font-mono font-bold">
+                    <label class="font-semibold text-slate-700 block mb-1">22K Gold Valuation Rate for 10 Grams (INR) *</label>
+                    <input type="number" id="depositRate" required oninput="calculateRealtimeGold()" placeholder="Mandatory Daily Rate" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono font-bold">
                 </div>
 
-                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl flex justify-between items-center">
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center">
                     <div>
-                        <span class="text-[10px] uppercase font-bold text-amber-800 block">Allocated 22K Weight</span>
-                        <span class="text-[11px] text-amber-900">Calculated automatically</span>
+                        <span class="text-[10px] uppercase font-bold text-slate-500 block">Calculated 22K Weight</span>
+                        <span class="text-[11px] text-slate-700">Formula: Amount / (Rate per Gram)</span>
                     </div>
-                    <span id="lblLiveAllocatedWeight" class="text-lg font-black font-mono text-amber-950">0.000 g</span>
+                    <span id="lblLiveAllocatedWeight" class="text-base font-bold font-mono text-slate-900">0.000 g</span>
                 </div>
 
                 <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Receipt Number / UTR Reference</label>
-                    <input type="text" id="depositRef" placeholder="Showroom Cash Counter" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-slate-900">
+                    <label class="font-semibold text-slate-700 block mb-1">Payment Reference Key</label>
+                    <input type="text" id="depositRef" placeholder="Counter Cash Deposit" class="w-full px-3 py-2 border border-slate-200 rounded-lg">
                 </div>
                 
                 <div class="pt-2 flex gap-2">
-                    <button type="button" onclick="closeManualDepositModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Cancel</button>
-                    <button type="submit" id="btnSubmitDeposit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-semibold hover:bg-slate-800 cursor-pointer">Commit Transaction</button>
+                    <button type="button" onclick="closeManualDepositModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-lg font-semibold cursor-pointer">Cancel</button>
+                    <button type="submit" id="btnSubmitDeposit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg font-semibold hover:bg-slate-800 cursor-pointer">Commit Transaction</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- CORE JAVASCRIPT CONTROLLER -->
+    <!-- CLIENT CONTROLLER -->
     <script>
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             schemeMonths: 11,
-            upiVpa: "8052473033@upi",
             brandName: "Suman Jewellers"
         };
 
@@ -466,7 +455,7 @@
         let selectedMemberData = null;
         let activeDefaultersList = [];
 
-        function showLoader(msg = "Processing...") {
+        function showLoader(msg = "Communicating with Database...") {
             document.getElementById('kmpLoaderMsg').innerText = msg;
             document.getElementById('kmpLoader').classList.remove('hidden-view');
         }
@@ -490,7 +479,7 @@
             const username = document.getElementById('kmpUserInput').value.trim();
             const pin = document.getElementById('kmpPassInput').value.trim();
 
-            showLoader("Authenticating Staff...");
+            showLoader("Validating Credentials...");
 
             fetch(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}&_ts=${Date.now()}`)
             .then(r => r.json())
@@ -498,18 +487,18 @@
                 hideLoader();
                 if (res.success && res.user) {
                     sessionUser = res.user;
-                    sessionUser.pin = pin; // Cached for auth headers
+                    sessionUser.pin = pin;
                     sessionStorage.setItem('kmpUserSession', JSON.stringify(sessionUser));
                     renderUserUI();
                     document.getElementById('kmpLoginView').classList.add('hidden-view');
                     document.getElementById('kmpMainView').classList.remove('hidden-view');
                 } else {
-                    alert(res.error || "Login Failed: Invalid credentials.");
+                    alert(res.error || "Authentication failed.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Network communication failure.");
+                alert("Server connection timeout.");
             });
         }
 
@@ -524,11 +513,11 @@
             badge.innerText = sessionUser.role;
 
             if (sessionUser.role === "Admin") {
-                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-400 text-slate-950";
+                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-800 text-white";
                 document.getElementById('tabBtnUsers').classList.remove('hidden-view');
                 document.getElementById('btnTopAddMember').classList.remove('hidden-view');
             } else {
-                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-700 text-slate-300";
+                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300";
                 document.getElementById('tabBtnUsers').classList.add('hidden-view');
             }
         }
@@ -556,12 +545,11 @@
             else if (document.getElementById('searchInput').value.trim()) searchMemberRecords();
         }
 
-        // --- SEARCH MEMBERS ---
         function searchMemberRecords() {
             const rawQuery = document.getElementById('searchInput').value.trim();
-            if (!rawQuery) return alert("Enter Mobile, Token ID, Name, or A/C Code.");
+            if (!rawQuery) return alert("Please specify search query parameters.");
 
-            showLoader("Searching Directory...");
+            showLoader("Searching Database...");
 
             fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(rawQuery)}&_ts=${Date.now()}`)
             .then(r => r.json())
@@ -570,7 +558,7 @@
                 if (!res || !res.results || res.results.length === 0) {
                     document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
                     document.getElementById('memberProfileSection').classList.add('hidden-view');
-                    return alert("No account found matching this query.");
+                    return alert("No account records match the specified query.");
                 }
 
                 activeSearchResults = res.results;
@@ -594,8 +582,8 @@
 
             activeSearchResults.forEach((res, index) => {
                 pillsContainer.innerHTML += `
-                    <button onclick="selectSpecificKitty(${index})" class="bg-white hover:bg-amber-100 border border-amber-300 text-amber-950 font-bold px-3 py-2 rounded-lg text-xs transition-all shadow-xs cursor-pointer">
-                        A/C: ${res.acCode || res.kittyNumber} (${res.name} - ₹${res.monthlyAmount})
+                    <button onclick="selectSpecificKitty(${index})" class="bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 font-semibold px-3 py-1.5 rounded text-xs transition-all cursor-pointer">
+                        Account: ${res.acCode || res.kittyNumber} (${res.name})
                     </button>
                 `;
             });
@@ -610,25 +598,25 @@
 
         function loadMemberLedger(member) {
             selectedMemberData = member;
-            showLoader("Fetching Member Ledger...");
+            showLoader("Loading Statement Records...");
 
             document.getElementById('viewCustName').innerText = member.name;
             document.getElementById('viewCustPhone').innerText = "+91 " + member.phone;
             document.getElementById('viewCustId').innerText = member.customerId || "-";
             document.getElementById('viewKittyNo').innerText = member.acCode || member.kittyNumber;
-            document.getElementById('viewMonthlyAmount').innerText = "₹" + Number(member.monthlyAmount).toLocaleString('en-IN');
+            document.getElementById('viewMonthlyAmount').innerText = "INR " + Number(member.monthlyAmount).toLocaleString('en-IN');
             document.getElementById('viewOtherDetails').innerText = member.doj || member.otherDetails || "-";
 
             const winCount = Number(member.winCount) || 0;
             document.getElementById('selWinCount').value = winCount;
             const winBadge = document.getElementById('viewWinBadge');
-            winBadge.innerText = winCount > 0 ? `${winCount}x Draw Winner` : `Non-Winner`;
+            winBadge.innerText = winCount > 0 ? `${winCount} Event Winner` : `Standard Member`;
 
             fetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode || member.kittyNumber)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (!res || !res.profile) return alert("Customer record not found.");
+                if (!res || !res.profile) return alert("Unable to load member statement details.");
 
                 const userTxs = res.transactions || [];
                 let paidMonths = 0, totalDeposited = 0, totalGoldWeight = 0;
@@ -641,9 +629,9 @@
                     }
                 });
 
-                document.getElementById('viewTotalBalance').innerText = "₹" + totalDeposited.toLocaleString('en-IN');
+                document.getElementById('viewTotalBalance').innerText = "INR " + totalDeposited.toLocaleString('en-IN');
                 document.getElementById('viewTotalGoldGrams').innerText = `${totalGoldWeight.toFixed(3)} g`;
-                document.getElementById('viewPaidRatio').innerText = `${paidMonths} / ${config.schemeMonths} Complete`;
+                document.getElementById('viewPaidRatio').innerText = `${paidMonths} / ${config.schemeMonths} Completed`;
 
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
@@ -652,23 +640,23 @@
                     let record = userTxs.find(t => Number(t.month) === m);
                     if (record && record.status.toLowerCase() === "paid") {
                         tbody.innerHTML += `
-                            <tr class="bg-emerald-50/40">
-                                <td class="p-3 font-bold text-slate-800">Month ${m}</td>
-                                <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">PAID</span></td>
-                                <td class="p-3 font-mono font-bold text-slate-900">₹${Number(record.amount).toLocaleString('en-IN')}</td>
-                                <td class="p-3 font-mono text-slate-600">${record.rate ? '₹' + Number(record.rate).toLocaleString('en-IN') : '-'}</td>
+                            <tr class="bg-slate-50/50">
+                                <td class="p-3 font-semibold text-slate-800">Month ${m}</td>
+                                <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">SETTLED</span></td>
+                                <td class="p-3 font-mono font-bold text-slate-900">INR ${Number(record.amount).toLocaleString('en-IN')}</td>
+                                <td class="p-3 font-mono text-slate-600">${record.rate ? 'INR ' + Number(record.rate).toLocaleString('en-IN') : '-'}</td>
                                 <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.bookedGrams)||0).toFixed(3)} g</td>
-                                <td class="p-3 font-mono text-slate-500">${record.utr || 'Showroom Counter'}</td>
+                                <td class="p-3 font-mono text-slate-500">${record.utr || 'Counter Deposit'}</td>
                             </tr>
                         `;
                     } else if (record && (record.status.toLowerCase() === "pending" || record.status.toLowerCase() === "reviewed")) {
                         tbody.innerHTML += `
-                            <tr class="bg-amber-50/40">
-                                <td class="p-3 font-bold text-slate-800">Month ${m}</td>
+                            <tr class="bg-amber-50/30">
+                                <td class="p-3 font-semibold text-slate-800">Month ${m}</td>
                                 <td class="p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">${record.status.toUpperCase()}</span></td>
-                                <td class="p-3 font-mono font-bold text-slate-900">₹${Number(record.amount).toLocaleString('en-IN')}</td>
-                                <td class="p-3 font-mono text-slate-400">${record.rate || '-'}</td>
-                                <td class="p-3 font-mono text-slate-400">${record.bookedGrams || '-'}</td>
+                                <td class="p-3 font-mono font-bold text-slate-900">INR ${Number(record.amount).toLocaleString('en-IN')}</td>
+                                <td class="p-3 font-mono text-slate-500">${record.rate || '-'}</td>
+                                <td class="p-3 font-mono text-slate-500">${record.bookedGrams ? record.bookedGrams + ' g' : '-'}</td>
                                 <td class="p-3 font-mono text-slate-500">${record.utr}</td>
                             </tr>
                         `;
@@ -676,7 +664,7 @@
                         tbody.innerHTML += `
                             <tr class="text-slate-400">
                                 <td class="p-3 font-medium">Month ${m}</td>
-                                <td class="p-3"><span class="bg-slate-100 text-slate-500 font-medium px-2 py-0.5 rounded text-[10px]">UNPAID</span></td>
+                                <td class="p-3"><span class="bg-slate-100 text-slate-400 font-medium px-2 py-0.5 rounded text-[10px]">UNPAID</span></td>
                                 <td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td>
                             </tr>
                         `;
@@ -687,17 +675,16 @@
             .catch(() => hideLoader());
         }
 
-        // --- PENDING QUEUE & MULTI-TIER APPROVAL FLOW ---
         function loadKmpPendingApprovals() {
             const tableBody = document.getElementById('kmpApprovalTableBody');
-            showLoader("Refreshing Queue...");
+            showLoader("Accessing Verification Queue...");
 
             fetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(pendingList => {
                 hideLoader();
                 if (!pendingList || pendingList.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-emerald-700 font-semibold">Queue Clear: No pending transactions awaiting review.</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 font-medium">Verification queue cleared: No pending remittances found.</td></tr>`;
                     return;
                 }
 
@@ -705,51 +692,51 @@
                 pendingList.forEach(item => {
                     const slipSrc = item.screenshotUrl || "";
                     const linkMarkup = slipSrc 
-                        ? `<a href="${slipSrc}" target="_blank" class="text-slate-900 underline font-semibold block mt-1">View Slip ↗</a>` 
-                        : `<span class="text-slate-400 italic">No file attached</span>`;
+                        ? `<a href="${slipSrc}" target="_blank" class="text-slate-900 underline font-semibold block mt-0.5">Examine Receipt &rarr;</a>` 
+                        : `<span class="text-slate-400 italic">No document attached</span>`;
 
                     let actionHtml = "";
                     const isReviewed = (item.status || "").toLowerCase() === "reviewed";
 
+                    // Step 1: Staff Rate Review
                     if (!isReviewed) {
-                        // Step 1: Staff Rate Review Button
-                        actionHtml = `
-                            <button onclick="initiateRateReview('${item.row}', ${item.amount})" class="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer">
-                                1. Review & Set Rate
+                        actionHtml += `
+                            <button onclick="executeRateReview('${item.row}', ${item.amount})" class="bg-amber-800 hover:bg-amber-700 text-white text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
+                                Set 22K Rate &amp; Review
                             </button>
                         `;
                     }
 
-                    // Step 2: Final Sign-off Button (Admin or CanFinalApprove)
+                    // Step 2: Direct / Final Approval
                     if (sessionUser.role === "Admin" || sessionUser.canFinalApprove) {
                         actionHtml += `
-                            <button onclick="initiateFinalApproval('${item.row}')" class="ml-2 bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer">
-                                ${isReviewed ? '2. Final Post' : 'Direct Approve'}
+                            <button onclick="executeFinalApproval('${item.row}', ${item.amount}, ${isReviewed})" class="ml-1 bg-slate-900 hover:bg-slate-800 text-white text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
+                                ${isReviewed ? 'Commit to Ledger' : 'Authorize &amp; Post'}
                             </button>
                         `;
                     }
 
                     tableBody.innerHTML += `
                         <tr id="row-kmp-${item.row}">
-                            <td class="p-4">
+                            <td class="p-3">
                                 <div class="font-bold text-slate-900 uppercase">${item.name}</div>
-                                <div class="text-xs text-slate-500 font-mono">+91 ${item.phone}</div>
+                                <div class="text-[11px] text-slate-500 font-mono">+91 ${item.phone}</div>
                             </td>
-                            <td class="p-4 text-xs font-mono">
-                                <strong class="text-amber-800">${item.acCode}</strong><br>
+                            <td class="p-3 font-mono">
+                                <strong>${item.acCode}</strong><br>
                                 <span class="text-slate-400">${item.customerId}</span>
                             </td>
-                            <td class="p-4 font-bold text-slate-800">Month ${item.month}</td>
-                            <td class="p-4 font-bold text-slate-900 font-mono">₹${Number(item.amount).toLocaleString('en-IN')}</td>
-                            <td class="p-4 text-xs">
-                                <span class="px-2 py-0.5 rounded font-bold ${isReviewed ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800'}">${item.status}</span>
-                                ${item.bookedGrams ? `<div class="font-mono text-slate-600 mt-1 font-bold">${item.bookedGrams}g @ ₹${item.rateApplied}</div>` : ''}
+                            <td class="p-3 font-bold text-slate-700">Month ${item.month}</td>
+                            <td class="p-3 font-bold text-slate-900 font-mono">INR ${Number(item.amount).toLocaleString('en-IN')}</td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 rounded font-bold ${isReviewed ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${item.status}</span>
+                                ${item.bookedGrams ? `<div class="font-mono text-slate-600 mt-1">${item.bookedGrams}g @ INR ${item.rateApplied}</div>` : ''}
                             </td>
-                            <td class="p-4 text-xs font-mono">
+                            <td class="p-3 font-mono">
                                 <div>UTR: ${item.utr}</div>
                                 ${linkMarkup}
                             </td>
-                            <td class="p-4 text-center whitespace-nowrap">${actionHtml}</td>
+                            <td class="p-3 text-center whitespace-nowrap">${actionHtml}</td>
                         </tr>
                     `;
                 });
@@ -757,23 +744,22 @@
             .catch(() => hideLoader());
         }
 
-        // STEP 1: Staff Rate Review with optional 2SV check
-        function initiateRateReview(rowId, amount) {
-            var inputRate = prompt(`[Step 1 Review] Installment: ₹${amount}\nEnter Current 22K Gold Rate for 10g (₹):`);
-            if (!inputRate) return;
+        // STEP 1: Staff Reviews and Sets Gold Rate
+        function executeRateReview(rowId, amount) {
+            var inputRate = prompt(`[Mandatory Valuation]\nRemittance: INR ${amount}\nEnter Current 22K Gold Valuation Rate for 10 Grams (INR):`);
+            if (inputRate === null) return;
             var rate10g = parseFloat(inputRate.trim());
-            if (isNaN(rate10g) || rate10g <= 0) return alert("Enter valid numeric gold rate.");
+            if (isNaN(rate10g) || rate10g <= 0) return alert("Validation Failure: You must supply a valid numerical gold rate.");
 
-            var grams = amount / (rate10g / 10);
+            var grams = (amount / (rate10g / 10));
             var secondPin = "";
 
-            // Check if 2SV is required for this staff account
             if (!sessionUser.bypass2SV && sessionUser.role !== "Admin") {
-                secondPin = prompt("2-Step Verification Required:\nEnter your Security PIN again to authorize:");
-                if (!secondPin) return alert("Approval aborted: Secondary verification required.");
+                secondPin = prompt("Secondary Authorization:\nEnter Operator Security PIN to verify verification authority:");
+                if (!secondPin) return alert("Operation terminated: Missing secondary credentials.");
             }
 
-            showLoader("Submitting Rate Review...");
+            showLoader("Recording Rate Verification in Database...");
 
             fetch(config.scriptUrl, {
                 method: "POST",
@@ -782,7 +768,6 @@
                     action: "reviewTransaction",
                     row: rowId,
                     rateUsed: rate10g,
-                    gramsBooked: grams.toFixed(3),
                     authUser: sessionUser.username,
                     authPin: sessionUser.pin,
                     secondPin: secondPin
@@ -792,29 +777,40 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert(`Reviewed! Booked weight: ${grams.toFixed(3)}g. Awaiting final Admin posting.`);
+                    alert(`Valuation posted successfully to database. Weight allocated: ${res.gramsBooked} grams. Awaiting final authorization.`);
                     loadKmpPendingApprovals();
                 } else {
-                    alert("Verification Failed: " + (res.error || ""));
+                    alert("Authorization Error: " + (res.error || ""));
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Communication error.");
+                alert("Database network communication error.");
             });
         }
 
-        // STEP 2: Final Ledger Credit
-        function initiateFinalApproval(rowId) {
-            if (!confirm("Final Review: Commit and credit this payment into member passbook?")) return;
-            showLoader("Posting Final Approval...");
+        // STEP 2: Final Ledger Approval
+        function executeFinalApproval(rowId, amount, isReviewed) {
+            let rate10g = 0;
+
+            if (!isReviewed) {
+                var inputRate = prompt(`[Mandatory Rate Allocation]\nRemittance: INR ${Number(amount).toLocaleString('en-IN')}\nEnter Current 22K Gold Rate for 10 Grams (INR):`);
+                if (inputRate === null) return;
+                rate10g = parseFloat(inputRate.trim());
+                if (isNaN(rate10g) || rate10g <= 0) return alert("Validation Failure: Gold rate input is strictly mandatory.");
+            }
+
+            if (!confirm("Confirm Transaction Authorization:\nProceed with permanent ledger booking and customer passbook credit?")) return;
+
+            showLoader("Posting Authorization to Database...");
 
             fetch(config.scriptUrl, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({
-                    action: "finalApprove",
+                    action: isReviewed ? "finalApprove" : "approve",
                     row: rowId,
+                    rateUsed: rate10g,
                     authUser: sessionUser.username,
                     authPin: sessionUser.pin
                 })
@@ -823,45 +819,45 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert("Transaction committed to permanent ledger!");
+                    alert(isReviewed ? "Transaction settled and posted to ledger." : `Transaction authorized. ${res.gramsBooked} grams credited to passbook.`);
                     loadKmpPendingApprovals();
                 } else {
-                    alert("Failed: " + (res.error || ""));
+                    alert("Posting Error: " + (res.error || ""));
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Communication error.");
+                alert("Communication error encountered during ledger update.");
             });
         }
 
-        // --- STAFF USERS & RBAC MANAGEMENT ---
+        // OPERATOR RBAC DIRECTORY
         function loadStaffUsersList() {
             if (sessionUser.role !== "Admin") return;
-            showLoader("Loading Staff Directory...");
+            showLoader("Retrieving Operator Records...");
 
             fetch(`${config.scriptUrl}?action=getStaffUsers&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (!res.success) return alert(res.error || "Access denied.");
+                if (!res.success) return alert(res.error || "Access Denied.");
                 const tbody = document.getElementById('userTableBody');
                 tbody.innerHTML = "";
 
                 res.users.forEach(u => {
                     tbody.innerHTML += `
                         <tr>
-                            <td class="p-4 font-bold text-slate-900">${u.username}</td>
-                            <td class="p-4 font-semibold">${u.role}</td>
-                            <td class="p-4">${u.canApprove ? '✅ Yes' : '❌ No'}</td>
-                            <td class="p-4">${u.canFinalApprove ? '✅ Yes' : '❌ No'}</td>
-                            <td class="p-4">${u.bypass2SV ? '⚡ Yes' : '🔒 Requires 2SV'}</td>
-                            <td class="p-4"><span class="px-2 py-0.5 rounded font-bold ${u.status === 'Active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${u.status}</span></td>
-                            <td class="p-4 text-center">
+                            <td class="p-3 font-bold text-slate-900">${u.username}</td>
+                            <td class="p-3 font-semibold">${u.role}</td>
+                            <td class="p-3">${u.canApprove ? 'Authorized' : 'Restricted'}</td>
+                            <td class="p-3">${u.canFinalApprove ? 'Authorized' : 'Restricted'}</td>
+                            <td class="p-3">${u.bypass2SV ? 'Exempt' : 'Mandatory 2SV'}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 rounded font-bold ${u.status === 'Active' ? 'bg-slate-100 text-slate-800' : 'bg-rose-100 text-rose-800'}">${u.status}</span></td>
+                            <td class="p-3 text-center">
                                 ${u.username.toLowerCase() !== 'admin' ? `
-                                    <button onclick='editUserRow(${JSON.stringify(u)})' class="text-indigo-600 font-bold mr-2">Edit</button>
-                                    <button onclick="deleteStaffUser('${u.username}')" class="text-rose-600 font-bold">Delete</button>
-                                ` : '<span class="text-slate-400 italic">Protected</span>'}
+                                    <button onclick='editUserRow(${JSON.stringify(u)})' class="text-slate-900 font-bold mr-2 cursor-pointer">Configure</button>
+                                    <button onclick="deleteStaffUser('${u.username}')" class="text-rose-700 font-bold cursor-pointer">Remove</button>
+                                ` : '<span class="text-slate-400 italic">Root Authority</span>'}
                             </td>
                         </tr>
                     `;
@@ -871,7 +867,7 @@
         }
 
         function openUserEditModal() {
-            document.getElementById('userModalTitle').innerText = "Add Staff User";
+            document.getElementById('userModalTitle').innerText = "Register New Operator";
             document.getElementById('usrNameInput').value = "";
             document.getElementById('usrNameInput').readOnly = false;
             document.getElementById('usrPinInput').value = "";
@@ -883,7 +879,7 @@
         }
 
         function editUserRow(u) {
-            document.getElementById('userModalTitle').innerText = "Edit " + u.username;
+            document.getElementById('userModalTitle').innerText = "Configure Operator: " + u.username;
             document.getElementById('usrNameInput').value = u.username;
             document.getElementById('usrNameInput').readOnly = true;
             document.getElementById('usrPinInput').value = u.pin;
@@ -900,7 +896,7 @@
 
         function saveStaffUser(e) {
             e.preventDefault();
-            showLoader("Saving User...");
+            showLoader("Uploading Operator Permissions to Database...");
 
             const payload = {
                 action: "saveStaffUser",
@@ -924,37 +920,36 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert("User privileges saved!");
+                    alert("Operator permissions committed to database.");
                     closeUserModal();
                     loadStaffUsersList();
-                } else alert("Error: " + res.error);
+                } else alert("Database Error: " + res.error);
             })
             .catch(() => hideLoader());
         }
 
         function deleteStaffUser(targetUser) {
-            if (!confirm(`Permanently remove staff user ${targetUser}?`)) return;
-            showLoader("Deleting Staff...");
+            if (!confirm(`Permanently remove operator access for ${targetUser}?`)) return;
+            showLoader("Removing Operator Record from Database...");
 
             fetch(`${config.scriptUrl}?action=deleteStaffUser&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&targetUser=${encodeURIComponent(targetUser)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert("Staff member deleted.");
+                    alert("Operator profile deleted from database.");
                     loadStaffUsersList();
-                } else alert("Error: " + res.error);
+                } else alert("Database Error: " + res.error);
             })
             .catch(() => hideLoader());
         }
 
-        // --- ENROLL & DEPOSIT MODALS ---
         function openAddMemberModal() { document.getElementById('addMemberModal').classList.remove('hidden-view'); }
         function closeAddMemberModal() { document.getElementById('addMemberModal').classList.add('hidden-view'); }
 
         function submitNewMember(e) {
             e.preventDefault();
-            showLoader("Enrolling Member...");
+            showLoader("Enrolling Member into System Database...");
 
             const payload = {
                 action: "addMember",
@@ -976,16 +971,16 @@
             .then(res => {
                 hideLoader();
                 if (res && res.success) {
-                    alert("GRMS Member enrolled successfully!");
+                    alert("Member enrolled and initialized in database.");
                     closeAddMemberModal();
-                } else alert("Error: " + (res.error || ""));
+                } else alert("Enrollment Failure: " + (res.error || ""));
             })
             .catch(() => hideLoader());
         }
 
         function openManualDepositModal() {
             if (!selectedMemberData) return;
-            document.getElementById('depositTargetLabel').innerText = `${selectedMemberData.name} - A/C: ${selectedMemberData.acCode || selectedMemberData.kittyNumber}`;
+            document.getElementById('depositTargetLabel').innerText = `${selectedMemberData.name} - Account: ${selectedMemberData.acCode || selectedMemberData.kittyNumber}`;
             document.getElementById('depositAmount').value = selectedMemberData.monthlyAmount;
             document.getElementById('depositRate').value = "";
             document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
@@ -1016,13 +1011,13 @@
             const amount = parseFloat(document.getElementById('depositAmount').value);
             const rate10g = parseFloat(document.getElementById('depositRate').value);
             const month = document.getElementById('depositMonth').value;
-            const ref = document.getElementById('depositRef').value.trim() || "Counter Cash";
+            const ref = document.getElementById('depositRef').value.trim() || "Showroom Counter";
 
-            if (!amount || !rate10g) return alert("Verify amount and gold rate.");
+            if (!amount || !rate10g) return alert("Remittance amount and 22K gold rate are strictly mandatory.");
 
-            showLoader("Recording Counter Deposit...");
+            showLoader("Recording Counter Payment to Database...");
             const perGram = rate10g / 10;
-            const grams = amount / perGram;
+            const grams = (amount / perGram).toFixed(3);
 
             const payload = {
                 action: "manualEntry",
@@ -1031,7 +1026,7 @@
                 month: month,
                 amount: amount,
                 rateUsed: rate10g,
-                gramsBooked: grams.toFixed(3),
+                gramsBooked: grams,
                 utr: ref
             };
 
@@ -1044,23 +1039,22 @@
             .then(res => {
                 hideLoader();
                 closeManualDepositModal();
-                alert(`Payment recorded! ${grams.toFixed(3)}g 22K Gold added.`);
+                alert(`Transaction committed to database. ${grams} grams booked.`);
                 loadMemberLedger(selectedMemberData);
             })
             .catch(() => hideLoader());
         }
 
-        // --- DEFAULTERS & BULK REMINDERS ---
         function loadOverdueDefaulters() {
             const tbody = document.getElementById('defaulterTableBody');
-            showLoader("Scanning Cutoff Defaulters...");
+            showLoader("Auditing Overdue Schedules in Database...");
 
             fetch(`${config.scriptUrl}?action=getOverdueDefaulters&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (!res || !res.success || !res.defaulters || res.defaulters.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-emerald-700 font-bold bg-emerald-50/50">✨ All clear! No members have overdue installments past the 20th cutoff date.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 font-semibold">Audit Complete: Zero overdue installments located.</td></tr>`;
                     activeDefaultersList = [];
                     return;
                 }
@@ -1069,20 +1063,20 @@
                 tbody.innerHTML = "";
                 res.defaulters.forEach(item => {
                     const monthsLabel = item.overdueMonths.map(m => `Month ${m}`).join(', ');
-                    const waText = encodeURIComponent(`Dear ${item.name},\n\nPayment reminder from ${config.brandName} regarding GRMS A/C: ${item.acCode}.\n\nInstallment for ${monthsLabel} (₹${item.totalDue.toLocaleString('en-IN')}) is overdue.\n\nPlease clear payment via UPI (${config.upiVpa}) to remain eligible for the draw.`);
+                    const waText = encodeURIComponent(`Official Statement from ${config.brandName}\nAccount: ${item.acCode}\n\nNotice: Installment for ${monthsLabel} (INR ${item.totalDue.toLocaleString('en-IN')}) is currently outstanding.\n\nPlease remit online or via counter to maintain policy eligibility.`);
                     tbody.innerHTML += `
                         <tr>
-                            <td class="p-4 font-semibold text-slate-900">
-                                <div class="font-bold">${item.name}</div>
-                                <div class="text-xs text-slate-500 font-mono">+91 ${item.phone}</div>
+                            <td class="p-3 font-semibold text-slate-900">
+                                <div>${item.name}</div>
+                                <div class="text-[11px] text-slate-500 font-mono">+91 ${item.phone}</div>
                             </td>
-                            <td class="p-4 font-mono font-bold text-amber-800">${item.acCode}</td>
-                            <td class="p-4 font-mono text-slate-600">${item.doj}</td>
-                            <td class="p-4"><span class="bg-rose-100 text-rose-800 px-2.5 py-1 rounded-md font-bold">${monthsLabel}</span></td>
-                            <td class="p-4 font-mono font-black text-rose-600 text-sm">₹${item.totalDue.toLocaleString('en-IN')}</td>
-                            <td class="p-4 text-center">
-                                <a href="https://wa.me/91${item.phone}?text=${waText}" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
-                                    Send WhatsApp
+                            <td class="p-3 font-mono font-bold">${item.acCode}</td>
+                            <td class="p-3 font-mono text-slate-600">${item.doj}</td>
+                            <td class="p-3"><span class="bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-bold">${monthsLabel}</span></td>
+                            <td class="p-3 font-mono font-bold text-slate-900">INR ${item.totalDue.toLocaleString('en-IN')}</td>
+                            <td class="p-3 text-center">
+                                <a href="https://wa.me/91${item.phone}?text=${waText}" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-2.5 py-1 rounded">
+                                    Issue Dispatch
                                 </a>
                             </td>
                         </tr>
@@ -1093,17 +1087,17 @@
         }
 
         function sendBulkEmailReminders() {
-            if (!activeDefaultersList || activeDefaultersList.length === 0) return alert("No defaulters in list.");
-            if (!confirm(`Dispatch automated email reminders to all ${activeDefaultersList.length} overdue members?`)) return;
+            if (!activeDefaultersList || activeDefaultersList.length === 0) return alert("Zero overdue accounts identified.");
+            if (!confirm(`Dispatch electronic notices to all ${activeDefaultersList.length} accounts via server mail gateway?`)) return;
 
-            showLoader("Sending Consolidated Emails...");
+            showLoader("Dispatching Email Notifications...");
             fetch(`${config.scriptUrl}?action=sendBulkOverdueEmails&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (res && res.success) {
-                    alert(`✅ Emails Sent: ${res.sentCount}\nSkipped (No Email): ${res.skippedNoEmail}`);
-                } else alert("Error: " + res.error);
+                    alert(`Notices Dispatched: ${res.sentCount}\nSkipped (No Email Address): ${res.skippedNoEmail}`);
+                } else alert("Dispatch Failure: " + res.error);
             })
             .catch(() => hideLoader());
         }
