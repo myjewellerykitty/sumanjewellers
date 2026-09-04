@@ -70,9 +70,9 @@
                     <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Overdue Accounts</button>
                     <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Access Permissions</button>
                     <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-3 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
-                        Enroll Account
+                        Add member
                     </button>
-                    <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Terminate Session</button>
+                    <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Log Out</button>
                 </div>
             </div>
         </header>
@@ -1076,7 +1076,7 @@
                             <td class="p-3 font-mono font-bold text-slate-900">INR ${item.totalDue.toLocaleString('en-IN')}</td>
                             <td class="p-3 text-center">
                                 <a href="https://wa.me/91${item.phone}?text=${waText}" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-2.5 py-1 rounded">
-                                    Issue Dispatch
+                                    Send WhastApp
                                 </a>
                             </td>
                         </tr>
