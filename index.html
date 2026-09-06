@@ -8,22 +8,44 @@
     <style>
         .hidden-view { display: none !important; }
         .overflow-x-auto { -webkit-overflow-scrolling: touch; }
-        @keyframes spinSlow {
+        @keyframes spinAnimation {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        .animate-spin-slow {
-            animation: spinSlow 1s linear infinite;
+        .enterprise-spinner {
+            animation: spinAnimation 0.8s linear infinite;
+        }
+        @keyframes headerProgress {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(0%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-progress {
+            animation: headerProgress 1.4s ease-in-out infinite;
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen relative">
 
-    <!-- GLOBAL LOADING SPINNER OVERLAY -->
-    <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex flex-col items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 shadow-2xl border border-amber-200 flex flex-col items-center gap-3">
-            <div class="w-12 h-12 border-4 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow"></div>
-            <p id="loadingMessage" class="text-xs font-bold text-slate-800 uppercase tracking-wider">Syncing Passbook...</p>
+    <!-- TOP-LEVEL STICKY STATUS & PROGRESS BAR -->
+    <div id="topLoadingBar" class="hidden-view fixed top-0 left-0 w-full z-60 bg-slate-900 border-b border-amber-800 shadow-md">
+        <div class="h-1 bg-amber-800 overflow-hidden w-full">
+            <div class="w-full h-full bg-white animate-progress origin-left"></div>
+        </div>
+        <div class="max-w-md mx-auto px-4 py-2 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+                <div class="w-3.5 h-3.5 border-2 border-slate-300 border-t-amber-500 rounded-full enterprise-spinner"></div>
+                <span id="topLoadingText" class="font-bold text-white tracking-wide uppercase text-[10px]">Processing Transaction...</span>
+            </div>
+            <span class="text-[9px] text-slate-400 font-mono">SERVER INTERFACE ACTIVE</span>
+        </div>
+    </div>
+
+    <!-- GLOBAL VIEWPORT MODAL OVERLAY -->
+    <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-4 z-55">
+        <div class="bg-white rounded-xl p-6 shadow-2xl border border-slate-200 flex flex-col items-center gap-3 max-w-xs w-full text-center">
+            <div class="w-10 h-10 border-3 border-slate-200 border-t-slate-900 rounded-full enterprise-spinner"></div>
+            <p id="loadingMessage" class="text-xs font-bold text-slate-900 uppercase tracking-wider">Synchronizing Database...</p>
         </div>
     </div>
 
@@ -48,7 +70,7 @@
                 <div id="phoneSection" class="bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
                     <div>
                         <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">Registered Mobile Number</label>
-                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 focus:bg-white transition-all font-mono">
+                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all font-mono">
                     </div>
                     <button onclick="handlePhoneContinue()" id="btnPhoneContinue" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer">
                         Access GRMS Passbook
@@ -58,52 +80,52 @@
                 <!-- STEP 2A: MPIN LOGIN -->
                 <div id="mpinLoginSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
                     <div class="text-center">
-                        <h3 class="text-base font-bold text-slate-900">Enter Security MPIN</h3>
+                        <h3 class="text-base font-bold text-slate-900">Security Credential Authorization</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Mobile: <span id="lblMpinPhone" class="font-bold text-slate-800 font-mono"></span></p>
                     </div>
                     <div>
-                        <input type="password" id="mpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-600">
+                        <input type="password" id="mpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-slate-900">
                     </div>
-                    <button onclick="verifyMpinAndProceed()" id="btnVerifyMpin" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer">
-                        Verify MPIN & Open Passbook
+                    <button onclick="verifyMpinAndProceed()" id="btnVerifyMpin" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer">
+                        Authorize Credentials & Open Passbook
                     </button>
                     <div class="flex justify-between items-center text-xs pt-1">
-                        <button onclick="resetToPhoneStep()" class="text-slate-400 hover:text-slate-600 font-semibold cursor-pointer">← Change Phone</button>
-                        <button onclick="openForgotMpinFlow()" class="text-amber-800 hover:underline font-bold cursor-pointer">Forgot MPIN?</button>
+                        <button onclick="resetToPhoneStep()" class="text-slate-500 hover:text-slate-800 font-semibold cursor-pointer">Change Mobile Identifier</button>
+                        <button onclick="openForgotMpinFlow()" class="text-slate-900 hover:underline font-bold cursor-pointer">Recover MPIN</button>
                     </div>
                 </div>
 
                 <!-- STEP 2B: INITIAL MPIN SETUP -->
                 <div id="firstTimeMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
                     <div class="text-center">
-                        <h3 class="text-base font-bold text-slate-900">Set Security 4-Digit MPIN</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Welcome! Create a secure PIN for future logins.</p>
+                        <h3 class="text-base font-bold text-slate-900">Configure Security MPIN</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Define your 4-digit credential for subsequent access.</p>
                     </div>
                     <div class="space-y-3">
                         <input type="password" id="firstMpin1" placeholder="Enter 4-Digit MPIN" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-lg font-bold tracking-widest">
                         <input type="password" id="firstMpin2" placeholder="Confirm 4-Digit MPIN" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-lg font-bold tracking-widest">
                     </div>
-                    <button onclick="saveInitialMpin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Save & Access</button>
+                    <button onclick="saveInitialMpin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Commit Security Configuration</button>
                 </div>
 
                 <!-- STEP 2C: FORGOT MPIN -->
                 <div id="forgotMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
                     <div class="text-center">
-                        <h3 class="text-base font-bold text-slate-900">Reset Security MPIN</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Request your old MPIN directly to your registered email.</p>
+                        <h3 class="text-base font-bold text-slate-900">Security Credential Recovery</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Request current authorization code via registered electronic mail.</p>
                     </div>
                     <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                        <button onclick="requestCurrentMpinRecovery()" id="btnRequestOldMpin" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">
-                            📩 Email Me My Old MPIN
+                        <button onclick="requestCurrentMpinRecovery()" id="btnRequestOldMpin" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">
+                            Dispatch Existing MPIN to Registered Email
                         </button>
                     </div>
                     <div class="space-y-2.5 pt-1">
-                        <input type="password" id="oldMpinInput" placeholder="Enter Old MPIN" maxlength="4" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-sm font-bold">
-                        <input type="password" id="resetNewMpin1" placeholder="Enter New 4-Digit MPIN" maxlength="4" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-sm font-bold">
+                        <input type="password" id="oldMpinInput" placeholder="Enter Received Existing MPIN" maxlength="4" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-sm font-bold">
+                        <input type="password" id="resetNewMpin1" placeholder="Establish New 4-Digit MPIN" maxlength="4" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-sm font-bold">
                         <input type="password" id="resetNewMpin2" placeholder="Confirm New 4-Digit MPIN" maxlength="4" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-sm font-bold">
                     </div>
-                    <button onclick="submitMpinResetWithOld()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Verify & Update MPIN</button>
-                    <button onclick="cancelForgotFlow()" class="w-full text-center text-xs text-slate-400 font-semibold cursor-pointer">← Back to Login</button>
+                    <button onclick="submitMpinResetWithOld()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Commit Credential Update</button>
+                    <button onclick="cancelForgotFlow()" class="w-full text-center text-xs text-slate-500 font-semibold cursor-pointer">Cancel & Return to Authorization</button>
                 </div>
 
                 <!-- MULTI-ACCOUNT SELECTOR -->
@@ -116,7 +138,6 @@
 
             <!-- DEDICATED PASSBOOK -->
             <div id="passbookContainer" class="hidden-view space-y-4">
-                
                 <!-- CUSTOMER SCHEME CARD -->
                 <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-sm relative overflow-hidden border border-slate-800">
                     <div class="space-y-3">
@@ -127,28 +148,28 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> GRMS Active
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> GRMS Active
                                 </span>
-                                <button onclick="logoutCustomer()" class="text-[10px] bg-slate-800 hover:bg-rose-900/60 text-slate-300 px-2 py-0.5 rounded cursor-pointer">
-                                    Logout
+                                <button onclick="logoutCustomer()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded cursor-pointer">
+                                    Exit
                                 </button>
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-[11px]">
-                            <div><span class="text-slate-500 block text-[9px] uppercase font-bold">A/C Code:</span> <span id="lblAcCode" class="font-bold font-mono text-amber-400">-</span></div>
-                            <div><span class="text-slate-500 block text-[9px] uppercase font-bold">Token ID:</span> <span id="lblCustId" class="font-semibold font-mono text-slate-200">-</span></div>
-                            <div><span class="text-slate-500 block text-[9px] uppercase font-bold">Join Date:</span> <span id="lblDoj" class="font-semibold font-mono text-slate-200">-</span></div>
+                            <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Account Code:</span> <span id="lblAcCode" class="font-bold font-mono text-amber-400">-</span></div>
+                            <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Token ID:</span> <span id="lblCustId" class="font-semibold font-mono text-slate-200">-</span></div>
+                            <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Enrollment Date:</span> <span id="lblDoj" class="font-semibold font-mono text-slate-200">-</span></div>
                         </div>
 
                         <div class="pt-2 border-t border-slate-800 grid grid-cols-2 gap-4">
                             <div>
-                                <span class="text-[10px] uppercase text-slate-400 block tracking-wider font-bold">Monthly Installment</span>
-                                <span id="custAmount" class="text-base font-black text-slate-100 font-mono">₹0</span>
+                                <span class="text-[10px] uppercase text-slate-400 block tracking-wider font-bold">Scheduled Installment</span>
+                                <span id="custAmount" class="text-base font-black text-slate-100 font-mono">INR 0</span>
                             </div>
                             <div class="text-right">
                                 <span class="text-[10px] uppercase text-slate-400 block tracking-wider font-bold">Principal Deposited</span>
-                                <span id="custLiveBalance" class="text-base font-black text-amber-400 font-mono">₹0</span>
+                                <span id="custLiveBalance" class="text-base font-black text-amber-400 font-mono">INR 0</span>
                             </div>
                         </div>
                     </div>
@@ -160,7 +181,7 @@
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">
                             Total Booked Gold Weight (22K)
                         </h4>
-                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Live Accumulated</span>
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Database Verified</span>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
                         <span id="lblTotalGoldGrams" class="text-2xl font-black text-slate-900 font-mono">0.000 g</span>
@@ -171,16 +192,16 @@
                 <div id="rewardCard" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                         <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Maturity Projection (11 Months)</span>
-                        <span id="badgeWinnerStatus" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">Non-Winner</span>
+                        <span id="badgeWinnerStatus" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">Standard Plan</span>
                     </div>
                     <div class="grid grid-cols-2 gap-3 text-center">
                         <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
                             <span class="text-[10px] text-slate-500 uppercase block font-semibold">Draw Bonus / Interest</span>
-                            <span id="lblRewardBenefit" class="text-sm font-black text-emerald-600 font-mono">+₹0</span>
+                            <span id="lblRewardBenefit" class="text-sm font-black text-emerald-700 font-mono">+INR 0</span>
                         </div>
                         <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-100">
                             <span class="text-[10px] text-amber-800 uppercase block font-semibold">Total Maturity Value</span>
-                            <span id="lblTotalMaturity" class="text-sm font-black text-amber-900 font-mono">₹0</span>
+                            <span id="lblTotalMaturity" class="text-sm font-black text-amber-900 font-mono">INR 0</span>
                         </div>
                     </div>
                     <p id="lblDrawDetails" class="text-[11px] text-slate-500 text-center italic"></p>
@@ -191,9 +212,9 @@
                     <div class="flex justify-between items-center mb-3">
                         <div>
                             <p class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Installment Ledger (11 Months)</p>
-                            <p class="text-[10px] text-amber-800 font-medium">Sequential payment strictly required</p>
+                            <p class="text-[10px] text-slate-500 font-medium">Sequential payment strictly required</p>
                         </div>
-                        <span class="text-[10px] text-slate-400">Due: 15th monthly</span>
+                        <span class="text-[10px] text-slate-400 font-mono">Cutoff: 20th</span>
                     </div>
                     <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
                 </div>
@@ -203,7 +224,7 @@
                     <div class="bg-white rounded-xl p-4 border border-slate-200 flex items-center justify-between shadow-sm">
                         <div>
                             <h4 class="text-xs font-bold text-slate-900">Showroom Verification Desk</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Need help with draw dates or passbook?</p>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Need assistance regarding passbook records?</p>
                         </div>
                         <a id="supportLink" href="#" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer">
                             Contact Desk
@@ -211,7 +232,7 @@
                     </div>
 
                     <button onclick="openTermsModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold py-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5">
-                        <span>📜</span> View Scheme Terms & Conditions
+                        View Scheme Terms & Conditions
                     </button>
                 </div>
             </div>
@@ -219,17 +240,17 @@
     </div>
 
     <!-- TERMS & CONDITIONS MODAL -->
-    <div id="termsModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-lg shadow-xl my-auto border border-slate-200 max-h-[85vh] flex flex-col justify-between">
+    <div id="termsModal" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-lg shadow-2xl my-auto border border-slate-200 max-h-[85vh] flex flex-col justify-between">
             <div>
                 <div class="border-b border-slate-100 pb-3 mb-3 flex justify-between items-center">
                     <div>
                         <h3 class="text-sm font-black text-slate-900 uppercase">Terms & Conditions</h3>
-                        <p class="text-[11px] text-amber-800 font-semibold">Golden Rose Magic Scheme (GRMS)</p>
+                        <p class="text-[11px] text-slate-600 font-semibold">Golden Rose Magic Scheme (GRMS)</p>
                     </div>
                     <button onclick="closeTermsModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer">&times;</button>
                 </div>
-                <div class="overflow-y-auto max-h-[60vh] pr-2">
+                <div class="overflow-y-auto max-h-[58vh] pr-2">
                     <ol class="text-[11px] text-slate-600 space-y-2.5 list-decimal pl-4 leading-relaxed text-justify">
                         <li>For Enrollment in Golden Rose Magic Scheme (GRMS) you must duly fill in & sign the application form and deposit it at the Showroom with two photographs and a copy of any one identity card document (Voter ID / PAN / Driving License / Passport / Credit card with photo ID / other government approved ID). Collect the Passbook and keep it in safe custody.</li>
                         <li><strong>Key Terms:</strong>
@@ -265,25 +286,28 @@
         </div>
     </div>
 
-    <!-- PAYMENT SETTLEMENT MODAL -->
-    <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-xl my-auto border border-slate-100">
-            <div class="border-b border-slate-100 pb-3 mb-4">
-                <h3 class="text-base font-bold text-slate-900">GRMS Installment Payment</h3>
-                <p id="modalMonthTarget" class="text-xs font-medium text-slate-500 mt-0.5">Month Allocation</p>
+    <!-- PAYMENT SETTLEMENT MODAL (CENTERED VIEWPORT PROTECTED) -->
+    <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl my-auto border border-slate-200 max-h-[92vh] overflow-y-auto">
+            <div class="border-b border-slate-100 pb-3 mb-4 flex justify-between items-center">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">GRMS Installment Payment</h3>
+                    <p id="modalMonthTarget" class="text-xs font-medium text-slate-500 mt-0.5">Schedule Allocation</p>
+                </div>
+                <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer">&times;</button>
             </div>
 
-            <!-- MULTI-KITTY PAYMENT SELECTION CHECKBOXES -->
+            <!-- MULTI-KITTY SELECTION -->
             <div id="multiKittySelectionContainer" class="hidden-view mb-4 bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
                 <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
-                    Select GRMS Accounts To Include In Payment:
+                    Select Accounts To Aggregate:
                 </label>
                 <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1"></div>
             </div>
 
             <!-- 1-CLICK UPI DEEP LINK BUTTON -->
             <a id="btnUpiAppPay" href="#" class="w-full mb-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]">
-                Pay Via UPI App (GPay / PhonePe / Paytm)
+                Pay Via Installed UPI Application
             </a>
 
             <!-- SWITCH TO BANK DETAILS TOGGLE -->
@@ -293,7 +317,7 @@
 
             <!-- UPI QR CODE CHANNEL -->
             <div id="channelUpiView" class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col items-center justify-center mb-4">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Scan Official Showroom QR Code</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Showroom Merchant UPI QR</p>
                 <div class="w-36 h-36 bg-white p-2 rounded-lg border border-slate-200 shadow-sm flex items-center justify-center">
                     <img id="qrCodeImg" src="" alt="UPI Payment QR Code" class="w-full h-full object-contain">
                 </div>
@@ -316,23 +340,23 @@
             <!-- PROOF SUBMISSION FORM -->
             <div class="space-y-3 mb-5">
                 <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Transaction UTR Key / Ref Number</label>
-                    <input type="text" id="utrInput" placeholder="Enter 12-Digit Bank UTR Reference" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono">
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Transaction UTR / Reference Key</label>
+                    <input type="text" id="utrInput" placeholder="Enter Reference Key" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono">
                 </div>
                 <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Payment Confirmation Slip</label>
+                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Receipt Document Attachment</label>
                     <input type="file" id="fileInput" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 cursor-pointer">
                 </div>
             </div>
 
             <div class="flex gap-2">
                 <button onclick="closePaymentModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-200 cursor-pointer">Cancel</button>
-                <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-800 cursor-pointer">Submit Proof</button>
+                <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-800 cursor-pointer">Transmit Proof</button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN JAVASCRIPT CONTROLLER -->
+    <!-- CONTROLLER SCRIPT -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -357,12 +381,23 @@
 
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
+        function showTopLoader(msg) {
+            document.getElementById('topLoadingText').innerText = msg;
+            document.getElementById('topLoadingBar').classList.remove('hidden-view');
+        }
+
+        function hideTopLoader() {
+            document.getElementById('topLoadingBar').classList.add('hidden-view');
+        }
+
         function showLoader(msg = "Connecting...") {
+            showTopLoader(msg);
             document.getElementById('loadingMessage').innerText = msg;
             document.getElementById('loadingOverlay').classList.remove('hidden-view');
         }
 
         function hideLoader() {
+            hideTopLoader();
             document.getElementById('loadingOverlay').classList.add('hidden-view');
         }
 
@@ -370,14 +405,14 @@
             const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
             if (rawPhone.length !== 10) return alert("Please enter a valid 10-digit mobile number.");
 
-            showLoader("Verifying Mobile...");
+            showLoader("Verifying Mobile Identifier in Database...");
             globalCustomerPhone = rawPhone;
 
             fetch(`${SCRIPT_URL}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (!res.success) return alert(res.error || "Account not found.");
+                if (!res.success) return alert(res.error || "Account not found in system database.");
                 document.getElementById('phoneSection').classList.add('hidden-view');
 
                 if (res.hasMpin) {
@@ -390,15 +425,15 @@
             })
             .catch(() => {
                 hideLoader();
-                alert("Server connection error.");
+                alert("Database communication error.");
             });
         }
 
         function verifyMpinAndProceed() {
             const mpin = document.getElementById('mpinInput').value.trim();
-            if (mpin.length !== 4) return alert("Please enter 4-digit MPIN.");
+            if (mpin.length !== 4) return alert("Please enter 4-digit security MPIN.");
 
-            showLoader("Authenticating MPIN...");
+            showLoader("Authenticating Credentials...");
 
             fetch(`${SCRIPT_URL}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
             .then(r => r.json())
@@ -408,21 +443,21 @@
                     document.getElementById('mpinLoginSection').classList.add('hidden-view');
                     fetchUserProfileAfterAuth(globalCustomerPhone);
                 } else {
-                    alert(res.error || "Incorrect MPIN.");
+                    alert(res.error || "Security validation failure.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Connection failed.");
+                alert("Server connection timeout.");
             });
         }
 
         function saveInitialMpin() {
             const p1 = document.getElementById('firstMpin1').value.trim();
             const p2 = document.getElementById('firstMpin2').value.trim();
-            if (p1.length !== 4 || p1 !== p2) return alert("Please ensure MPIN is 4 digits and matches.");
+            if (p1.length !== 4 || p1 !== p2) return alert("Verify that MPIN matches and is 4 digits.");
 
-            showLoader("Saving PIN...");
+            showLoader("Configuring Credentials in Database...");
 
             fetch(`${SCRIPT_URL}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}&_ts=${Date.now()}`)
             .then(r => r.json())
@@ -431,7 +466,7 @@
                 if (res.success) {
                     document.getElementById('firstTimeMpinSection').classList.add('hidden-view');
                     fetchUserProfileAfterAuth(globalCustomerPhone);
-                } else alert("Failed to save MPIN.");
+                } else alert("Failed to configure security credentials.");
             })
             .catch(() => hideLoader());
         }
@@ -442,20 +477,20 @@
         }
 
         function requestCurrentMpinRecovery() {
-            showLoader("Dispatching Email...");
+            showLoader("Dispatching Electronic Mail...");
             fetch(`${SCRIPT_URL}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (res.success && res.method === "email") {
-                    alert(`Your MPIN was sent to your registered email: ${res.email}.\n\nEnter it below to reset.`);
+                    alert(`Security credential dispatched to registered address: ${res.email}`);
                 } else {
-                    alert(res.error || "No email registered on this account. Please visit showroom desk.");
+                    alert(res.error || "No registered email on file. Please contact the showroom desk.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Communication error.");
+                alert("Communication error encountered.");
             });
         }
 
@@ -464,18 +499,18 @@
             const newP1 = document.getElementById('resetNewMpin1').value.trim();
             const newP2 = document.getElementById('resetNewMpin2').value.trim();
 
-            if (!oldP || newP1.length !== 4 || newP1 !== newP2) return alert("Verify Old and New MPIN inputs.");
+            if (!oldP || newP1.length !== 4 || newP1 !== newP2) return alert("Verify credential inputs.");
 
-            showLoader("Updating MPIN...");
+            showLoader("Committing Credential Updates to Database...");
             fetch(`${SCRIPT_URL}?action=resetMpinWithOld&phone=${globalCustomerPhone}&oldMpin=${oldP}&newMpin=${newP1}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert("MPIN updated successfully!");
+                    alert("Security credentials updated in database.");
                     document.getElementById('forgotMpinSection').classList.add('hidden-view');
                     fetchUserProfileAfterAuth(globalCustomerPhone);
-                } else alert(res.error || "Reset failed.");
+                } else alert(res.error || "Update operation failed.");
             })
             .catch(() => hideLoader());
         }
@@ -501,12 +536,12 @@
         }
 
         function fetchUserProfileAfterAuth(cleanPhone) {
-            showLoader("Loading Account Details...");
+            showLoader("Retrieving Account Configuration...");
             fetch(`${SCRIPT_URL}?action=searchMembers&query=${encodeURIComponent(cleanPhone)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (!res || !res.results || res.results.length === 0) return alert("No GRMS record found.");
+                if (!res || !res.results || res.results.length === 0) return alert("No matching records found in database.");
                 activeMatches = res.results;
 
                 if (activeMatches.length === 1) {
@@ -518,7 +553,7 @@
                     const select = document.getElementById('kittySelect');
                     select.innerHTML = "";
                     activeMatches.forEach(item => {
-                        select.innerHTML += `<option value="${item.acCode}">A/C Code: ${item.acCode} - ${item.name}</option>`;
+                        select.innerHTML += `<option value="${item.acCode}">Account: ${item.acCode} - ${item.name}</option>`;
                     });
                     wrapper.classList.remove('hidden-view');
                 }
@@ -545,12 +580,13 @@
         function executePassbookRender(phone, acCode, isSilentSync = false) {
             if (isSyncingActive) return;
             isSyncingActive = true;
-            if (!isSilentSync) showLoader("Retrieving Ledger...");
+            if (!isSilentSync) showLoader("Synchronizing Ledger from Database...");
+            else showTopLoader("Refreshing...");
 
             fetch(`${SCRIPT_URL}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(data => {
-                if (!isSilentSync) hideLoader();
+                hideLoader();
                 if (!data || !data.profile) {
                     isSyncingActive = false;
                     return;
@@ -561,17 +597,16 @@
                 globalMonthlyAmount = Number(data.profile.monthlyAmount) || 0;
                 globalWinCount = Number(data.profile.winCount) || 0;
 
-                // Sequential Next Month Pointer from Backend
                 nextAllowedMonth = data.nextPayableMonth || 1;
 
                 document.getElementById('custName').innerText = data.profile.name;
                 document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
-                document.getElementById('custAmount').innerText = "₹" + globalMonthlyAmount.toLocaleString('en-IN');
+                document.getElementById('custAmount').innerText = "INR " + globalMonthlyAmount.toLocaleString('en-IN');
                 document.getElementById('lblAcCode').innerText = data.profile.acCode;
                 document.getElementById('lblCustId').innerText = data.profile.customerId;
                 document.getElementById('lblDoj').innerText = data.profile.doj || "-";
 
-                document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20Suman%20Jewellers,%20inquiring%20about%20GRMS%20A/C%20${encodeURIComponent(data.profile.acCode)}.`;
+                document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Inquiry%20regarding%20GRMS%20Account%20${encodeURIComponent(data.profile.acCode)}.`;
 
                 const userTransactions = data.transactions || [];
                 let paidMonthsCount = 0;
@@ -588,36 +623,34 @@
                 });
 
                 let principalPaid = paidMonthsCount * globalMonthlyAmount;
-                document.getElementById('custLiveBalance').innerText = "₹" + principalPaid.toLocaleString('en-IN');
+                document.getElementById('custLiveBalance').innerText = "INR " + principalPaid.toLocaleString('en-IN');
                 document.getElementById('lblTotalGoldGrams').innerText = `${accumulatedGoldWeight.toFixed(3)} g`;
 
-                // Maturity Calculation
                 let totalMaturity = 0;
                 let full11Principal = 11 * globalMonthlyAmount;
                 const badge = document.getElementById('badgeWinnerStatus');
 
                 if (globalWinCount > 0) {
-                    badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800";
-                    badge.innerText = `${globalWinCount}x Winner`;
+                    badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-900";
+                    badge.innerText = `${globalWinCount} Event Winner`;
                     let winPrizePerDraw = (globalMonthlyAmount === 8000) ? 15000 : 10000;
                     let totalPrizeWon = globalWinCount * winPrizePerDraw;
                     totalMaturity = full11Principal + totalPrizeWon;
                     
-                    document.getElementById('lblRewardBenefit').innerText = `+₹${totalPrizeWon.toLocaleString('en-IN')}`;
-                    document.getElementById('lblTotalMaturity').innerText = `₹${totalMaturity.toLocaleString('en-IN')}`;
-                    document.getElementById('lblDrawDetails').innerText = `Winner Prize (₹${winPrizePerDraw.toLocaleString('en-IN')} × ${globalWinCount}) added to 11-month principal.`;
+                    document.getElementById('lblRewardBenefit').innerText = `+INR ${totalPrizeWon.toLocaleString('en-IN')}`;
+                    document.getElementById('lblTotalMaturity').innerText = `INR ${totalMaturity.toLocaleString('en-IN')}`;
+                    document.getElementById('lblDrawDetails').innerText = `Allocated draw prize (INR ${winPrizePerDraw.toLocaleString('en-IN')} × ${globalWinCount}) credited to maturity valuation.`;
                 } else {
                     badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700";
-                    badge.innerText = "Non-Winner Plan";
+                    badge.innerText = "Standard Plan";
                     let interestBonus = (globalMonthlyAmount === 8000) ? 3000 : 2000;
                     totalMaturity = full11Principal + interestBonus;
 
-                    document.getElementById('lblRewardBenefit').innerText = `+₹${interestBonus.toLocaleString('en-IN')}`;
-                    document.getElementById('lblTotalMaturity').innerText = `₹${totalMaturity.toLocaleString('en-IN')}`;
-                    document.getElementById('lblDrawDetails').innerText = `Standard interest bonus credited on full 11-month maturity.`;
+                    document.getElementById('lblRewardBenefit').innerText = `+INR ${interestBonus.toLocaleString('en-IN')}`;
+                    document.getElementById('lblTotalMaturity').innerText = `INR ${totalMaturity.toLocaleString('en-IN')}`;
+                    document.getElementById('lblDrawDetails').innerText = `Guaranteed policy bonus credited upon full 11-month maturity.`;
                 }
 
-                // 11 Months Sequential Grid Rendering (No Skipping Permitted)
                 const grid = document.getElementById('gridWrapper');
                 grid.innerHTML = "";
 
@@ -628,29 +661,27 @@
                     if (tx && tx.status === "Paid") {
                         let gWeight = (Number(tx.bookedGrams) || 0).toFixed(3);
                         label = (Number(gWeight) > 0) ? `Paid (${gWeight}g)` : `Paid`;
-                        style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[10px]";
+                        style = "bg-emerald-50 border border-emerald-200 text-emerald-900 font-bold text-[10px]";
                     } else if ((tx && (tx.status === "Pending" || tx.status === "Reviewed")) || optimisticPendingMonths.has(m)) {
-                        label = "In Review";
-                        style = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse font-semibold";
+                        label = "Under Review";
+                        style = "bg-amber-50 border border-amber-200 text-amber-900 font-semibold";
                     } else if (m === nextAllowedMonth && !data.isSchemeComplete) {
-                        // Strictly ONLY Next Due Month is clickable
                         label = "Pay Now";
                         style = "bg-slate-900 border border-slate-900 text-white font-bold cursor-pointer hover:bg-slate-800 shadow-xs";
                         action = `onclick="openPaymentModal(${m})"`;
                     } else {
-                        // Future Months are locked
-                        label = "Locked 🔒";
+                        label = "Locked";
                         style = "bg-slate-100 border border-slate-200 text-slate-400 font-medium cursor-not-allowed opacity-60";
                     }
 
-                    grid.innerHTML += `<div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[48px]"><span class="text-[9px] uppercase text-slate-400 font-mono">M-${m}</span>${label}</div>`;
+                    grid.innerHTML += `<div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[48px]"><span class="text-[9px] uppercase text-slate-400 font-mono">Month ${m}</span>${label}</div>`;
                 }
 
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
                 isSyncingActive = false;
             })
             .catch(() => {
-                if (!isSilentSync) hideLoader();
+                hideLoader();
                 isSyncingActive = false;
             });
         }
@@ -665,7 +696,7 @@
 
         function copyUpiId() {
             navigator.clipboard.writeText(config.upiVpa);
-            alert("Merchant UPI VPA copied to clipboard.");
+            alert("Merchant VPA copied to clipboard.");
         }
 
         function togglePaymentMethodView() {
@@ -707,9 +738,9 @@
                         <label class="flex items-center justify-between p-2.5 bg-white rounded-lg border border-slate-200 cursor-pointer text-xs">
                             <div class="flex items-center gap-2">
                                 <input type="checkbox" name="kittyPaySelect" value="${item.acCode}" data-amount="${monthlyVal}" ${isCurrent ? 'checked' : ''} onchange="updateMultiPaymentTotal()" class="rounded border-slate-300 text-slate-900 focus:ring-slate-900">
-                                <span class="font-bold text-slate-800">A/C: ${item.acCode} (${item.name})</span>
+                                <span class="font-bold text-slate-800">Account: ${item.acCode} (${item.name})</span>
                             </div>
-                            <span class="font-mono font-bold text-slate-600">₹${monthlyVal.toLocaleString('en-IN')}</span>
+                            <span class="font-mono font-bold text-slate-600">INR ${monthlyVal.toLocaleString('en-IN')}</span>
                         </label>
                     `;
                 });
@@ -736,13 +767,13 @@
                 totalAmountToPay = aggregate > 0 ? aggregate : globalMonthlyAmount;
             }
 
-            const note = encodeURIComponent(`GRMS M${currentSelectedMonth} - ${selectedAcCodes.join(',')}`);
+            const note = encodeURIComponent(`GRMS Month ${currentSelectedMonth} - ${selectedAcCodes.join(',')}`);
             const upiUrl = `upi://pay?pa=${config.upiVpa}&pn=${encodeURIComponent(config.name)}&am=${totalAmountToPay}&cu=INR&tn=${note}`;
             document.getElementById('btnUpiAppPay').href = upiUrl;
 
             const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
             document.getElementById('qrCodeImg').src = qrApiUrl;
-            document.getElementById('modalMonthTarget').innerText = `Submitting Installment for Month ${currentSelectedMonth} (Total Amount: ₹${totalAmountToPay.toLocaleString('en-IN')})`;
+            document.getElementById('modalMonthTarget').innerText = `Installment for Month ${currentSelectedMonth} (Total Amount: INR ${totalAmountToPay.toLocaleString('en-IN')})`;
         }
 
         function closePaymentModal() {
@@ -752,9 +783,9 @@
         function submitPaymentData() {
             const utr = document.getElementById('utrInput').value.trim();
             const fileBox = document.getElementById('fileInput').files[0];
-            if (!utr && !fileBox) return alert("Please specify transaction UTR key or upload receipt screenshot.");
+            if (!utr && !fileBox) return alert("Please specify transaction reference key or attach receipt document.");
 
-            showLoader("Submitting Proof...");
+            showLoader("Uploading Remittance Record to Database...");
 
             const postProof = (base64) => {
                 optimisticPendingMonths.add(Number(currentSelectedMonth));
@@ -781,7 +812,7 @@
                     acCode: selectedAcCodes.join(','),
                     month: currentSelectedMonth,
                     amount: calculatedTotalAmount,
-                    utr: utr || "Direct Deposit",
+                    utr: utr || "Direct Counter Deposit",
                     screenshotUrl: base64 || ""
                 };
 
@@ -795,16 +826,16 @@
                     hideLoader();
                     closePaymentModal();
                     if (res && res.success) {
-                        alert("Installment proof submitted successfully for administrative review!");
+                        alert("Remittance documentation transmitted successfully for administrative review.");
                     } else {
-                        alert("Notice: " + (res.error || "Proof registered."));
+                        alert("Notice: " + (res.error || "Documentation registered."));
                     }
                     setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 1200);
                 })
                 .catch(() => {
                     hideLoader();
                     closePaymentModal();
-                    alert("Installment proof recorded! Refreshing passbook...");
+                    alert("Remittance recorded. Synchronizing passbook...");
                     setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 1500);
                 });
             };
@@ -815,12 +846,12 @@
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 300;
+                        const MAX_WIDTH = 320;
                         let w = img.width, h = img.height;
                         if (w > MAX_WIDTH) { h = Math.round((h * MAX_WIDTH) / w); w = MAX_WIDTH; }
                         canvas.width = w; canvas.height = h;
                         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        postProof(canvas.toDataURL('image/jpeg', 0.3));
+                        postProof(canvas.toDataURL('image/jpeg', 0.4));
                     };
                     img.src = reader.result;
                 };
