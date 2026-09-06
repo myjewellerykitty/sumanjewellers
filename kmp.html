@@ -14,80 +14,130 @@
         .enterprise-spinner {
             animation: spinAnimation 0.9s linear infinite;
         }
-        @keyframes bounceShort {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
+        @keyframes popupEnter {
+            from { opacity: 0; transform: scale(0.96) translateY(-6px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .animate-bounce-short {
-            animation: bounceShort 0.35s ease-out;
+        .animate-popup {
+            animation: popupEnter 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
 
-    <!-- ENTERPRISE LOADING OVERLAY (ANCHORED TO TOP VIEWPORT HEADER) -->
-    <div id="kmpLoader" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center pt-6 px-4 z-50">
-        <div class="bg-white rounded-xl py-3.5 px-6 shadow-2xl border border-slate-300 flex items-center gap-3.5 max-w-sm w-full animate-bounce-short">
-            <div class="w-8 h-8 border-3 border-slate-200 border-t-amber-800 rounded-full enterprise-spinner shrink-0"></div>
-            <div>
-                <p id="kmpLoaderMsg" class="text-xs font-bold text-slate-900 tracking-wider uppercase">Processing Database Request...</p>
-                <p class="text-[10px] text-slate-500 font-medium">Executing system transaction</p>
+    <!-- TOP-PINNED STATUS / LOADING INDICATOR -->
+    <div id="kmpLoader" class="hidden-view fixed top-3 right-4 z-50">
+        <div class="bg-slate-900 text-white rounded-xl py-2 px-4 shadow-2xl border border-slate-700 flex items-center gap-3 animate-popup">
+            <div class="w-4 h-4 border-2 border-slate-400 border-t-amber-400 rounded-full enterprise-spinner shrink-0"></div>
+            <p id="kmpLoaderMsg" class="text-xs font-bold uppercase tracking-wider text-slate-200">Processing Request...</p>
+        </div>
+    </div>
+
+    <!-- CONTEXTUAL IN-PAGE NOTIFICATION DIALOG -->
+    <div id="uiAlertDialog" class="hidden-view fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-start justify-center pt-16 px-4 z-50">
+        <div class="bg-white rounded-xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
+            <h3 id="uiAlertTitle" class="text-sm font-bold text-slate-900 uppercase mb-1">Notification</h3>
+            <p id="uiAlertMessage" class="text-xs text-slate-600 leading-relaxed mb-4">-</p>
+            <button onclick="closeUiAlert()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
+                Acknowledge
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTEXTUAL IN-PAGE CONFIRMATION DIALOG -->
+    <div id="uiConfirmDialog" class="hidden-view fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-start justify-center pt-16 px-4 z-50">
+        <div class="bg-white rounded-xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
+            <h3 id="uiConfirmTitle" class="text-sm font-bold text-slate-900 uppercase mb-1">Confirmation Required</h3>
+            <p id="uiConfirmMessage" class="text-xs text-slate-600 leading-relaxed mb-4">-</p>
+            <div class="flex gap-2">
+                <button onclick="handleUiConfirmChoice(false)" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-lg text-xs font-semibold cursor-pointer">
+                    Cancel
+                </button>
+                <button onclick="handleUiConfirmChoice(true)" class="w-1/2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg text-xs font-semibold cursor-pointer">
+                    Proceed
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- AUTHENTICATION SCREEN -->
-    <div id="kmpLoginView" class="max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
-        <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-            <div class="text-center mb-6">
-                <div class="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center font-bold text-white text-base mx-auto mb-3">SJ</div>
-                <h2 class="text-base font-bold text-slate-900 uppercase tracking-tight">Suman Jewellers</h2>
-                <p class="text-xs text-slate-500 font-medium mt-0.5">Operations &amp; Scheme Management</p>
-            </div>
-            <form onsubmit="handleKmpLogin(event)" class="space-y-4">
-                <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Operator Identifier</label>
-                    <input type="text" id="kmpUserInput" required placeholder="Enter Username" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs font-medium focus:ring-1 focus:ring-slate-900 focus:outline-none">
+    <!-- CONTEXTUAL IN-PAGE INPUT PROMPT -->
+    <div id="uiPromptDialog" class="hidden-view fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-start justify-center pt-16 px-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
+            <h3 id="uiPromptTitle" class="text-sm font-bold text-slate-900 uppercase mb-1">Required Input</h3>
+            <p id="uiPromptSubtitle" class="text-xs text-slate-500 mb-3">-</p>
+            <form onsubmit="handleUiPromptSubmit(event)" class="space-y-3">
+                <div id="uiPromptFieldsContainer" class="space-y-2.5 text-xs"></div>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeUiPrompt()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-lg text-xs font-semibold cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" class="w-1/2 bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-lg text-xs font-semibold cursor-pointer">
+                        Submit
+                    </button>
                 </div>
-                <div>
-                    <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Security PIN</label>
-                    <input type="password" id="kmpPassInput" required placeholder="Enter PIN" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-xs font-mono focus:ring-1 focus:ring-slate-900 focus:outline-none">
-                </div>
-                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
-                    Authenticate Session
-                </button>
             </form>
         </div>
     </div>
 
-    <!-- MAIN CONSOLE INTERFACE -->
-    <div id="kmpMainView" class="hidden-view min-h-screen flex flex-col">
+    <!-- MAIN INTERFACE WITH HEADER-MOUNTED AUTHENTICATION -->
+    <div class="min-h-screen flex flex-col">
         <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-sm border-b border-slate-800">
-            <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center font-bold text-white text-xs">GRM</div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="text-sm font-bold tracking-tight uppercase">Operational Console</h1>
-                            <span id="kmpRoleBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Evaluating...</span>
+            <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col lg:flex-row justify-between items-center gap-3">
+                
+                <!-- BRAND IDENTIFIER -->
+                <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center font-black text-slate-950 text-xs">SJ</div>
+                        <div>
+                            <h1 class="text-xs font-bold tracking-tight uppercase">Suman Jewellers</h1>
+                            <p class="text-[10px] text-slate-400">Operations Console</p>
                         </div>
-                        <p class="text-[11px] text-slate-400">Authenticated Operator: <strong id="lblActiveUser" class="text-white font-mono">User</strong></p>
+                    </div>
+
+                    <!-- SESSION BADGE (VISIBLE UPON LOGIN) -->
+                    <div id="sessionBadgeContainer" class="hidden-view flex items-center gap-2">
+                        <span id="kmpRoleBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Evaluating...</span>
+                        <span class="text-[11px] text-slate-400">User: <strong id="lblActiveUser" class="text-white font-mono">-</strong></span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                    <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Directory</button>
-                    <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Pending Verification</button>
-                    <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Overdue Accounts</button>
-                    <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Access Permissions</button>
-                    <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-3 py-2 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
-                        Enroll Account
-                    </button>
-                    <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all">Terminate Session</button>
+
+                <!-- 1. HEADER-INTEGRATED LOGIN BOX (VISIBLE BEFORE LOGIN) -->
+                <div id="headerLoginBar" class="w-full lg:w-auto flex items-center justify-end">
+                    <form onsubmit="handleKmpLogin(event)" class="flex items-center gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
+                        <input type="text" id="kmpUserInput" required placeholder="Username" class="bg-slate-800 border border-slate-700 text-white px-3 py-1.5 rounded-lg text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none w-full sm:w-32">
+                        <input type="password" id="kmpPassInput" required placeholder="PIN" class="bg-slate-800 border border-slate-700 text-white px-3 py-1.5 rounded-lg text-xs font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none w-full sm:w-24">
+                        <button type="submit" class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap w-full sm:w-auto">
+                            Sign In
+                        </button>
+                    </form>
                 </div>
+
+                <!-- 2. NAVIGATION BAR (ACTIVE ONLY UPON LOGIN) -->
+                <div id="headerNavBar" class="hidden-view flex items-center gap-1.5 flex-wrap w-full lg:w-auto justify-end">
+                    <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Directory</button>
+                    <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Pending Queue</button>
+                    <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Overdue</button>
+                    <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Access Permissions</button>
+                    <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
+                        + Enroll
+                    </button>
+                    <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Exit</button>
+                </div>
+
             </div>
         </header>
 
-        <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6 flex-1 w-full">
+        <!-- PORTAL LOCK PLACEHOLDER (PRIOR TO SIGN IN) -->
+        <div id="loggedOutPlaceholder" class="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-500">
+            <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center mb-3">
+                <span class="text-xl font-mono text-slate-700 font-bold">#</span>
+            </div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800">Operational Console Restricted</h2>
+            <p class="text-xs text-slate-500 mt-1 max-w-sm">Please provide authorized operator credentials via the header login bar above to access records and permissions.</p>
+        </div>
+
+        <!-- MAIN CONSOLE VIEWS -->
+        <main id="kmpMainView" class="hidden-view max-w-6xl mx-auto p-4 sm:p-6 space-y-6 flex-1 w-full">
 
             <!-- TAB 1: MEMBERS DIRECTORY -->
             <div id="tabContentMembers" class="space-y-6">
@@ -311,9 +361,9 @@
         </main>
     </div>
 
-    <!-- MODAL: ADD / EDIT STAFF PERMISSIONS (TOP-ANCHORED VIEWPORT) -->
-    <div id="userModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-6 sm:pt-12 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-slate-200 max-h-[88vh] overflow-y-auto">
+    <!-- MODAL: ADD / EDIT STAFF PERMISSIONS (VIEWPORT CONTEXT ANCHORED) -->
+    <div id="userModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-10 sm:pt-14 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[88vh] overflow-y-auto animate-popup">
             <h3 id="userModalTitle" class="text-sm font-bold text-slate-900 mb-4 uppercase">Configure Operator Privileges</h3>
             <form onsubmit="saveStaffUser(event)" class="space-y-3 text-xs">
                 <div>
@@ -353,9 +403,9 @@
         </div>
     </div>
 
-    <!-- MODAL: ENROLL NEW MEMBER (TOP-ANCHORED VIEWPORT) -->
-    <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-6 sm:pt-10 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-slate-200 max-h-[88vh] overflow-y-auto">
+    <!-- MODAL: ENROLL NEW MEMBER (VIEWPORT CONTEXT ANCHORED) -->
+    <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-10 sm:pt-14 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[88vh] overflow-y-auto animate-popup">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
                 <h3 class="text-sm font-bold text-slate-900 uppercase">Enroll Scheme Participant</h3>
                 <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-700 font-bold text-base cursor-pointer">&times;</button>
@@ -406,9 +456,9 @@
         </div>
     </div>
 
-    <!-- MODAL: COUNTER DEPOSIT (TOP-ANCHORED VIEWPORT) -->
-    <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-6 sm:pt-10 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-slate-200 max-h-[88vh] overflow-y-auto">
+    <!-- MODAL: COUNTER DEPOSIT (VIEWPORT CONTEXT ANCHORED) -->
+    <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-10 sm:pt-14 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[88vh] overflow-y-auto animate-popup">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
                 <div>
                     <h3 class="text-sm font-bold text-slate-900 uppercase">Post Counter Payment</h3>
@@ -465,6 +515,11 @@
         let selectedMemberData = null;
         let activeDefaultersList = [];
 
+        // Global promise handlers for dialogs
+        let activeConfirmResolver = null;
+        let activePromptResolver = null;
+
+        // --- CONTEXTUAL IN-PAGE POPUPS (REPLACES NATIVE DIALOGS) ---
         function showLoader(msg = "Communicating with Database...") {
             document.getElementById('kmpLoaderMsg').innerText = msg;
             document.getElementById('kmpLoader').classList.remove('hidden-view');
@@ -474,13 +529,84 @@
             document.getElementById('kmpLoader').classList.add('hidden-view');
         }
 
+        function uiAlert(title, message) {
+            document.getElementById('uiAlertTitle').innerText = title || "Notice";
+            document.getElementById('uiAlertMessage').innerText = message || "";
+            document.getElementById('uiAlertDialog').classList.remove('hidden-view');
+        }
+
+        function closeUiAlert() {
+            document.getElementById('uiAlertDialog').classList.add('hidden-view');
+        }
+
+        function uiConfirm(title, message) {
+            return new Promise((resolve) => {
+                activeConfirmResolver = resolve;
+                document.getElementById('uiConfirmTitle').innerText = title || "Confirmation";
+                document.getElementById('uiConfirmMessage').innerText = message || "";
+                document.getElementById('uiConfirmDialog').classList.remove('hidden-view');
+            });
+        }
+
+        function handleUiConfirmChoice(result) {
+            document.getElementById('uiConfirmDialog').classList.add('hidden-view');
+            if (activeConfirmResolver) {
+                activeConfirmResolver(result);
+                activeConfirmResolver = null;
+            }
+        }
+
+        function uiPrompt(title, subtitle, fields = []) {
+            return new Promise((resolve) => {
+                activePromptResolver = resolve;
+                document.getElementById('uiPromptTitle').innerText = title || "Required Input";
+                document.getElementById('uiPromptSubtitle').innerText = subtitle || "";
+                const container = document.getElementById('uiPromptFieldsContainer');
+                container.innerHTML = "";
+
+                fields.forEach(f => {
+                    container.innerHTML += `
+                        <div>
+                            <label class="font-semibold text-slate-700 block mb-1">${f.label}</label>
+                            <input type="${f.type || 'text'}" id="${f.id}" ${f.required ? 'required' : ''} placeholder="${f.placeholder || ''}" class="w-full px-3 py-2 border rounded-lg font-${f.mono ? 'mono' : 'sans'}">
+                        </div>
+                    `;
+                });
+
+                document.getElementById('uiPromptDialog').classList.remove('hidden-view');
+                if (fields.length > 0 && document.getElementById(fields[0].id)) {
+                    document.getElementById(fields[0].id).focus();
+                }
+            });
+        }
+
+        function handleUiPromptSubmit(e) {
+            e.preventDefault();
+            const inputs = document.getElementById('uiPromptFieldsContainer').querySelectorAll('input');
+            const data = {};
+            inputs.forEach(inp => data[inp.id] = inp.value.trim());
+            document.getElementById('uiPromptDialog').classList.add('hidden-view');
+
+            if (activePromptResolver) {
+                activePromptResolver(data);
+                activePromptResolver = null;
+            }
+        }
+
+        function closeUiPrompt() {
+            document.getElementById('uiPromptDialog').classList.add('hidden-view');
+            if (activePromptResolver) {
+                activePromptResolver(null);
+                activePromptResolver = null;
+            }
+        }
+
+        // --- LIFECYCLE & HEADER-MOUNTED AUTHENTICATION ---
         window.addEventListener('DOMContentLoaded', () => {
             const stored = sessionStorage.getItem('kmpUserSession');
             if (stored) {
                 sessionUser = JSON.parse(stored);
                 renderUserUI();
-                document.getElementById('kmpLoginView').classList.add('hidden-view');
-                document.getElementById('kmpMainView').classList.remove('hidden-view');
             }
         });
 
@@ -491,7 +617,10 @@
 
             showLoader("Validating Credentials...");
 
-            fetch(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -500,15 +629,13 @@
                     sessionUser.pin = pin;
                     sessionStorage.setItem('kmpUserSession', JSON.stringify(sessionUser));
                     renderUserUI();
-                    document.getElementById('kmpLoginView').classList.add('hidden-view');
-                    document.getElementById('kmpMainView').classList.remove('hidden-view');
                 } else {
-                    alert(res.error || "Authentication failed.");
+                    uiAlert("Authentication Failed", res.error || "Invalid operator credentials.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Server connection timeout.");
+                uiAlert("Network Error", "Server connection timeout during authentication.");
             });
         }
 
@@ -518,6 +645,12 @@
         }
 
         function renderUserUI() {
+            document.getElementById('headerLoginBar').classList.add('hidden-view');
+            document.getElementById('headerNavBar').classList.remove('hidden-view');
+            document.getElementById('sessionBadgeContainer').classList.remove('hidden-view');
+            document.getElementById('loggedOutPlaceholder').classList.add('hidden-view');
+            document.getElementById('kmpMainView').classList.remove('hidden-view');
+
             document.getElementById('lblActiveUser').innerText = sessionUser.username;
             const badge = document.getElementById('kmpRoleBadge');
             badge.innerText = sessionUser.role;
@@ -537,13 +670,13 @@
                 const el = document.getElementById('tabContent' + t);
                 const btn = document.getElementById('tabBtn' + t);
                 if (el) el.classList.add('hidden-view');
-                if (btn) btn.className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
+                if (btn) btn.className = "bg-slate-800 text-slate-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all";
             });
 
             const activeContent = document.getElementById('tabContent' + tab.charAt(0).toUpperCase() + tab.slice(1));
             const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
             if (activeContent) activeContent.classList.remove('hidden-view');
-            if (activeBtn) activeBtn.className = "bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer transition-all";
+            if (activeBtn) activeBtn.className = "bg-slate-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all";
 
             if (tab === 'approvals') loadKmpPendingApprovals();
             if (tab === 'defaulters') loadOverdueDefaulters();
@@ -555,20 +688,24 @@
             else if (document.getElementById('searchInput').value.trim()) searchMemberRecords();
         }
 
+        // --- DIRECTORY SEARCH ---
         function searchMemberRecords() {
             const rawQuery = document.getElementById('searchInput').value.trim();
-            if (!rawQuery) return alert("Please specify search query parameters.");
+            if (!rawQuery) return uiAlert("Invalid Input", "Please specify search query parameters.");
 
             showLoader("Searching Database...");
 
-            fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(rawQuery)}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(rawQuery)}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (!res || !res.results || res.results.length === 0) {
                     document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
                     document.getElementById('memberProfileSection').classList.add('hidden-view');
-                    return alert("No account records match the specified query.");
+                    return uiAlert("Search Result", "No account records match the specified query.");
                 }
 
                 activeSearchResults = res.results;
@@ -581,7 +718,7 @@
             })
             .catch(() => {
                 hideLoader();
-                alert("Database communication error.");
+                uiAlert("Database Error", "Unable to communicate with search cluster.");
             });
         }
 
@@ -622,11 +759,14 @@
             const winBadge = document.getElementById('viewWinBadge');
             winBadge.innerText = winCount > 0 ? `${winCount} Event Winner` : `Standard Member`;
 
-            fetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode || member.kittyNumber)}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode || member.kittyNumber)}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (!res || !res.profile) return alert("Unable to load member statement details.");
+                if (!res || !res.profile) return uiAlert("Query Error", "Unable to load member statement details.");
 
                 const userTxs = res.transactions || [];
                 let paidMonths = 0, totalDeposited = 0, totalGoldWeight = 0;
@@ -697,8 +837,9 @@
             .catch(() => hideLoader());
         }
 
+        // --- DRAW ALLOCATIONS COMMIT ---
         function saveWinnerCount() {
-            if (!selectedMemberData) return alert("Validation Failure: No active member record selected.");
+            if (!selectedMemberData) return uiAlert("Selection Required", "No active member record selected.");
 
             const sel = document.getElementById('selWinCount');
             const newCount = parseInt(sel.value, 10) || 0;
@@ -713,12 +854,12 @@
                 + `&winCount=${encodeURIComponent(newCount)}`
                 + `&_ts=${Date.now()}`;
 
-            fetch(targetUrl)
+            fetch(targetUrl, { method: "GET", mode: "cors" })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (res && res.success) {
-                    alert(`Database Updated: Participant draw wins recorded as ${newCount}.`);
+                    uiAlert("Database Updated", `Participant draw wins successfully recorded as ${newCount}.`);
                     selectedMemberData.winCount = newCount;
 
                     const winBadge = document.getElementById('viewWinBadge');
@@ -728,20 +869,24 @@
 
                     loadMemberLedger(selectedMemberData);
                 } else {
-                    alert("Update Failed: " + (res.error || "Unable to write to database."));
+                    uiAlert("Update Failed", res.error || "Unable to write allocation record to database.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Database connection timeout during update.");
+                uiAlert("Network Error", "Database connection timeout during update.");
             });
         }
 
+        // --- VERIFICATION QUEUE & TWO-TIER SYSTEM ---
         function loadKmpPendingApprovals() {
             const tableBody = document.getElementById('kmpApprovalTableBody');
             showLoader("Accessing Verification Queue...");
 
-            fetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(pendingList => {
                 hideLoader();
@@ -804,24 +949,26 @@
             .catch(() => hideLoader());
         }
 
-        function executeRateReview(rowId, amount) {
-            var inputRate = prompt(`[Mandatory Valuation]\nRemittance: INR ${amount}\nEnter Current 22K Gold Valuation Rate for 10 Grams (INR):`);
-            if (inputRate === null) return;
-            var rate10g = parseFloat(inputRate.trim());
-            if (isNaN(rate10g) || rate10g <= 0) return alert("Validation Failure: You must supply a valid numerical gold rate.");
-
-            var grams = (amount / (rate10g / 10));
-            var secondPin = "";
+        async function executeRateReview(rowId, amount) {
+            const promptFields = [
+                { id: 'rateVal', label: 'Today’s 22K Gold Rate for 10 Grams (INR) *', type: 'number', required: true, placeholder: 'e.g. 68500', mono: true }
+            ];
 
             if (!sessionUser.bypass2SV && sessionUser.role !== "Admin") {
-                secondPin = prompt("Secondary Authorization:\nEnter Operator Security PIN to verify verification authority:");
-                if (!secondPin) return alert("Operation terminated: Missing secondary credentials.");
+                promptFields.push({ id: 'secondPin', label: 'Secondary Operator PIN (2-Step Verification) *', type: 'password', required: true, placeholder: 'Enter PIN', mono: true });
             }
+
+            const inputData = await uiPrompt("Tier-1 Rate Review", `Remittance: INR ${Number(amount).toLocaleString('en-IN')}`, promptFields);
+            if (!inputData) return;
+
+            const rate10g = parseFloat(inputData.rateVal);
+            if (isNaN(rate10g) || rate10g <= 0) return uiAlert("Validation Failure", "A valid numerical gold rate is required.");
 
             showLoader("Recording Rate Verification in Database...");
 
             fetch(config.scriptUrl, {
                 method: "POST",
+                mode: "cors",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({
                     action: "reviewTransaction",
@@ -829,41 +976,45 @@
                     rateUsed: rate10g,
                     authUser: sessionUser.username,
                     authPin: sessionUser.pin,
-                    secondPin: secondPin
+                    secondPin: inputData.secondPin || ""
                 })
             })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert(`Valuation posted successfully to database. Weight allocated: ${res.gramsBooked} grams. Awaiting final authorization.`);
+                    uiAlert("Verification Logged", `Valuation posted to database. Allocated weight: ${res.gramsBooked} grams. Awaiting final ledger sign-off.`);
                     loadKmpPendingApprovals();
                 } else {
-                    alert("Authorization Error: " + (res.error || ""));
+                    uiAlert("Authorization Error", res.error || "Review rejected by server.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Database network communication error.");
+                uiAlert("Network Error", "Database communication error during review.");
             });
         }
 
-        function executeFinalApproval(rowId, amount, isReviewed) {
+        async function executeFinalApproval(rowId, amount, isReviewed) {
             let rate10g = 0;
 
             if (!isReviewed) {
-                var inputRate = prompt(`[Mandatory Rate Allocation]\nRemittance: INR ${Number(amount).toLocaleString('en-IN')}\nEnter Current 22K Gold Rate for 10 Grams (INR):`);
-                if (inputRate === null) return;
-                rate10g = parseFloat(inputRate.trim());
-                if (isNaN(rate10g) || rate10g <= 0) return alert("Validation Failure: Gold rate input is strictly mandatory.");
+                const inputData = await uiPrompt("Direct Ledger Authorization", `Remittance: INR ${Number(amount).toLocaleString('en-IN')}`, [
+                    { id: 'rateVal', label: 'Today’s 22K Gold Rate for 10 Grams (INR) *', type: 'number', required: true, placeholder: 'e.g. 68500', mono: true }
+                ]);
+                if (!inputData) return;
+                rate10g = parseFloat(inputData.rateVal);
+                if (isNaN(rate10g) || rate10g <= 0) return uiAlert("Validation Failure", "A valid 22K gold rate input is strictly mandatory.");
             }
 
-            if (!confirm("Confirm Transaction Authorization:\nProceed with permanent ledger booking and customer passbook credit?")) return;
+            const confirmed = await uiConfirm("Confirm Transaction Authorization", "Proceed with permanent ledger booking and customer passbook credit?");
+            if (!confirmed) return;
 
             showLoader("Posting Authorization to Database...");
 
             fetch(config.scriptUrl, {
                 method: "POST",
+                mode: "cors",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({
                     action: isReviewed ? "finalApprove" : "approve",
@@ -877,27 +1028,31 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert(isReviewed ? "Transaction settled and posted to ledger." : `Transaction authorized. ${res.gramsBooked} grams credited to passbook.`);
+                    uiAlert("Settlement Committed", isReviewed ? "Transaction settled and posted to ledger." : `Transaction authorized. ${res.gramsBooked} grams credited to passbook.`);
                     loadKmpPendingApprovals();
                 } else {
-                    alert("Posting Error: " + (res.error || ""));
+                    uiAlert("Posting Error", res.error || "Server rejected ledger entry.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Communication error encountered during ledger update.");
+                uiAlert("Network Error", "Communication error encountered during ledger update.");
             });
         }
 
+        // --- RBAC MANAGEMENT ---
         function loadStaffUsersList() {
             if (sessionUser.role !== "Admin") return;
             showLoader("Retrieving Operator Records...");
 
-            fetch(`${config.scriptUrl}?action=getStaffUsers&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=getStaffUsers&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (!res.success) return alert(res.error || "Access Denied.");
+                if (!res.success) return uiAlert("Access Denied", res.error || "Administrator credentials required.");
                 const tbody = document.getElementById('userTableBody');
                 tbody.innerHTML = "";
 
@@ -970,6 +1125,7 @@
 
             fetch(config.scriptUrl, {
                 method: "POST",
+                mode: "cors",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
@@ -977,30 +1133,46 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert("Operator permissions committed to database.");
+                    uiAlert("Configuration Saved", "Operator permissions committed to database.");
                     closeUserModal();
                     loadStaffUsersList();
-                } else alert("Database Error: " + res.error);
+                } else {
+                    uiAlert("Database Error", res.error || "Unable to save operator permissions.");
+                }
             })
-            .catch(() => hideLoader());
+            .catch(() => {
+                hideLoader();
+                uiAlert("Network Failure", "Error communicating with server.");
+            });
         }
 
-        function deleteStaffUser(targetUser) {
-            if (!confirm(`Permanently remove operator access for ${targetUser}?`)) return;
+        async function deleteStaffUser(targetUser) {
+            const confirmed = await uiConfirm("Confirm Removal", `Permanently remove operator access for ${targetUser}?`);
+            if (!confirmed) return;
+
             showLoader("Removing Operator Record from Database...");
 
-            fetch(`${config.scriptUrl}?action=deleteStaffUser&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&targetUser=${encodeURIComponent(targetUser)}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=deleteStaffUser&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&targetUser=${encodeURIComponent(targetUser)}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert("Operator profile deleted from database.");
+                    uiAlert("Success", "Operator profile deleted from database.");
                     loadStaffUsersList();
-                } else alert("Database Error: " + res.error);
+                } else {
+                    uiAlert("Database Error", res.error || "Unable to delete operator.");
+                }
             })
-            .catch(() => hideLoader());
+            .catch(() => {
+                hideLoader();
+                uiAlert("Network Error", "Communication timeout.");
+            });
         }
 
+        // --- ENROLLMENT & DEPOSITS ---
         function openAddMemberModal() { document.getElementById('addMemberModal').classList.remove('hidden-view'); }
         function closeAddMemberModal() { document.getElementById('addMemberModal').classList.add('hidden-view'); }
 
@@ -1021,6 +1193,7 @@
 
             fetch(config.scriptUrl, {
                 method: "POST",
+                mode: "cors",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
@@ -1028,11 +1201,16 @@
             .then(res => {
                 hideLoader();
                 if (res && res.success) {
-                    alert("Member enrolled and initialized in database.");
+                    uiAlert("Enrollment Confirmed", "Member registered and initialized in database.");
                     closeAddMemberModal();
-                } else alert("Enrollment Failure: " + (res.error || ""));
+                } else {
+                    uiAlert("Enrollment Failure", res.error || "Unable to save member record.");
+                }
             })
-            .catch(() => hideLoader());
+            .catch(() => {
+                hideLoader();
+                uiAlert("Network Error", "Server connection timeout.");
+            });
         }
 
         function openManualDepositModal() {
@@ -1070,7 +1248,7 @@
             const month = document.getElementById('depositMonth').value;
             const ref = document.getElementById('depositRef').value.trim() || "Showroom Counter";
 
-            if (!amount || !rate10g) return alert("Remittance amount and 22K gold rate are strictly mandatory.");
+            if (!amount || !rate10g) return uiAlert("Validation Error", "Remittance amount and 22K gold rate are strictly mandatory.");
 
             showLoader("Recording Counter Payment to Database...");
             const perGram = rate10g / 10;
@@ -1089,6 +1267,7 @@
 
             fetch(config.scriptUrl, {
                 method: "POST",
+                mode: "cors",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
@@ -1096,17 +1275,53 @@
             .then(res => {
                 hideLoader();
                 closeManualDepositModal();
-                alert(`Transaction committed to database. ${grams} grams booked.`);
+                uiAlert("Payment Committed", `Transaction registered in database. ${grams} grams booked.`);
                 loadMemberLedger(selectedMemberData);
             })
-            .catch(() => hideLoader());
+            .catch(() => {
+                hideLoader();
+                uiAlert("Network Error", "Timeout committing payment record.");
+            });
         }
 
+        async function confirmRemoveMember() {
+            if (!selectedMemberData) return;
+            const confirmed = await uiConfirm("Confirm Account Deletion", `Are you sure you want to permanently remove member ${selectedMemberData.name} (Account: ${selectedMemberData.acCode || selectedMemberData.kittyNumber})?`);
+            if (!confirmed) return;
+
+            showLoader("Deleting Member from Database...");
+
+            const targetUrl = `${config.scriptUrl}?action=deleteMember`
+                + `&phone=${encodeURIComponent(selectedMemberData.phone)}`
+                + `&kittyNumber=${encodeURIComponent(selectedMemberData.acCode || selectedMemberData.kittyNumber)}`
+                + `&_ts=${Date.now()}`;
+
+            fetch(targetUrl, { method: "GET", mode: "cors" })
+            .then(r => r.json())
+            .then(res => {
+                hideLoader();
+                if (res && res.success) {
+                    uiAlert("Deletion Successful", "Member record successfully deleted.");
+                    document.getElementById('memberProfileSection').classList.add('hidden-view');
+                } else {
+                    uiAlert("Database Error", res.error || "Unable to delete member record.");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                uiAlert("Network Error", "Communication timeout during deletion.");
+            });
+        }
+
+        // --- OVERDUE TRACKER & DISPATCH ---
         function loadOverdueDefaulters() {
             const tbody = document.getElementById('defaulterTableBody');
             showLoader("Auditing Overdue Schedules in Database...");
 
-            fetch(`${config.scriptUrl}?action=getOverdueDefaulters&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=getOverdueDefaulters&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -1143,20 +1358,29 @@
             .catch(() => hideLoader());
         }
 
-        function sendBulkEmailReminders() {
-            if (!activeDefaultersList || activeDefaultersList.length === 0) return alert("Zero overdue accounts identified.");
-            if (!confirm(`Dispatch electronic notices to all ${activeDefaultersList.length} accounts via server mail gateway?`)) return;
+        async function sendBulkEmailReminders() {
+            if (!activeDefaultersList || activeDefaultersList.length === 0) return uiAlert("Audit Result", "Zero overdue accounts identified.");
+            const confirmed = await uiConfirm("Confirm Automated Dispatch", `Dispatch electronic notices to all ${activeDefaultersList.length} accounts via server mail gateway?`);
+            if (!confirmed) return;
 
             showLoader("Dispatching Email Notifications...");
-            fetch(`${config.scriptUrl}?action=sendBulkOverdueEmails&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=sendBulkOverdueEmails&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (res && res.success) {
-                    alert(`Notices Dispatched: ${res.sentCount}\nSkipped (No Email Address): ${res.skippedNoEmail}`);
-                } else alert("Dispatch Failure: " + res.error);
+                    uiAlert("Dispatch Summary", `Notices Dispatched: ${res.sentCount}\nSkipped (No Email Address): ${res.skippedNoEmail}`);
+                } else {
+                    uiAlert("Dispatch Failure", res.error || "Unable to send notices.");
+                }
             })
-            .catch(() => hideLoader());
+            .catch(() => {
+                hideLoader();
+                uiAlert("Network Error", "Timeout during bulk dispatch.");
+            });
         }
     </script>
 </body>
