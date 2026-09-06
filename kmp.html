@@ -12,39 +12,27 @@
             to { transform: rotate(360deg); }
         }
         .enterprise-spinner {
-            animation: spinAnimation 0.8s linear infinite;
+            animation: spinAnimation 0.9s linear infinite;
         }
-        @keyframes progressSweep {
-            0% { transform: translateX(-100%); }
-            50% { transform: translateX(0%); }
-            100% { transform: translateX(100%); }
+        @keyframes bounceShort {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
         }
-        .animate-progress-sweep {
-            animation: progressSweep 1.3s ease-in-out infinite;
+        .animate-bounce-short {
+            animation: bounceShort 0.35s ease-out;
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased min-h-screen relative">
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
 
-    <!-- TOP HEADER STATUS & PROGRESS BAR -->
-    <div id="kmpTopProgress" class="hidden-view fixed top-0 left-0 w-full z-60 bg-slate-900 border-b border-amber-800 shadow-md">
-        <div class="h-1 bg-amber-800 overflow-hidden w-full">
-            <div class="w-full h-full bg-white animate-progress-sweep origin-left"></div>
-        </div>
-        <div class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-2">
-                <div class="w-3.5 h-3.5 border-2 border-slate-300 border-t-amber-500 rounded-full enterprise-spinner"></div>
-                <span id="kmpTopStatus" class="font-bold text-white tracking-wide uppercase text-[10px]">Processing Database Query...</span>
+    <!-- ENTERPRISE LOADING OVERLAY (ANCHORED TO TOP VIEWPORT HEADER) -->
+    <div id="kmpLoader" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center pt-6 px-4 z-50">
+        <div class="bg-white rounded-xl py-3.5 px-6 shadow-2xl border border-slate-300 flex items-center gap-3.5 max-w-sm w-full animate-bounce-short">
+            <div class="w-8 h-8 border-3 border-slate-200 border-t-amber-800 rounded-full enterprise-spinner shrink-0"></div>
+            <div>
+                <p id="kmpLoaderMsg" class="text-xs font-bold text-slate-900 tracking-wider uppercase">Processing Database Request...</p>
+                <p class="text-[10px] text-slate-500 font-medium">Executing system transaction</p>
             </div>
-            <span class="text-[9px] text-slate-400 font-mono">DATABASE PROTOCOL</span>
-        </div>
-    </div>
-
-    <!-- FULL SCREEN BACKDROP LOADER -->
-    <div id="kmpLoader" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-55">
-        <div class="bg-white rounded-xl p-6 shadow-2xl border border-slate-200 flex flex-col items-center gap-3 max-w-xs w-full text-center">
-            <div class="w-10 h-10 border-3 border-slate-200 border-t-slate-900 rounded-full enterprise-spinner"></div>
-            <p id="kmpLoaderMsg" class="text-xs font-bold text-slate-900 tracking-wider uppercase">Processing Database Request...</p>
         </div>
     </div>
 
@@ -144,7 +132,7 @@
                                         <option value="2">2 Events Winner</option>
                                         <option value="3">3 Events Winner</option>
                                     </select>
-                                    <button onclick="saveWinnerCount()" class="ml-1 bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1 rounded text-xs cursor-pointer">Commit</button>
+                                    <button onclick="saveWinnerCount()" class="ml-1 bg-amber-700 hover:bg-amber-600 text-white font-bold px-2 py-1 rounded text-xs cursor-pointer">Commit</button>
                                 </div>
 
                                 <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer border border-slate-700">
@@ -323,41 +311,9 @@
         </main>
     </div>
 
-    <!-- STRUCTURED MODAL: RATE INPUT & APPROVAL (REPLACES BROWSER PROMPT) -->
-    <div id="rateApprovalModal" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl p-6 w-full max-w-sm shadow-2xl border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-900 mb-1 uppercase tracking-tight" id="rateModalTitle">Transaction Valuation Review</h3>
-            <p class="text-xs text-slate-500 mb-4" id="rateModalSubtitle">Remittance Amount: INR 0</p>
-            
-            <form onsubmit="confirmRateReviewSubmission(event)" class="space-y-3 text-xs">
-                <div>
-                    <label class="font-semibold text-slate-700 block mb-1">Current 22K Gold Rate for 10 Grams (INR) *</label>
-                    <input type="number" id="modalRateInput" required oninput="calculateModalGoldWeight()" placeholder="Enter Rate" class="w-full px-3 py-2 border rounded-lg font-mono font-bold">
-                </div>
-
-                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center">
-                    <div>
-                        <span class="text-[10px] uppercase font-bold text-slate-500 block">Calculated 22K Weight</span>
-                        <span class="text-[11px] text-slate-700 font-semibold" id="lblModalGrams">0.000 g</span>
-                    </div>
-                </div>
-
-                <div id="modal2svSection" class="hidden-view pt-2 border-t space-y-1">
-                    <label class="font-semibold text-slate-800 block">Secondary Verification: Security PIN *</label>
-                    <input type="password" id="modal2svPinInput" maxlength="6" placeholder="Enter Operator PIN" class="w-full px-3 py-2 border rounded-lg font-mono">
-                </div>
-
-                <div class="flex gap-2 pt-3">
-                    <button type="button" onclick="closeRateApprovalModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-lg font-semibold cursor-pointer">Cancel</button>
-                    <button type="submit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg font-semibold cursor-pointer" id="btnSubmitModalApproval">Authorize</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: ADD / EDIT STAFF PERMISSIONS -->
-    <div id="userModal" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200">
+    <!-- MODAL: ADD / EDIT STAFF PERMISSIONS (TOP-ANCHORED VIEWPORT) -->
+    <div id="userModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-6 sm:pt-12 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-slate-200 max-h-[88vh] overflow-y-auto">
             <h3 id="userModalTitle" class="text-sm font-bold text-slate-900 mb-4 uppercase">Configure Operator Privileges</h3>
             <form onsubmit="saveStaffUser(event)" class="space-y-3 text-xs">
                 <div>
@@ -397,9 +353,9 @@
         </div>
     </div>
 
-    <!-- MODAL: ENROLL NEW MEMBER -->
-    <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl my-auto border border-slate-200">
+    <!-- MODAL: ENROLL NEW MEMBER (TOP-ANCHORED VIEWPORT) -->
+    <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-6 sm:pt-10 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-slate-200 max-h-[88vh] overflow-y-auto">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
                 <h3 class="text-sm font-bold text-slate-900 uppercase">Enroll Scheme Participant</h3>
                 <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-700 font-bold text-base cursor-pointer">&times;</button>
@@ -450,9 +406,9 @@
         </div>
     </div>
 
-    <!-- MODAL: COUNTER DEPOSIT -->
-    <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl my-auto border border-slate-200">
+    <!-- MODAL: COUNTER DEPOSIT (TOP-ANCHORED VIEWPORT) -->
+    <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-6 sm:pt-10 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl border border-slate-200 max-h-[88vh] overflow-y-auto">
             <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
                 <div>
                     <h3 class="text-sm font-bold text-slate-900 uppercase">Post Counter Payment</h3>
@@ -509,30 +465,12 @@
         let selectedMemberData = null;
         let activeDefaultersList = [];
 
-        // Active state for rate approval modal
-        let activeApprovalTarget = {
-            row: null,
-            amount: 0,
-            isDirect: false
-        };
-
-        function showTopLoader(msg) {
-            document.getElementById('kmpTopStatus').innerText = msg;
-            document.getElementById('kmpTopProgress').classList.remove('hidden-view');
-        }
-
-        function hideTopLoader() {
-            document.getElementById('kmpTopProgress').classList.add('hidden-view');
-        }
-
         function showLoader(msg = "Communicating with Database...") {
-            showTopLoader(msg);
             document.getElementById('kmpLoaderMsg').innerText = msg;
             document.getElementById('kmpLoader').classList.remove('hidden-view');
         }
 
         function hideLoader() {
-            hideTopLoader();
             document.getElementById('kmpLoader').classList.add('hidden-view');
         }
 
@@ -551,7 +489,7 @@
             const username = document.getElementById('kmpUserInput').value.trim();
             const pin = document.getElementById('kmpPassInput').value.trim();
 
-            showLoader("Validating Operator Credentials...");
+            showLoader("Validating Credentials...");
 
             fetch(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}&_ts=${Date.now()}`)
             .then(r => r.json())
@@ -621,7 +559,7 @@
             const rawQuery = document.getElementById('searchInput').value.trim();
             if (!rawQuery) return alert("Please specify search query parameters.");
 
-            showLoader("Searching System Database...");
+            showLoader("Searching Database...");
 
             fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(rawQuery)}&_ts=${Date.now()}`)
             .then(r => r.json())
@@ -670,7 +608,7 @@
 
         function loadMemberLedger(member) {
             selectedMemberData = member;
-            showLoader("Loading Statement Records from Database...");
+            showLoader("Loading Statement Records...");
 
             document.getElementById('viewCustName').innerText = member.name;
             document.getElementById('viewCustPhone').innerText = "+91 " + member.phone;
@@ -767,7 +705,7 @@
             const phone = (selectedMemberData.phone || "").toString().replace(/\D/g, "").trim();
             const acCode = (selectedMemberData.acCode || selectedMemberData.kittyNumber || "").toString().replace(/^['"]|['"]$/g, "").trim();
 
-            showLoader("Updating Draw Allocation Count in Database...");
+            showLoader("Updating Draw Winner Records in Database...");
 
             const targetUrl = `${config.scriptUrl}?action=updateWinCount`
                 + `&phone=${encodeURIComponent(phone)}`
@@ -801,7 +739,7 @@
 
         function loadKmpPendingApprovals() {
             const tableBody = document.getElementById('kmpApprovalTableBody');
-            showLoader("Accessing Verification Queue from Database...");
+            showLoader("Accessing Verification Queue...");
 
             fetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
             .then(r => r.json())
@@ -824,26 +762,18 @@
 
                     if (!isReviewed) {
                         actionHtml += `
-                            <button onclick="openRateModal('${item.row}', ${item.amount}, false)" class="bg-amber-800 hover:bg-amber-700 text-white text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
+                            <button onclick="executeRateReview('${item.row}', ${item.amount})" class="bg-amber-800 hover:bg-amber-700 text-white text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
                                 Set 22K Rate &amp; Review
                             </button>
                         `;
                     }
 
                     if (sessionUser.role === "Admin" || sessionUser.canFinalApprove) {
-                        if (isReviewed) {
-                            actionHtml += `
-                                <button onclick="executeFinalLedgerCommit('${item.row}')" class="ml-1 bg-slate-900 hover:bg-slate-800 text-white text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
-                                    Commit to Ledger
-                                </button>
-                            `;
-                        } else {
-                            actionHtml += `
-                                <button onclick="openRateModal('${item.row}', ${item.amount}, true)" class="ml-1 bg-slate-900 hover:bg-slate-800 text-white text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
-                                    Authorize &amp; Post
-                                </button>
-                            `;
-                        }
+                        actionHtml += `
+                            <button onclick="executeFinalApproval('${item.row}', ${item.amount}, ${isReviewed})" class="ml-1 bg-slate-900 hover:bg-slate-800 text-white text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
+                                ${isReviewed ? 'Commit to Ledger' : 'Authorize &amp; Post'}
+                            </button>
+                        `;
                     }
 
                     tableBody.innerHTML += `
@@ -874,69 +804,28 @@
             .catch(() => hideLoader());
         }
 
-        // VIEWPORT-CENTERED RATE APPROVAL MODAL CONTROLLERS
-        function openRateModal(rowId, amount, isDirect) {
-            activeApprovalTarget.row = rowId;
-            activeApprovalTarget.amount = Number(amount) || 0;
-            activeApprovalTarget.isDirect = isDirect;
+        function executeRateReview(rowId, amount) {
+            var inputRate = prompt(`[Mandatory Valuation]\nRemittance: INR ${amount}\nEnter Current 22K Gold Valuation Rate for 10 Grams (INR):`);
+            if (inputRate === null) return;
+            var rate10g = parseFloat(inputRate.trim());
+            if (isNaN(rate10g) || rate10g <= 0) return alert("Validation Failure: You must supply a valid numerical gold rate.");
 
-            document.getElementById('modalRateInput').value = "";
-            document.getElementById('lblModalGrams').innerText = "0.000 g";
-            document.getElementById('rateModalTitle').innerText = isDirect ? "Direct Ledger Authorization" : "Tier 1 Rate Verification";
-            document.getElementById('rateModalSubtitle').innerText = `Remittance Amount: INR ${Number(amount).toLocaleString('en-IN')}`;
-            document.getElementById('btnSubmitModalApproval').innerText = isDirect ? "Commit & Post to Ledger" : "Verify Rate";
+            var grams = (amount / (rate10g / 10));
+            var secondPin = "";
 
-            const sec2sv = document.getElementById('modal2svSection');
-            document.getElementById('modal2svPinInput').value = "";
             if (!sessionUser.bypass2SV && sessionUser.role !== "Admin") {
-                sec2sv.classList.remove('hidden-view');
-            } else {
-                sec2sv.classList.add('hidden-view');
+                secondPin = prompt("Secondary Authorization:\nEnter Operator Security PIN to verify verification authority:");
+                if (!secondPin) return alert("Operation terminated: Missing secondary credentials.");
             }
 
-            document.getElementById('rateApprovalModal').classList.remove('hidden-view');
-        }
-
-        function closeRateApprovalModal() {
-            document.getElementById('rateApprovalModal').classList.add('hidden-view');
-        }
-
-        function calculateModalGoldWeight() {
-            const rate = parseFloat(document.getElementById('modalRateInput').value) || 0;
-            if (rate > 0 && activeApprovalTarget.amount > 0) {
-                const grams = (activeApprovalTarget.amount / (rate / 10));
-                document.getElementById('lblModalGrams').innerText = `${grams.toFixed(3)} g`;
-            } else {
-                document.getElementById('lblModalGrams').innerText = "0.000 g";
-            }
-        }
-
-        function confirmRateReviewSubmission(e) {
-            e.preventDefault();
-            const rate10g = parseFloat(document.getElementById('modalRateInput').value);
-            if (!rate10g || isNaN(rate10g) || rate10g <= 0) {
-                return alert("Validation Failure: 22K Gold Valuation Rate per 10 grams is mandatory.");
-            }
-
-            let secondPin = "";
-            if (!sessionUser.bypass2SV && sessionUser.role !== "Admin") {
-                secondPin = document.getElementById('modal2svPinInput').value.trim();
-                if (!secondPin) return alert("Secondary security authorization PIN required.");
-            }
-
-            const isDirect = activeApprovalTarget.isDirect;
-            closeRateApprovalModal();
-
-            showLoader(isDirect ? "Committing Direct Ledger Posting..." : "Posting Rate Review to Database...");
-
-            const actionType = isDirect ? "approve" : "reviewTransaction";
+            showLoader("Recording Rate Verification in Database...");
 
             fetch(config.scriptUrl, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({
-                    action: actionType,
-                    row: activeApprovalTarget.row,
+                    action: "reviewTransaction",
+                    row: rowId,
                     rateUsed: rate10g,
                     authUser: sessionUser.username,
                     authPin: sessionUser.pin,
@@ -947,9 +836,7 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert(isDirect 
-                        ? `Transaction authorized and posted to ledger. Weight credited: ${res.gramsBooked} grams.` 
-                        : `Rate review committed to database. Weight calculated: ${res.gramsBooked} grams. Awaiting final audit.`);
+                    alert(`Valuation posted successfully to database. Weight allocated: ${res.gramsBooked} grams. Awaiting final authorization.`);
                     loadKmpPendingApprovals();
                 } else {
                     alert("Authorization Error: " + (res.error || ""));
@@ -957,21 +844,31 @@
             })
             .catch(() => {
                 hideLoader();
-                alert("Database network communication failure.");
+                alert("Database network communication error.");
             });
         }
 
-        function executeFinalLedgerCommit(rowId) {
-            if (!confirm("Confirm Final Sign-Off:\nCommit and credit this reviewed payment into member passbook?")) return;
+        function executeFinalApproval(rowId, amount, isReviewed) {
+            let rate10g = 0;
 
-            showLoader("Posting Final Ledger Authorization...");
+            if (!isReviewed) {
+                var inputRate = prompt(`[Mandatory Rate Allocation]\nRemittance: INR ${Number(amount).toLocaleString('en-IN')}\nEnter Current 22K Gold Rate for 10 Grams (INR):`);
+                if (inputRate === null) return;
+                rate10g = parseFloat(inputRate.trim());
+                if (isNaN(rate10g) || rate10g <= 0) return alert("Validation Failure: Gold rate input is strictly mandatory.");
+            }
+
+            if (!confirm("Confirm Transaction Authorization:\nProceed with permanent ledger booking and customer passbook credit?")) return;
+
+            showLoader("Posting Authorization to Database...");
 
             fetch(config.scriptUrl, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({
-                    action: "finalApprove",
+                    action: isReviewed ? "finalApprove" : "approve",
                     row: rowId,
+                    rateUsed: rate10g,
                     authUser: sessionUser.username,
                     authPin: sessionUser.pin
                 })
@@ -980,7 +877,7 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert("Transaction settled and permanently posted to ledger.");
+                    alert(isReviewed ? "Transaction settled and posted to ledger." : `Transaction authorized. ${res.gramsBooked} grams credited to passbook.`);
                     loadKmpPendingApprovals();
                 } else {
                     alert("Posting Error: " + (res.error || ""));
@@ -988,14 +885,13 @@
             })
             .catch(() => {
                 hideLoader();
-                alert("Database communication error.");
+                alert("Communication error encountered during ledger update.");
             });
         }
 
-        // OPERATOR DIRECTORY & ACCESS CONTROL
         function loadStaffUsersList() {
             if (sessionUser.role !== "Admin") return;
-            showLoader("Retrieving Operator Records from Database...");
+            showLoader("Retrieving Operator Records...");
 
             fetch(`${config.scriptUrl}?action=getStaffUsers&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`)
             .then(r => r.json())
@@ -1057,7 +953,7 @@
 
         function saveStaffUser(e) {
             e.preventDefault();
-            showLoader("Uploading Operator Configuration to Database...");
+            showLoader("Uploading Operator Permissions to Database...");
 
             const payload = {
                 action: "saveStaffUser",
@@ -1081,7 +977,7 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    alert("Operator configuration committed to database.");
+                    alert("Operator permissions committed to database.");
                     closeUserModal();
                     loadStaffUsersList();
                 } else alert("Database Error: " + res.error);
@@ -1110,7 +1006,7 @@
 
         function submitNewMember(e) {
             e.preventDefault();
-            showLoader("Enrolling Member in System Database...");
+            showLoader("Enrolling Member into System Database...");
 
             const payload = {
                 action: "addMember",
