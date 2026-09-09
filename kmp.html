@@ -788,8 +788,11 @@
                 let fullPrincipal = 11 * mAmount;
                 let maturityVal = 0;
                 if (winCount > 0) {
-                    let prizePerWin = (mAmount === 8000) ? 15000 : 10000;
-                    maturityVal = fullPrincipal + (winCount * prizePerWin);
+                    let prizePerWin = 0;
+                    if (winCount === 1) prizePerWin = 15000;
+                    else if (winCount === 2) prizePerWin = 30000;
+                    else prizePerWin = 45000;
+                    maturityVal = fullPrincipal + prizePerWin;
                 } else {
                     let interest = (mAmount === 8000) ? 3000 : 2000;
                     maturityVal = fullPrincipal + interest;
@@ -908,7 +911,7 @@
 
                     if (!isReviewed) {
                         actionHtml += `
-                            <button onclick="executeRateReview('${item.row}', ${item.amount})" class="bg-amber-800 hover:bg-amber-700 text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
+                            <button onclick="executeRateReview('${item.row}', ${item.amount}, ${item.month}, ${item.bonusCash || 0})" class="bg-amber-800 hover:bg-amber-700 text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
                                 Set 22K Rate &amp; Review
                             </button>
                         `;
@@ -916,7 +919,7 @@
 
                     if (sessionUser.role === "Admin" || sessionUser.canFinalApprove) {
                         actionHtml += `
-                            <button onclick="executeFinalApproval('${item.row}', ${item.amount}, ${isReviewed})" class="ml-1 bg-slate-900 hover:bg-slate-800 text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
+                            <button onclick="executeFinalApproval('${item.row}', ${item.amount}, ${isReviewed}, ${item.month}, ${item.bonusCash || 0})" class="ml-1 bg-slate-900 hover:bg-slate-800 text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
                                 ${isReviewed ? 'Commit to Ledger' : 'Authorize &amp; Post'}
                             </button>
                         `;
@@ -950,7 +953,10 @@
             .catch(() => hideLoader());
         }
 
-        async function executeRateReview(rowId, amount) {
+        async function executeRateReview(rowId, amount, monthNum, bonusCash) {
+            monthNum = parseInt(monthNum, 10) || 1;
+            bonusCash = Number(bonusCash) || 0;
+
             const promptFields = [
                 { id: 'rateVal', label: 'Today’s 22K Gold Rate for 10 Grams (INR) *', type: 'number', required: true, placeholder: 'e.g. 68500', mono: true }
             ];
@@ -959,11 +965,16 @@
                 promptFields.push({ id: 'secondPin', label: 'Secondary Operator PIN (2-Step Verification) *', type: 'password', required: true, placeholder: 'Enter PIN', mono: true });
             }
 
-            const inputData = await uiPrompt("Tier-1 Rate Review", `Remittance: INR ${Number(amount).toLocaleString('en-IN')}`, promptFields);
+            let subtitle = `Installment: INR ${Number(amount).toLocaleString('en-IN')}`;
+            if (monthNum === 11) {
+                subtitle += ` (Month 11 Final Settlement: Includes INR ${bonusCash.toLocaleString('en-IN')} Gift/Winner Bonus Gold)`;
+            }
+
+            const inputData = await uiPrompt("Tier-1 Rate Review", subtitle, promptFields);
             if (!inputData) return;
 
             const rate10g = parseFloat(inputData.rateVal);
-            if (isNaN(rate10g) || rate10g <= 0) return uiAlert("Validation Failure", "A valid numerical gold rate is required.");
+            if (isNaN(rate10g) || rate10g <= 0) return uiAlert("Validation Failure", "A valid numerical 22K gold rate per 10 grams is required.");
 
             showLoader("Recording Rate Verification in Database...");
 
@@ -984,7 +995,11 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    uiAlert("Verification Logged", `Valuation posted to database. Allocated weight: ${res.gramsBooked} grams. Awaiting final ledger sign-off.`);
+                    let msg = `Valuation posted to database. Total allocated weight: ${res.gramsBooked} grams.`;
+                    if (res.bonusCash > 0) {
+                        msg += ` (Includes Month 11 Gold Gift of INR ${res.bonusCash.toLocaleString('en-IN')}).`;
+                    }
+                    uiAlert("Verification Logged", msg + " Awaiting final ledger sign-off.");
                     loadKmpPendingApprovals();
                 } else {
                     uiAlert("Authorization Error", res.error || "Review rejected by server.");
@@ -996,11 +1011,18 @@
             });
         }
 
-        async function executeFinalApproval(rowId, amount, isReviewed) {
+        async function executeFinalApproval(rowId, amount, isReviewed, monthNum, bonusCash) {
+            monthNum = parseInt(monthNum, 10) || 1;
+            bonusCash = Number(bonusCash) || 0;
             let rate10g = 0;
 
             if (!isReviewed) {
-                const inputData = await uiPrompt("Direct Ledger Authorization", `Remittance: INR ${Number(amount).toLocaleString('en-IN')}`, [
+                let subtitle = `Installment: INR ${Number(amount).toLocaleString('en-IN')}`;
+                if (monthNum === 11) {
+                    subtitle += ` (Month 11 Final Settlement: Includes INR ${bonusCash.toLocaleString('en-IN')} Gift/Winner Bonus Gold)`;
+                }
+
+                const inputData = await uiPrompt("Direct Ledger Authorization", subtitle, [
                     { id: 'rateVal', label: 'Today’s 22K Gold Rate for 10 Grams (INR) *', type: 'number', required: true, placeholder: 'e.g. 68500', mono: true }
                 ]);
                 if (!inputData) return;
@@ -1008,7 +1030,12 @@
                 if (isNaN(rate10g) || rate10g <= 0) return uiAlert("Validation Failure", "A valid 22K gold rate input is strictly mandatory.");
             }
 
-            const confirmed = await uiConfirm("Confirm Transaction Authorization", "Proceed with permanent ledger booking and customer passbook credit?");
+            let confirmMsg = "Proceed with permanent ledger booking and customer passbook credit?";
+            if (monthNum === 11) {
+                confirmMsg = `Proceed with final Month 11 settlement? This automatically credits the installment plus INR ${bonusCash.toLocaleString('en-IN')} Gold Gift directly into customer passbook.`;
+            }
+
+            const confirmed = await uiConfirm("Confirm Transaction Authorization", confirmMsg);
             if (!confirmed) return;
 
             showLoader("Posting Authorization to Database...");
@@ -1029,7 +1056,11 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    uiAlert("Settlement Committed", isReviewed ? "Transaction settled and posted to ledger." : `Transaction authorized. ${res.gramsBooked} grams credited to passbook.`);
+                    let msg = isReviewed ? "Transaction settled and posted to ledger." : `Transaction authorized. ${res.gramsBooked} grams credited to passbook.`;
+                    if (res.bonusCash > 0) {
+                        msg += ` (Included Month 11 Gift/Winner Gold: INR ${res.bonusCash.toLocaleString('en-IN')}).`;
+                    }
+                    uiAlert("Settlement Committed", msg);
                     loadKmpPendingApprovals();
                 } else {
                     uiAlert("Posting Error", res.error || "Server rejected ledger entry.");
@@ -1234,9 +1265,22 @@
         function calculateRealtimeGold() {
             const amount = parseFloat(document.getElementById('depositAmount').value) || 0;
             const rate10g = parseFloat(document.getElementById('depositRate').value) || 0;
+            const month = parseInt(document.getElementById('depositMonth').value, 10) || 1;
+
+            let bonusCash = 0;
+            if (month === 11 && selectedMemberData) {
+                const wins = parseInt(selectedMemberData.winCount, 10) || 0;
+                if (wins === 1) bonusCash = 15000;
+                else if (wins === 2) bonusCash = 30000;
+                else if (wins >= 3) bonusCash = 45000;
+                else bonusCash = (Number(selectedMemberData.monthlyAmount) === 8000) ? 3000 : 2000;
+            }
+
             if (amount > 0 && rate10g > 0) {
                 const perGram = rate10g / 10;
-                document.getElementById('lblLiveAllocatedWeight').innerText = `${(amount / perGram).toFixed(3)} g`;
+                const totalCash = amount + bonusCash;
+                const grams = (totalCash / perGram).toFixed(3);
+                document.getElementById('lblLiveAllocatedWeight').innerText = `${grams} g` + (bonusCash > 0 ? ` (+₹${bonusCash} Gift)` : '');
             } else {
                 document.getElementById('lblLiveAllocatedWeight').innerText = "0.000 g";
             }
