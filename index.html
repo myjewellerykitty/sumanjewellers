@@ -68,7 +68,7 @@
                     <div class="pt-2 flex items-center justify-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity">
                         <img src="https://i.pinimg.com/736x/bd/d0/5c/bdd05c94afb66b5a72f5e17a7a879ab3.jpg" alt="Ofbuzz Logo" class="w-3.5 h-3.5 rounded-full object-cover border border-slate-300">
                         <span class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">
-                            Jewellery Kitty System &bull; Ofbuzz Technology
+                            AN OFBUZZ PRODUCT &bull; OFBUZZ TECHNOLOGY
                         </span>
                     </div>
                 </div>
@@ -638,23 +638,24 @@
 
                 if (globalWinCount > 0) {
                     badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800";
-                    badge.innerText = `${globalWinCount}x Winner`;
-                    let winPrizePerDraw = (globalMonthlyAmount === 8000) ? 15000 : 10000;
-                    let totalPrizeWon = globalWinCount * winPrizePerDraw;
-                    totalMaturity = full11Principal + totalPrizeWon;
-                    
-                    document.getElementById('lblRewardBenefit').innerText = `+₹${totalPrizeWon.toLocaleString('en-IN')}`;
+                    let prizeWon = 0;
+                    if (globalWinCount === 1) { prizeWon = 15000; badge.innerText = "1x Draw Winner (+₹15,000 Gold)"; }
+                    else if (globalWinCount === 2) { prizeWon = 30000; badge.innerText = "2x Draw Winner (+₹30,000 Gold)"; }
+                    else { prizeWon = 45000; badge.innerText = "3x Draw Winner (+₹45,000 Gold)"; }
+
+                    totalMaturity = full11Principal + prizeWon;
+                    document.getElementById('lblRewardBenefit').innerText = `+₹${prizeWon.toLocaleString('en-IN')}`;
                     document.getElementById('lblTotalMaturity').innerText = `₹${totalMaturity.toLocaleString('en-IN')}`;
-                    document.getElementById('lblDrawDetails').innerText = `Winner Prize (₹${winPrizePerDraw.toLocaleString('en-IN')} × ${globalWinCount}) added to 11-month principal.`;
+                    document.getElementById('lblDrawDetails').innerText = `Draw prize of ₹${prizeWon.toLocaleString('en-IN')} converted to 22K Gold and credited with Month 11 payment.`;
                 } else {
                     badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700";
                     badge.innerText = "Non-Winner Plan";
-                    let interestBonus = (globalMonthlyAmount === 8000) ? 3000 : 2000;
-                    totalMaturity = full11Principal + interestBonus;
+                    let giftBonus = (globalMonthlyAmount === 8000) ? 3000 : 2000;
+                    totalMaturity = full11Principal + giftBonus;
 
-                    document.getElementById('lblRewardBenefit').innerText = `+₹${interestBonus.toLocaleString('en-IN')}`;
+                    document.getElementById('lblRewardBenefit').innerText = `+₹${giftBonus.toLocaleString('en-IN')}`;
                     document.getElementById('lblTotalMaturity').innerText = `₹${totalMaturity.toLocaleString('en-IN')}`;
-                    document.getElementById('lblDrawDetails').innerText = `Standard interest bonus credited on full 11-month maturity.`;
+                    document.getElementById('lblDrawDetails').innerText = `Non-Winner Gift Bonus of ₹${giftBonus.toLocaleString('en-IN')} converted to 22K Gold upon Month 11 payment.`;
                 }
 
                 const grid = document.getElementById('gridWrapper');
