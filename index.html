@@ -15,13 +15,20 @@
         .animate-spin-slow {
             animation: spinSlow 1s linear infinite;
         }
+        @keyframes bounceShort {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .animate-bounce-short {
+            animation: bounceShort 0.35s ease-out;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
 
     <!-- GLOBAL LOADING OVERLAY (ANCHORED TO TOP VIEWPORT) -->
-    <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-6 px-4 z-50">
-        <div class="bg-white rounded-2xl py-4 px-6 shadow-2xl border border-amber-300 flex items-center gap-3.5 max-w-sm w-full animate-bounce-short">
+    <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-4 sm:pt-6 px-3 z-50">
+        <div class="bg-white rounded-2xl py-3.5 px-5 shadow-2xl border border-amber-300 flex items-center gap-3.5 max-w-sm w-full animate-bounce-short">
             <div class="w-8 h-8 border-3 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow shrink-0"></div>
             <div>
                 <p id="loadingMessage" class="text-xs font-bold text-slate-900 uppercase tracking-wider">Syncing Passbook...</p>
@@ -33,25 +40,25 @@
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-3 sm:p-4 flex flex-col justify-between">
         <div>
             <!-- BRAND HEADER -->
-            <header class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-5">
-                <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-32 object-cover object-center">
-                <div class="p-4 text-center relative pt-7">
-                    <div class="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden bg-white">
+            <header class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4 sm:mb-5">
+                <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-28 sm:h-32 object-cover object-center">
+                <div class="p-3 sm:p-4 text-center relative pt-6 sm:pt-7">
+                    <div class="absolute -top-6 sm:-top-7 left-1/2 -translate-x-1/2 w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white shadow-md overflow-hidden bg-white">
                         <img src="https://i.pinimg.com/736x/9f/08/47/9f0847af5e7a99e2bef8814fa1416357.jpg" alt="Logo" class="w-full h-full object-cover">
                     </div>
-                    <h1 class="text-xl font-black text-slate-900 tracking-tight uppercase">Golden Rose Magic</h1>
+                    <h1 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight uppercase">Golden Rose Magic</h1>
                     <p class="text-xs font-semibold text-amber-700 tracking-wider mt-0.5">For Easy Jewellery Purchase</p>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Suman Jewellers Scheme Portal</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-0.5 sm:mt-1">Suman Jewellers Scheme Portal</p>
                 </div>
             </header>
 
             <!-- AUTH & LOGIN SCREENS -->
             <div id="authContainer">
                 <!-- STEP 1: MOBILE -->
-                <div id="phoneSection" class="bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
+                <div id="phoneSection" class="bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div>
                         <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">Registered Mobile Number</label>
-                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 focus:bg-white transition-all font-mono">
+                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 focus:bg-white transition-all font-mono">
                     </div>
                     <button onclick="handlePhoneContinue()" id="btnPhoneContinue" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer">
                         Access GRMS Passbook
@@ -59,16 +66,16 @@
                 </div>
 
                 <!-- STEP 2A: MPIN LOGIN -->
-                <div id="mpinLoginSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
+                <div id="mpinLoginSection" class="hidden-view bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div class="text-center">
-                        <h3 class="text-base font-bold text-slate-900">Enter Security MPIN</h3>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900">Enter Security MPIN</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Mobile: <span id="lblMpinPhone" class="font-bold text-slate-800 font-mono"></span></p>
                     </div>
                     <div>
                         <input type="password" id="mpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-600">
                     </div>
                     <button onclick="verifyMpinAndProceed()" id="btnVerifyMpin" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer">
-                        Verify MPIN & Open Passbook
+                        Verify MPIN &amp; Open Passbook
                     </button>
                     <div class="flex justify-between items-center text-xs pt-1">
                         <button onclick="resetToPhoneStep()" class="text-slate-400 hover:text-slate-600 font-semibold cursor-pointer">← Change Phone</button>
@@ -77,22 +84,22 @@
                 </div>
 
                 <!-- STEP 2B: INITIAL MPIN SETUP -->
-                <div id="firstTimeMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
+                <div id="firstTimeMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div class="text-center">
-                        <h3 class="text-base font-bold text-slate-900">Set Security 4-Digit MPIN</h3>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900">Set Security 4-Digit MPIN</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Welcome! Create a secure PIN for future logins.</p>
                     </div>
-                    <div class="space-y-3">
+                    <div class="space-y-2.5">
                         <input type="password" id="firstMpin1" placeholder="Enter 4-Digit MPIN" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-lg font-bold tracking-widest">
                         <input type="password" id="firstMpin2" placeholder="Confirm 4-Digit MPIN" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-lg font-bold tracking-widest">
                     </div>
-                    <button onclick="saveInitialMpin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Save & Access</button>
+                    <button onclick="saveInitialMpin()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Save &amp; Access</button>
                 </div>
 
                 <!-- STEP 2C: FORGOT MPIN -->
-                <div id="forgotMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-5 space-y-4">
+                <div id="forgotMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div class="text-center">
-                        <h3 class="text-base font-bold text-slate-900">Reset Security MPIN</h3>
+                        <h3 class="text-sm sm:text-base font-bold text-slate-900">Reset Security MPIN</h3>
                         <p class="text-xs text-slate-500 mt-0.5">Request your old MPIN directly to your registered email.</p>
                     </div>
                     <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
@@ -100,17 +107,17 @@
                             Email Me My Old MPIN
                         </button>
                     </div>
-                    <div class="space-y-2.5 pt-1">
+                    <div class="space-y-2 pt-1">
                         <input type="password" id="oldMpinInput" placeholder="Enter Old MPIN" maxlength="4" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-sm font-bold">
                         <input type="password" id="resetNewMpin1" placeholder="Enter New 4-Digit MPIN" maxlength="4" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-sm font-bold">
                         <input type="password" id="resetNewMpin2" placeholder="Confirm New 4-Digit MPIN" maxlength="4" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-sm font-bold">
                     </div>
-                    <button onclick="submitMpinResetWithOld()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Verify & Update MPIN</button>
+                    <button onclick="submitMpinResetWithOld()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer">Verify &amp; Update MPIN</button>
                     <button onclick="cancelForgotFlow()" class="w-full text-center text-xs text-slate-400 font-semibold cursor-pointer">← Back to Login</button>
                 </div>
 
                 <!-- MULTI-ACCOUNT SELECTOR -->
-                <div id="multiKittyWrapper" class="hidden-view bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3 mb-5">
+                <div id="multiKittyWrapper" class="hidden-view bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3 mb-4 sm:mb-5">
                     <label class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">Multiple GRMS Plans Linked</label>
                     <select id="kittySelect" class="w-full px-3 py-2.5 bg-white border border-amber-300 rounded-xl text-sm font-semibold text-slate-900"></select>
                     <button onclick="confirmSelectedKitty()" class="w-full bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-xs cursor-pointer">Open Selected Account</button>
@@ -121,24 +128,24 @@
             <div id="passbookContainer" class="hidden-view space-y-4">
                 
                 <!-- CUSTOMER SCHEME CARD -->
-                <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-sm relative overflow-hidden border border-slate-800">
+                <div class="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden border border-slate-800">
                     <div class="space-y-3">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 id="custName" class="text-base font-bold text-slate-100 uppercase tracking-tight">-</h3>
+                                <h3 id="custName" class="text-sm sm:text-base font-bold text-slate-100 uppercase tracking-tight">-</h3>
                                 <p id="custPhone" class="text-xs text-slate-400 font-mono mt-0.5">-</p>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1.5">
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] sm:text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1.5">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> GRMS Active
                                 </span>
-                                <button onclick="logoutCustomer()" class="text-[10px] bg-slate-800 hover:bg-rose-900/60 text-slate-300 px-2 py-0.5 rounded cursor-pointer">
+                                <button onclick="logoutCustomer()" class="text-[9px] sm:text-[10px] bg-slate-800 hover:bg-rose-900/60 text-slate-300 px-2 py-0.5 rounded cursor-pointer">
                                     Logout
                                 </button>
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-[11px]">
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-[10px] sm:text-[11px]">
                             <div><span class="text-slate-500 block text-[9px] uppercase font-bold">A/C Code:</span> <span id="lblAcCode" class="font-bold font-mono text-amber-400">-</span></div>
                             <div><span class="text-slate-500 block text-[9px] uppercase font-bold">Token ID:</span> <span id="lblCustId" class="font-semibold font-mono text-slate-200">-</span></div>
                             <div><span class="text-slate-500 block text-[9px] uppercase font-bold">Join Date:</span> <span id="lblDoj" class="font-semibold font-mono text-slate-200">-</span></div>
@@ -146,12 +153,12 @@
 
                         <div class="pt-2 border-t border-slate-800 grid grid-cols-2 gap-4">
                             <div>
-                                <span class="text-[10px] uppercase text-slate-400 block tracking-wider font-bold">Monthly Installment</span>
-                                <span id="custAmount" class="text-base font-black text-slate-100 font-mono">₹0</span>
+                                <span class="text-[9px] sm:text-[10px] uppercase text-slate-400 block tracking-wider font-bold">Monthly Installment</span>
+                                <span id="custAmount" class="text-sm sm:text-base font-black text-slate-100 font-mono">₹0</span>
                             </div>
                             <div class="text-right">
-                                <span class="text-[10px] uppercase text-slate-400 block tracking-wider font-bold">Principal Deposited</span>
-                                <span id="custLiveBalance" class="text-base font-black text-amber-400 font-mono">₹0</span>
+                                <span class="text-[9px] sm:text-[10px] uppercase text-slate-400 block tracking-wider font-bold">Principal Deposited</span>
+                                <span id="custLiveBalance" class="text-sm sm:text-base font-black text-amber-400 font-mono">₹0</span>
                             </div>
                         </div>
                     </div>
@@ -166,27 +173,27 @@
                         <span class="text-[10px] font-semibold text-slate-400 uppercase">Live Accumulated</span>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-                        <span id="lblTotalGoldGrams" class="text-2xl font-black text-slate-900 font-mono">0.000 g</span>
+                        <span id="lblTotalGoldGrams" class="text-xl sm:text-2xl font-black text-slate-900 font-mono">0.000 g</span>
                     </div>
                 </div>
 
                 <!-- MATURITY PROJECTION CARD -->
                 <div id="rewardCard" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                        <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Maturity Projection (11 Months)</span>
+                        <span class="text-[11px] sm:text-xs font-bold text-slate-900 uppercase tracking-wider">Maturity Projection (11 Months)</span>
                         <span id="badgeWinnerStatus" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">Non-Winner</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="grid grid-cols-2 gap-2 sm:gap-3 text-center">
                         <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                            <span class="text-[10px] text-slate-500 uppercase block font-semibold">Draw Bonus / Interest</span>
-                            <span id="lblRewardBenefit" class="text-sm font-black text-emerald-600 font-mono">+₹0</span>
+                            <span class="text-[9px] sm:text-[10px] text-slate-500 uppercase block font-semibold">Draw Bonus / Interest</span>
+                            <span id="lblRewardBenefit" class="text-xs sm:text-sm font-black text-emerald-600 font-mono">+₹0</span>
                         </div>
                         <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-100">
-                            <span class="text-[10px] text-amber-800 uppercase block font-semibold">Total Maturity Value</span>
-                            <span id="lblTotalMaturity" class="text-sm font-black text-amber-900 font-mono">₹0</span>
+                            <span class="text-[9px] sm:text-[10px] text-amber-800 uppercase block font-semibold">Total Maturity Value</span>
+                            <span id="lblTotalMaturity" class="text-xs sm:text-sm font-black text-amber-900 font-mono">₹0</span>
                         </div>
                     </div>
-                    <p id="lblDrawDetails" class="text-[11px] text-slate-500 text-center italic"></p>
+                    <p id="lblDrawDetails" class="text-[10px] sm:text-[11px] text-slate-500 text-center italic leading-tight"></p>
                 </div>
 
                 <!-- 11-MONTH SEQUENTIAL INSTALLMENT GRID -->
@@ -203,12 +210,12 @@
 
                 <!-- ACTION BUTTONS -->
                 <div class="space-y-2">
-                    <div class="bg-white rounded-xl p-4 border border-slate-200 flex items-center justify-between shadow-sm">
+                    <div class="bg-white rounded-xl p-3.5 sm:p-4 border border-slate-200 flex items-center justify-between shadow-sm gap-2">
                         <div>
                             <h4 class="text-xs font-bold text-slate-900">Showroom Verification Desk</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Need help with draw dates or passbook?</p>
+                            <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Need help with draw dates or passbook?</p>
                         </div>
-                        <a id="supportLink" href="#" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer">
+                        <a id="supportLink" href="#" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer shrink-0">
                             Contact Desk
                         </a>
                     </div>
@@ -222,21 +229,21 @@
     </div>
 
     <!-- TERMS & CONDITIONS MODAL (TOP-ANCHORED VIEWPORT) -->
-    <div id="termsModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-6 sm:pt-10 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-lg shadow-xl border border-slate-200 max-h-[88vh] flex flex-col justify-between">
+    <div id="termsModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-xl border border-slate-200 max-h-[85vh] flex flex-col justify-between animate-bounce-short">
             <div>
-                <div class="border-b border-slate-100 pb-3 mb-3 flex justify-between items-center">
+                <div class="border-b border-slate-100 pb-2.5 mb-2.5 flex justify-between items-center">
                     <div>
-                        <h3 class="text-sm font-black text-slate-900 uppercase">Terms &amp; Conditions</h3>
-                        <p class="text-[11px] text-amber-800 font-semibold">Golden Rose Magic Scheme (GRMS)</p>
+                        <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase">Terms &amp; Conditions</h3>
+                        <p class="text-[10px] sm:text-[11px] text-amber-800 font-semibold">Golden Rose Magic Scheme (GRMS)</p>
                     </div>
-                    <button onclick="closeTermsModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer">&times;</button>
+                    <button onclick="closeTermsModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer p-1">&times;</button>
                 </div>
-                <div class="overflow-y-auto max-h-[60vh] pr-2">
-                    <ol class="text-[11px] text-slate-600 space-y-2.5 list-decimal pl-4 leading-relaxed text-justify">
+                <div class="overflow-y-auto max-h-[55vh] pr-1.5">
+                    <ol class="text-[10px] sm:text-[11px] text-slate-600 space-y-2 list-decimal pl-4 leading-relaxed text-justify">
                         <li>For Enrollment in Golden Rose Magic Scheme (GRMS) you must duly fill in &amp; sign the application form and deposit it at the Showroom with two photographs and a copy of any one official identity card document. Collect the Passbook and keep it in safe custody.</li>
                         <li><strong>Key Terms:</strong>
-                            <ul class="list-disc pl-4 mt-1 space-y-1 text-slate-500">
+                            <ul class="list-disc pl-4 mt-1 space-y-0.5 text-slate-500">
                                 <li><em>Monthly Installment:</em> Amount to be given by participants to Suman Jewellers every month.</li>
                                 <li><em>Principal Amount:</em> Total installment sum paid by participant across 11 months.</li>
                                 <li><em>Interest Amount:</em> Lump-sum bonus provided upon maturity for non-winners.</li>
@@ -251,7 +258,7 @@
                         <li>You are requested to attend the GRMS Draw in person to inspect that the process is fair and transparent. After the draw is conducted, Suman Jewellers will not be responsible for any objections.</li>
                         <li>You are requested to inform the showroom in advance about your attendance for the draw by the 18th–20th of each month. Inquire for the exact date, timing, and venue.</li>
                         <li><strong>Maturity &amp; Interest Rules:</strong>
-                            <ul class="list-disc pl-4 mt-1 space-y-1 text-slate-500">
+                            <ul class="list-disc pl-4 mt-1 space-y-0.5 text-slate-500">
                                 <li><strong>Rs.8,000 Scheme (Non-Winners):</strong> 11 &times; Rs.8,000 = Rs.88,000 + Rs.3,000 (Interest) = <strong>Rs.91,000/-</strong> maturity.</li>
                                 <li><strong>Rs.5,000 Scheme (Non-Winners):</strong> 11 &times; Rs.5,000 = Rs.55,000 + Rs.2,000 (Interest) = <strong>Rs.57,000/-</strong> maturity.</li>
                                 <li><em>Note:</em> The fixed Interest Amount is not applicable if a participant wins a draw; the draw prize replaces interest.</li>
@@ -262,22 +269,25 @@
                     </ol>
                 </div>
             </div>
-            <button onclick="closeTermsModal()" class="w-full mt-4 bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer">
+            <button onclick="closeTermsModal()" class="w-full mt-3.5 bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer">
                 Close Terms
             </button>
         </div>
     </div>
 
     <!-- PAYMENT SETTLEMENT MODAL (TOP-ANCHORED VIEWPORT) -->
-    <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-6 sm:pt-10 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto">
-            <div class="border-b border-slate-100 pb-3 mb-4">
-                <h3 class="text-base font-bold text-slate-900">GRMS Installment Payment</h3>
-                <p id="modalMonthTarget" class="text-xs font-medium text-slate-500 mt-0.5">Month Allocation</p>
+    <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto animate-bounce-short">
+            <div class="border-b border-slate-100 pb-3 mb-3.5 flex justify-between items-start">
+                <div>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900">GRMS Installment Payment</h3>
+                    <p id="modalMonthTarget" class="text-xs font-medium text-slate-500 mt-0.5">Month Allocation</p>
+                </div>
+                <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer p-1">&times;</button>
             </div>
 
             <!-- MULTI-KITTY PAYMENT SELECTION CHECKBOXES -->
-            <div id="multiKittySelectionContainer" class="hidden-view mb-4 bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+            <div id="multiKittySelectionContainer" class="hidden-view mb-3.5 bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
                 <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
                     Select GRMS Accounts To Include In Payment:
                 </label>
@@ -285,28 +295,28 @@
             </div>
 
             <!-- 1-CLICK UPI DEEP LINK BUTTON -->
-            <a id="btnUpiAppPay" href="#" class="w-full mb-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]">
+            <a id="btnUpiAppPay" href="#" class="w-full mb-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]">
                 Pay Via UPI App (GPay / PhonePe / Paytm)
             </a>
 
             <!-- SWITCH TO BANK DETAILS TOGGLE -->
-            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-4 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold py-2 rounded-xl transition-all cursor-pointer text-center">
+            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-3.5 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold py-2 rounded-xl transition-all cursor-pointer text-center">
                 Switch to Bank Account Credentials
             </button>
 
             <!-- UPI QR CODE CHANNEL -->
-            <div id="channelUpiView" class="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col items-center justify-center mb-4">
+            <div id="channelUpiView" class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col items-center justify-center mb-3.5">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Scan Official Showroom QR Code</p>
-                <div class="w-36 h-36 bg-white p-2 rounded-lg border border-slate-200 shadow-sm flex items-center justify-center">
+                <div class="w-32 h-32 sm:w-36 sm:h-36 bg-white p-2 rounded-lg border border-slate-200 shadow-sm flex items-center justify-center">
                     <img id="qrCodeImg" src="" alt="UPI Payment QR Code" class="w-full h-full object-contain">
                 </div>
-                <button onclick="copyUpiId()" class="mt-3 text-xs font-mono text-slate-700 hover:text-slate-900 font-semibold cursor-pointer">
-                    Copy VPA: <span id="lblUpiVpa">8052473033@upi</span>
+                <button onclick="copyUpiId()" class="mt-2.5 text-xs font-mono text-slate-700 hover:text-slate-900 font-semibold cursor-pointer">
+                    Copy VPA: <span id="lblUpiVpa" class="font-bold text-slate-900">vyapar.178552646415@hdfcbank</span>
                 </button>
             </div>
 
             <!-- SHOWROOM BANK CREDENTIALS CHANNEL -->
-            <div id="channelBankView" class="hidden-view bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4 space-y-2 text-xs text-slate-800">
+            <div id="channelBankView" class="hidden-view bg-slate-50 rounded-xl p-3.5 border border-slate-200 mb-3.5 space-y-2 text-xs text-slate-800">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">Showroom Bank Transfer Credentials</p>
                 <div><span class="text-slate-400 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold">State Bank of India</span></div>
                 <div><span class="text-slate-400 block text-[9px] uppercase">Account Title</span><span class="font-semibold">Suman Jewellers Retail Private Limited</span></div>
@@ -317,7 +327,7 @@
             </div>
 
             <!-- PROOF SUBMISSION FORM -->
-            <div class="space-y-3 mb-5">
+            <div class="space-y-3 mb-4">
                 <div>
                     <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Transaction UTR Key / Ref Number</label>
                     <input type="text" id="utrInput" placeholder="Enter 12-Digit Bank UTR Reference" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono">
@@ -339,7 +349,7 @@
     <script>
         const config = {
             name: "Suman Jewellers",
-            upiVpa: "8052473033@upi",
+            upiVpa: "vyapar.178552646415@hdfcbank",
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             whatsapp: "918052473033",
             schemeMonths: 11
@@ -376,7 +386,10 @@
             showLoader("Verifying Mobile...");
             globalCustomerPhone = rawPhone;
 
-            fetch(`${SCRIPT_URL}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
+            fetch(`${SCRIPT_URL}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -403,7 +416,10 @@
 
             showLoader("Authenticating MPIN...");
 
-            fetch(`${SCRIPT_URL}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
+            fetch(`${SCRIPT_URL}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -427,7 +443,10 @@
 
             showLoader("Saving PIN...");
 
-            fetch(`${SCRIPT_URL}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}&_ts=${Date.now()}`)
+            fetch(`${SCRIPT_URL}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -446,7 +465,10 @@
 
         function requestCurrentMpinRecovery() {
             showLoader("Dispatching Email...");
-            fetch(`${SCRIPT_URL}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`)
+            fetch(`${SCRIPT_URL}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -470,7 +492,10 @@
             if (!oldP || newP1.length !== 4 || newP1 !== newP2) return alert("Verify Old and New MPIN inputs.");
 
             showLoader("Updating MPIN...");
-            fetch(`${SCRIPT_URL}?action=resetMpinWithOld&phone=${globalCustomerPhone}&oldMpin=${oldP}&newMpin=${newP1}&_ts=${Date.now()}`)
+            fetch(`${SCRIPT_URL}?action=resetMpinWithOld&phone=${globalCustomerPhone}&oldMpin=${oldP}&newMpin=${newP1}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -505,7 +530,10 @@
 
         function fetchUserProfileAfterAuth(cleanPhone) {
             showLoader("Loading Account Details...");
-            fetch(`${SCRIPT_URL}?action=searchMembers&query=${encodeURIComponent(cleanPhone)}&_ts=${Date.now()}`)
+            fetch(`${SCRIPT_URL}?action=searchMembers&query=${encodeURIComponent(cleanPhone)}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -550,7 +578,10 @@
             isSyncingActive = true;
             if (!isSilentSync) showLoader("Retrieving Ledger...");
 
-            fetch(`${SCRIPT_URL}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`)
+            fetch(`${SCRIPT_URL}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`, {
+                method: "GET",
+                mode: "cors"
+            })
             .then(r => r.json())
             .then(data => {
                 if (!isSilentSync) hideLoader();
@@ -663,7 +694,7 @@
 
         function copyUpiId() {
             navigator.clipboard.writeText(config.upiVpa);
-            alert("Merchant UPI VPA copied to clipboard.");
+            alert("Merchant UPI VPA copied to clipboard: " + config.upiVpa);
         }
 
         function togglePaymentMethodView() {
@@ -785,6 +816,7 @@
 
                 fetch(SCRIPT_URL, {
                     method: "POST",
+                    mode: "cors",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 })
