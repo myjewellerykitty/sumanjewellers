@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Suman Jewellers - Enterprise Operations Portal</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
+        .overflow-x-auto { -webkit-overflow-scrolling: touch; }
         @keyframes spinAnimation {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -26,17 +27,17 @@
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
 
     <!-- TOP-PINNED STATUS / LOADING INDICATOR -->
-    <div id="kmpLoader" class="hidden-view fixed top-3 right-4 z-50">
-        <div class="bg-slate-900 text-white rounded-xl py-2 px-4 shadow-2xl border border-slate-700 flex items-center gap-3 animate-popup">
+    <div id="kmpLoader" class="hidden-view fixed top-3 right-3 sm:right-4 z-50">
+        <div class="bg-slate-900 text-white rounded-xl py-2 px-3.5 sm:px-4 shadow-2xl border border-slate-700 flex items-center gap-2.5 animate-popup">
             <div class="w-4 h-4 border-2 border-slate-400 border-t-amber-400 rounded-full enterprise-spinner shrink-0"></div>
-            <p id="kmpLoaderMsg" class="text-xs font-bold uppercase tracking-wider text-slate-200">Processing Request...</p>
+            <p id="kmpLoaderMsg" class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-200">Processing Request...</p>
         </div>
     </div>
 
     <!-- CONTEXTUAL IN-PAGE NOTIFICATION DIALOG -->
-    <div id="uiAlertDialog" class="hidden-view fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-start justify-center pt-16 px-4 z-50">
-        <div class="bg-white rounded-xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
-            <h3 id="uiAlertTitle" class="text-sm font-bold text-slate-900 uppercase mb-1">Notification</h3>
+    <div id="uiAlertDialog" class="hidden-view fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-start justify-center pt-8 sm:pt-14 px-3 z-50">
+        <div class="bg-white rounded-xl p-4 sm:p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
+            <h3 id="uiAlertTitle" class="text-xs sm:text-sm font-bold text-slate-900 uppercase mb-1">Notification</h3>
             <p id="uiAlertMessage" class="text-xs text-slate-600 leading-relaxed mb-4">-</p>
             <button onclick="closeUiAlert()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
                 Acknowledge
@@ -45,9 +46,9 @@
     </div>
 
     <!-- CONTEXTUAL IN-PAGE CONFIRMATION DIALOG -->
-    <div id="uiConfirmDialog" class="hidden-view fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-start justify-center pt-16 px-4 z-50">
-        <div class="bg-white rounded-xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
-            <h3 id="uiConfirmTitle" class="text-sm font-bold text-slate-900 uppercase mb-1">Confirmation Required</h3>
+    <div id="uiConfirmDialog" class="hidden-view fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-start justify-center pt-8 sm:pt-14 px-3 z-50">
+        <div class="bg-white rounded-xl p-4 sm:p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
+            <h3 id="uiConfirmTitle" class="text-xs sm:text-sm font-bold text-slate-900 uppercase mb-1">Confirmation Required</h3>
             <p id="uiConfirmMessage" class="text-xs text-slate-600 leading-relaxed mb-4">-</p>
             <div class="flex gap-2">
                 <button onclick="handleUiConfirmChoice(false)" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-lg text-xs font-semibold cursor-pointer">
@@ -61,10 +62,10 @@
     </div>
 
     <!-- CONTEXTUAL IN-PAGE INPUT PROMPT -->
-    <div id="uiPromptDialog" class="hidden-view fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-start justify-center pt-16 px-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
-            <h3 id="uiPromptTitle" class="text-sm font-bold text-slate-900 uppercase mb-1">Required Input</h3>
-            <p id="uiPromptSubtitle" class="text-xs text-slate-500 mb-3">-</p>
+    <div id="uiPromptDialog" class="hidden-view fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-start justify-center pt-8 sm:pt-14 px-3 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-4 sm:p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
+            <h3 id="uiPromptTitle" class="text-xs sm:text-sm font-bold text-slate-900 uppercase mb-1">Required Input</h3>
+            <p id="uiPromptSubtitle" class="text-xs text-slate-500 mb-3 leading-tight">-</p>
             <form onsubmit="handleUiPromptSubmit(event)" class="space-y-3">
                 <div id="uiPromptFieldsContainer" class="space-y-2.5 text-xs"></div>
                 <div class="flex gap-2 pt-2">
@@ -82,53 +83,53 @@
     <!-- MAIN INTERFACE WITH HEADER-MOUNTED AUTHENTICATION -->
     <div class="min-h-screen flex flex-col">
         <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-sm border-b border-slate-800">
-            <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col lg:flex-row justify-between items-center gap-3">
+            <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col lg:flex-row justify-between items-center gap-2.5 sm:gap-3">
                 
                 <!-- BRAND IDENTIFIER -->
-                <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center font-black text-slate-950 text-xs">SJ</div>
+                <div class="flex items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-start">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500 flex items-center justify-center font-black text-slate-950 text-xs">SJ</div>
                         <div>
                             <h1 class="text-xs font-bold tracking-tight uppercase">Suman Jewellers</h1>
-                            <p class="text-[10px] text-slate-400">Operations Console</p>
+                            <p class="text-[9px] sm:text-[10px] text-slate-400">Operations Console</p>
                         </div>
                     </div>
 
-                    <!-- SESSION BADGE (VISIBLE UPON LOGIN) -->
-                    <div id="sessionBadgeContainer" class="hidden-view flex items-center gap-2">
-                        <span id="kmpRoleBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Evaluating...</span>
-                        <span class="text-[11px] text-slate-400">User: <strong id="lblActiveUser" class="text-white font-mono">-</strong></span>
+                    <!-- SESSION BADGE -->
+                    <div id="sessionBadgeContainer" class="hidden-view flex items-center gap-1.5 sm:gap-2">
+                        <span id="kmpRoleBadge" class="text-[9px] sm:text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Evaluating...</span>
+                        <span class="text-[10px] sm:text-[11px] text-slate-400">User: <strong id="lblActiveUser" class="text-white font-mono">-</strong></span>
                     </div>
                 </div>
 
-                <!-- 1. HEADER-INTEGRATED LOGIN BOX (VISIBLE BEFORE LOGIN) -->
+                <!-- 1. HEADER-INTEGRATED LOGIN BAR -->
                 <div id="headerLoginBar" class="w-full lg:w-auto flex items-center justify-end">
-                    <form onsubmit="handleKmpLogin(event)" class="flex items-center gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
-                        <input type="text" id="kmpUserInput" required placeholder="Username" class="bg-slate-800 border border-slate-700 text-white px-3 py-1.5 rounded-lg text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none w-full sm:w-32">
-                        <input type="password" id="kmpPassInput" required placeholder="PIN" class="bg-slate-800 border border-slate-700 text-white px-3 py-1.5 rounded-lg text-xs font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none w-full sm:w-24">
-                        <button type="submit" class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-3.5 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap w-full sm:w-auto">
+                    <form onsubmit="handleKmpLogin(event)" class="flex items-center gap-1.5 sm:gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
+                        <input type="text" id="kmpUserInput" required placeholder="Username" class="bg-slate-800 border border-slate-700 text-white px-2.5 py-1.5 rounded-lg text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none w-full sm:w-28 md:w-32">
+                        <input type="password" id="kmpPassInput" required placeholder="PIN" class="bg-slate-800 border border-slate-700 text-white px-2.5 py-1.5 rounded-lg text-xs font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none w-full sm:w-20 md:w-24">
+                        <button type="submit" class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap w-full sm:w-auto">
                             Sign In
                         </button>
                     </form>
                 </div>
 
-                <!-- 2. NAVIGATION BAR (ACTIVE ONLY UPON LOGIN) -->
-                <div id="headerNavBar" class="hidden-view flex items-center gap-1.5 flex-wrap w-full lg:w-auto justify-end">
-                    <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Directory</button>
-                    <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Pending Queue</button>
-                    <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Overdue</button>
-                    <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Access Permissions</button>
-                    <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-2.5 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer">
+                <!-- 2. NAVIGATION BAR -->
+                <div id="headerNavBar" class="hidden-view flex items-center gap-1 sm:gap-1.5 flex-wrap w-full lg:w-auto justify-start sm:justify-end">
+                    <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Directory</button>
+                    <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Queue</button>
+                    <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Overdue</button>
+                    <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Permissions</button>
+                    <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-2.5 py-1.5 rounded-lg text-[11px] sm:text-xs uppercase tracking-wider transition-all cursor-pointer">
                         + Enroll
                     </button>
-                    <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Exit</button>
+                    <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Exit</button>
                 </div>
 
             </div>
         </header>
 
-        <!-- PORTAL LOCK PLACEHOLDER (PRIOR TO SIGN IN) -->
-        <div id="loggedOutPlaceholder" class="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-500">
+        <!-- PORTAL RESTRICTED SCREEN (BEFORE LOGIN) -->
+        <div id="loggedOutPlaceholder" class="flex-1 flex flex-col items-center justify-center p-6 sm:p-8 text-center text-slate-500">
             <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center mb-3">
                 <span class="text-xl font-mono text-slate-700 font-bold">#</span>
             </div>
@@ -137,11 +138,11 @@
         </div>
 
         <!-- MAIN CONSOLE VIEWS -->
-        <main id="kmpMainView" class="hidden-view max-w-6xl mx-auto p-4 sm:p-6 space-y-6 flex-1 w-full">
+        <main id="kmpMainView" class="hidden-view max-w-6xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 flex-1 w-full">
 
             <!-- TAB 1: MEMBERS DIRECTORY -->
-            <div id="tabContentMembers" class="space-y-6">
-                <section class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+            <div id="tabContentMembers" class="space-y-4 sm:space-y-6">
+                <section class="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">Database Search</label>
                         <button onclick="refreshCurrentLedger()" class="text-xs font-bold text-slate-700 hover:text-black transition-all cursor-pointer">
@@ -149,102 +150,102 @@
                         </button>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="searchInput" placeholder="Search by Mobile, Token Identifier, Name, or Account Code..." class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition-all">
+                        <input type="text" id="searchInput" placeholder="Search by Mobile, Token Identifier, Name, or Account Code..." class="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white transition-all">
                         <button onclick="searchMemberRecords()" id="btnSearch" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer">
                             Search Records
                         </button>
                     </div>
 
-                    <div id="multiKittySelectorWrapper" class="hidden-view mt-4 p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
+                    <div id="multiKittySelectorWrapper" class="hidden-view mt-3 p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
                         <p class="text-xs font-bold text-slate-800 uppercase">Multiple Active Accounts Associated</p>
                         <div id="kittySelectionPills" class="flex flex-wrap gap-2 pt-1"></div>
                     </div>
                 </section>
 
                 <!-- ACTIVE MEMBER PROFILE SECTION -->
-                <section id="memberProfileSection" class="hidden-view space-y-6">
-                    <div class="bg-slate-900 text-white rounded-xl p-6 shadow-sm border border-slate-800">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4 mb-4">
+                <section id="memberProfileSection" class="hidden-view space-y-4 sm:space-y-6">
+                    <div class="bg-slate-900 text-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-800">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 border-b border-slate-800 pb-4 mb-4">
                             <div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-[10px] bg-slate-800 text-slate-300 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Account Active</span>
                                     <span id="viewWinBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">Regular Plan</span>
                                 </div>
-                                <h2 id="viewCustName" class="text-xl font-bold mt-1 text-white uppercase tracking-tight">-</h2>
+                                <h2 id="viewCustName" class="text-lg sm:text-xl font-bold mt-1 text-white uppercase tracking-tight">-</h2>
                                 <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                             </div>
-                            <div class="flex items-center gap-2 flex-wrap">
+                            <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
                                 <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 text-xs">
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase px-2">Draw Allocations:</span>
-                                    <select id="selWinCount" class="bg-slate-900 text-white border border-slate-700 rounded text-xs font-bold px-2 py-1 focus:outline-none">
-                                        <option value="0">0 (Standard Plan)</option>
-                                        <option value="1">1 Event Winner</option>
-                                        <option value="2">2 Events Winner</option>
-                                        <option value="3">3 Events Winner</option>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase px-1.5 sm:px-2">Wins:</span>
+                                    <select id="selWinCount" class="bg-slate-900 text-white border border-slate-700 rounded text-xs font-bold px-1.5 py-1 focus:outline-none">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
                                     </select>
                                     <button onclick="saveWinnerCount()" class="ml-1 bg-amber-700 hover:bg-amber-600 text-white font-bold px-2 py-1 rounded text-xs cursor-pointer">Commit</button>
                                 </div>
 
                                 <button onclick="openManualDepositModal()" id="btnActionDeposit" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer border border-slate-700">
-                                    Post Counter Payment
+                                    Counter Deposit
                                 </button>
                                 <button onclick="confirmRemoveMember()" id="btnActionDelete" class="bg-rose-950/40 hover:bg-rose-900 border border-rose-800 text-rose-300 text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer">
-                                    Delete Record
+                                    Delete
                                 </button>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                            <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs">
+                            <div class="bg-slate-800/60 p-2.5 sm:p-3 rounded-lg border border-slate-700/50">
                                 <span class="text-slate-400 uppercase text-[9px] block font-bold">Account Code</span>
-                                <span id="viewKittyNo" class="font-mono font-bold text-sm text-amber-400">-</span>
+                                <span id="viewKittyNo" class="font-mono font-bold text-xs sm:text-sm text-amber-400">-</span>
                             </div>
-                            <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                            <div class="bg-slate-800/60 p-2.5 sm:p-3 rounded-lg border border-slate-700/50">
                                 <span class="text-slate-400 uppercase text-[9px] block font-bold">Token Identifier</span>
-                                <span id="viewCustId" class="font-mono font-bold text-sm text-slate-200">-</span>
+                                <span id="viewCustId" class="font-mono font-bold text-xs sm:text-sm text-slate-200">-</span>
                             </div>
-                            <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
+                            <div class="bg-slate-800/60 p-2.5 sm:p-3 rounded-lg border border-slate-700/50">
                                 <span class="text-slate-400 uppercase text-[9px] block font-bold">Enrollment Date</span>
-                                <span id="viewOtherDetails" class="font-mono font-bold text-sm text-slate-200">-</span>
+                                <span id="viewOtherDetails" class="font-mono font-bold text-xs sm:text-sm text-slate-200">-</span>
                             </div>
-                            <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/50">
-                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Scheduled Installment</span>
-                                <span id="viewMonthlyAmount" class="font-bold text-sm text-slate-200">INR 0</span>
+                            <div class="bg-slate-800/60 p-2.5 sm:p-3 rounded-lg border border-slate-700/50">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Installment</span>
+                                <span id="viewMonthlyAmount" class="font-bold text-xs sm:text-sm text-slate-200">INR 0</span>
                             </div>
                         </div>
 
-                        <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                            <div class="bg-slate-800/40 p-3 rounded-lg border border-slate-700/40">
+                        <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-xs">
+                            <div class="bg-slate-800/40 p-2.5 sm:p-3 rounded-lg border border-slate-700/40">
                                 <span class="text-slate-400 uppercase text-[9px] block font-bold">Total Deposited Principal</span>
-                                <span id="viewTotalBalance" class="font-bold text-sm text-white font-mono">INR 0</span>
+                                <span id="viewTotalBalance" class="font-bold text-xs sm:text-sm text-white font-mono">INR 0</span>
                             </div>
-                            <div class="bg-amber-900/30 p-3 rounded-lg border border-amber-800/40">
+                            <div class="bg-amber-900/30 p-2.5 sm:p-3 rounded-lg border border-amber-800/40">
                                 <span class="text-[9px] uppercase tracking-wider text-amber-300 block font-bold">Total Booked Gold (22K)</span>
-                                <span id="viewTotalGoldGrams" class="font-mono text-sm font-bold text-amber-200">0.000 g</span>
+                                <span id="viewTotalGoldGrams" class="font-mono text-xs sm:text-sm font-bold text-amber-200">0.000 g</span>
                             </div>
-                            <div class="bg-slate-800/40 p-3 rounded-lg border border-slate-700/40">
-                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Projected Maturity Valuation</span>
-                                <span id="viewMaturityTotal" class="font-bold text-sm text-white font-mono">INR 0</span>
+                            <div class="bg-slate-800/40 p-2.5 sm:p-3 rounded-lg border border-slate-700/40">
+                                <span class="text-slate-400 uppercase text-[9px] block font-bold">Projected Maturity</span>
+                                <span id="viewMaturityTotal" class="font-bold text-xs sm:text-sm text-white font-mono">INR 0</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- LEDGER TABLE -->
                     <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Scheme Ledger Statement (11 Months)</h3>
+                        <div class="p-3.5 sm:p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Scheme Ledger (11 Months)</h3>
                             <span id="viewPaidRatio" class="text-xs font-semibold text-slate-500">0 / 11 Complete</span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse text-xs">
                                 <thead>
                                     <tr class="text-slate-500 border-b border-slate-200 bg-white">
-                                        <th class="p-3">Schedule</th>
-                                        <th class="p-3">Status</th>
-                                        <th class="p-3">Remittance</th>
-                                        <th class="p-3">22K Rate (/10g)</th>
-                                        <th class="p-3">Booked Weight</th>
-                                        <th class="p-3">Reference Identifier</th>
+                                        <th class="p-2.5 sm:p-3">Schedule</th>
+                                        <th class="p-2.5 sm:p-3">Status</th>
+                                        <th class="p-2.5 sm:p-3">Remittance</th>
+                                        <th class="p-2.5 sm:p-3">22K Rate</th>
+                                        <th class="p-2.5 sm:p-3">Booked Weight</th>
+                                        <th class="p-2.5 sm:p-3">Reference Identifier</th>
                                     </tr>
                                 </thead>
                                 <tbody id="memberTxTableBody" class="divide-y divide-slate-100"></tbody>
@@ -255,13 +256,13 @@
             </div>
 
             <!-- TAB 2: PENDING APPROVALS QUEUE -->
-            <div id="tabContentApprovals" class="space-view space-y-4 hidden-view">
-                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div id="tabContentApprovals" class="space-view space-y-3.5 sm:space-y-4 hidden-view">
+                <div class="flex justify-between items-center bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div>
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Payment Verification Queue</h2>
-                        <p class="text-xs text-slate-500">Tier 1: Staff Rate Entry &rarr; Tier 2: Final Ledger Audit</p>
+                        <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-tight">Payment Verification Queue</h2>
+                        <p class="text-[11px] text-slate-500">Tier 1: Staff Rate Review &rarr; Tier 2: Final Ledger Audit</p>
                     </div>
-                    <button onclick="loadKmpPendingApprovals()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-all">
+                    <button onclick="loadKmpPendingApprovals()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg cursor-pointer transition-all">
                         Refresh Queue
                     </button>
                 </div>
@@ -272,9 +273,9 @@
                             <thead>
                                 <tr class="text-slate-500 bg-slate-50 border-b border-slate-200">
                                     <th class="p-3">Member Details</th>
-                                    <th class="p-3">Account Code</th>
+                                    <th class="p-3">Account</th>
                                     <th class="p-3">Installment</th>
-                                    <th class="p-3">Deposit Amount</th>
+                                    <th class="p-3">Deposit</th>
                                     <th class="p-3">Review Status</th>
                                     <th class="p-3">Reference / Slip</th>
                                     <th class="p-3 text-center">Authorization Actions</th>
@@ -289,17 +290,17 @@
             </div>
 
             <!-- TAB 3: OVERDUE DEFAULTERS -->
-            <div id="tabContentDefaulters" class="space-view space-y-4 hidden-view">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-3">
+            <div id="tabContentDefaulters" class="space-view space-y-3.5 sm:space-y-4 hidden-view">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm gap-2.5 sm:gap-3">
                     <div>
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Overdue Account Tracker</h2>
-                        <p class="text-xs text-slate-500">Accounts past the standard 20th calendar cutoff</p>
+                        <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-tight">Overdue Account Tracker</h2>
+                        <p class="text-[11px] text-slate-500">Accounts past the standard 20th calendar cutoff</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick="sendBulkEmailReminders()" id="btnBulkEmail" class="bg-amber-800 hover:bg-amber-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer">
+                        <button onclick="sendBulkEmailReminders()" id="btnBulkEmail" class="bg-amber-800 hover:bg-amber-700 text-white text-xs font-semibold px-3 py-1.5 sm:py-2 rounded-lg transition-all cursor-pointer">
                             Dispatch Email Notifications
                         </button>
-                        <button onclick="loadOverdueDefaulters()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer">
+                        <button onclick="loadOverdueDefaulters()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 sm:py-2 rounded-lg transition-all cursor-pointer">
                             Refresh
                         </button>
                     </div>
@@ -327,13 +328,13 @@
             </div>
 
             <!-- TAB 4: ACCESS CONTROL (ADMINISTRATOR ONLY) -->
-            <div id="tabContentUsers" class="space-view space-y-4 hidden-view">
-                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div id="tabContentUsers" class="space-view space-y-3.5 sm:space-y-4 hidden-view">
+                <div class="flex justify-between items-center bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div>
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Access Control &amp; Role Permissions</h2>
-                        <p class="text-xs text-slate-500">Manage operator privileges, validation authority, and authentication modes</p>
+                        <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-tight">Access Control &amp; Roles</h2>
+                        <p class="text-[11px] text-slate-500">Manage privileges, approval powers, and 2SV</p>
                     </div>
-                    <button onclick="openUserEditModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer">
+                    <button onclick="openUserEditModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg cursor-pointer">
                         Add Operator
                     </button>
                 </div>
@@ -346,9 +347,9 @@
                                     <th class="p-3 uppercase">Operator</th>
                                     <th class="p-3 uppercase">Role</th>
                                     <th class="p-3 uppercase">Rate Verification</th>
-                                    <th class="p-3 uppercase">Final Ledger Posting</th>
-                                    <th class="p-3 uppercase">Secondary Verification</th>
-                                    <th class="p-3 uppercase">Account Status</th>
+                                    <th class="p-3 uppercase">Final Posting</th>
+                                    <th class="p-3 uppercase">2SV Requirement</th>
+                                    <th class="p-3 uppercase">Status</th>
                                     <th class="p-3 uppercase text-center">Action</th>
                                 </tr>
                             </thead>
@@ -361,10 +362,10 @@
         </main>
     </div>
 
-    <!-- MODAL: ADD / EDIT STAFF PERMISSIONS (VIEWPORT CONTEXT ANCHORED) -->
-    <div id="userModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-10 sm:pt-14 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[88vh] overflow-y-auto animate-popup">
-            <h3 id="userModalTitle" class="text-sm font-bold text-slate-900 mb-4 uppercase">Configure Operator Privileges</h3>
+    <!-- MODAL: ADD / EDIT STAFF PERMISSIONS (TOP-ANCHORED) -->
+    <div id="userModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[85vh] overflow-y-auto animate-popup">
+            <h3 id="userModalTitle" class="text-xs sm:text-sm font-bold text-slate-900 mb-3.5 uppercase">Configure Operator Privileges</h3>
             <form onsubmit="saveStaffUser(event)" class="space-y-3 text-xs">
                 <div>
                     <label class="font-semibold text-slate-700 block mb-1">Operator Username</label>
@@ -395,7 +396,7 @@
                         <span class="font-medium text-slate-800">Bypass secondary PIN verification prompt</span>
                     </label>
                 </div>
-                <div class="flex gap-2 pt-3">
+                <div class="flex gap-2 pt-2">
                     <button type="button" onclick="closeUserModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-lg font-semibold cursor-pointer">Cancel</button>
                     <button type="submit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-lg font-semibold cursor-pointer">Save Credentials</button>
                 </div>
@@ -403,12 +404,12 @@
         </div>
     </div>
 
-    <!-- MODAL: ENROLL NEW MEMBER (VIEWPORT CONTEXT ANCHORED) -->
-    <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-10 sm:pt-14 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[88vh] overflow-y-auto animate-popup">
-            <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
-                <h3 class="text-sm font-bold text-slate-900 uppercase">Enroll Scheme Participant</h3>
-                <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-700 font-bold text-base cursor-pointer">&times;</button>
+    <!-- MODAL: ENROLL NEW MEMBER (TOP-ANCHORED) -->
+    <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[85vh] overflow-y-auto animate-popup">
+            <div class="border-b border-slate-200 pb-2.5 mb-3 flex justify-between items-center">
+                <h3 class="text-xs sm:text-sm font-bold text-slate-900 uppercase">Enroll Scheme Participant</h3>
+                <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-700 font-bold text-base cursor-pointer p-1">&times;</button>
             </div>
             
             <form onsubmit="submitNewMember(event)" class="space-y-3 text-xs">
@@ -439,7 +440,7 @@
                         <input type="text" id="newKittyNo" required class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono font-bold">
                     </div>
                     <div>
-                        <label class="font-semibold text-slate-700 block mb-1">Effective Enrollment Date</label>
+                        <label class="font-semibold text-slate-700 block mb-1">Enrollment Date</label>
                         <input type="date" id="newRemarks" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono">
                     </div>
                 </div>
@@ -456,15 +457,15 @@
         </div>
     </div>
 
-    <!-- MODAL: COUNTER DEPOSIT (VIEWPORT CONTEXT ANCHORED) -->
-    <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-4 pt-10 sm:pt-14 z-50 overflow-y-auto">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[88vh] overflow-y-auto animate-popup">
-            <div class="border-b border-slate-200 pb-3 mb-4 flex justify-between items-center">
+    <!-- MODAL: COUNTER DEPOSIT (TOP-ANCHORED) -->
+    <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[85vh] overflow-y-auto animate-popup">
+            <div class="border-b border-slate-200 pb-2.5 mb-3 flex justify-between items-center">
                 <div>
-                    <h3 class="text-sm font-bold text-slate-900 uppercase">Post Counter Payment</h3>
+                    <h3 class="text-xs sm:text-sm font-bold text-slate-900 uppercase">Post Counter Payment</h3>
                     <p id="depositTargetLabel" class="text-xs text-slate-500 font-mono mt-0.5">-</p>
                 </div>
-                <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-slate-700 font-bold text-base cursor-pointer">&times;</button>
+                <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-slate-700 font-bold text-base cursor-pointer p-1">&times;</button>
             </div>
             
             <form onsubmit="submitManualDeposit(event)" class="space-y-3 text-xs">
@@ -477,16 +478,16 @@
                     <input type="number" id="depositAmount" required oninput="calculateRealtimeGold()" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono font-bold">
                 </div>
                 <div>
-                    <label class="font-semibold text-slate-700 block mb-1">22K Gold Valuation Rate for 10 Grams (INR) *</label>
+                    <label class="font-semibold text-slate-700 block mb-1">22K Gold Rate for 10 Grams (INR) *</label>
                     <input type="number" id="depositRate" required oninput="calculateRealtimeGold()" placeholder="Mandatory Daily Rate" class="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono font-bold">
                 </div>
 
-                <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center">
+                <div class="p-2.5 sm:p-3 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center">
                     <div>
                         <span class="text-[10px] uppercase font-bold text-slate-500 block">Calculated 22K Weight</span>
                         <span class="text-[11px] text-slate-700">Formula: Amount / (Rate per Gram)</span>
                     </div>
-                    <span id="lblLiveAllocatedWeight" class="text-base font-bold font-mono text-slate-900">0.000 g</span>
+                    <span id="lblLiveAllocatedWeight" class="text-sm sm:text-base font-bold font-mono text-slate-900">0.000 g</span>
                 </div>
 
                 <div>
@@ -507,6 +508,7 @@
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             schemeMonths: 11,
+            upiVpa: "vyapar.178552646415@hdfcbank",
             brandName: "Suman Jewellers"
         };
 
@@ -515,11 +517,10 @@
         let selectedMemberData = null;
         let activeDefaultersList = [];
 
-        // Global promise handlers for dialogs
         let activeConfirmResolver = null;
         let activePromptResolver = null;
 
-        // --- CONTEXTUAL IN-PAGE POPUPS (REPLACES NATIVE DIALOGS) ---
+        // --- CONTEXTUAL IN-PAGE POPUPS ---
         function showLoader(msg = "Communicating with Database...") {
             document.getElementById('kmpLoaderMsg').innerText = msg;
             document.getElementById('kmpLoader').classList.remove('hidden-view');
@@ -656,11 +657,11 @@
             badge.innerText = sessionUser.role;
 
             if (sessionUser.role === "Admin") {
-                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-800 text-white";
+                badge.className = "text-[9px] sm:text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-800 text-white";
                 document.getElementById('tabBtnUsers').classList.remove('hidden-view');
                 document.getElementById('btnTopAddMember').classList.remove('hidden-view');
             } else {
-                badge.className = "text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300";
+                badge.className = "text-[9px] sm:text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300";
                 document.getElementById('tabBtnUsers').classList.add('hidden-view');
             }
         }
@@ -670,13 +671,13 @@
                 const el = document.getElementById('tabContent' + t);
                 const btn = document.getElementById('tabBtn' + t);
                 if (el) el.classList.add('hidden-view');
-                if (btn) btn.className = "bg-slate-800 text-slate-400 text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all";
+                if (btn) btn.className = "bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all";
             });
 
             const activeContent = document.getElementById('tabContent' + tab.charAt(0).toUpperCase() + tab.slice(1));
             const activeBtn = document.getElementById('tabBtn' + tab.charAt(0).toUpperCase() + tab.slice(1));
             if (activeContent) activeContent.classList.remove('hidden-view');
-            if (activeBtn) activeBtn.className = "bg-slate-800 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all";
+            if (activeBtn) activeBtn.className = "bg-slate-800 text-white text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all";
 
             if (tab === 'approvals') loadKmpPendingApprovals();
             if (tab === 'defaulters') loadOverdueDefaulters();
@@ -803,31 +804,31 @@
                     if (record && record.status.toLowerCase() === "paid") {
                         tbody.innerHTML += `
                             <tr class="bg-slate-50/50">
-                                <td class="p-3 font-semibold text-slate-800">Month ${m}</td>
-                                <td class="p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">SETTLED</span></td>
-                                <td class="p-3 font-mono font-bold text-slate-900">INR ${Number(record.amount).toLocaleString('en-IN')}</td>
-                                <td class="p-3 font-mono text-slate-600">${record.rate ? 'INR ' + Number(record.rate).toLocaleString('en-IN') : '-'}</td>
-                                <td class="p-3 font-mono font-bold text-amber-900">${(Number(record.bookedGrams)||0).toFixed(3)} g</td>
-                                <td class="p-3 font-mono text-slate-500">${record.utr || 'Counter Deposit'}</td>
+                                <td class="p-2.5 sm:p-3 font-semibold text-slate-800">Month ${m}</td>
+                                <td class="p-2.5 sm:p-3"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px]">SETTLED</span></td>
+                                <td class="p-2.5 sm:p-3 font-mono font-bold text-slate-900">INR ${Number(record.amount).toLocaleString('en-IN')}</td>
+                                <td class="p-2.5 sm:p-3 font-mono text-slate-600">${record.rate ? 'INR ' + Number(record.rate).toLocaleString('en-IN') : '-'}</td>
+                                <td class="p-2.5 sm:p-3 font-mono font-bold text-amber-900">${(Number(record.bookedGrams)||0).toFixed(3)} g</td>
+                                <td class="p-2.5 sm:p-3 font-mono text-slate-500">${record.utr || 'Counter Deposit'}</td>
                             </tr>
                         `;
                     } else if (record && (record.status.toLowerCase() === "pending" || record.status.toLowerCase() === "reviewed")) {
                         tbody.innerHTML += `
                             <tr class="bg-amber-50/30">
-                                <td class="p-3 font-semibold text-slate-800">Month ${m}</td>
-                                <td class="p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">${record.status.toUpperCase()}</span></td>
-                                <td class="p-3 font-mono font-bold text-slate-900">INR ${Number(record.amount).toLocaleString('en-IN')}</td>
-                                <td class="p-3 font-mono text-slate-500">${record.rate || '-'}</td>
-                                <td class="p-3 font-mono text-slate-500">${record.bookedGrams ? record.bookedGrams + ' g' : '-'}</td>
-                                <td class="p-3 font-mono text-slate-500">${record.utr}</td>
+                                <td class="p-2.5 sm:p-3 font-semibold text-slate-800">Month ${m}</td>
+                                <td class="p-2.5 sm:p-3"><span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">${record.status.toUpperCase()}</span></td>
+                                <td class="p-2.5 sm:p-3 font-mono font-bold text-slate-900">INR ${Number(record.amount).toLocaleString('en-IN')}</td>
+                                <td class="p-2.5 sm:p-3 font-mono text-slate-500">${record.rate || '-'}</td>
+                                <td class="p-2.5 sm:p-3 font-mono text-slate-500">${record.bookedGrams ? record.bookedGrams + ' g' : '-'}</td>
+                                <td class="p-2.5 sm:p-3 font-mono text-slate-500">${record.utr}</td>
                             </tr>
                         `;
                     } else {
                         tbody.innerHTML += `
                             <tr class="text-slate-400">
-                                <td class="p-3 font-medium">Month ${m}</td>
-                                <td class="p-3"><span class="bg-slate-100 text-slate-400 font-medium px-2 py-0.5 rounded text-[10px]">UNPAID</span></td>
-                                <td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td>
+                                <td class="p-2.5 sm:p-3 font-medium">Month ${m}</td>
+                                <td class="p-2.5 sm:p-3"><span class="bg-slate-100 text-slate-400 font-medium px-2 py-0.5 rounded text-[10px]">UNPAID</span></td>
+                                <td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 font-mono">-</td>
                             </tr>
                         `;
                     }
@@ -907,7 +908,7 @@
 
                     if (!isReviewed) {
                         actionHtml += `
-                            <button onclick="executeRateReview('${item.row}', ${item.amount})" class="bg-amber-800 hover:bg-amber-700 text-white text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
+                            <button onclick="executeRateReview('${item.row}', ${item.amount})" class="bg-amber-800 hover:bg-amber-700 text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
                                 Set 22K Rate &amp; Review
                             </button>
                         `;
@@ -915,7 +916,7 @@
 
                     if (sessionUser.role === "Admin" || sessionUser.canFinalApprove) {
                         actionHtml += `
-                            <button onclick="executeFinalApproval('${item.row}', ${item.amount}, ${isReviewed})" class="ml-1 bg-slate-900 hover:bg-slate-800 text-white text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
+                            <button onclick="executeFinalApproval('${item.row}', ${item.amount}, ${isReviewed})" class="ml-1 bg-slate-900 hover:bg-slate-800 text-white text-[11px] sm:text-xs px-2.5 py-1 rounded font-semibold cursor-pointer">
                                 ${isReviewed ? 'Commit to Ledger' : 'Authorize &amp; Post'}
                             </button>
                         `;
@@ -1335,7 +1336,7 @@
                 tbody.innerHTML = "";
                 res.defaulters.forEach(item => {
                     const monthsLabel = item.overdueMonths.map(m => `Month ${m}`).join(', ');
-                    const waText = encodeURIComponent(`Official Statement from ${config.brandName}\nAccount: ${item.acCode}\n\nNotice: Installment for ${monthsLabel} (INR ${item.totalDue.toLocaleString('en-IN')}) is currently outstanding.\n\nPlease remit online or via counter to maintain policy eligibility.`);
+                    const waText = encodeURIComponent(`Official Statement from ${config.brandName}\nAccount: ${item.acCode}\n\nNotice: Installment for ${monthsLabel} (INR ${item.totalDue.toLocaleString('en-IN')}) is currently outstanding.\n\nPlease remit online via UPI to ${config.upiVpa} or via counter to maintain policy eligibility.`);
                     tbody.innerHTML += `
                         <tr>
                             <td class="p-3 font-semibold text-slate-900">
