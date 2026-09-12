@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Suman Jewellers - Enterprise Operations Portal</title>
+    <title>Suman Jewellers - Enterprise Operations Portal (GRMS)</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
@@ -91,7 +91,7 @@
                         <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500 flex items-center justify-center font-black text-slate-950 text-xs">SJ</div>
                         <div>
                             <h1 class="text-xs font-bold tracking-tight uppercase">Suman Jewellers</h1>
-                            <p class="text-[9px] sm:text-[10px] text-slate-400">Operations Console</p>
+                            <p class="text-[9px] sm:text-[10px] text-slate-400">Operations Console (GRMS Lucky Draw)</p>
                         </div>
                     </div>
 
@@ -102,7 +102,7 @@
                     </div>
                 </div>
 
-                <!-- 1. HEADER-INTEGRATED LOGIN BAR -->
+                <!-- 1. HEADER-INTEGRATED LOGIN BAR (PRE-AUTH) -->
                 <div id="headerLoginBar" class="w-full lg:w-auto flex items-center justify-end">
                     <form onsubmit="handleKmpLogin(event)" class="flex items-center gap-1.5 sm:gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
                         <input type="text" id="kmpUserInput" required placeholder="Username" class="bg-slate-800 border border-slate-700 text-white px-2.5 py-1.5 rounded-lg text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none w-full sm:w-28 md:w-32">
@@ -113,7 +113,7 @@
                     </form>
                 </div>
 
-                <!-- 2. NAVIGATION BAR -->
+                <!-- 2. NAVIGATION BAR (POST-AUTH) -->
                 <div id="headerNavBar" class="hidden-view flex items-center gap-1 sm:gap-1.5 flex-wrap w-full lg:w-auto justify-start sm:justify-end">
                     <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Directory</button>
                     <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Queue</button>
@@ -122,6 +122,13 @@
                     <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-2.5 py-1.5 rounded-lg text-[11px] sm:text-xs uppercase tracking-wider transition-all cursor-pointer">
                         + Enroll
                     </button>
+                    
+                    <!-- DEDICATED 12+1 ADMIN PANEL SWITCH LINK -->
+                    <a href="https://myjewellerykitty.github.io/sumanjewellerskitty/kmp" target="_blank" class="bg-emerald-800 hover:bg-emerald-700 border border-emerald-600 text-emerald-100 font-bold text-[11px] sm:text-xs px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-xs">
+                        <span>12+1 Admin Panel</span>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+
                     <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer transition-all">Exit</button>
                 </div>
 
@@ -362,7 +369,7 @@
         </main>
     </div>
 
-    <!-- MODAL: ADD / EDIT STAFF PERMISSIONS (TOP-ANCHORED) -->
+    <!-- MODAL: ADD / EDIT STAFF PERMISSIONS -->
     <div id="userModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[85vh] overflow-y-auto animate-popup">
             <h3 id="userModalTitle" class="text-xs sm:text-sm font-bold text-slate-900 mb-3.5 uppercase">Configure Operator Privileges</h3>
@@ -404,7 +411,7 @@
         </div>
     </div>
 
-    <!-- MODAL: ENROLL NEW MEMBER (TOP-ANCHORED) -->
+    <!-- MODAL: ENROLL NEW MEMBER -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[85vh] overflow-y-auto animate-popup">
             <div class="border-b border-slate-200 pb-2.5 mb-3 flex justify-between items-center">
@@ -457,7 +464,7 @@
         </div>
     </div>
 
-    <!-- MODAL: COUNTER DEPOSIT (TOP-ANCHORED) -->
+    <!-- MODAL: COUNTER DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
         <div class="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md shadow-2xl border border-slate-200 max-h-[85vh] overflow-y-auto animate-popup">
             <div class="border-b border-slate-200 pb-2.5 mb-3 flex justify-between items-center">
