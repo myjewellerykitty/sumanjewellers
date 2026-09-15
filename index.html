@@ -13,7 +13,7 @@
             to { transform: rotate(360deg); }
         }
         .animate-spin-slow {
-            animation: spinSlow 1s linear infinite;
+            animation: spinSlow 0.9s linear infinite;
         }
         @keyframes bounceShort {
             0%, 100% { transform: translateY(0); }
@@ -26,10 +26,10 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
 
-    <!-- GLOBAL LOADING OVERLAY (ANCHORED TO TOP VIEWPORT) -->
+    <!-- GLOBAL LOADING OVERLAY (TOP ANCHORED) -->
     <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-4 sm:pt-6 px-3 z-50">
-        <div class="bg-white rounded-2xl py-3.5 px-5 shadow-2xl border border-amber-300 flex items-center gap-3.5 max-w-sm w-full animate-bounce-short">
-            <div class="w-8 h-8 border-3 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow shrink-0"></div>
+        <div class="bg-white rounded-2xl py-3 px-5 shadow-2xl border border-amber-300 flex items-center gap-3.5 max-w-sm w-full animate-bounce-short">
+            <div class="w-7 h-7 border-3 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow shrink-0"></div>
             <div>
                 <p id="loadingMessage" class="text-xs font-bold text-slate-900 uppercase tracking-wider">Syncing Passbook...</p>
                 <p class="text-[10px] text-slate-500 font-medium">Please wait while the server updates</p>
@@ -236,7 +236,7 @@
         </div>
     </div>
 
-    <!-- TERMS & CONDITIONS MODAL (TOP-ANCHORED VIEWPORT) -->
+    <!-- TERMS & CONDITIONS MODAL (TOP-ANCHORED) -->
     <div id="termsModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-xl border border-slate-200 max-h-[85vh] flex flex-col justify-between animate-bounce-short">
             <div>
@@ -283,7 +283,7 @@
         </div>
     </div>
 
-    <!-- PAYMENT SETTLEMENT MODAL (TOP-ANCHORED VIEWPORT) -->
+    <!-- PAYMENT SETTLEMENT MODAL (TOP-ANCHORED) -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto animate-bounce-short">
             <div class="border-b border-slate-100 pb-3 mb-3.5 flex justify-between items-start">
@@ -294,7 +294,7 @@
                 <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer p-1">&times;</button>
             </div>
 
-            <!-- MULTI-KITTY PAYMENT SELECTION CHECKBOXES -->
+            <!-- MULTI-KITTY SELECTION -->
             <div id="multiKittySelectionContainer" class="hidden-view mb-3.5 bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
                 <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
                     Select GRMS Accounts To Include In Payment:
@@ -302,17 +302,17 @@
                 <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1"></div>
             </div>
 
-            <!-- 1-CLICK UPI DEEP LINK BUTTON -->
+            <!-- UPI APP BUTTON -->
             <a id="btnUpiAppPay" href="#" class="w-full mb-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]">
                 Pay Via UPI App (GPay / PhonePe / Paytm)
             </a>
 
-            <!-- SWITCH TO BANK DETAILS TOGGLE -->
+            <!-- BANK DETAILS TOGGLE -->
             <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-3.5 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold py-2 rounded-xl transition-all cursor-pointer text-center">
                 Switch to Bank Account Credentials
             </button>
 
-            <!-- UPI QR CODE CHANNEL -->
+            <!-- UPI QR CODE -->
             <div id="channelUpiView" class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col items-center justify-center mb-3.5">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Scan Official Showroom QR Code</p>
                 <div class="w-32 h-32 sm:w-36 sm:h-36 bg-white p-2 rounded-lg border border-slate-200 shadow-sm flex items-center justify-center">
@@ -323,7 +323,7 @@
                 </button>
             </div>
 
-            <!-- SHOWROOM BANK CREDENTIALS CHANNEL -->
+            <!-- BANK CREDENTIALS -->
             <div id="channelBankView" class="hidden-view bg-slate-50 rounded-xl p-3.5 border border-slate-200 mb-3.5 space-y-2 text-xs text-slate-800">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">Showroom Bank Transfer Credentials</p>
                 <div><span class="text-slate-400 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold">State Bank of India</span></div>
@@ -353,7 +353,7 @@
         </div>
     </div>
 
-    <!-- MAIN JAVASCRIPT CONTROLLER -->
+    <!-- CLIENT CONTROLLER -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -578,7 +578,7 @@
                 if (!isSyncingActive) {
                     executePassbookRender(phone, acCode, true);
                 }
-            }, 15000);
+            }, 30000);
         }
 
         function executePassbookRender(phone, acCode, isSilentSync = false) {
@@ -838,13 +838,13 @@
                     } else {
                         alert("Notice: " + (res.error || "Proof registered."));
                     }
-                    setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 1200);
+                    setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 800);
                 })
                 .catch(() => {
                     hideLoader();
                     closePaymentModal();
                     alert("Installment proof recorded! Refreshing passbook...");
-                    setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 1500);
+                    setTimeout(() => executePassbookRender(globalCustomerPhone, globalAcCode), 1000);
                 });
             };
 
@@ -854,12 +854,12 @@
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 300;
+                        const MAX_WIDTH = 280;
                         let w = img.width, h = img.height;
                         if (w > MAX_WIDTH) { h = Math.round((h * MAX_WIDTH) / w); w = MAX_WIDTH; }
                         canvas.width = w; canvas.height = h;
                         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        postProof(canvas.toDataURL('image/jpeg', 0.3));
+                        postProof(canvas.toDataURL('image/jpeg', 0.25));
                     };
                     img.src = reader.result;
                 };
