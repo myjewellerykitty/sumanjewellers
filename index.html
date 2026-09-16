@@ -262,16 +262,16 @@
     <div class="w-full">
         <div id="customerView" class="max-w-md mx-auto min-h-screen p-3 sm:p-4 flex flex-col justify-between">
             <div>
-                <!-- BRAND HEADER -->
+                <!-- BRAND HEADER - FIXED LOGO OVERLAP & CENTERING -->
                 <header class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4 sm:mb-5 reveal">
                     <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-28 sm:h-32 object-cover object-center">
-                    <div class="p-3 sm:p-4 text-center relative pt-6 sm:pt-7">
-                        <div class="absolute -top-6 sm:-top-7 left-1/2 -translate-x-1/2 w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white shadow-md overflow-hidden bg-white">
+                    <div class="p-4 sm:p-5 text-center relative pt-9 sm:pt-10">
+                        <div class="absolute -top-7 left-1/2 -translate-x-1/2 w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white shadow-md overflow-hidden bg-white">
                             <img src="https://i.pinimg.com/736x/9f/08/47/9f0847af5e7a99e2bef8814fa1416357.jpg" alt="Logo" class="w-full h-full object-cover">
                         </div>
-                        <h1 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight uppercase">Golden Rose Magic</h1>
+                        <h1 class="text-base sm:text-lg font-black text-slate-900 tracking-tight uppercase leading-snug">Golden Rose Magic</h1>
                         <p class="text-xs font-semibold text-amber-700 tracking-wider mt-0.5">For Easy Jewellery Purchase</p>
-                        <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-0.5 sm:mt-1">Suman Jewellers Scheme Portal</p>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Suman Jewellers Scheme Portal</p>
                     </div>
                 </header>
 
@@ -451,6 +451,7 @@
     <!-- Enhanced Footer -->
     <footer class="reveal">
         <div class="footer-top">
+            <!-- Col 1: Brand Info -->
             <div class="footer-col">
                 <span class="footer-brand">SUMAN JEWELLERS</span>
                 <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">Exquisite hallmarked gold, certified diamonds, and fine silver artistry since 1996.</p>
@@ -470,6 +471,7 @@
                 </div>
             </div>
 
+            <!-- Col 2: Quick Links -->
             <div class="footer-col">
                 <span class="footer-col-title">Quick Links</span>
                 <div class="footer-links">
@@ -480,6 +482,7 @@
                 </div>
             </div>
 
+            <!-- Col 3: Kitty & Savings -->
             <div class="footer-col">
                 <span class="footer-col-title">Schemes & Kitty</span>
                 <div class="footer-links">
@@ -495,7 +498,7 @@
         </div>
     </footer>
 
-    <!-- TERMS MODAL -->
+    <!-- TERMS & CONDITIONS MODAL -->
     <div id="termsModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-xl border border-slate-200 max-h-[85vh] flex flex-col justify-between animate-bounce-short">
             <div>
@@ -508,13 +511,37 @@
                 </div>
                 <div class="overflow-y-auto max-h-[55vh] pr-1.5">
                     <ol class="text-[10px] sm:text-[11px] text-slate-600 space-y-2 list-decimal pl-4 leading-relaxed text-justify">
-                        <li>For Enrollment in Golden Rose Magic Scheme (GRMS) you must duly fill in &amp; sign the application form and deposit it at the Showroom.</li>
-                        <li>The GRMS will start on completion of 100 members and the tenure will be 11 months. Draw held between 21st and 25th of every calendar month.</li>
-                        <li>Every month one winner will receive Rs.15,000/- or Rs.10,000/- added on maturity.</li>
+                        <li>For Enrollment in Golden Rose Magic Scheme (GRMS) you must duly fill in &amp; sign the application form and deposit it at the Showroom with two photographs and a copy of any one official identity card document. Collect the Passbook and keep it in safe custody.</li>
+                        <li><strong>Key Terms:</strong>
+                            <ul class="list-disc pl-4 mt-1 space-y-0.5 text-slate-500">
+                                <li><em>Monthly Installment:</em> Amount to be given by participants to Suman Jewellers every month.</li>
+                                <li><em>Principal Amount:</em> Total installment sum paid by participant across 11 months.</li>
+                                <li><em>Interest Amount:</em> Lump-sum bonus provided upon maturity for non-winners.</li>
+                                <li><em>Winner:</em> Member who wins the lucky draw during the scheme tenure.</li>
+                            </ul>
+                        </li>
+                        <li>In case the passbook is lost, a fee of Rs.50/- will be charged for issuing a duplicate passbook.</li>
+                        <li>The GRMS will start on completion of 100 members and the tenure of the scheme will be 11 months. Every month there will be a draw continuing continuously for 11 months up to maturity. The draw will be held between the 21st and 25th of every calendar month.</li>
+                        <li>Every month one winner will receive Rs.15,000/- (for Rs.8,000/- monthly plan) or Rs.10,000/- (for Rs.5,000/- monthly plan). The amount is added on maturity to the principal amount after 11 months (i.e. one winner every month).</li>
+                        <li>The scheme continues for the winner and the winner remains fully eligible for all subsequent draws up to maturity. Any participant, including previous winners, can win multiple times.</li>
+                        <li>You agree to receive official communications via Phone Call, SMS, or WhatsApp on numbers registered in the Passbook.</li>
+                        <li>You are requested to attend the GRMS Draw in person to inspect that the process is fair and transparent. After the draw is conducted, Suman Jewellers will not be responsible for any objections.</li>
+                        <li>You are requested to inform the showroom in advance about your attendance for the draw by the 18th–20th of each month. Inquire for the exact date, timing, and venue.</li>
+                        <li><strong>Maturity &amp; Interest Rules:</strong>
+                            <ul class="list-disc pl-4 mt-1 space-y-0.5 text-slate-500">
+                                <li><strong>Rs.8,000 Scheme (Non-Winners):</strong> 11 &times; Rs.8,000 = Rs.88,000 + Rs.3,000 (Interest) = <strong>Rs.91,000/-</strong> maturity.</li>
+                                <li><strong>Rs.5,000 Scheme (Non-Winners):</strong> 11 &times; Rs.5,000 = Rs.55,000 + Rs.2,000 (Interest) = <strong>Rs.57,000/-</strong> maturity.</li>
+                                <li><em>Note:</em> The fixed Interest Amount is not applicable if a participant wins a draw; the draw prize replaces interest.</li>
+                            </ul>
+                        </li>
+                        <li>You must pay the first installment by cash or card at the Showroom. Subsequent monthly installments can be made via Cash / Cheque / PDC / Demand Draft / ECS / Online UPI. Always obtain a computerized receipt at the cash counter. Suman Jewellers is not responsible for payments made to unauthorized individuals.</li>
+                        <li>Payments can be made in multiples of the monthly installment. The monthly due date is the <strong>15th of every calendar month</strong>. For online deposits (NEFT/ECS/UPI), inform the showroom with the transaction UTR number.</li>
                     </ol>
                 </div>
             </div>
-            <button onclick="closeTermsModal()" class="w-28 mt-3.5 bg-slate-900 text-white font-bold py-2 rounded-xl text-xs cursor-pointer">Close</button>
+            <button onclick="closeTermsModal()" class="w-full mt-3.5 bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer">
+                Close Terms
+            </button>
         </div>
     </div>
 
@@ -530,7 +557,7 @@
             </div>
 
             <div id="multiKittySelectionContainer" class="hidden-view mb-3.5 bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
-                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">Select GRMS Accounts:</label>
+                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">Select GRMS Accounts To Include In Payment:</label>
                 <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1"></div>
             </div>
 
@@ -580,7 +607,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT CONTROLLER -->
+    <!-- CLIENT CONTROLLER -->
     <script>
         const config = {
             name: "Suman Jewellers",
