@@ -22,9 +22,20 @@
         .animate-popup {
             animation: popupEnter 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-16px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-toast {
+            animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- FLOATING ON-SCREEN NOTIFICATION CONTAINER (ZERO GITHUB SAYS POPUP) -->
+    <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[99999] flex flex-col items-center gap-2 pointer-events-none w-full max-w-sm px-4"></div>
 
     <!-- Top Loading Indicator -->
     <div id="kmpLoader" class="hidden-view fixed top-3 right-3 z-50">
@@ -34,18 +45,19 @@
         </div>
     </div>
 
-    <!-- Alert Modal -->
-    <div id="uiAlertDialog" class="hidden-view fixed inset-0 bg-slate-950/50 backdrop-blur-xs flex items-start justify-center pt-10 px-3 z-50">
+    <!-- Confirmation Modal (In-Page) -->
+    <div id="uiConfirmDialog" class="hidden-view fixed inset-0 bg-slate-950/50 backdrop-blur-xs flex items-start justify-center pt-10 px-3 z-50">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
-            <h3 id="uiAlertTitle" class="text-sm font-bold text-slate-900 uppercase mb-1">Notice</h3>
-            <p id="uiAlertMessage" class="text-xs text-slate-600 leading-relaxed mb-4">-</p>
-            <button onclick="closeUiAlert()" class="w-full bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs uppercase cursor-pointer active-press">Acknowledge</button>
+            <h3 id="uiConfirmTitle" class="text-sm font-bold text-slate-900 uppercase mb-1">Confirmation</h3>
+            <p id="uiConfirmMessage" class="text-xs text-slate-600 leading-relaxed mb-4">-</p>
+            <div class="flex gap-2">
+                <button onclick="handleUiConfirmChoice(false)" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-bold cursor-pointer active-press">Cancel</button>
+                <button onclick="handleUiConfirmChoice(true)" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-bold cursor-pointer active-press">Proceed</button>
+            </div>
         </div>
     </div>
 
-    <!-- ==================================================================== -->
-    <!-- DEDICATED QUEUE ACTION MODAL (ASKS GOLD RATE FIRST BEFORE CONFIRM) -->
-    <!-- ==================================================================== -->
+    <!-- DEDICATED QUEUE ACTION MODAL (ASKS GOLD RATE BEFORE CONFIRMING) -->
     <div id="queueActionModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup space-y-4">
             <div class="flex justify-between items-center border-b pb-2">
@@ -56,7 +68,7 @@
                 <button onclick="closeQueueActionModal()" class="text-slate-400 hover:text-black font-bold text-lg cursor-pointer">&times;</button>
             </div>
 
-            <!-- Summary of Selected Transaction -->
+            <!-- Transaction Summary -->
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 text-xs">
                 <div class="flex justify-between"><span class="text-slate-500">Member:</span><strong id="qaMemberName" class="text-slate-900 font-bold">-</strong></div>
                 <div class="flex justify-between"><span class="text-slate-500">Account Code:</span><strong id="qaAcCode" class="font-mono text-slate-900">-</strong></div>
@@ -65,22 +77,22 @@
                 <div class="flex justify-between"><span class="text-slate-500">UTR / Reference:</span><span id="qaUtr" class="font-mono text-slate-600 font-semibold">-</span></div>
             </div>
 
-            <!-- Mandatory Gold Rate Input -->
+            <!-- Gold Rate Input -->
             <div class="space-y-1.5">
                 <label class="font-bold text-slate-700 text-xs block">
                     Today's 22K Gold Rate for 10 Grams (INR) <span class="text-rose-600">*</span>
                 </label>
                 <input type="number" id="qaGoldRateInput" oninput="calculateQueueModalGrams()" placeholder="e.g. 68500" class="w-full px-3 py-2.5 bg-amber-50/60 border border-amber-300 rounded-xl font-mono text-sm font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <p class="text-[10px] text-slate-500">Mandatory: Used to calculate and credit fractional 22K bullion weight into passbook.</p>
+                <p class="text-[10px] text-slate-500">Mandatory: Used to calculate and credit fractional 22K gold weight into passbook.</p>
             </div>
 
-            <!-- Live Calculated Grams Output -->
+            <!-- Calculated Output -->
             <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-center">
                 <span class="text-[10px] uppercase font-bold text-amber-800 block">Calculated 22K Gold Allocation</span>
                 <span id="qaCalculatedGrams" class="text-base font-mono font-black text-amber-950">0.000 Grams</span>
             </div>
 
-            <!-- Double Actions -->
+            <!-- Modal Action Buttons -->
             <div class="grid grid-cols-2 gap-2 pt-2 border-t">
                 <button type="button" onclick="submitQueueAction('review')" id="btnQueueReview" class="bg-amber-700 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
                     Set Rate (Reviewed)
@@ -594,7 +606,7 @@
         <p class="font-bold uppercase tracking-wider text-slate-700 text-[10px]">Suman Jewellers &bull; Operations Console</p>
     </footer>
 
-    <!-- Client Script -->
+    <!-- Client Script with On-Screen Notifications -->
     <script>
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
@@ -606,6 +618,80 @@
         let allMembersFeed = [];
         let isSubmitting = false;
         let activeQueueItem = null;
+        let activeConfirmResolver = null;
+
+        // =========================================================================
+        // ON-SCREEN NOTIFICATION ENGINE (REPLACES "GITHUB SAYS..." COMPLETELY)
+        // =========================================================================
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const isErr = (type === 'error');
+            const isSucc = (type === 'success');
+
+            toast.className = `pointer-events-auto w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl shadow-2xl border text-xs font-semibold animate-toast transition-all duration-300 ${
+                isErr ? 'bg-rose-950 text-rose-100 border-rose-700' :
+                isSucc ? 'bg-emerald-950 text-emerald-100 border-emerald-700' :
+                'bg-slate-900 text-slate-100 border-slate-700'
+            }`;
+
+            const icon = isErr ? '⚠️' : isSucc ? '✅' : 'ℹ️';
+
+            toast.innerHTML = `
+                <div class="flex items-center gap-2.5">
+                    <span class="text-sm shrink-0">${icon}</span>
+                    <span class="leading-tight">${message}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-white/60 hover:text-white font-bold text-sm cursor-pointer p-0.5">&times;</button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-12px)';
+                setTimeout(() => toast.remove(), 280);
+            }, 3500);
+        }
+
+        // GLOBALLY OVERRIDE WINDOW.ALERT SO NO BROWSER POPUP EVER APPEARS
+        window.alert = function(msg) {
+            const lower = (msg || '').toString().toLowerCase();
+            let type = 'info';
+            if (lower.includes('error') || lower.includes('fail') || lower.includes('incorrect') || lower.includes('timeout') || lower.includes('invalid') || lower.includes('required') || lower.includes('denied') || lower.includes('notice')) {
+                type = 'error';
+            } else if (lower.includes('success') || lower.includes('approved') || lower.includes('saved') || lower.includes('updated') || lower.includes('deleted') || lower.includes('committed')) {
+                type = 'success';
+            }
+            showNotification(msg, type);
+        };
+
+        function uiAlert(title, message) {
+            showNotification(`${title}: ${message}`, 'info');
+        }
+
+        function closeUiAlert() {
+            document.getElementById('uiAlertDialog').classList.add('hidden-view');
+        }
+
+        function uiConfirm(title, message) {
+            return new Promise((resolve) => {
+                activeConfirmResolver = resolve;
+                document.getElementById('uiConfirmTitle').innerText = title || "Confirmation";
+                document.getElementById('uiConfirmMessage').innerText = message || "";
+                document.getElementById('uiConfirmDialog').classList.remove('hidden-view');
+            });
+        }
+
+        function handleUiConfirmChoice(res) {
+            document.getElementById('uiConfirmDialog').classList.add('hidden-view');
+            if (activeConfirmResolver) {
+                activeConfirmResolver(res);
+                activeConfirmResolver = null;
+            }
+        }
 
         function showLoader(msg = "Communicating...") {
             document.getElementById('kmpLoaderMsg').innerText = msg;
@@ -614,16 +700,6 @@
 
         function hideLoader() {
             document.getElementById('kmpLoader').classList.add('hidden-view');
-        }
-
-        function uiAlert(title, message) {
-            document.getElementById('uiAlertTitle').innerText = title || "Notice";
-            document.getElementById('uiAlertMessage').innerText = message || "";
-            document.getElementById('uiAlertDialog').classList.remove('hidden-view');
-        }
-
-        function closeUiAlert() {
-            document.getElementById('uiAlertDialog').classList.add('hidden-view');
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -928,16 +1004,16 @@
             .then(res => {
                 hideLoader();
                 if (res && res.success) {
-                    uiAlert("Success", "New member registered successfully.");
+                    alert("New member registered successfully.");
                     closeAddMemberModal();
                     loadLiveDirectoryFeed();
                 } else {
-                    uiAlert("Error", res.error || "Enrollment failed.");
+                    alert(res.error || "Enrollment failed.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                uiAlert("Network Error", "Timeout enrolling member.");
+                alert("Timeout enrolling member.");
             })
             .finally(() => {
                 isSubmitting = false;
@@ -998,7 +1074,7 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    uiAlert("Success", "Customer profile and security MPIN updated successfully.");
+                    alert("Customer profile and security MPIN updated successfully.");
                     closeEditCustomerModal();
                     selectedMemberData.phone = payload.newPhone;
                     selectedMemberData.acCode = payload.newAcCode;
@@ -1008,12 +1084,12 @@
                     loadLiveDirectoryFeed();
                     loadMemberLedger(selectedMemberData);
                 } else {
-                    uiAlert("Error", res.error || "Update failed.");
+                    alert(res.error || "Update failed.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                uiAlert("Network Error", "Timeout saving customer modifications.");
+                alert("Timeout saving customer modifications.");
             })
             .finally(() => {
                 isSubmitting = false;
@@ -1067,16 +1143,16 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    uiAlert("Success", "Transaction record permanently modified.");
+                    alert("Transaction record permanently modified.");
                     closeEditTxModal();
                     loadMemberLedger(selectedMemberData);
                 } else {
-                    uiAlert("Error", res.error || "Update rejected.");
+                    alert(res.error || "Update rejected.");
                 }
             })
             .catch(() => {
                 hideLoader();
-                uiAlert("Network Error", "Timeout updating transaction record.");
+                alert("Timeout updating transaction record.");
             })
             .finally(() => {
                 isSubmitting = false;
@@ -1106,7 +1182,7 @@
             const month = document.getElementById('depositMonth').value;
             const ref = document.getElementById('depositRef').value.trim() || "Showroom Counter Cash";
 
-            if (!amount || !rate10g) return uiAlert("Validation", "Amount and gold rate are strictly required.");
+            if (!amount || !rate10g) return alert("Amount and gold rate are strictly required.");
 
             const btn = document.getElementById('btnSubmitDeposit');
             isSubmitting = true;
@@ -1134,16 +1210,16 @@
                 hideLoader();
                 closeManualDepositModal();
                 if (res.success) {
-                    uiAlert("Success", `Payment committed. ${res.grams} grams booked.`);
+                    alert(`Payment committed. ${res.grams} grams booked.`);
                 } else {
-                    uiAlert("Notice", res.error || "Duplicate or rejected transaction.");
+                    alert(res.error || "Duplicate or rejected transaction.");
                 }
                 loadMemberLedger(selectedMemberData);
                 loadLiveDirectoryFeed();
             })
             .catch(() => {
                 hideLoader();
-                uiAlert("Network Error", "Communication timeout.");
+                alert("Communication timeout.");
                 loadMemberLedger(selectedMemberData);
             })
             .finally(() => {
@@ -1163,12 +1239,12 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    uiAlert("Updated", `Event wins set to ${wins}.`);
+                    alert(`Event wins set to ${wins}.`);
                     selectedMemberData.winCount = wins;
                     loadMemberLedger(selectedMemberData);
                     loadLiveDirectoryFeed();
                 } else {
-                    uiAlert("Error", res.error || "Failed to update wins.");
+                    alert(res.error || "Failed to update wins.");
                 }
             })
             .catch(() => hideLoader());
@@ -1176,20 +1252,22 @@
 
         function confirmRemoveMember() {
             if (!selectedMemberData) return;
-            if (!confirm(`Delete member ${selectedMemberData.name} (${selectedMemberData.acCode}) permanently?`)) return;
-
-            showLoader("Deleting Member...");
-            fetch(`${config.scriptUrl}?action=deleteMember&phone=${encodeURIComponent(selectedMemberData.phone)}&kittyNumber=${encodeURIComponent(selectedMemberData.acCode)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
-                hideLoader();
-                if (res.success) {
-                    uiAlert("Deleted", "Member record successfully deleted.");
-                    document.getElementById('memberProfileSection').classList.add('hidden-view');
-                    loadLiveDirectoryFeed();
-                } else uiAlert("Error", res.error);
-            })
-            .catch(() => hideLoader());
+            uiConfirm("Delete Account", `Are you sure you want to permanently delete member ${selectedMemberData.name} (${selectedMemberData.acCode})?`)
+            .then(ok => {
+                if (!ok) return;
+                showLoader("Deleting Member...");
+                fetch(`${config.scriptUrl}?action=deleteMember&phone=${encodeURIComponent(selectedMemberData.phone)}&kittyNumber=${encodeURIComponent(selectedMemberData.acCode)}&_ts=${Date.now()}`)
+                .then(r => r.json())
+                .then(res => {
+                    hideLoader();
+                    if (res.success) {
+                        alert("Member record successfully deleted.");
+                        document.getElementById('memberProfileSection').classList.add('hidden-view');
+                        loadLiveDirectoryFeed();
+                    } else alert(res.error);
+                })
+                .catch(() => hideLoader());
+            });
         }
 
         function loadStaffUsersList() {
@@ -1200,7 +1278,7 @@
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (!res.success) return uiAlert("Access Denied", res.error);
+                if (!res.success) return alert("Access Denied: " + res.error);
                 const tbody = document.getElementById('userTableBody');
                 tbody.innerHTML = "";
 
@@ -1280,43 +1358,45 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    uiAlert("Configuration Saved", "Operator permissions committed to database.");
+                    alert("Configuration Saved: Operator permissions committed to database.");
                     closeUserModal();
                     loadStaffUsersList();
                 } else {
-                    uiAlert("Database Error", res.error || "Unable to save operator permissions.");
+                    alert("Database Error: " + (res.error || "Unable to save operator permissions."));
                 }
             })
             .catch(() => {
                 hideLoader();
-                uiAlert("Network Failure", "Error communicating with server.");
+                alert("Network Failure: Error communicating with server.");
             });
         }
 
         function deleteStaffUser(targetUser) {
-            if (!confirm(`Permanently remove operator access for ${targetUser}?`)) return;
+            uiConfirm("Remove Operator", `Permanently remove operator access for ${targetUser}?`)
+            .then(ok => {
+                if (!ok) return;
+                showLoader("Removing Operator Record...");
 
-            showLoader("Removing Operator Record...");
-
-            fetch(`${config.scriptUrl}?action=deleteStaffUser&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin || '1108')}&targetUser=${encodeURIComponent(targetUser)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
-                hideLoader();
-                if (res.success) {
-                    uiAlert("Success", "Operator profile deleted from database.");
-                    loadStaffUsersList();
-                } else {
-                    uiAlert("Database Error", res.error || "Unable to delete operator.");
-                }
-            })
-            .catch(() => {
-                hideLoader();
-                uiAlert("Network Error", "Communication timeout.");
+                fetch(`${config.scriptUrl}?action=deleteStaffUser&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin || '1108')}&targetUser=${encodeURIComponent(targetUser)}&_ts=${Date.now()}`)
+                .then(r => r.json())
+                .then(res => {
+                    hideLoader();
+                    if (res.success) {
+                        alert("Operator profile deleted from database.");
+                        loadStaffUsersList();
+                    } else {
+                        alert("Database Error: " + (res.error || "Unable to delete operator."));
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    alert("Communication timeout.");
+                });
             });
         }
 
         // ======================================================================
-        // 100% WORKING QUEUE VERIFICATION & MODAL ACTION LOGIC
+        // FIXED QUEUE LOADING & IN-APP MODAL ACTION LOGIC
         // ======================================================================
         function loadKmpPendingApprovals() {
             showLoader("Accessing Queue...");
@@ -1354,7 +1434,7 @@
             });
         }
 
-        // OPENS MODAL (NO WINDOW.PROMPT - 100% RELIABLE IN IFRAMES)
+        // OPENS MODAL (NO WINDOW.PROMPT - WORKS 100% IN IFRAMES)
         function openQueueModal(item, mode) {
             activeQueueItem = item;
             document.getElementById('qaMemberName').innerText = item.name;
@@ -1363,7 +1443,6 @@
             document.getElementById('qaAmount').innerText = "₹" + (parseFloat(item.amount) || 0).toLocaleString('en-IN');
             document.getElementById('qaUtr').innerText = item.utr || "Counter Cash";
 
-            // Prefill previous rate or standard default
             const initialRate = parseFloat(item.rateApplied) || 68500;
             document.getElementById('qaGoldRateInput').value = initialRate;
             calculateQueueModalGrams();
@@ -1396,7 +1475,6 @@
             }
         }
 
-        // SUBMITS RATE REVIEW OR FINAL APPROVE FROM THE MODAL
         function submitQueueAction(actionType) {
             if (!activeQueueItem) return;
             const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value);
@@ -1429,16 +1507,16 @@
                 hideLoader();
                 if (res && res.success) {
                     closeQueueActionModal();
-                    uiAlert("Success", isApprove ? `Payment Approved! ${res.gramsBooked}g gold credited.` : `Rate Reviewed! ${res.gramsBooked}g locked.`);
+                    alert(isApprove ? `Payment Approved! ${res.gramsBooked}g gold credited.` : `Rate Reviewed! ${res.gramsBooked}g locked.`);
                     loadKmpPendingApprovals();
                     if (typeof loadLiveDirectoryFeed === "function") loadLiveDirectoryFeed();
                 } else {
-                    uiAlert("Error", res.error || "Action failed.");
+                    alert(res.error || "Action failed.");
                 }
             })
             .catch(err => {
                 hideLoader();
-                uiAlert("Network Error", "Could not communicate with backend server.");
+                alert("Network Error: Could not communicate with backend server.");
             });
         }
 
