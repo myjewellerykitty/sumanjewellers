@@ -20,7 +20,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- Global Top Loader with Instant Reaction -->
+    <!-- Global Top Loader -->
     <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-6 px-3 z-50">
         <div class="bg-white rounded-2xl py-3 px-5 shadow-2xl border border-amber-300 flex items-center gap-3 max-w-sm w-full animate-popup">
             <div class="w-6 h-6 border-2 border-amber-200 border-t-amber-800 rounded-full animate-spin shrink-0"></div>
@@ -36,10 +36,10 @@
         
         <!-- Brand Header With Maroon Circle White Logo -->
         <header class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4">
-            <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-28 object-cover" loading="eager" fetchpriority="high">
+            <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-28 object-cover">
             <div class="p-3 text-center relative pt-7">
                 <div class="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden bg-[#800020] p-1 flex items-center justify-center">
-                    <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Logo" class="w-full h-full object-contain" loading="eager" fetchpriority="high">
+                    <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Logo" class="w-full h-full object-contain">
                 </div>
                 <h1 class="text-lg font-black text-slate-900 uppercase tracking-tight">Golden Rose Magic</h1>
                 <p class="text-xs font-semibold text-amber-700 tracking-wider">For Easy Jewellery Purchase (11 Months)</p>
@@ -189,7 +189,7 @@
         </div>
     </div>
 
-    <!-- Client Controller Script with Instant Local Cache Execution -->
+    <!-- Client Controller Script -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -207,7 +207,12 @@
 
         async function directFetch(url, options = {}) {
             const response = await fetch(url, options);
-            return await response.json();
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                return { success: false, error: text };
+            }
         }
 
         function setBtnLock(btnId, lock, text = "") {
@@ -238,33 +243,15 @@
             if (rawPhone.length !== 10) return alert("Enter valid 10-digit mobile number.");
             if (isProcessing) return;
 
-            globalCustomerPhone = rawPhone;
-            const cacheKey = `grms_auth_${rawPhone}`;
-            const cached = localStorage.getItem(cacheKey);
-
-            // INSTANT UI TRANSITION (0.05s) if user ever checked before
-            if (cached) {
-                const res = JSON.parse(cached);
-                document.getElementById('phoneSection').classList.add('hidden-view');
-                if (res.hasMpin) {
-                    document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
-                    document.getElementById('mpinLoginSection').classList.remove('hidden-view');
-                } else {
-                    document.getElementById('firstTimeMpinSection').classList.remove('hidden-view');
-                }
-            } else {
-                showLoader("Accessing Account Records...");
-            }
-
             isProcessing = true;
             setBtnLock('btnPhoneContinue', true, 'Checking...');
+            showLoader("Accessing Account Records...");
+            globalCustomerPhone = rawPhone;
 
             try {
                 const res = await directFetch(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}`);
                 hideLoader();
                 if (!res.success) return alert(res.error || "Account not found.");
-
-                localStorage.setItem(cacheKey, JSON.stringify(res));
                 document.getElementById('phoneSection').classList.add('hidden-view');
 
                 if (res.hasMpin) {
@@ -275,7 +262,7 @@
                 }
             } catch (err) {
                 hideLoader();
-                if (!cached) alert("Connection error.");
+                alert("Connection error.");
             } finally {
                 isProcessing = false;
                 setBtnLock('btnPhoneContinue', false);
@@ -332,45 +319,25 @@
         }
 
         async function fetchUserProfile(phone) {
-            const cacheKey = `grms_members_${phone}`;
-            const cached = localStorage.getItem(cacheKey);
-
-            if (cached) {
-                const res = JSON.parse(cached);
-                if (res.results.length === 1) {
-                    document.getElementById('authContainer').classList.add('hidden-view');
-                    loadPassbook(phone, res.results[0].acCode);
-                } else {
-                    renderMultiKitty(res.results);
-                }
-            } else {
-                showLoader("Retrieving Schemes...");
-            }
-
+            showLoader("Retrieving Schemes...");
             try {
                 const res = await directFetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(phone)}`);
                 hideLoader();
                 if (!res || !res.results || res.results.length === 0) return alert("No scheme records found.");
-                localStorage.setItem(cacheKey, JSON.stringify(res));
-
                 if (res.results.length === 1) {
                     document.getElementById('authContainer').classList.add('hidden-view');
                     loadPassbook(phone, res.results[0].acCode);
                 } else {
-                    renderMultiKitty(res.results);
+                    const sel = document.getElementById('kittySelect');
+                    sel.innerHTML = "";
+                    res.results.forEach(item => {
+                        sel.innerHTML += `<option value="${item.acCode}">A/C: ${item.acCode} - ${item.name}</option>`;
+                    });
+                    document.getElementById('multiKittyWrapper').classList.remove('hidden-view');
                 }
             } catch (err) {
                 hideLoader();
             }
-        }
-
-        function renderMultiKitty(results) {
-            const sel = document.getElementById('kittySelect');
-            sel.innerHTML = "";
-            results.forEach(item => {
-                sel.innerHTML += `<option value="${item.acCode}">A/C: ${item.acCode} - ${item.name}</option>`;
-            });
-            document.getElementById('multiKittyWrapper').classList.remove('hidden-view');
         }
 
         function confirmSelectedKitty() {
@@ -380,10 +347,9 @@
         }
 
         async function loadPassbook(phone, acCode) {
-            const cacheKey = `grms_pb_${phone}_${acCode}`;
+            const cacheKey = `cust_pb_${phone}_${acCode}`;
             const cached = localStorage.getItem(cacheKey);
 
-            // INSTANT RENDER FROM CACHE (<50ms)
             if (cached) {
                 renderPassbookUI(JSON.parse(cached));
             } else {
@@ -521,7 +487,7 @@
                     } else {
                         alert(res.error || "Notice: Proof received.");
                     }
-                    localStorage.removeItem(`grms_pb_${globalCustomerPhone}_${globalAcCode}`);
+                    localStorage.removeItem(`cust_pb_${globalCustomerPhone}_${globalAcCode}`);
                     loadPassbook(globalCustomerPhone, globalAcCode);
                 } catch (err) {
                     hideLoader();
