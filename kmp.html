@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <!-- QUEUE AUTHORIZATION MODAL (Rate Mandatory For Approval) -->
+    <!-- QUEUE AUTHORIZATION MODAL (Rate Strictly Enforced) -->
     <div id="queueActionModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup space-y-3">
             <div class="flex justify-between items-center border-b pb-2">
@@ -172,7 +172,6 @@
     <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-sm border-b border-slate-800">
         <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col lg:flex-row justify-between items-center gap-2.5 sm:gap-3">
             
-            <!-- Brand With Maroon Circle White Logo -->
             <div class="flex items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-start">
                 <div class="flex items-center gap-2.5">
                     <div class="w-10 h-10 rounded-full bg-[#800020] border-2 border-amber-400/50 p-1 flex items-center justify-center shrink-0 shadow-sm">
@@ -184,7 +183,6 @@
                     </div>
                 </div>
 
-                <!-- Session Badge -->
                 <div id="sessionBadgeContainer" class="hidden-view flex items-center gap-1.5 sm:gap-2">
                     <span id="kmpRoleBadge" class="text-[9px] sm:text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300">Evaluating...</span>
                     <span class="text-[10px] sm:text-[11px] text-slate-400">User: <strong id="lblActiveUser" class="text-white font-mono">-</strong></span>
@@ -212,7 +210,6 @@
                     + Enroll
                 </button>
                 
-                <!-- 12+1 Admin Panel Link -->
                 <a href="https://myjewellerykitty.github.io/sumanjewellerskitty/kmp" target="_blank" class="bg-emerald-800 hover:bg-emerald-700 border border-emerald-600 text-emerald-100 font-bold text-[11px] sm:text-xs px-2.5 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-xs active-press">
                     <span>12+1 Admin Panel</span>
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -1005,7 +1002,6 @@
             }
         }
 
-        // QUEUE LOGIC WITH DIRECT MODAL & MANDATORY RATE
         async function loadKmpPendingApprovals() {
             if (isProcessing) return;
 
@@ -1083,7 +1079,7 @@
             const amtStr = Number(activeQueueItem.amount).toLocaleString('en-IN');
             
             document.getElementById('qaModalSubtitle').innerText = `${activeQueueItem.name} | Month ${activeQueueItem.month} | INR ${amtStr}`;
-            document.getElementById('qaGoldRateInput').value = activeQueueItem.rateApplied || "";
+            document.getElementById('qaGoldRateInput').value = activeQueueItem.rateApplied || "68500";
 
             if (actionType === 'review') {
                 document.getElementById('qaModalTitle').innerText = isReviewed ? "Update 22K Rate Benchmark" : "Set 22K Gold Benchmark";
@@ -1109,7 +1105,7 @@
 
             const rate = parseFloat(document.getElementById('qaGoldRateInput').value);
             if (!rate || isNaN(rate) || rate <= 0) {
-                return uiAlert("Rate Required", "CRITICAL: You CANNOT approve or review a transaction without a valid 22K gold rate!");
+                return uiAlert("Validation", "Valid 22K gold rate is mandatory.");
             }
 
             isProcessing = true;
@@ -1204,7 +1200,6 @@
             });
         }
 
-        // TAB 4: ACCESS CONTROL (STAFF USERS)
         async function loadStaffUsersList() {
             if (!sessionUser || sessionUser.role !== "Admin") return;
             showLoader("Retrieving Operators...");
@@ -1292,7 +1287,6 @@
             }
         }
 
-        // SUPER ADMIN PROFILE & MPIN EDIT
         function openSuperAdminCustomerModal() {
             if (!selectedMemberData) return;
             document.getElementById('editCustName').value = selectedMemberData.name;
