@@ -9,13 +9,13 @@
         .hidden-view { display: none !important; }
         .overflow-x-auto { -webkit-overflow-scrolling: touch; }
         .btn-locked { pointer-events: none !important; opacity: 0.55 !important; cursor: not-allowed !important; }
-        .active-press { transition: transform 0.1s ease, filter 0.1s ease; }
+        .active-press { transition: transform 0.05s ease, filter 0.05s ease; }
         .active-press:active { transform: scale(0.96); filter: brightness(0.92); }
         @keyframes popupEnter {
-            from { opacity: 0; transform: scale(0.97) translateY(-6px); }
+            from { opacity: 0; transform: scale(0.98) translateY(-4px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .animate-popup { animation: popupEnter 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-popup { animation: popupEnter 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
@@ -26,7 +26,7 @@
             <div class="w-4 h-4 border-2 border-slate-400 border-t-amber-400 rounded-full animate-spin shrink-0"></div>
             <div>
                 <p id="kmpLoaderMsg" class="text-xs font-bold uppercase tracking-wider text-slate-200">Processing Ledger...</p>
-                <p class="text-[10px] text-slate-400">Verifying security checksums</p>
+                <p class="text-[10px] text-slate-400">Direct instant sync</p>
             </div>
         </div>
     </div>
@@ -155,7 +155,7 @@
             <div class="flex items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-start">
                 <div class="flex items-center gap-2.5">
                     <div class="w-10 h-10 rounded-full bg-[#800020] border-2 border-amber-400/50 p-1 flex items-center justify-center shrink-0 shadow-sm">
-                        <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Logo" class="w-full h-full object-contain">
+                        <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Logo" class="w-full h-full object-contain" loading="eager">
                     </div>
                     <div>
                         <h1 class="text-xs font-bold tracking-tight uppercase">Suman Jewellers</h1>
@@ -501,12 +501,11 @@
         </div>
     </div>
 
-    <!-- CLIENT PACING CONTROLLER (~1200ms Execution Guard) -->
+    <!-- CLIENT ZERO-DELAY DIRECT ENGINE -->
     <script>
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
-            schemeMonths: 11,
-            idealDelay: 1200 // Exactly 1.2s smooth tactile feedback
+            schemeMonths: 11
         };
 
         let sessionUser = null;
@@ -514,16 +513,10 @@
         let activeConfirmResolver = null;
         let isProcessing = false;
 
-        // Helper: Enforces minimum 1200ms execution for smooth visual UX
-        async function pacedFetch(url, options = {}) {
-            const startTime = Date.now();
+        // Zero-Lag Direct Network Request
+        async function directFetch(url, options = {}) {
             const response = await fetch(url, options);
-            const data = await response.json();
-            const elapsed = Date.now() - startTime;
-            if (elapsed < config.idealDelay) {
-                await new Promise(r => setTimeout(r, config.idealDelay - elapsed));
-            }
-            return data;
+            return await response.json();
         }
 
         function setBtnLock(btnId, lock, text = "") {
@@ -595,7 +588,7 @@
             showLoader("Authenticating Credentials...");
 
             try {
-                const res = await pacedFetch(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}&_ts=${Date.now()}`);
+                const res = await directFetch(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}`);
                 hideLoader();
                 if (res.success && res.user) {
                     sessionUser = res.user;
@@ -667,7 +660,7 @@
             showLoader("Scanning Ledger Database...");
 
             try {
-                const res = await pacedFetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(raw)}&_ts=${Date.now()}`);
+                const res = await directFetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(raw)}`);
                 hideLoader();
                 if (!res || !res.results || res.results.length === 0) return uiAlert("Search", "No accounts found.");
                 if (res.results.length === 1) {
@@ -710,7 +703,7 @@
             }
 
             try {
-                const res = await pacedFetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode)}&_ts=${Date.now()}`);
+                const res = await directFetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode)}`);
                 hideLoader();
                 if (!res || !res.profile) return uiAlert("Error", "Could not load profile ledger.");
 
@@ -778,7 +771,7 @@
             showLoader("Committing Draw Allocation...");
 
             try {
-                const res = await pacedFetch(`${config.scriptUrl}?action=updateWinCount&phone=${encodeURIComponent(selectedMemberData.phone)}&acCode=${encodeURIComponent(selectedMemberData.acCode)}&winCount=${wins}&_ts=${Date.now()}`);
+                const res = await directFetch(`${config.scriptUrl}?action=updateWinCount&phone=${encodeURIComponent(selectedMemberData.phone)}&acCode=${encodeURIComponent(selectedMemberData.acCode)}&winCount=${wins}`);
                 hideLoader();
                 if (res.success) {
                     uiAlert("Updated", `Participant draw wins successfully recorded as ${wins}.`);
@@ -845,7 +838,7 @@
             showLoader("Recording & Hedging 22K Gold...");
 
             try {
-                const res = await pacedFetch(config.scriptUrl, {
+                const res = await directFetch(config.scriptUrl, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({
@@ -880,7 +873,7 @@
             showLoader("Accessing Verification Queue...");
 
             try {
-                const list = await pacedFetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`);
+                const list = await directFetch(`${config.scriptUrl}?action=getData&id=all_pending`);
                 hideLoader();
                 const tbody = document.getElementById('kmpApprovalTableBody');
                 if (!list || list.length === 0) {
@@ -938,7 +931,7 @@
 
             showLoader("Recording 22K Benchmark...");
             try {
-                const res = await pacedFetch(config.scriptUrl, {
+                const res = await directFetch(config.scriptUrl, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({
@@ -974,7 +967,7 @@
 
             showLoader("Posting Authorization to Ledger...");
             try {
-                const res = await pacedFetch(config.scriptUrl, {
+                const res = await directFetch(config.scriptUrl, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({
@@ -1002,7 +995,7 @@
             showLoader("Auditing Defaulters via Calendar Engine...");
 
             try {
-                const res = await pacedFetch(`${config.scriptUrl}?action=getOverdueDefaulters&_ts=${Date.now()}`);
+                const res = await directFetch(`${config.scriptUrl}?action=getOverdueDefaulters`);
                 hideLoader();
                 const tbody = document.getElementById('defaulterTableBody');
                 if (!res || !res.defaulters || res.defaulters.length === 0) {
@@ -1075,7 +1068,7 @@
             };
 
             try {
-                const res = await pacedFetch(config.scriptUrl, {
+                const res = await directFetch(config.scriptUrl, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
@@ -1132,7 +1125,7 @@
             };
 
             try {
-                const res = await pacedFetch(config.scriptUrl, {
+                const res = await directFetch(config.scriptUrl, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
@@ -1173,7 +1166,7 @@
             };
 
             try {
-                const res = await pacedFetch(config.scriptUrl, {
+                const res = await directFetch(config.scriptUrl, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
@@ -1198,7 +1191,7 @@
 
             showLoader("Deleting Member from Database...");
             try {
-                const res = await pacedFetch(`${config.scriptUrl}?action=deleteMember&phone=${encodeURIComponent(selectedMemberData.phone)}&kittyNumber=${encodeURIComponent(selectedMemberData.acCode)}&_ts=${Date.now()}`);
+                const res = await directFetch(`${config.scriptUrl}?action=deleteMember&phone=${encodeURIComponent(selectedMemberData.phone)}&kittyNumber=${encodeURIComponent(selectedMemberData.acCode)}`);
                 hideLoader();
                 if (res && res.success) {
                     uiAlert("Deleted", "Member record successfully deleted.");
