@@ -20,18 +20,18 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- Global Top Loader -->
+    <!-- Global Top Loader with Tactile Pacing -->
     <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-6 px-3 z-50">
         <div class="bg-white rounded-2xl py-3 px-5 shadow-2xl border border-amber-300 flex items-center gap-3 max-w-sm w-full animate-popup">
             <div class="w-6 h-6 border-2 border-amber-200 border-t-amber-800 rounded-full animate-spin shrink-0"></div>
             <div>
                 <p id="loadingMessage" class="text-xs font-bold text-slate-900 uppercase">Connecting...</p>
-                <p class="text-[10px] text-slate-500">Please wait while the server updates</p>
+                <p class="text-[10px] text-slate-500">Securing payment channel</p>
             </div>
         </div>
     </div>
 
-    <!-- Main Mobile Container -->
+    <!-- Main Container -->
     <div class="max-w-md mx-auto w-full p-3 sm:p-4 flex-1">
         
         <!-- Brand Header With Maroon Circle White Logo -->
@@ -47,7 +47,7 @@
             </div>
         </header>
 
-        <!-- Authentication Container -->
+        <!-- Auth Screens Container -->
         <div id="authContainer">
             
             <!-- Step 1: Mobile Phone Input -->
@@ -189,14 +189,14 @@
         </div>
     </div>
 
-    <!-- Client Controller Script -->
+    <!-- Client Controller Script with 1200ms Tactile Guard -->
     <script>
         const config = {
             name: "Suman Jewellers",
             upiVpa: "vyapar.178552646415@hdfcbank",
-            // Point to your active GRMS Apps Script Web App Deployment URL
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
-            schemeMonths: 11
+            schemeMonths: 11,
+            idealDelay: 1200 // 1.2s smooth pacing
         };
 
         let currentSelectedMonth = null;
@@ -206,7 +206,17 @@
         let globalWinCount = 0;
         let isProcessing = false;
 
-        // INSTANT VISUAL BUTTON LOCK
+        async function pacedFetch(url, options = {}) {
+            const startTime = Date.now();
+            const response = await fetch(url, options);
+            const data = await response.json();
+            const elapsed = Date.now() - startTime;
+            if (elapsed < config.idealDelay) {
+                await new Promise(r => setTimeout(r, config.idealDelay - elapsed));
+            }
+            return data;
+        }
+
         function setBtnLock(btnId, lock, text = "") {
             const btn = document.getElementById(btnId);
             if (!btn) return;
@@ -230,19 +240,18 @@
             document.getElementById('loadingOverlay').classList.add('hidden-view');
         }
 
-        function handlePhoneContinue() {
+        async function handlePhoneContinue() {
             const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
             if (rawPhone.length !== 10) return alert("Enter valid 10-digit mobile number.");
             if (isProcessing) return;
 
             isProcessing = true;
             setBtnLock('btnPhoneContinue', true, 'Checking...');
-            showLoader("Checking Account...");
+            showLoader("Accessing Account Records...");
             globalCustomerPhone = rawPhone;
 
-            fetch(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`);
                 hideLoader();
                 if (!res.success) return alert(res.error || "Account not found.");
                 document.getElementById('phoneSection').classList.add('hidden-view');
@@ -253,34 +262,40 @@
                 } else {
                     document.getElementById('firstTimeMpinSection').classList.remove('hidden-view');
                 }
-            })
-            .catch(() => { hideLoader(); alert("Connection error."); })
-            .finally(() => { isProcessing = false; setBtnLock('btnPhoneContinue', false); });
+            } catch (err) {
+                hideLoader();
+                alert("Connection error.");
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnPhoneContinue', false);
+            }
         }
 
-        function verifyMpinAndProceed() {
+        async function verifyMpinAndProceed() {
             const mpin = document.getElementById('mpinInput').value.trim();
             if (mpin.length !== 4) return alert("Enter 4-digit MPIN.");
             if (isProcessing) return;
 
             isProcessing = true;
             setBtnLock('btnVerifyMpin', true, 'Verifying...');
-            showLoader("Verifying MPIN...");
+            showLoader("Verifying Security MPIN...");
 
-            fetch(`${config.scriptUrl}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`);
                 hideLoader();
                 if (res.success) {
                     document.getElementById('mpinLoginSection').classList.add('hidden-view');
                     fetchUserProfile(globalCustomerPhone);
                 } else alert("Incorrect MPIN.");
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnVerifyMpin', false); });
+            } catch (err) {
+                hideLoader();
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnVerifyMpin', false);
+            }
         }
 
-        function saveInitialMpin() {
+        async function saveInitialMpin() {
             const p1 = document.getElementById('firstMpin1').value.trim();
             const p2 = document.getElementById('firstMpin2').value.trim();
             if (p1.length !== 4 || p1 !== p2) return alert("MPIN must be 4 digits and match.");
@@ -290,24 +305,25 @@
             setBtnLock('btnSaveInitMpin', true, 'Saving...');
             showLoader("Setting Security PIN...");
 
-            fetch(`${config.scriptUrl}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}&_ts=${Date.now()}`);
                 hideLoader();
                 if (res.success) {
                     document.getElementById('firstTimeMpinSection').classList.add('hidden-view');
                     fetchUserProfile(globalCustomerPhone);
                 } else alert("Could not save MPIN.");
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnSaveInitMpin', false); });
+            } catch (err) {
+                hideLoader();
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnSaveInitMpin', false);
+            }
         }
 
-        function fetchUserProfile(phone) {
-            showLoader("Loading Details...");
-            fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(phone)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+        async function fetchUserProfile(phone) {
+            showLoader("Retrieving Schemes...");
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(phone)}&_ts=${Date.now()}`);
                 hideLoader();
                 if (!res || !res.results || res.results.length === 0) return alert("No scheme records found.");
                 if (res.results.length === 1) {
@@ -321,8 +337,9 @@
                     });
                     document.getElementById('multiKittyWrapper').classList.remove('hidden-view');
                 }
-            })
-            .catch(() => hideLoader());
+            } catch (err) {
+                hideLoader();
+            }
         }
 
         function confirmSelectedKitty() {
@@ -331,11 +348,10 @@
             loadPassbook(globalCustomerPhone, ac);
         }
 
-        function loadPassbook(phone, acCode) {
-            showLoader("Loading Passbook...");
-            fetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(data => {
+        async function loadPassbook(phone, acCode) {
+            showLoader("Opening Customer Passbook...");
+            try {
+                const data = await pacedFetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`);
                 hideLoader();
                 if (!data || !data.profile) return alert("Unable to load profile.");
 
@@ -406,8 +422,9 @@
                 }
 
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
-            })
-            .catch(() => hideLoader());
+            } catch (err) {
+                hideLoader();
+            }
         }
 
         function openPaymentModal(m) {
@@ -425,8 +442,7 @@
             document.getElementById('paymentModal').classList.add('hidden-view');
         }
 
-        // DUPLICATE PREVENTED SUBMISSION (LOCKS BUTTON INSTANTLY)
-        function submitPaymentData() {
+        async function submitPaymentData() {
             if (isProcessing) return;
 
             const utr = document.getElementById('utrInput').value.trim();
@@ -435,9 +451,9 @@
 
             isProcessing = true;
             setBtnLock('submitPayBtn', true, 'Submitting...');
-            showLoader("Submitting Proof...");
+            showLoader("Submitting Deposit Proof...");
 
-            const executePost = (base64) => {
+            const executePost = async (base64) => {
                 const payload = {
                     action: "submit",
                     id: globalCustomerPhone,
@@ -448,13 +464,12 @@
                     screenshotUrl: base64 || ""
                 };
 
-                fetch(config.scriptUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify(payload)
-                })
-                .then(r => r.json())
-                .then(res => {
+                try {
+                    const res = await pacedFetch(config.scriptUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(payload)
+                    });
                     hideLoader();
                     closePaymentModal();
                     if (res && res.success) {
@@ -463,16 +478,14 @@
                         alert(res.error || "Notice: Proof received.");
                     }
                     loadPassbook(globalCustomerPhone, globalAcCode);
-                })
-                .catch(() => {
+                } catch (err) {
                     hideLoader();
                     closePaymentModal();
                     loadPassbook(globalCustomerPhone, globalAcCode);
-                })
-                .finally(() => {
+                } finally {
                     isProcessing = false;
                     setBtnLock('submitPayBtn', false);
-                });
+                }
             };
 
             if (fileBox) {
@@ -509,21 +522,23 @@
             globalAcCode = null;
         }
 
-        function requestCurrentMpinRecovery() {
+        async function requestCurrentMpinRecovery() {
             if (isProcessing) return;
             isProcessing = true;
             setBtnLock('btnForgotMpin', true, 'Sending...');
             showLoader("Sending MPIN to Email...");
 
-            fetch(`${config.scriptUrl}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`);
                 hideLoader();
                 if (res.success) alert("MPIN sent to registered email: " + res.email);
                 else alert(res.error || "No registered email found.");
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnForgotMpin', false); });
+            } catch (err) {
+                hideLoader();
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnForgotMpin', false);
+            }
         }
     </script>
 </body>
