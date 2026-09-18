@@ -8,6 +8,7 @@
     <style>
         .hidden-view { display: none !important; }
         .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+        .btn-locked { pointer-events: none !important; opacity: 0.6 !important; cursor: not-allowed !important; }
         .active-press:active { transform: scale(0.97); }
     </style>
 </head>
@@ -32,7 +33,7 @@
             <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-28 object-cover">
             <div class="p-3 text-center relative pt-7">
                 <div class="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden bg-[#800020] p-1 flex items-center justify-center">
-                    <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Suman Jewellers Logo" class="w-full h-full object-contain">
+                    <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Logo" class="w-full h-full object-contain">
                 </div>
                 <h1 class="text-lg font-black text-slate-900 uppercase">Golden Rose Magic</h1>
                 <p class="text-xs font-semibold text-amber-700 tracking-wider">For Easy Jewellery Purchase (11 Months)</p>
@@ -167,7 +168,6 @@
         const config = {
             name: "Suman Jewellers",
             upiVpa: "vyapar.178552646415@hdfcbank",
-            // Point this to your GRMS Deployment URL
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             schemeMonths: 11
         };
@@ -346,7 +346,7 @@
             document.getElementById('paymentModal').classList.add('hidden-view');
         }
 
-        // DUPLICATE PREVENTED SUBMISSION FUNCTION
+        // DUPLICATE PREVENTED SUBMISSION FUNCTION (LOCKS BUTTON INSTANTLY)
         function submitPaymentData() {
             if (isSubmitting) return;
 
@@ -357,6 +357,7 @@
             const btn = document.getElementById('submitPayBtn');
             isSubmitting = true;
             btn.disabled = true;
+            btn.classList.add('btn-locked');
             btn.innerText = "Submitting...";
 
             showLoader("Submitting Proof...");
@@ -396,6 +397,7 @@
                 .finally(() => {
                     isSubmitting = false;
                     btn.disabled = false;
+                    btn.classList.remove('btn-locked');
                     btn.innerText = "Submit Proof";
                 });
             };
