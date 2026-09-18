@@ -34,14 +34,16 @@
     <!-- Main Container -->
     <div class="max-w-md mx-auto w-full p-3 sm:p-4 flex-1">
         
-        <!-- Brand Header With Maroon Circle White Logo -->
         <header class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4">
             <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-28 object-cover">
             <div class="p-3 text-center relative pt-7">
                 <div class="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full border-2 border-white shadow-md overflow-hidden bg-[#800020] p-1 flex items-center justify-center">
                     <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Logo" class="w-full h-full object-contain">
                 </div>
-                <h1 class="text-lg font-black text-slate-900 uppercase tracking-tight">Golden Rose Magic</h1>
+                <div class="flex items-center justify-center gap-1.5">
+                    <h1 class="text-lg font-black text-slate-900 uppercase tracking-tight">Golden Rose Magic</h1>
+                    <span id="syncIndicatorDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse hidden-view" title="Live Auto-Sync Active"></span>
+                </div>
                 <p class="text-xs font-semibold text-amber-700 tracking-wider">For Easy Jewellery Purchase (11 Months)</p>
                 <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-0.5">Suman Jewellers Scheme Portal</p>
             </div>
@@ -49,8 +51,6 @@
 
         <!-- Auth Screens Container -->
         <div id="authContainer">
-            
-            <!-- Step 1: Mobile Phone Input -->
             <div id="phoneSection" class="bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-4 space-y-3.5">
                 <div>
                     <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Registered Mobile Number</label>
@@ -61,7 +61,6 @@
                 </button>
             </div>
 
-            <!-- Step 2A: MPIN Login -->
             <div id="mpinLoginSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-4 space-y-3.5">
                 <div class="text-center">
                     <h3 class="text-sm font-bold text-slate-900 uppercase">Enter Security MPIN</h3>
@@ -73,26 +72,9 @@
                 </button>
                 <div class="flex justify-between items-center text-xs">
                     <button onclick="resetToPhoneStep()" class="text-slate-400 font-semibold cursor-pointer">← Change Phone</button>
-                    <button onclick="requestCurrentMpinRecovery()" id="btnForgotMpin" class="text-amber-800 font-bold cursor-pointer">Forgot MPIN?</button>
                 </div>
             </div>
 
-            <!-- Step 2B: Initial MPIN Setup -->
-            <div id="firstTimeMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-5 border border-slate-200 mb-4 space-y-3.5">
-                <div class="text-center">
-                    <h3 class="text-sm font-bold text-slate-900 uppercase">Set Security 4-Digit MPIN</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Create a 4-digit PIN for instant access.</p>
-                </div>
-                <div class="space-y-2">
-                    <input type="password" id="firstMpin1" maxlength="4" placeholder="Enter 4-Digit MPIN" class="w-full py-2 bg-slate-50 border rounded-xl text-center font-mono text-lg font-bold">
-                    <input type="password" id="firstMpin2" maxlength="4" placeholder="Confirm 4-Digit MPIN" class="w-full py-2 bg-slate-50 border rounded-xl text-center font-mono text-lg font-bold">
-                </div>
-                <button onclick="saveInitialMpin()" id="btnSaveInitMpin" class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl text-xs uppercase cursor-pointer active-press">
-                    Save &amp; Open Passbook
-                </button>
-            </div>
-
-            <!-- Multi-Account Selector -->
             <div id="multiKittyWrapper" class="hidden-view bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3 mb-4">
                 <label class="text-[11px] font-bold text-amber-900 uppercase block">Multiple Accounts Linked</label>
                 <select id="kittySelect" class="w-full px-3 py-2 bg-white border rounded-xl text-sm font-semibold"></select>
@@ -100,7 +82,7 @@
             </div>
         </div>
 
-        <!-- Passbook Container -->
+        <!-- Passbook Container (Instant CDN + Live 2s Synced) -->
         <div id="passbookContainer" class="hidden-view space-y-4">
             
             <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-sm space-y-3 border border-slate-800">
@@ -127,13 +109,11 @@
                 </div>
             </div>
 
-            <!-- Accumulated Gold Weight Card -->
             <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm text-center">
                 <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Accumulated 22K Gold Weight</span>
                 <span id="lblTotalGoldGrams" class="text-2xl font-black text-slate-900 font-mono">0.000 g</span>
             </div>
 
-            <!-- Maturity Card -->
             <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
                 <div class="flex justify-between items-center border-b pb-2">
                     <span class="text-xs font-bold text-slate-900 uppercase">Maturity Projection (11M)</span>
@@ -145,7 +125,6 @@
                 </div>
             </div>
 
-            <!-- 11 Months Grid -->
             <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
                 <div class="flex justify-between items-center mb-3">
                     <p class="text-[11px] font-bold text-slate-700 uppercase">Installment Ledger (11 Months)</p>
@@ -156,77 +135,25 @@
         </div>
     </div>
 
-    <!-- Payment Modal -->
-    <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-6 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-xl border space-y-3.5 animate-popup">
-            <div class="flex justify-between items-start border-b pb-2">
-                <div>
-                    <h3 class="text-sm font-bold text-slate-900 uppercase">GRMS Installment Payment</h3>
-                    <p id="modalMonthTarget" class="text-xs text-slate-500">Month Allocation</p>
-                </div>
-                <button onclick="closePaymentModal()" class="text-slate-400 font-bold text-lg cursor-pointer">&times;</button>
-            </div>
-
-            <a id="btnUpiAppPay" href="#" class="w-full bg-slate-900 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center cursor-pointer active-press">
-                Pay Via UPI App (GPay / PhonePe / Paytm)
-            </a>
-
-            <div class="space-y-3">
-                <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Transaction UTR / Reference</label>
-                    <input type="text" id="utrInput" placeholder="12-Digit Bank UTR" class="w-full px-3 py-2 border rounded-lg text-xs font-mono">
-                </div>
-                <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Payment Slip Screenshot</label>
-                    <input type="file" id="fileInput" accept="image/*" class="w-full text-xs text-slate-500">
-                </div>
-            </div>
-
-            <div class="flex gap-2 pt-2 border-t">
-                <button onclick="closePaymentModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-xl text-xs font-bold cursor-pointer active-press">Cancel</button>
-                <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 bg-amber-700 text-white py-2.5 rounded-xl text-xs font-bold uppercase cursor-pointer active-press">Submit Proof</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Client Controller Script -->
+    <!-- Client Controller Script (Instant Edge Read + 2s Delta Sync) -->
     <script>
         const config = {
             name: "Suman Jewellers",
-            upiVpa: "vyapar.178552646415@hdfcbank",
+            githubDataUrl: "https://myjewellerykitty.github.io/sumanjewellers/data.json",
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             schemeMonths: 11
         };
 
-        let currentSelectedMonth = null;
         let globalCustomerPhone = null;
         let globalAcCode = null;
         let globalMonthlyAmount = 0;
         let globalWinCount = 0;
-        let isProcessing = false;
+        let currentPassbookVersion = null;
 
         async function directFetch(url, options = {}) {
             const response = await fetch(url, options);
             const text = await response.text();
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                return { success: false, error: text };
-            }
-        }
-
-        function setBtnLock(btnId, lock, text = "") {
-            const btn = document.getElementById(btnId);
-            if (!btn) return;
-            if (lock) {
-                btn.classList.add('btn-locked');
-                btn.setAttribute('data-prev-text', btn.innerText);
-                if (text) btn.innerText = text;
-            } else {
-                btn.classList.remove('btn-locked');
-                const prev = btn.getAttribute('data-prev-text');
-                if (prev) btn.innerText = prev;
-            }
+            try { return JSON.parse(text); } catch (e) { return { success: false, error: text }; }
         }
 
         function showLoader(msg) {
@@ -241,43 +168,44 @@
         async function handlePhoneContinue() {
             const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
             if (rawPhone.length !== 10) return alert("Enter valid 10-digit mobile number.");
-            if (isProcessing) return;
 
-            isProcessing = true;
-            setBtnLock('btnPhoneContinue', true, 'Checking...');
-            showLoader("Accessing Account Records...");
+            showLoader("Checking Account...");
             globalCustomerPhone = rawPhone;
 
+            // 1. Instant check from GitHub Edge CDN (<100ms)
+            try {
+                const ghRes = await directFetch(`${config.githubDataUrl}?_t=${Date.now()}`);
+                if (ghRes && ghRes.members) {
+                    const match = ghRes.members.find(m => m.phone === rawPhone);
+                    if (match) {
+                        hideLoader();
+                        document.getElementById('phoneSection').classList.add('hidden-view');
+                        document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
+                        document.getElementById('mpinLoginSection').classList.remove('hidden-view');
+                        return;
+                    }
+                }
+            } catch (e) {}
+
+            // 2. Fallback to live server check
             try {
                 const res = await directFetch(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}`);
                 hideLoader();
                 if (!res.success) return alert(res.error || "Account not found.");
                 document.getElementById('phoneSection').classList.add('hidden-view');
-
-                if (res.hasMpin) {
-                    document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
-                    document.getElementById('mpinLoginSection').classList.remove('hidden-view');
-                } else {
-                    document.getElementById('firstTimeMpinSection').classList.remove('hidden-view');
-                }
+                document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
+                document.getElementById('mpinLoginSection').classList.remove('hidden-view');
             } catch (err) {
                 hideLoader();
                 alert("Connection error.");
-            } finally {
-                isProcessing = false;
-                setBtnLock('btnPhoneContinue', false);
             }
         }
 
         async function verifyMpinAndProceed() {
             const mpin = document.getElementById('mpinInput').value.trim();
             if (mpin.length !== 4) return alert("Enter 4-digit MPIN.");
-            if (isProcessing) return;
 
-            isProcessing = true;
-            setBtnLock('btnVerifyMpin', true, 'Verifying...');
             showLoader("Verifying Security MPIN...");
-
             try {
                 const res = await directFetch(`${config.scriptUrl}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}`);
                 hideLoader();
@@ -287,34 +215,6 @@
                 } else alert("Incorrect MPIN.");
             } catch (err) {
                 hideLoader();
-            } finally {
-                isProcessing = false;
-                setBtnLock('btnVerifyMpin', false);
-            }
-        }
-
-        async function saveInitialMpin() {
-            const p1 = document.getElementById('firstMpin1').value.trim();
-            const p2 = document.getElementById('firstMpin2').value.trim();
-            if (p1.length !== 4 || p1 !== p2) return alert("MPIN must be 4 digits and match.");
-            if (isProcessing) return;
-
-            isProcessing = true;
-            setBtnLock('btnSaveInitMpin', true, 'Saving...');
-            showLoader("Setting Security PIN...");
-
-            try {
-                const res = await directFetch(`${config.scriptUrl}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}`);
-                hideLoader();
-                if (res.success) {
-                    document.getElementById('firstTimeMpinSection').classList.add('hidden-view');
-                    fetchUserProfile(globalCustomerPhone);
-                } else alert("Could not save MPIN.");
-            } catch (err) {
-                hideLoader();
-            } finally {
-                isProcessing = false;
-                setBtnLock('btnSaveInitMpin', false);
             }
         }
 
@@ -346,25 +246,43 @@
             loadPassbook(globalCustomerPhone, ac);
         }
 
-        async function loadPassbook(phone, acCode) {
+        async function loadPassbook(phone, acCode, isSilent = false) {
             const cacheKey = `cust_pb_${phone}_${acCode}`;
             const cached = localStorage.getItem(cacheKey);
 
-            if (cached) {
+            if (cached && !isSilent) {
                 renderPassbookUI(JSON.parse(cached));
-            } else {
+            } else if (!isSilent) {
                 showLoader("Opening Customer Passbook...");
             }
 
             try {
                 const data = await directFetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}`);
                 hideLoader();
-                if (!data || !data.profile) return alert("Unable to load profile.");
+                if (!data || !data.profile) return;
+                currentPassbookVersion = data.version;
                 localStorage.setItem(cacheKey, JSON.stringify(data));
                 renderPassbookUI(data);
+
+                document.getElementById('syncIndicatorDot').classList.remove('hidden-view');
+
+                if (!window.custSyncTimer) {
+                    window.custSyncTimer = setInterval(checkCustomerDeltaSync, 2000);
+                }
             } catch (err) {
                 hideLoader();
             }
+        }
+
+        async function checkCustomerDeltaSync() {
+            if (!globalCustomerPhone || !globalAcCode) return;
+            try {
+                const res = await directFetch(`${config.scriptUrl}?action=checkVersion`);
+                if (res.success && res.version && currentPassbookVersion && res.version !== currentPassbookVersion) {
+                    currentPassbookVersion = res.version;
+                    loadPassbook(globalCustomerPhone, globalAcCode, true);
+                }
+            } catch (e) {}
         }
 
         function renderPassbookUI(data) {
@@ -410,113 +328,26 @@
 
             const grid = document.getElementById('gridWrapper');
             grid.innerHTML = "";
-            const nextPayable = data.nextPayableMonth || 1;
 
             for (let m = 1; m <= config.schemeMonths; m++) {
                 let tx = txs.find(t => Number(t.month) === m);
-                let label = "Pay Now", style = "", action = "";
+                let label = "Unpaid", style = "bg-slate-100 border text-slate-400 opacity-60";
 
                 if (tx && tx.status === "Paid") {
                     label = "Paid";
                     style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[10px]";
+                } else if (tx && tx.status === "Reviewed") {
+                    label = "Reviewed";
+                    style = "bg-blue-50 border border-blue-200 text-blue-800 font-bold text-[10px]";
                 } else if (tx && tx.status === "Pending") {
                     label = "In Review";
                     style = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse font-semibold";
-                } else if (m === nextPayable && !data.isSchemeComplete) {
-                    label = "Pay Now";
-                    style = "bg-slate-900 text-white font-bold cursor-pointer active-press";
-                    action = `onclick="openPaymentModal(${m})"`;
-                } else {
-                    label = "Locked";
-                    style = "bg-slate-100 border text-slate-400 cursor-not-allowed opacity-60";
                 }
 
-                grid.innerHTML += `<div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[46px]"><span class="text-[9px] uppercase text-slate-400 font-mono">M-${m}</span>${label}</div>`;
+                grid.innerHTML += `<div class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[46px]"><span class="text-[9px] uppercase text-slate-400 font-mono">M-${m}</span>${label}</div>`;
             }
 
             document.getElementById('passbookContainer').classList.remove('hidden-view');
-        }
-
-        function openPaymentModal(m) {
-            currentSelectedMonth = m;
-            document.getElementById('utrInput').value = "";
-            document.getElementById('fileInput').value = "";
-            document.getElementById('modalMonthTarget').innerText = `Submitting Installment for Month ${m} (Amount: ₹${globalMonthlyAmount.toLocaleString('en-IN')})`;
-
-            const note = encodeURIComponent(`GRMS M${m} - ${globalAcCode}`);
-            document.getElementById('btnUpiAppPay').href = `upi://pay?pa=${config.upiVpa}&pn=${encodeURIComponent(config.name)}&am=${globalMonthlyAmount}&cu=INR&tn=${note}`;
-            document.getElementById('paymentModal').classList.remove('hidden-view');
-        }
-
-        function closePaymentModal() {
-            document.getElementById('paymentModal').classList.add('hidden-view');
-        }
-
-        async function submitPaymentData() {
-            if (isProcessing) return;
-
-            const utr = document.getElementById('utrInput').value.trim();
-            const fileBox = document.getElementById('fileInput').files[0];
-            if (!utr && !fileBox) return alert("Enter UTR number or attach payment receipt.");
-
-            isProcessing = true;
-            setBtnLock('submitPayBtn', true, 'Submitting...');
-            showLoader("Submitting Deposit Proof...");
-
-            const executePost = async (base64) => {
-                const payload = {
-                    action: "submit",
-                    id: globalCustomerPhone,
-                    acCode: globalAcCode,
-                    month: currentSelectedMonth,
-                    amount: globalMonthlyAmount,
-                    utr: utr || "Online Deposit",
-                    screenshotUrl: base64 || ""
-                };
-
-                try {
-                    const res = await directFetch(config.scriptUrl, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify(payload)
-                    });
-                    hideLoader();
-                    closePaymentModal();
-                    if (res && res.success) {
-                        alert("Installment submitted successfully!");
-                    } else {
-                        alert(res.error || "Notice: Proof received.");
-                    }
-                    localStorage.removeItem(`cust_pb_${globalCustomerPhone}_${globalAcCode}`);
-                    loadPassbook(globalCustomerPhone, globalAcCode);
-                } catch (err) {
-                    hideLoader();
-                    closePaymentModal();
-                    loadPassbook(globalCustomerPhone, globalAcCode);
-                } finally {
-                    isProcessing = false;
-                    setBtnLock('submitPayBtn', false);
-                }
-            };
-
-            if (fileBox) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let w = img.width, h = img.height;
-                        if (w > 260) { h = Math.round((h * 260) / w); w = 260; }
-                        canvas.width = w; canvas.height = h;
-                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        executePost(canvas.toDataURL('image/jpeg', 0.25));
-                    };
-                    img.src = reader.result;
-                };
-                reader.readAsDataURL(fileBox);
-            } else {
-                executePost("");
-            }
         }
 
         function resetToPhoneStep() {
@@ -531,25 +362,6 @@
             document.getElementById('phoneInput').value = "";
             globalCustomerPhone = null;
             globalAcCode = null;
-        }
-
-        async function requestCurrentMpinRecovery() {
-            if (isProcessing) return;
-            isProcessing = true;
-            setBtnLock('btnForgotMpin', true, 'Sending...');
-            showLoader("Sending MPIN to Email...");
-
-            try {
-                const res = await directFetch(`${config.scriptUrl}?action=requestOldMpin&phone=${globalCustomerPhone}`);
-                hideLoader();
-                if (res.success) alert("MPIN sent to registered email: " + res.email);
-                else alert(res.error || "No registered email found.");
-            } catch (err) {
-                hideLoader();
-            } finally {
-                isProcessing = false;
-                setBtnLock('btnForgotMpin', false);
-            }
         }
     </script>
 </body>
