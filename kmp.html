@@ -43,6 +43,55 @@
         </div>
     </div>
 
+    <!-- ==================================================================== -->
+    <!-- DEDICATED QUEUE ACTION MODAL (ASKS GOLD RATE FIRST BEFORE CONFIRM) -->
+    <!-- ==================================================================== -->
+    <div id="queueActionModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <div>
+                    <h3 class="text-sm font-black text-slate-900 uppercase">Process Queue Payment</h3>
+                    <p class="text-xs text-slate-500 font-medium">Input 22K Gold Rate Before Ledger Confirmation</p>
+                </div>
+                <button onclick="closeQueueActionModal()" class="text-slate-400 hover:text-black font-bold text-lg cursor-pointer">&times;</button>
+            </div>
+
+            <!-- Summary of Selected Transaction -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+                <div class="flex justify-between"><span class="text-slate-500">Member:</span><strong id="qaMemberName" class="text-slate-900 font-bold">-</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Account Code:</span><strong id="qaAcCode" class="font-mono text-slate-900">-</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Installment Month:</span><strong id="qaMonth" class="font-mono text-slate-900">-</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Remittance Amount:</span><strong id="qaAmount" class="font-mono text-amber-900 text-sm font-black">₹0</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">UTR / Reference:</span><span id="qaUtr" class="font-mono text-slate-600 font-semibold">-</span></div>
+            </div>
+
+            <!-- Mandatory Gold Rate Input -->
+            <div class="space-y-1.5">
+                <label class="font-bold text-slate-700 text-xs block">
+                    Today's 22K Gold Rate for 10 Grams (INR) <span class="text-rose-600">*</span>
+                </label>
+                <input type="number" id="qaGoldRateInput" oninput="calculateQueueModalGrams()" placeholder="e.g. 68500" class="w-full px-3 py-2.5 bg-amber-50/60 border border-amber-300 rounded-xl font-mono text-sm font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <p class="text-[10px] text-slate-500">Mandatory: Used to calculate and credit fractional 22K bullion weight into passbook.</p>
+            </div>
+
+            <!-- Live Calculated Grams Output -->
+            <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-center">
+                <span class="text-[10px] uppercase font-bold text-amber-800 block">Calculated 22K Gold Allocation</span>
+                <span id="qaCalculatedGrams" class="text-base font-mono font-black text-amber-950">0.000 Grams</span>
+            </div>
+
+            <!-- Double Actions -->
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t">
+                <button type="button" onclick="submitQueueAction('review')" id="btnQueueReview" class="bg-amber-700 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
+                    Set Rate (Reviewed)
+                </button>
+                <button type="button" onclick="submitQueueAction('approve')" id="btnQueueApprove" class="bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
+                    Confirm &amp; Approve (Paid)
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit Customer & MPIN Modal (Super Admin Exclusive) -->
     <div id="editCustomerModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-6 px-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup">
@@ -427,6 +476,7 @@
                     </div>
                 </div>
 
+                <!-- Ledger Records Table -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="p-4 border-b flex justify-between items-center bg-slate-50">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Scheme Ledger (11 Months)</h3>
@@ -452,7 +502,7 @@
             </section>
         </div>
 
-        <!-- Tab 2: Queue (EXACT VIEW FROM USER SCREENSHOT) -->
+        <!-- Tab 2: Queue (EXACT VIEW WITH IN-PAGE MODAL) -->
         <div id="tabContentApprovals" class="space-y-4 hidden-view">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -555,6 +605,7 @@
         let selectedMemberData = null;
         let allMembersFeed = [];
         let isSubmitting = false;
+        let activeQueueItem = null;
 
         function showLoader(msg = "Communicating...") {
             document.getElementById('kmpLoaderMsg').innerText = msg;
@@ -924,8 +975,8 @@
 
             const payload = {
                 action: "superAdminEditCustomer",
-                adminUser: sessionUser.username,
-                adminPin: sessionUser.pin || "1108",
+                adminUser: (sessionUser && sessionUser.username) ? sessionUser.username : "Admin",
+                adminPin: (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108",
                 oldPhone: selectedMemberData.phone,
                 oldAcCode: selectedMemberData.acCode,
                 newPhone: document.getElementById('editCustPhone').value.trim(),
@@ -997,8 +1048,8 @@
 
             const payload = {
                 action: "superAdminEditTransaction",
-                adminUser: sessionUser.username,
-                adminPin: sessionUser.pin || "1108",
+                adminUser: (sessionUser && sessionUser.username) ? sessionUser.username : "Admin",
+                adminPin: (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108",
                 row: document.getElementById('editTxRow').value,
                 amount: document.getElementById('editTxAmount').value,
                 status: document.getElementById('editTxStatus').value,
@@ -1265,7 +1316,7 @@
         }
 
         // ======================================================================
-        // FIXED QUEUE LOADING AND 100% WORKING ACTION BUTTONS
+        // 100% WORKING QUEUE VERIFICATION & MODAL ACTION LOGIC
         // ======================================================================
         function loadKmpPendingApprovals() {
             showLoader("Accessing Queue...");
@@ -1281,7 +1332,6 @@
                 tbody.innerHTML = "";
                 list.forEach(i => {
                     const rawAmount = parseFloat(i.amount) || 0;
-                    const cleanRate = parseFloat(i.rateApplied) || 0;
                     tbody.innerHTML += `
                         <tr>
                             <td class="p-3 font-bold">${i.name}<br><span class="text-[10px] font-mono text-slate-400">+91 ${i.phone}</span></td>
@@ -1291,8 +1341,8 @@
                             <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status === 'Reviewed' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${i.status}</span></td>
                             <td class="p-3 font-mono text-slate-600">${i.utr || '-'}</td>
                             <td class="p-3 text-center whitespace-nowrap">
-                                <button onclick="reviewTxPrompt(${i.row}, ${rawAmount})" class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press">Rate Review</button>
-                                <button onclick="approveTxDirect(${i.row}, ${cleanRate}, ${rawAmount})" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press ml-1">Approve</button>
+                                <button onclick='openQueueModal(${JSON.stringify(i)}, "review")' class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press">Rate Review</button>
+                                <button onclick='openQueueModal(${JSON.stringify(i)}, "approve")' class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press ml-1">Approve</button>
                             </td>
                         </tr>
                     `;
@@ -1304,24 +1354,67 @@
             });
         }
 
-        // WORKABLE RATE REVIEW FUNCTION
-        function reviewTxPrompt(row, amount) {
-            const defaultRate = "68500";
-            const rateInput = prompt(`Enter Today's 22K Gold Rate for 10 Grams for Installment ₹${Number(amount).toLocaleString('en-IN')}:`, defaultRate);
-            if (!rateInput) return;
+        // OPENS MODAL (NO WINDOW.PROMPT - 100% RELIABLE IN IFRAMES)
+        function openQueueModal(item, mode) {
+            activeQueueItem = item;
+            document.getElementById('qaMemberName').innerText = item.name;
+            document.getElementById('qaAcCode').innerText = item.acCode;
+            document.getElementById('qaMonth').innerText = "Month " + item.month;
+            document.getElementById('qaAmount').innerText = "₹" + (parseFloat(item.amount) || 0).toLocaleString('en-IN');
+            document.getElementById('qaUtr').innerText = item.utr || "Counter Cash";
 
-            const cleanRate = parseFloat(rateInput.replace(/[^0-9.]/g, ''));
-            if (isNaN(cleanRate) || cleanRate <= 0) {
-                alert("Please enter a valid numeric 22K gold rate.");
+            // Prefill previous rate or standard default
+            const initialRate = parseFloat(item.rateApplied) || 68500;
+            document.getElementById('qaGoldRateInput').value = initialRate;
+            calculateQueueModalGrams();
+
+            if (mode === 'approve') {
+                document.getElementById('btnQueueApprove').classList.add('ring-2', 'ring-amber-500');
+                document.getElementById('btnQueueReview').classList.remove('ring-2', 'ring-amber-500');
+            } else {
+                document.getElementById('btnQueueReview').classList.add('ring-2', 'ring-amber-500');
+                document.getElementById('btnQueueApprove').classList.remove('ring-2', 'ring-amber-500');
+            }
+
+            document.getElementById('queueActionModal').classList.remove('hidden-view');
+        }
+
+        function closeQueueActionModal() {
+            document.getElementById('queueActionModal').classList.add('hidden-view');
+            activeQueueItem = null;
+        }
+
+        function calculateQueueModalGrams() {
+            if (!activeQueueItem) return;
+            const amt = parseFloat(activeQueueItem.amount) || 0;
+            const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value) || 0;
+            if (rate10g > 0 && amt > 0) {
+                const grams = (amt / (rate10g / 10)).toFixed(3);
+                document.getElementById('qaCalculatedGrams').innerText = grams + " Grams";
+            } else {
+                document.getElementById('qaCalculatedGrams').innerText = "0.000 Grams";
+            }
+        }
+
+        // SUBMITS RATE REVIEW OR FINAL APPROVE FROM THE MODAL
+        function submitQueueAction(actionType) {
+            if (!activeQueueItem) return;
+            const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value);
+
+            if (isNaN(rate10g) || rate10g <= 0) {
+                alert("Please enter a valid 22K Gold Rate for 10 grams (e.g. 68500).");
                 return;
             }
 
-            showLoader("Posting Rate Review...");
+            const isApprove = (actionType === 'approve');
+            const actionName = isApprove ? "approve" : "reviewTransaction";
+
+            showLoader(isApprove ? "Committing Ledger Approval..." : "Setting Reviewed Rate...");
 
             const payload = {
-                action: "reviewTransaction",
-                row: row,
-                rateUsed: cleanRate,
+                action: actionName,
+                row: activeQueueItem.row,
+                rateUsed: rate10g,
                 authUser: (sessionUser && sessionUser.username) ? sessionUser.username : "Admin",
                 authPin: (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108"
             };
@@ -1335,67 +1428,17 @@
             .then(res => {
                 hideLoader();
                 if (res && res.success) {
-                    alert(`Reviewed Successfully! ${res.gramsBooked} grams allocated.`);
+                    closeQueueActionModal();
+                    uiAlert("Success", isApprove ? `Payment Approved! ${res.gramsBooked}g gold credited.` : `Rate Reviewed! ${res.gramsBooked}g locked.`);
                     loadKmpPendingApprovals();
                     if (typeof loadLiveDirectoryFeed === "function") loadLiveDirectoryFeed();
                 } else {
-                    alert("Error: " + (res.error || "Review failed."));
+                    uiAlert("Error", res.error || "Action failed.");
                 }
             })
             .catch(err => {
                 hideLoader();
-                alert("Network Error: Could not connect to backend server.");
-            });
-        }
-
-        // WORKABLE APPROVE FUNCTION (Handles direct approve even if Pending!)
-        function approveTxDirect(row, currentRate, amount) {
-            let finalRate = parseFloat(currentRate);
-
-            // Agar pehle se rate review nahi hua hai (Pending state), toh rate yahin mang lega
-            if (isNaN(finalRate) || finalRate <= 0) {
-                const promptRate = prompt(`Rate not yet set for this installment (₹${Number(amount).toLocaleString('en-IN')}).\nEnter Today's 22K Gold Rate for 10 Grams:`, "68500");
-                if (!promptRate) return;
-                finalRate = parseFloat(promptRate.replace(/[^0-9.]/g, ''));
-                if (isNaN(finalRate) || finalRate <= 0) {
-                    alert("Valid gold rate is required to approve.");
-                    return;
-                }
-            } else {
-                if (!confirm(`Commit this transaction with 22K Rate ₹${finalRate} to customer passbook?`)) {
-                    return;
-                }
-            }
-
-            showLoader("Authorizing Ledger Booking...");
-
-            const payload = {
-                action: "approve",
-                row: row,
-                rateUsed: finalRate,
-                authUser: (sessionUser && sessionUser.username) ? sessionUser.username : "Admin",
-                authPin: (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108"
-            };
-
-            fetch(config.scriptUrl, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            })
-            .then(r => r.json())
-            .then(res => {
-                hideLoader();
-                if (res && res.success) {
-                    alert(`Transaction Approved! ${res.gramsBooked} grams credited.`);
-                    loadKmpPendingApprovals();
-                    if (typeof loadLiveDirectoryFeed === "function") loadLiveDirectoryFeed();
-                } else {
-                    alert("Error: " + (res.error || "Approval failed."));
-                }
-            })
-            .catch(err => {
-                hideLoader();
-                alert("Network Error: Could not connect to backend server.");
+                uiAlert("Network Error", "Could not communicate with backend server.");
             });
         }
 
