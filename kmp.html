@@ -80,11 +80,11 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="font-bold text-slate-600 block mb-1">Monthly Plan (INR)</label>
-                        <input type="number" id="editCustAmount" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono">
+                        <input type="number" id="editCustAmount" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono font-bold">
                     </div>
                     <div>
                         <label class="font-bold text-slate-600 block mb-1">Account Code</label>
-                        <input type="text" id="editCustAc" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono">
+                        <input type="text" id="editCustAc" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono font-bold">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
@@ -103,7 +103,7 @@
                 </div>
                 <div class="flex gap-2 pt-2 border-t">
                     <button type="button" onclick="closeEditCustomerModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-xl font-bold active-press cursor-pointer">Cancel</button>
-                    <button type="submit" id="btnSaveCustModal" class="w-1/2 bg-[#800020] text-white py-2.5 rounded-xl font-bold uppercase active-press cursor-pointer">Save Changes</button>
+                    <button type="submit" id="btnSaveCustModal" class="w-1/2 bg-amber-800 text-white py-2.5 rounded-xl font-bold uppercase active-press cursor-pointer">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -111,7 +111,7 @@
 
     <!-- Edit Transaction Row Modal (Super Admin Exclusive) -->
     <div id="editTxModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50">
-        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
+        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full">
             <div class="flex justify-between items-center border-b pb-2 mb-3">
                 <h3 class="text-sm font-black text-slate-900 uppercase">Super Admin: Edit Transaction</h3>
                 <button onclick="closeEditTxModal()" class="text-slate-400 hover:text-black font-bold cursor-pointer">&times;</button>
@@ -131,7 +131,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="font-bold text-slate-600 block mb-1">22K Gold Rate Applied (10g)</label>
+                    <label class="font-bold text-slate-600 block mb-1">22K Gold Rate Applied</label>
                     <input type="number" id="editTxRate" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono font-bold">
                 </div>
                 <div>
@@ -152,7 +152,7 @@
 
     <!-- Manual Counter Deposit Modal -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
+        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full">
             <div class="flex justify-between items-center border-b pb-2 mb-3">
                 <h3 class="text-sm font-black text-slate-900 uppercase">Post Counter Deposit</h3>
                 <button onclick="closeManualDepositModal()" class="text-slate-400 hover:text-black font-bold cursor-pointer">&times;</button>
@@ -171,7 +171,7 @@
                         <option value="8">Month 8</option>
                         <option value="9">Month 9</option>
                         <option value="10">Month 10</option>
-                        <option value="11">Month 11 (Final Settlement)</option>
+                        <option value="11">Month 11 (Final)</option>
                     </select>
                 </div>
                 <div>
@@ -194,7 +194,7 @@
         </div>
     </div>
 
-    <!-- Add / Enroll Member Modal -->
+    <!-- Enroll Member Modal -->
     <div id="addMemberModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup">
             <div class="flex justify-between items-center border-b pb-2 mb-3">
@@ -208,7 +208,7 @@
                 </div>
                 <div>
                     <label class="font-bold text-slate-700 block mb-1">Full Legal Name *</label>
-                    <input type="text" id="newName" required class="w-full px-3 py-2 border rounded-lg">
+                    <input type="text" id="newName" required class="w-full px-3 py-2 border rounded-lg font-bold">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -317,7 +317,7 @@
                 </form>
             </div>
 
-            <!-- Complete Navigation Bar -->
+            <!-- Complete Navigation Bar Matching Reference -->
             <div id="headerNavBar" class="hidden-view flex items-center gap-1.5 flex-wrap w-full md:w-auto justify-start md:justify-end">
                 <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Directory</button>
                 <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Queue</button>
@@ -326,7 +326,7 @@
                 <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-[#c25e00] hover:bg-[#a34f00] text-white font-bold px-3 py-1.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
                     + ENROLL
                 </button>
-                <!-- 12+1 Admin Panel Direct Link -->
+                <!-- 12+1 Admin Panel Direct Link Requested -->
                 <a href="https://myjewellerykitty.github.io/sumanjewellerskitty/kmp" target="_blank" class="bg-[#007042] hover:bg-[#005a35] border border-emerald-600 text-white font-bold text-xs px-3 py-1.5 rounded-xl transition-all cursor-pointer active-press flex items-center gap-1">
                     <span>12+1 Admin Panel</span>
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
@@ -346,15 +346,18 @@
     <!-- Main Workspace -->
     <main id="kmpMainView" class="hidden-view max-w-6xl mx-auto p-4 sm:p-6 space-y-5 flex-1 w-full">
         
-        <!-- Tab 1: Directory -->
+        <!-- Tab 1: Directory & LIVE MEMBER FEED -->
         <div id="tabContentMembers" class="space-y-4">
+            
+            <!-- Quick Search Bar -->
             <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm">
                 <div class="flex justify-between items-center mb-2">
-                    <label class="text-xs font-bold uppercase text-slate-600">Member Search</label>
+                    <label class="text-xs font-bold uppercase text-slate-600">Live Member Search &amp; Filter</label>
+                    <button onclick="loadLiveDirectoryFeed()" class="text-xs font-bold text-amber-800 cursor-pointer active-press">Refresh Live Directory</button>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="searchInput" placeholder="Search by Mobile, Token, Name, or Account Code..." class="flex-1 px-3.5 py-2.5 bg-slate-50 border rounded-xl text-xs font-medium font-mono focus:outline-none">
-                    <button onclick="searchMemberRecords()" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase cursor-pointer active-press">Search</button>
+                    <input type="text" id="searchInput" oninput="filterLiveDirectoryTable()" placeholder="Type to instantly filter by Mobile, Token, Name, or Account Code..." class="flex-1 px-3.5 py-2.5 bg-slate-50 border rounded-xl text-xs font-medium font-mono focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    <button onclick="searchMemberRecords()" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase cursor-pointer active-press">Lookup</button>
                 </div>
                 <div id="multiKittySelectorWrapper" class="hidden-view mt-3 p-3 bg-slate-50 border rounded-xl space-y-2">
                     <p class="text-xs font-bold text-slate-800 uppercase">Multiple Active Accounts Associated</p>
@@ -362,13 +365,42 @@
                 </div>
             </section>
 
-            <!-- Active Profile -->
+            <!-- LIVE DIRECTORY TABLE (All Customers Feed) -->
+            <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b flex justify-between items-center bg-slate-50">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Live Active Members Register</h3>
+                        <p class="text-[10px] text-slate-500">Real-time database feed of all registered GRMS accounts</p>
+                    </div>
+                    <span id="lblTotalMemberCount" class="text-xs font-mono font-bold text-slate-700">0 Registered</span>
+                </div>
+                <div class="overflow-x-auto max-h-[380px]">
+                    <table class="w-full text-left text-xs">
+                        <thead class="sticky top-0 bg-slate-100 shadow-xs z-10">
+                            <tr class="text-slate-600 border-b">
+                                <th class="p-3">Member Details</th>
+                                <th class="p-3">Account</th>
+                                <th class="p-3">Plan Amount</th>
+                                <th class="p-3">Paid Months</th>
+                                <th class="p-3">Total Deposited</th>
+                                <th class="p-3">Wins</th>
+                                <th class="p-3 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liveDirectoryTableBody" class="divide-y divide-slate-100">
+                            <tr><td colspan="7" class="p-6 text-center text-slate-400 font-medium">Connecting to live database feed...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Active Selected Profile Statement Section -->
             <section id="memberProfileSection" class="hidden-view space-y-4">
                 <div class="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-800">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4 mb-4">
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded uppercase">GRMS Plan Active</span>
+                                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded uppercase">Selected Profile</span>
                                 <span id="viewWinBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">-</span>
                             </div>
                             <h2 id="viewCustName" class="text-lg sm:text-xl font-bold mt-1 uppercase">-</h2>
@@ -527,16 +559,16 @@
         <p class="font-bold uppercase tracking-wider text-slate-700 text-[10px]">Suman Jewellers &bull; Operations Console</p>
     </footer>
 
-    <!-- Client Script -->
+    <!-- Complete Client Controller -->
     <script>
         const config = {
-            // Point to your GRMS Google Apps Script deployment URL
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             schemeMonths: 11
         };
 
         let sessionUser = null;
         let selectedMemberData = null;
+        let allMembersFeed = [];
         let isSubmitting = false;
 
         function showLoader(msg = "Communicating...") {
@@ -563,6 +595,7 @@
             if (stored) {
                 sessionUser = JSON.parse(stored);
                 renderUserUI();
+                loadLiveDirectoryFeed();
             }
         });
 
@@ -581,6 +614,7 @@
                     sessionUser.pin = pin;
                     sessionStorage.setItem('kmpSession_GRMS', JSON.stringify(sessionUser));
                     renderUserUI();
+                    loadLiveDirectoryFeed();
                 } else {
                     alert(res.error || "Invalid username or PIN.");
                 }
@@ -630,9 +664,80 @@
             if (activeContent) activeContent.classList.remove('hidden-view');
             if (activeBtn) activeBtn.className = "bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press";
 
+            if (tab === 'members') loadLiveDirectoryFeed();
             if (tab === 'approvals') loadKmpPendingApprovals();
             if (tab === 'defaulters') loadOverdueDefaulters();
             if (tab === 'users') loadStaffUsersList();
+        }
+
+        // --- LIVE DIRECTORY FEED FUNCTION ---
+        function loadLiveDirectoryFeed() {
+            showLoader("Syncing Live Directory...");
+            fetch(`${config.scriptUrl}?action=getAllMembers&_ts=${Date.now()}`)
+            .then(r => r.json())
+            .then(res => {
+                hideLoader();
+                if (res && res.success) {
+                    allMembersFeed = res.members || [];
+                    document.getElementById('lblTotalMemberCount').innerText = `${allMembersFeed.length} Registered Members`;
+                    renderLiveDirectoryTable(allMembersFeed);
+                }
+            })
+            .catch(() => hideLoader());
+        }
+
+        function renderLiveDirectoryTable(membersList) {
+            const tbody = document.getElementById('liveDirectoryTableBody');
+            if (!membersList || membersList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No active members found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            membersList.forEach(m => {
+                const isSuperAdmin = (sessionUser && sessionUser.role === "Admin");
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="p-3">
+                            <strong class="text-slate-900">${m.name}</strong>
+                            <div class="text-[10px] font-mono text-slate-500">+91 ${m.phone}</div>
+                        </td>
+                        <td class="p-3 font-mono font-bold text-slate-800">
+                            ${m.acCode}
+                            <div class="text-[10px] font-normal text-slate-400 font-mono">${m.customerId}</div>
+                        </td>
+                        <td class="p-3 font-mono font-bold text-slate-900">₹${Number(m.monthlyAmount).toLocaleString('en-IN')}</td>
+                        <td class="p-3"><span class="bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold px-2 py-0.5 rounded text-[10px]">${m.paidMonths || 0} / 11 M</span></td>
+                        <td class="p-3 font-mono font-bold text-amber-900">₹${Number(m.totalDeposited || 0).toLocaleString('en-IN')}</td>
+                        <td class="p-3 font-bold ${m.winCount > 0 ? 'text-emerald-700' : 'text-slate-400'}">${m.winCount || 0} Wins</td>
+                        <td class="p-3 text-center space-x-1">
+                            <button onclick='loadMemberLedger(${JSON.stringify(m)})' class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1 rounded-lg text-[10px] cursor-pointer active-press">
+                                Statement
+                            </button>
+                            ${isSuperAdmin ? `
+                                <button onclick='quickEditMemberFromTable(${JSON.stringify(m)})' class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2 py-1 rounded-lg text-[10px] cursor-pointer active-press">
+                                    Edit MPIN
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterLiveDirectoryTable() {
+            const val = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!val) {
+                renderLiveDirectoryTable(allMembersFeed);
+                return;
+            }
+            const filtered = allMembersFeed.filter(m => 
+                m.name.toLowerCase().includes(val) ||
+                m.phone.includes(val) ||
+                m.acCode.toLowerCase().includes(val) ||
+                m.customerId.toLowerCase().includes(val)
+            );
+            renderLiveDirectoryTable(filtered);
         }
 
         function searchMemberRecords() {
@@ -734,11 +839,17 @@
                     }
                 }
                 document.getElementById('memberProfileSection').classList.remove('hidden-view');
+                document.getElementById('memberProfileSection').scrollIntoView({ behavior: 'smooth' });
             })
             .catch(() => hideLoader());
         }
 
-        // --- Enroll New Member Modal & Submissions ---
+        function quickEditMemberFromTable(m) {
+            selectedMemberData = m;
+            openSuperAdminCustomerModal();
+        }
+
+        // --- Enroll New Member ---
         function openAddMemberModal() {
             document.getElementById('newPhone').value = "";
             document.getElementById('newName').value = "";
@@ -783,8 +894,9 @@
             .then(res => {
                 hideLoader();
                 if (res && res.success) {
-                    uiAlert("Success", "New member registered successfully in plain database.");
+                    uiAlert("Success", "New member registered successfully.");
                     closeAddMemberModal();
+                    loadLiveDirectoryFeed();
                 } else {
                     uiAlert("Error", res.error || "Enrollment failed.");
                 }
@@ -860,6 +972,7 @@
                     selectedMemberData.name = payload.newName;
                     selectedMemberData.monthlyAmount = payload.newAmount;
                     selectedMemberData.mpin = payload.newMpin;
+                    loadLiveDirectoryFeed();
                     loadMemberLedger(selectedMemberData);
                 } else {
                     uiAlert("Error", res.error || "Update failed.");
@@ -995,6 +1108,7 @@
                     uiAlert("Notice", res.error || "Duplicate or rejected transaction.");
                 }
                 loadMemberLedger(selectedMemberData);
+                loadLiveDirectoryFeed();
             })
             .catch(() => {
                 hideLoader();
@@ -1021,6 +1135,7 @@
                     uiAlert("Updated", `Event wins set to ${wins}.`);
                     selectedMemberData.winCount = wins;
                     loadMemberLedger(selectedMemberData);
+                    loadLiveDirectoryFeed();
                 } else {
                     uiAlert("Error", res.error || "Failed to update wins.");
                 }
@@ -1040,6 +1155,7 @@
                 if (res.success) {
                     uiAlert("Deleted", "Member record successfully deleted.");
                     document.getElementById('memberProfileSection').classList.add('hidden-view');
+                    loadLiveDirectoryFeed();
                 } else uiAlert("Error", res.error);
             })
             .catch(() => hideLoader());
@@ -1249,6 +1365,7 @@
                 if (res.success) {
                     uiAlert("Committed", "Transaction successfully booked into passbook.");
                     loadKmpPendingApprovals();
+                    loadLiveDirectoryFeed();
                 } else uiAlert("Error", res.error);
             })
             .catch(() => hideLoader());
