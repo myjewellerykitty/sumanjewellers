@@ -501,7 +501,7 @@
         </div>
     </div>
 
-    <!-- CLIENT ZERO-DELAY DIRECT ENGINE -->
+    <!-- CLIENT CONTROLLER SCRIPT (INSTANT LOCAL RENDERING) -->
     <script>
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
@@ -513,7 +513,6 @@
         let activeConfirmResolver = null;
         let isProcessing = false;
 
-        // Zero-Lag Direct Network Request
         async function directFetch(url, options = {}) {
             const response = await fetch(url, options);
             return await response.json();
@@ -647,46 +646,91 @@
         }
 
         function refreshCurrentLedger() {
-            if (selectedMemberData) loadMemberLedger(selectedMemberData);
-            else if (document.getElementById('searchInput').value.trim()) searchMemberRecords();
+            if (selectedMemberData) {
+                localStorage.removeItem(`kmp_pb_${selectedMemberData.phone}_${selectedMemberData.acCode}`);
+                loadMemberLedger(selectedMemberData);
+            } else if (document.getElementById('searchInput').value.trim()) {
+                searchMemberRecords();
+            }
         }
 
         async function searchMemberRecords() {
             const raw = document.getElementById('searchInput').value.trim();
             if (!raw) return uiAlert("Search", "Enter search query.");
             if (isProcessing) return;
+
+            const cacheKey = `kmp_search_${raw.toLowerCase()}`;
+            const cached = localStorage.getItem(cacheKey);
+
+            if (cached) {
+                const res = JSON.parse(cached);
+                if (res.results && res.results.length === 1) {
+                    loadMemberLedger(res.results[0]);
+                } else if (res.results && res.results.length > 1) {
+                    renderSearchPills(res.results);
+                }
+            } else {
+                showLoader("Scanning Ledger Database...");
+            }
+
             isProcessing = true;
             setBtnLock('btnSearch', true, 'Searching...');
-            showLoader("Scanning Ledger Database...");
 
             try {
                 const res = await directFetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(raw)}`);
                 hideLoader();
                 if (!res || !res.results || res.results.length === 0) return uiAlert("Search", "No accounts found.");
+                localStorage.setItem(cacheKey, JSON.stringify(res));
+
                 if (res.results.length === 1) {
                     loadMemberLedger(res.results[0]);
                 } else {
-                    const pills = document.getElementById('kittySelectionPills');
-                    pills.innerHTML = "";
-                    res.results.forEach(m => {
-                        pills.innerHTML += `<button onclick='loadMemberLedger(${JSON.stringify(m)})' class="bg-white border text-slate-800 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer active-press">A/C: ${m.acCode} (${m.name})</button>`;
-                    });
-                    document.getElementById('multiKittySelectorWrapper').classList.remove('hidden-view');
+                    renderSearchPills(res.results);
                 }
             } catch (err) {
                 hideLoader();
-                uiAlert("Error", "Failed to search member records.");
+                if (!cached) uiAlert("Error", "Failed to search member records.");
             } finally {
                 isProcessing = false;
                 setBtnLock('btnSearch', false);
             }
         }
 
+        function renderSearchPills(results) {
+            const pills = document.getElementById('kittySelectionPills');
+            pills.innerHTML = "";
+            results.forEach(m => {
+                pills.innerHTML += `<button onclick='loadMemberLedger(${JSON.stringify(m)})' class="bg-white border text-slate-800 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer active-press">A/C: ${m.acCode} (${m.name})</button>`;
+            });
+            document.getElementById('multiKittySelectorWrapper').classList.remove('hidden-view');
+        }
+
         async function loadMemberLedger(member) {
             document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
             selectedMemberData = member;
-            showLoader("Synchronizing Ledger Records...");
 
+            const cacheKey = `kmp_pb_${member.phone}_${member.acCode}`;
+            const cached = localStorage.getItem(cacheKey);
+
+            // INSTANT RENDER FROM CACHE (0.05s)
+            if (cached) {
+                renderMemberLedgerUI(member, JSON.parse(cached));
+            } else {
+                showLoader("Synchronizing Ledger Records...");
+            }
+
+            try {
+                const res = await directFetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode)}`);
+                hideLoader();
+                if (!res || !res.profile) return uiAlert("Error", "Could not load profile ledger.");
+                localStorage.setItem(cacheKey, JSON.stringify(res));
+                renderMemberLedgerUI(member, res);
+            } catch (err) {
+                hideLoader();
+            }
+        }
+
+        function renderMemberLedgerUI(member, res) {
             document.getElementById('viewCustName').innerText = member.name;
             document.getElementById('viewCustPhone').innerText = "+91 " + member.phone;
             document.getElementById('viewCustId').innerText = member.customerId || "-";
@@ -702,64 +746,56 @@
                 document.getElementById('btnSuperAdminEditCust').classList.remove('hidden-view');
             }
 
-            try {
-                const res = await directFetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode)}`);
-                hideLoader();
-                if (!res || !res.profile) return uiAlert("Error", "Could not load profile ledger.");
+            const txs = res.transactions || [];
+            let paidCount = 0, totalDep = 0, totalGrams = 0;
 
-                const txs = res.transactions || [];
-                let paidCount = 0, totalDep = 0, totalGrams = 0;
-
-                txs.forEach(t => {
-                    if (t.status && t.status.toLowerCase() === "paid") {
-                        paidCount++;
-                        totalDep += parseFloat(t.amount) || 0;
-                        totalGrams += parseFloat(t.bookedGrams) || 0;
-                    }
-                });
-
-                document.getElementById('viewTotalBalance').innerText = "INR " + totalDep.toLocaleString('en-IN');
-                document.getElementById('viewTotalGoldGrams').innerText = totalGrams.toFixed(3) + " g";
-                document.getElementById('viewPaidRatio').innerText = `${paidCount} / ${config.schemeMonths} Complete`;
-
-                const mAmount = Number(member.monthlyAmount) || 0;
-                let prize = (wins === 1) ? 15000 : (wins === 2) ? 30000 : (wins >= 3) ? 45000 : (mAmount === 8000 ? 3000 : 2000);
-                document.getElementById('viewMaturityTotal').innerText = "INR " + ((11 * mAmount) + prize).toLocaleString('en-IN');
-
-                const tbody = document.getElementById('memberTxTableBody');
-                tbody.innerHTML = "";
-
-                for (let m = 1; m <= config.schemeMonths; m++) {
-                    const rowData = txs.find(t => Number(t.month) === m);
-                    if (rowData) {
-                        const isSuperAdmin = (sessionUser && sessionUser.role === "Admin");
-                        const editBtn = isSuperAdmin ? `<button onclick='openEditTxModal(${JSON.stringify(rowData)})' class="bg-slate-200 text-slate-800 font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">Edit</button>` : "-";
-
-                        tbody.innerHTML += `
-                            <tr>
-                                <td class="p-2.5 sm:p-3 font-semibold text-slate-800">Month ${m}</td>
-                                <td class="p-2.5 sm:p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${rowData.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${rowData.status.toUpperCase()}</span></td>
-                                <td class="p-2.5 sm:p-3 font-mono font-bold text-slate-900">INR ${Number(rowData.amount).toLocaleString('en-IN')}</td>
-                                <td class="p-2.5 sm:p-3 font-mono text-slate-600">${rowData.rate ? 'INR ' + Number(rowData.rate).toLocaleString('en-IN') : '-'}</td>
-                                <td class="p-2.5 sm:p-3 font-mono font-bold text-amber-900">${(Number(rowData.bookedGrams)||0).toFixed(3)} g</td>
-                                <td class="p-2.5 sm:p-3 font-mono text-slate-500">${rowData.utr || 'Counter Deposit'}</td>
-                                <td class="p-2.5 sm:p-3 text-center">${editBtn}</td>
-                            </tr>
-                        `;
-                    } else {
-                        tbody.innerHTML += `
-                            <tr class="text-slate-400">
-                                <td class="p-2.5 sm:p-3">Month ${m}</td>
-                                <td class="p-2.5 sm:p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-100">UNPAID</span></td>
-                                <td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 text-center">-</td>
-                            </tr>
-                        `;
-                    }
+            txs.forEach(t => {
+                if (t.status && t.status.toLowerCase() === "paid") {
+                    paidCount++;
+                    totalDep += parseFloat(t.amount) || 0;
+                    totalGrams += parseFloat(t.bookedGrams) || 0;
                 }
-                document.getElementById('memberProfileSection').classList.remove('hidden-view');
-            } catch (err) {
-                hideLoader();
+            });
+
+            document.getElementById('viewTotalBalance').innerText = "INR " + totalDep.toLocaleString('en-IN');
+            document.getElementById('viewTotalGoldGrams').innerText = totalGrams.toFixed(3) + " g";
+            document.getElementById('viewPaidRatio').innerText = `${paidCount} / ${config.schemeMonths} Complete`;
+
+            const mAmount = Number(member.monthlyAmount) || 0;
+            let prize = (wins === 1) ? 15000 : (wins === 2) ? 30000 : (wins >= 3) ? 45000 : (mAmount === 8000 ? 3000 : 2000);
+            document.getElementById('viewMaturityTotal').innerText = "INR " + ((11 * mAmount) + prize).toLocaleString('en-IN');
+
+            const tbody = document.getElementById('memberTxTableBody');
+            tbody.innerHTML = "";
+
+            for (let m = 1; m <= config.schemeMonths; m++) {
+                const rowData = txs.find(t => Number(t.month) === m);
+                if (rowData) {
+                    const isSuperAdmin = (sessionUser && sessionUser.role === "Admin");
+                    const editBtn = isSuperAdmin ? `<button onclick='openEditTxModal(${JSON.stringify(rowData)})' class="bg-slate-200 text-slate-800 font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">Edit</button>` : "-";
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-2.5 sm:p-3 font-semibold text-slate-800">Month ${m}</td>
+                            <td class="p-2.5 sm:p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${rowData.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${rowData.status.toUpperCase()}</span></td>
+                            <td class="p-2.5 sm:p-3 font-mono font-bold text-slate-900">INR ${Number(rowData.amount).toLocaleString('en-IN')}</td>
+                            <td class="p-2.5 sm:p-3 font-mono text-slate-600">${rowData.rate ? 'INR ' + Number(rowData.rate).toLocaleString('en-IN') : '-'}</td>
+                            <td class="p-2.5 sm:p-3 font-mono font-bold text-amber-900">${(Number(rowData.bookedGrams)||0).toFixed(3)} g</td>
+                            <td class="p-2.5 sm:p-3 font-mono text-slate-500">${rowData.utr || 'Counter Deposit'}</td>
+                            <td class="p-2.5 sm:p-3 text-center">${editBtn}</td>
+                        </tr>
+                    `;
+                } else {
+                    tbody.innerHTML += `
+                        <tr class="text-slate-400">
+                            <td class="p-2.5 sm:p-3">Month ${m}</td>
+                            <td class="p-2.5 sm:p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-100">UNPAID</span></td>
+                            <td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 font-mono">-</td><td class="p-2.5 sm:p-3 text-center">-</td>
+                        </tr>
+                    `;
+                }
             }
+            document.getElementById('memberProfileSection').classList.remove('hidden-view');
         }
 
         async function saveWinnerCount() {
@@ -776,6 +812,7 @@
                 if (res.success) {
                     uiAlert("Updated", `Participant draw wins successfully recorded as ${wins}.`);
                     selectedMemberData.winCount = wins;
+                    localStorage.removeItem(`kmp_pb_${selectedMemberData.phone}_${selectedMemberData.acCode}`);
                     loadMemberLedger(selectedMemberData);
                 } else uiAlert("Error", res.error || "Update failed.");
             } catch (err) {
@@ -855,6 +892,7 @@
                 if (res.success) {
                     closeManualDepositModal();
                     uiAlert("Committed", `Transaction booked successfully. ${res.grams} grams credited.`);
+                    localStorage.removeItem(`kmp_pb_${selectedMemberData.phone}_${selectedMemberData.acCode}`);
                     loadMemberLedger(selectedMemberData);
                 } else uiAlert("Error", res.error || "Failed to commit payment.");
             } catch (err) {
@@ -868,59 +906,68 @@
 
         async function loadKmpPendingApprovals() {
             if (isProcessing) return;
+
+            const cached = localStorage.getItem('kmp_queue_cache');
+            if (cached) renderQueueUI(JSON.parse(cached));
+            else showLoader("Accessing Verification Queue...");
+
             isProcessing = true;
             setBtnLock('btnRefreshQueue', true, 'Refreshing...');
-            showLoader("Accessing Verification Queue...");
 
             try {
                 const list = await directFetch(`${config.scriptUrl}?action=getData&id=all_pending`);
                 hideLoader();
-                const tbody = document.getElementById('kmpApprovalTableBody');
-                if (!list || list.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 font-bold">Verification queue cleared.</td></tr>`;
-                    return;
-                }
-                tbody.innerHTML = "";
-                list.forEach(item => {
-                    const isReviewed = (item.status || "").toLowerCase() === "reviewed";
-                    let actionHtml = `
-                        <button onclick="reviewTxPrompt(${item.row}, ${item.amount})" class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press">
-                            ${isReviewed ? 'Update 22K Rate' : 'Set 22K Rate'}
-                        </button>
-                    `;
-
-                    if (sessionUser && (sessionUser.role === "Admin" || sessionUser.canFinalApprove)) {
-                        actionHtml += `
-                            <button onclick="approveTxDirect(${item.row}, ${isReviewed})" class="bg-slate-900 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press ml-1">
-                                Final Approve
-                            </button>
-                        `;
-                    }
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="p-3">
-                                <div class="font-bold text-slate-900 uppercase">${item.name}</div>
-                                <div class="text-[11px] text-slate-500 font-mono">+91 ${item.phone}</div>
-                            </td>
-                            <td class="p-3 font-mono font-bold">${item.acCode}</td>
-                            <td class="p-3 font-bold text-slate-700">Month ${item.month}</td>
-                            <td class="p-3 font-bold text-slate-900 font-mono">INR ${Number(item.amount).toLocaleString('en-IN')}</td>
-                            <td class="p-3">
-                                <span class="px-2 py-0.5 rounded font-bold ${isReviewed ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${item.status}</span>
-                                ${item.bookedGrams ? `<div class="font-mono text-slate-600 mt-1">${item.bookedGrams}g @ INR ${item.rateApplied}</div>` : ''}
-                            </td>
-                            <td class="p-3 font-mono text-slate-600">${item.utr}</td>
-                            <td class="p-3 text-center whitespace-nowrap">${actionHtml}</td>
-                        </tr>
-                    `;
-                });
+                localStorage.setItem('kmp_queue_cache', JSON.stringify(list || []));
+                renderQueueUI(list || []);
             } catch (err) {
                 hideLoader();
             } finally {
                 isProcessing = false;
                 setBtnLock('btnRefreshQueue', false);
             }
+        }
+
+        function renderQueueUI(list) {
+            const tbody = document.getElementById('kmpApprovalTableBody');
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 font-bold">Verification queue cleared.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = "";
+            list.forEach(item => {
+                const isReviewed = (item.status || "").toLowerCase() === "reviewed";
+                let actionHtml = `
+                    <button onclick="reviewTxPrompt(${item.row}, ${item.amount})" class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press">
+                        ${isReviewed ? 'Update 22K Rate' : 'Set 22K Rate'}
+                    </button>
+                `;
+
+                if (sessionUser && (sessionUser.role === "Admin" || sessionUser.canFinalApprove)) {
+                    actionHtml += `
+                        <button onclick="approveTxDirect(${item.row}, ${isReviewed})" class="bg-slate-900 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press ml-1">
+                            Final Approve
+                        </button>
+                    `;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3">
+                            <div class="font-bold text-slate-900 uppercase">${item.name}</div>
+                            <div class="text-[11px] text-slate-500 font-mono">+91 ${item.phone}</div>
+                        </td>
+                        <td class="p-3 font-mono font-bold">${item.acCode}</td>
+                        <td class="p-3 font-bold text-slate-700">Month ${item.month}</td>
+                        <td class="p-3 font-bold text-slate-900 font-mono">INR ${Number(item.amount).toLocaleString('en-IN')}</td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded font-bold ${isReviewed ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${item.status}</span>
+                            ${item.bookedGrams ? `<div class="font-mono text-slate-600 mt-1">${item.bookedGrams}g @ INR ${item.rateApplied}</div>` : ''}
+                        </td>
+                        <td class="p-3 font-mono text-slate-600">${item.utr}</td>
+                        <td class="p-3 text-center whitespace-nowrap">${actionHtml}</td>
+                    </tr>
+                `;
+            });
         }
 
         async function reviewTxPrompt(row, amount) {
@@ -945,6 +992,7 @@
                 hideLoader();
                 if (res.success) {
                     uiAlert("Reviewed", `Allocated: ${res.gramsBooked} grams @ INR ${res.rateUsed}. Ready for final admin approval.`);
+                    localStorage.removeItem('kmp_queue_cache');
                     loadKmpPendingApprovals();
                 } else uiAlert("Error", res.error);
             } catch (err) {
@@ -981,6 +1029,7 @@
                 hideLoader();
                 if (res.success) {
                     uiAlert("Committed", `Transaction successfully booked. ${res.gramsBooked} grams permanently credited.`);
+                    localStorage.removeItem('kmp_queue_cache');
                     loadKmpPendingApprovals();
                 } else uiAlert("Error", res.error);
             } catch (err) {
@@ -990,36 +1039,21 @@
 
         async function loadOverdueDefaulters() {
             if (isProcessing) return;
+
+            const cached = localStorage.getItem('kmp_defaulters_cache');
+            if (cached) renderDefaultersUI(JSON.parse(cached));
+            else showLoader("Auditing Defaulters via Calendar Engine...");
+
             isProcessing = true;
             setBtnLock('btnRefreshDefaulters', true, 'Auditing...');
-            showLoader("Auditing Defaulters via Calendar Engine...");
 
             try {
                 const res = await directFetch(`${config.scriptUrl}?action=getOverdueDefaulters`);
                 hideLoader();
-                const tbody = document.getElementById('defaulterTableBody');
-                if (!res || !res.defaulters || res.defaulters.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">Audit Complete: Zero overdue accounts found.</td></tr>`;
-                    return;
+                if (res && res.defaulters) {
+                    localStorage.setItem('kmp_defaulters_cache', JSON.stringify(res.defaulters));
+                    renderDefaultersUI(res.defaulters);
                 }
-                tbody.innerHTML = "";
-                res.defaulters.forEach(d => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="p-3 font-semibold text-slate-900">
-                                <div>${d.name}</div>
-                                <div class="text-[11px] text-slate-500 font-mono">+91 ${d.phone}</div>
-                            </td>
-                            <td class="p-3 font-mono font-bold">${d.acCode}</td>
-                            <td class="p-3 font-mono text-slate-600">${d.doj}</td>
-                            <td class="p-3 font-bold">${d.overdueMonths.map(m => 'Month ' + m).join(', ')}</td>
-                            <td class="p-3 font-mono font-bold text-slate-900">INR ${d.totalDue.toLocaleString('en-IN')}</td>
-                            <td class="p-3 text-center">
-                                <a href="https://wa.me/91${d.phone}" target="_blank" class="bg-slate-900 text-white px-2.5 py-1 rounded text-xs font-semibold active-press">WhatsApp</a>
-                            </td>
-                        </tr>
-                    `;
-                });
             } catch (err) {
                 hideLoader();
             } finally {
@@ -1028,7 +1062,32 @@
             }
         }
 
-        // SUPER ADMIN PROFILE & MPIN EDIT
+        function renderDefaultersUI(defaulters) {
+            const tbody = document.getElementById('defaulterTableBody');
+            if (!defaulters || defaulters.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">Audit Complete: Zero overdue accounts found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = "";
+            defaulters.forEach(d => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-semibold text-slate-900">
+                            <div>${d.name}</div>
+                            <div class="text-[11px] text-slate-500 font-mono">+91 ${d.phone}</div>
+                        </td>
+                        <td class="p-3 font-mono font-bold">${d.acCode}</td>
+                        <td class="p-3 font-mono text-slate-600">${d.doj}</td>
+                        <td class="p-3 font-bold">${d.overdueMonths.map(m => 'Month ' + m).join(', ')}</td>
+                        <td class="p-3 font-mono font-bold text-slate-900">INR ${d.totalDue.toLocaleString('en-IN')}</td>
+                        <td class="p-3 text-center">
+                            <a href="https://wa.me/91${d.phone}" target="_blank" class="bg-slate-900 text-white px-2.5 py-1 rounded text-xs font-semibold active-press">WhatsApp</a>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
         function openSuperAdminCustomerModal() {
             if (!selectedMemberData) return;
             document.getElementById('editCustName').value = selectedMemberData.name;
@@ -1082,6 +1141,7 @@
                     selectedMemberData.name = payload.newName;
                     selectedMemberData.monthlyAmount = payload.newAmount;
                     selectedMemberData.mpin = payload.newMpin;
+                    localStorage.removeItem(`kmp_pb_${payload.oldPhone}_${payload.oldAcCode}`);
                     loadMemberLedger(selectedMemberData);
                 } else uiAlert("Error", res.error || "Update failed.");
             } catch (err) {
@@ -1092,7 +1152,6 @@
             }
         }
 
-        // SUPER ADMIN TRANSACTION ROW EDIT
         function openEditTxModal(tx) {
             document.getElementById('editTxRow').value = tx.row;
             document.getElementById('editTxAmount').value = tx.amount;
@@ -1134,6 +1193,7 @@
                 if (res.success) {
                     uiAlert("Success", "Transaction record permanently modified.");
                     closeEditTxModal();
+                    localStorage.removeItem(`kmp_pb_${selectedMemberData.phone}_${selectedMemberData.acCode}`);
                     loadMemberLedger(selectedMemberData);
                 } else uiAlert("Error", res.error || "Update rejected.");
             } catch (err) {
@@ -1195,6 +1255,7 @@
                 hideLoader();
                 if (res && res.success) {
                     uiAlert("Deleted", "Member record successfully deleted.");
+                    localStorage.removeItem(`kmp_pb_${selectedMemberData.phone}_${selectedMemberData.acCode}`);
                     document.getElementById('memberProfileSection').classList.add('hidden-view');
                 } else uiAlert("Error", res.error || "Unable to delete record.");
             } catch (err) {
