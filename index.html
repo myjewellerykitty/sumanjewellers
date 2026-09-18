@@ -25,7 +25,7 @@
             animation: bounceShort 0.35s ease-out;
         }
 
-        /* Desktop Interactive Precision Cursor */
+        /* Interactive Desktop Cursor */
         @media (hover: hover) and (pointer: fine) {
             * { cursor: none !important; }
             .cursor-dot {
@@ -60,6 +60,7 @@
             .cursor-dot, .cursor-ring { display: none !important; }
         }
 
+        /* Scroll Reveal Transitions */
         .reveal {
             opacity: 0;
             transform: translateY(18px);
@@ -82,7 +83,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- Interactive Desktop Cursor Elements -->
+    <!-- Interactive Desktop Cursor -->
     <div id="cursorDot" class="cursor-dot"></div>
     <div id="cursorRing" class="cursor-ring"></div>
 
@@ -92,7 +93,7 @@
             <div class="w-7 h-7 border-3 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow shrink-0"></div>
             <div>
                 <p id="loadingMessage" class="text-xs font-bold text-slate-900 uppercase tracking-wider">Syncing Passbook...</p>
-                <p class="text-[10px] text-slate-500 font-medium">Processing request directly via GitHub Edge</p>
+                <p class="text-[10px] text-slate-500 font-medium">Please wait while the server updates</p>
             </div>
         </div>
     </div>
@@ -100,21 +101,20 @@
     <!-- Main Container -->
     <div id="customerView" class="max-w-md mx-auto w-full p-3 sm:p-4 flex-1">
         <div>
-            <!-- Brand Header With Official White Suman Jewellers Logo in Circular Frame -->
+            <!-- Brand Header With Maroon Circle White Logo -->
             <header class="reveal bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4 sm:mb-5">
                 <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-28 sm:h-32 object-cover object-center">
                 <div class="p-3 sm:p-4 text-center relative pt-7 sm:pt-8">
-                    <!-- Circular Badge for White Background Logo Asset -->
-                    <div class="absolute -top-7 sm:-top-8 left-1/2 -translate-x-1/2 w-15 h-15 sm:w-16 sm:h-16 rounded-full border-2 border-amber-400 shadow-md overflow-hidden bg-white p-1 flex items-center justify-center">
-                        <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Suman Jewellers Logo" class="w-full h-full object-contain">
+                    <div class="absolute -top-7 sm:-top-8 left-1/2 -translate-x-1/2 w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-white shadow-md overflow-hidden bg-[#800020] p-1.5 flex items-center justify-center">
+                        <img src="https://i.pinimg.com/736x/64/54/15/645415db220d053544ae62e6bea65d45.jpg" alt="Suman Jewellers Logo" class="w-full h-full object-contain">
                     </div>
                     <h1 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight uppercase">Golden Rose Magic</h1>
-                    <p class="text-xs font-semibold text-amber-700 tracking-wider mt-0.5">11-Month Lucky Draw Jewellery Savings</p>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-0.5 sm:mt-1">Suman Jewellers Portal</p>
+                    <p class="text-xs font-semibold text-amber-700 tracking-wider mt-0.5">For Easy Jewellery Purchase (11 Months)</p>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-0.5 sm:mt-1">Suman Jewellers Scheme Portal</p>
                 </div>
             </header>
 
-            <!-- Authentication Screen -->
+            <!-- Auth Container -->
             <div id="authContainer">
                 <!-- Mobile Phone Step -->
                 <div id="phoneSection" class="reveal bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
@@ -143,7 +143,7 @@
                     <div>
                         <input type="password" id="mpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-600">
                     </div>
-                    <button onclick="verifyMpinAndProceed()" id="btnVerifyMpin" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer active-press">
+                    <button onclick="verifyMpinAndProceed()" id="btnVerifyMpin" class="w-full bg-[#800020] hover:bg-[#650019] text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer active-press">
                         Verify MPIN &amp; Open Passbook
                     </button>
                     <div class="flex justify-between items-center text-xs pt-1">
@@ -228,7 +228,7 @@
                     </div>
                 </div>
 
-                <!-- Maturity Projection Card (Calculated Client-Side / Zero Sheet Formula) -->
+                <!-- Maturity Projection Card -->
                 <div id="rewardCard" class="reveal bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                         <span class="text-[11px] sm:text-xs font-bold text-slate-900 uppercase tracking-wider">Maturity Projection (11 Months)</span>
@@ -279,7 +279,7 @@
         </div>
     </div>
 
-    <!-- Scheme Terms Modal -->
+    <!-- Terms & Conditions Modal -->
     <div id="termsModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-xl border border-slate-200 max-h-[85vh] flex flex-col justify-between animate-bounce-short">
             <div>
@@ -326,7 +326,7 @@
         </div>
     </div>
 
-    <!-- Payment Submission Modal (Client Anti-Duplicate Submission Lock) -->
+    <!-- Payment Submission Modal (Anti-Duplicate In-Flight Lock) -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto animate-bounce-short">
             <div class="border-b border-slate-100 pb-3 mb-3.5 flex justify-between items-start">
@@ -345,17 +345,17 @@
                 <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1"></div>
             </div>
 
-            <!-- 1-Click Direct UPI App Button -->
+            <!-- Direct UPI App Button -->
             <a id="btnUpiAppPay" href="#" class="w-full mb-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active-press">
                 Pay Via UPI App (GPay / PhonePe / Paytm)
             </a>
 
-            <!-- Bank Details Toggle -->
+            <!-- Mode Toggle -->
             <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-3.5 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold py-2 rounded-xl transition-all cursor-pointer text-center active-press">
                 Switch to Bank Account Credentials
             </button>
 
-            <!-- UPI QR Code View -->
+            <!-- Showroom UPI QR Box -->
             <div id="channelUpiView" class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col items-center justify-center mb-3.5">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Scan Official Showroom QR Code</p>
                 <div class="w-32 h-32 sm:w-36 sm:h-36 bg-white p-2 rounded-lg border border-slate-200 shadow-sm flex items-center justify-center">
@@ -377,7 +377,7 @@
                 </div>
             </div>
 
-            <!-- Proof Submission Fields -->
+            <!-- Proof Upload Fields -->
             <div class="space-y-3 mb-4">
                 <div>
                     <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Transaction UTR / Reference</label>
@@ -391,21 +391,21 @@
 
             <div class="flex gap-2">
                 <button onclick="closePaymentModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-200 cursor-pointer active-press">Cancel</button>
-                <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 bg-amber-700 hover:bg-amber-800 text-white py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider cursor-pointer active-press">Submit Proof</button>
+                <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 bg-[#800020] hover:bg-[#650019] text-white py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider cursor-pointer active-press">Submit Proof</button>
             </div>
         </div>
     </div>
 
-    <!-- Standardized Luxury Footer -->
+    <!-- Standardized Luxury Multi-Column Footer -->
     <footer class="reveal bg-slate-900 text-slate-300 border-t border-slate-800 mt-10 pt-10 pb-8 text-xs">
         <div class="max-w-4xl mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                 
-                <!-- Col 1: Brand Info With Official White Logo Badge -->
+                <!-- Col 1: Brand Info With White Logo on Maroon Circle Badge -->
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-full border border-amber-400/40 p-0.5 flex items-center justify-center shrink-0 bg-white shadow-xs">
-                            <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Logo" class="w-full h-full object-contain">
+                        <div class="w-8 h-8 rounded-full bg-[#800020] border border-amber-400/40 p-1 flex items-center justify-center shrink-0 shadow-sm">
+                            <img src="https://i.pinimg.com/736x/64/54/15/645415db220d053544ae62e6bea65d45.jpg" alt="Logo" class="w-full h-full object-contain">
                         </div>
                         <span class="font-bold tracking-tight uppercase text-white">Suman Jewellers</span>
                     </div>
@@ -431,7 +431,7 @@
                     </ul>
                 </div>
 
-                <!-- Col 3: Scheme Portals -->
+                <!-- Col 3: Kitty Schemes -->
                 <div class="space-y-2.5">
                     <h5 class="text-[11px] font-bold text-white uppercase tracking-wider">Kitty Portals</h5>
                     <ul class="space-y-2 text-[11px]">
@@ -441,7 +441,7 @@
                     </ul>
                 </div>
 
-                <!-- Col 4: Direct WhatsApp Chat -->
+                <!-- Col 4: Connect & Socials -->
                 <div class="space-y-3">
                     <h5 class="text-[11px] font-bold text-white uppercase tracking-wider">Connect With Us</h5>
                     <p class="text-[11px] text-slate-400">Direct Showroom Assistance:</p>
@@ -463,6 +463,7 @@
                 </div>
             </div>
 
+            <!-- Bottom Copyright -->
             <div class="border-t border-slate-800 pt-5 flex flex-col sm:flex-row justify-between items-center gap-2 text-[10px] text-slate-500">
                 <p>&copy; 2026 Suman Jewellers. All rights reserved.</p>
                 <p class="tracking-wider uppercase font-semibold">An Ofbuzz Product &bull; Ofbuzz Technology</p>
@@ -470,12 +471,12 @@
         </div>
     </footer>
 
-    <!-- Client-Side Zero Formula Passbook Controller -->
+    <!-- App Engine Client Logic -->
     <script>
         const config = {
             name: "Suman Jewellers",
             upiVpa: "vyapar.178552646415@hdfcbank",
-            // Set your active GRMS Apps Script Web App Deployment URL here
+            // Point to your GRMS Google Apps Script deployment URL
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             schemeMonths: 11
         };
@@ -503,7 +504,7 @@
             const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
             if (rawPhone.length !== 10) return alert("Please enter a valid 10-digit mobile number.");
 
-            showLoader("Verifying Mobile...");
+            showLoader("Checking Account...");
             globalCustomerPhone = rawPhone;
 
             fetch(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
@@ -634,7 +635,7 @@
                 document.getElementById('custLiveBalance').innerText = "₹" + (paidCount * globalMonthlyAmount).toLocaleString('en-IN');
                 document.getElementById('lblTotalGoldGrams').innerText = gramsTotal.toFixed(3) + " g";
 
-                // PURE CLIENT-SIDE MATURITY & PRIZE COMPUTATION (Zero Sheet Formulas)
+                // Pure Client-Side In-Memory Maturity & Prize Math (Zero Formulas)
                 const badge = document.getElementById('badgeWinnerStatus');
                 let prize = 0;
                 if (globalWinCount > 0) {
@@ -723,7 +724,7 @@
             }
         }
 
-        // DUPLICATE PREVENTED PROOF SUBMISSION
+        // DUPLICATE PREVENTED PROOF SUBMISSION (Single In-Flight Execution)
         function submitPaymentData() {
             if (isSubmitting) return;
 
