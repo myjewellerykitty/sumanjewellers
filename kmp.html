@@ -52,6 +52,27 @@
         </div>
     </div>
 
+    <!-- QUEUE AUTHORIZATION MODAL (Replaces broken browser prompt) -->
+    <div id="queueActionModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50">
+        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <div>
+                    <h3 id="qaModalTitle" class="text-sm font-black text-slate-900 uppercase">Authorize Installment</h3>
+                    <p id="qaModalSubtitle" class="text-[11px] text-slate-500 font-mono mt-0.5">-</p>
+                </div>
+                <button onclick="closeQueueActionModal()" class="text-slate-400 hover:text-black font-bold text-base">&times;</button>
+            </div>
+            <div>
+                <label class="font-bold text-slate-700 block mb-1 text-xs">Today's 22K Gold Rate for 10 Grams (INR) *</label>
+                <input type="number" id="qaGoldRateInput" placeholder="e.g. 68500" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono font-bold">
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeQueueActionModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-xl text-xs font-bold cursor-pointer active-press">Cancel</button>
+                <button id="btnCommitQueueAction" onclick="commitQueueAction()" class="w-1/2 bg-amber-700 text-white py-2.5 rounded-xl text-xs font-bold uppercase cursor-pointer active-press">Commit</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Super Admin Edit Profile & MPIN Modal -->
     <div id="editCustomerModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-6 px-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup">
@@ -501,7 +522,7 @@
         </div>
     </div>
 
-    <!-- CLIENT CONTROLLER SCRIPT (INSTANT LOCAL RENDERING) -->
+    <!-- CLIENT CONTROLLER SCRIPT -->
     <script>
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
@@ -513,9 +534,18 @@
         let activeConfirmResolver = null;
         let isProcessing = false;
 
+        // Pending Queue Action State
+        let activeQueueItem = null;
+        let activeQueueAction = null; // 'review' or 'approve'
+
         async function directFetch(url, options = {}) {
             const response = await fetch(url, options);
-            return await response.json();
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                return { success: false, error: text };
+            }
         }
 
         function setBtnLock(btnId, lock, text = "") {
@@ -712,7 +742,6 @@
             const cacheKey = `kmp_pb_${member.phone}_${member.acCode}`;
             const cached = localStorage.getItem(cacheKey);
 
-            // INSTANT RENDER FROM CACHE (0.05s)
             if (cached) {
                 renderMemberLedgerUI(member, JSON.parse(cached));
             } else {
@@ -904,6 +933,7 @@
             }
         }
 
+        // QUEUE LOGIC WITH MODAL (FIXED)
         async function loadKmpPendingApprovals() {
             if (isProcessing) return;
 
@@ -934,17 +964,19 @@
                 return;
             }
             tbody.innerHTML = "";
-            list.forEach(item => {
+            window.activeQueueList = list;
+
+            list.forEach((item, idx) => {
                 const isReviewed = (item.status || "").toLowerCase() === "reviewed";
                 let actionHtml = `
-                    <button onclick="reviewTxPrompt(${item.row}, ${item.amount})" class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press">
+                    <button onclick="openQueueActionModalByIndex(${idx}, 'review')" class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press">
                         ${isReviewed ? 'Update 22K Rate' : 'Set 22K Rate'}
                     </button>
                 `;
 
                 if (sessionUser && (sessionUser.role === "Admin" || sessionUser.canFinalApprove)) {
                     actionHtml += `
-                        <button onclick="approveTxDirect(${item.row}, ${isReviewed})" class="bg-slate-900 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press ml-1">
+                        <button onclick="openQueueActionModalByIndex(${idx}, 'approve')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press ml-1">
                             Final Approve
                         </button>
                     `;
@@ -970,70 +1002,82 @@
             });
         }
 
-        async function reviewTxPrompt(row, amount) {
-            const rate = prompt(`Enter Today's 22K Gold Rate for 10 Grams for Installment INR ${amount}:`, "68500");
-            if (!rate || isNaN(rate) || parseFloat(rate) <= 0) {
-                return alert("A valid 22K gold rate is mandatory to review!");
+        function openQueueActionModalByIndex(idx, actionType) {
+            if (!window.activeQueueList || !window.activeQueueList[idx]) return;
+            activeQueueItem = window.activeQueueList[idx];
+            activeQueueAction = actionType;
+
+            const isReviewed = (activeQueueItem.status || "").toLowerCase() === "reviewed";
+            const amtStr = Number(activeQueueItem.amount).toLocaleString('en-IN');
+            
+            document.getElementById('qaModalSubtitle').innerText = `${activeQueueItem.name} | Month ${activeQueueItem.month} | INR ${amtStr}`;
+            document.getElementById('qaGoldRateInput').value = activeQueueItem.rateApplied || "68500";
+
+            if (actionType === 'review') {
+                document.getElementById('qaModalTitle').innerText = isReviewed ? "Update 22K Rate Benchmark" : "Set 22K Gold Benchmark";
+                document.getElementById('btnCommitQueueAction').innerText = "Record Benchmark";
+                document.getElementById('btnCommitQueueAction').className = "w-1/2 bg-amber-700 text-white py-2.5 rounded-xl text-xs font-bold uppercase cursor-pointer active-press";
+            } else {
+                document.getElementById('qaModalTitle').innerText = "Final Ledger Audit & Approve";
+                document.getElementById('btnCommitQueueAction').innerText = "Commit & Credit";
+                document.getElementById('btnCommitQueueAction').className = "w-1/2 bg-slate-900 text-white py-2.5 rounded-xl text-xs font-bold uppercase cursor-pointer active-press";
             }
 
-            showLoader("Recording 22K Benchmark...");
-            try {
-                const res = await directFetch(config.scriptUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({
-                        action: "reviewTransaction",
-                        row: row,
-                        rateUsed: parseFloat(rate),
-                        authUser: sessionUser.username,
-                        authPin: sessionUser.pin
-                    })
-                });
-                hideLoader();
-                if (res.success) {
-                    uiAlert("Reviewed", `Allocated: ${res.gramsBooked} grams @ INR ${res.rateUsed}. Ready for final admin approval.`);
-                    localStorage.removeItem('kmp_queue_cache');
-                    loadKmpPendingApprovals();
-                } else uiAlert("Error", res.error);
-            } catch (err) {
-                hideLoader();
-            }
+            document.getElementById('queueActionModal').classList.remove('hidden-view');
         }
 
-        async function approveTxDirect(row, isReviewed) {
-            let rateToUse = 0;
-            if (!isReviewed) {
-                const ratePrompt = prompt("This payment has not been reviewed. Enter 22K Gold Rate for 10 Grams to approve:", "68500");
-                if (!ratePrompt || isNaN(ratePrompt) || parseFloat(ratePrompt) <= 0) {
-                    return alert("Cannot approve payment without a valid 22K gold rate!");
-                }
-                rateToUse = parseFloat(ratePrompt);
+        function closeQueueActionModal() {
+            document.getElementById('queueActionModal').classList.add('hidden-view');
+            activeQueueItem = null;
+            activeQueueAction = null;
+        }
+
+        async function commitQueueAction() {
+            if (!activeQueueItem || isProcessing) return;
+
+            const rate = parseFloat(document.getElementById('qaGoldRateInput').value);
+            if (!rate || isNaN(rate) || rate <= 0) {
+                return uiAlert("Validation", "Valid 22K gold rate is mandatory.");
             }
 
-            const confirmed = await uiConfirm("Approve", "Commit transaction to customer passbook?");
-            if (!confirmed) return;
+            isProcessing = true;
+            setBtnLock('btnCommitQueueAction', true, 'Processing...');
+            showLoader(activeQueueAction === 'review' ? "Recording 22K Benchmark..." : "Posting Authorization to Ledger...");
 
-            showLoader("Posting Authorization to Ledger...");
+            const isReview = (activeQueueAction === 'review');
+            const payload = {
+                action: isReview ? "reviewTransaction" : "finalApprove",
+                row: activeQueueItem.row,
+                rateUsed: rate,
+                authUser: sessionUser.username,
+                authPin: sessionUser.pin
+            };
+
             try {
                 const res = await directFetch(config.scriptUrl, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({
-                        action: "finalApprove",
-                        row: row,
-                        rateUsed: rateToUse,
-                        authUser: sessionUser.username,
-                        authPin: sessionUser.pin
-                    })
+                    body: JSON.stringify(payload)
                 });
                 hideLoader();
+                closeQueueActionModal();
                 if (res.success) {
-                    uiAlert("Committed", `Transaction successfully booked. ${res.gramsBooked} grams permanently credited.`);
+                    uiAlert("Success", isReview 
+                        ? `Allocated: ${res.gramsBooked} grams @ INR ${res.rateUsed}. Ready for final audit.`
+                        : `Transaction booked. ${res.gramsBooked} grams permanently credited to passbook.`
+                    );
                     localStorage.removeItem('kmp_queue_cache');
                     loadKmpPendingApprovals();
-                } else uiAlert("Error", res.error);
+                } else {
+                    uiAlert("Error", res.error || "Action failed.");
+                }
             } catch (err) {
                 hideLoader();
+                closeQueueActionModal();
+                uiAlert("Network Error", "Timeout executing operation.");
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnCommitQueueAction', false);
             }
         }
 
