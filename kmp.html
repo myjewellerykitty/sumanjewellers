@@ -22,9 +22,12 @@
 
     <!-- Top Loading Indicator -->
     <div id="kmpLoader" class="hidden-view fixed top-3 right-3 z-50">
-        <div class="bg-slate-900 text-white rounded-xl py-2 px-4 shadow-2xl border border-slate-700 flex items-center gap-2.5 animate-popup">
+        <div class="bg-slate-900 text-white rounded-xl py-2.5 px-4 shadow-2xl border border-slate-700 flex items-center gap-3 animate-popup">
             <div class="w-4 h-4 border-2 border-slate-400 border-t-amber-400 rounded-full animate-spin shrink-0"></div>
-            <p id="kmpLoaderMsg" class="text-xs font-bold uppercase tracking-wider text-slate-200">Executing...</p>
+            <div>
+                <p id="kmpLoaderMsg" class="text-xs font-bold uppercase tracking-wider text-slate-200">Processing Ledger...</p>
+                <p class="text-[10px] text-slate-400">Verifying security checksums</p>
+            </div>
         </div>
     </div>
 
@@ -49,7 +52,7 @@
         </div>
     </div>
 
-    <!-- Edit Customer Profile & MPIN Modal (Super Admin Exclusive) -->
+    <!-- Super Admin Edit Profile & MPIN Modal -->
     <div id="editCustomerModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-6 px-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup">
             <div class="flex justify-between items-center border-b pb-2 mb-3">
@@ -103,7 +106,7 @@
         </div>
     </div>
 
-    <!-- Edit Transaction Row Modal (Super Admin Exclusive) -->
+    <!-- Super Admin Edit Transaction Row Modal -->
     <div id="editTxModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
             <div class="flex justify-between items-center border-b pb-2 mb-3">
@@ -183,7 +186,6 @@
                 <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer active-press">Directory</button>
                 <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer active-press">Queue</button>
                 <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer active-press">Overdue</button>
-                <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer active-press">Permissions</button>
                 <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-2.5 py-1.5 rounded-lg text-[11px] sm:text-xs uppercase tracking-wider transition-all cursor-pointer active-press">
                     + Enroll
                 </button>
@@ -205,7 +207,7 @@
             <span class="text-xl font-mono text-slate-700 font-bold">#</span>
         </div>
         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800">Operational Console Restricted</h2>
-        <p class="text-xs text-slate-500 mt-1 max-w-sm">Please provide authorized operator credentials via the header login bar above to access records.</p>
+        <p class="text-xs text-slate-500 mt-1 max-w-sm">Please log in via the header bar above to access member accounts.</p>
     </div>
 
     <!-- Main Workspace -->
@@ -221,7 +223,7 @@
                     </button>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="searchInput" placeholder="Search by Mobile, Token Identifier, Name, or Account Code..." class="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:ring-1 focus:ring-slate-900 focus:bg-white font-mono">
+                    <input type="text" id="searchInput" placeholder="Search by Mobile, Token Identifier, Name, or Account Code..." class="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium focus:outline-none focus:ring-1 focus:ring-slate-900 font-mono">
                     <button onclick="searchMemberRecords()" id="btnSearch" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg text-xs font-semibold cursor-pointer active-press">
                         Search Records
                     </button>
@@ -251,7 +253,7 @@
                                 Edit Profile &amp; MPIN
                             </button>
 
-                            <!-- RESTORED: WINS DROPDOWN & COMMIT BUTTON -->
+                            <!-- WINS DROPDOWN & COMMIT BUTTON -->
                             <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 text-xs">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase px-1.5 sm:px-2">Wins:</span>
                                 <select id="selWinCount" class="bg-slate-900 text-white border border-slate-700 rounded text-xs font-bold px-1.5 py-1 focus:outline-none">
@@ -373,9 +375,6 @@
                     <p class="text-[11px] text-slate-500">Accounts past the standard 20th calendar cutoff</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="sendBulkEmailReminders()" id="btnBulkEmail" class="bg-amber-800 hover:bg-amber-700 text-white text-xs font-semibold px-3 py-1.5 sm:py-2 rounded-lg cursor-pointer active-press">
-                        Email Notices
-                    </button>
                     <button onclick="loadOverdueDefaulters()" id="btnRefreshDefaulters" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 sm:py-2 rounded-lg cursor-pointer active-press">
                         Audit Overdue
                     </button>
@@ -396,37 +395,6 @@
                             </tr>
                         </thead>
                         <tbody id="defaulterTableBody" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 4: ACCESS CONTROL (PERMISSIONS) -->
-        <div id="tabContentUsers" class="space-view space-y-3.5 sm:space-y-4 hidden-view">
-            <div class="flex justify-between items-center bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
-                <div>
-                    <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-tight">Access Control &amp; Roles</h2>
-                    <p class="text-[11px] text-slate-500">Manage privileges, approval powers, and 2SV</p>
-                </div>
-                <button onclick="openUserEditModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg cursor-pointer active-press">
-                    Add Operator
-                </button>
-            </div>
-
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="text-slate-500 bg-slate-50 border-b border-slate-200">
-                                <th class="p-3 uppercase">Operator</th>
-                                <th class="p-3 uppercase">Role</th>
-                                <th class="p-3 uppercase">Rate Verification</th>
-                                <th class="p-3 uppercase">Final Posting</th>
-                                <th class="p-3 uppercase">Status</th>
-                                <th class="p-3 uppercase text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userTableBody" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -533,17 +501,30 @@
         </div>
     </div>
 
-    <!-- CLIENT CONTROLLER -->
+    <!-- CLIENT PACING CONTROLLER (~1200ms Execution Guard) -->
     <script>
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
-            schemeMonths: 11
+            schemeMonths: 11,
+            idealDelay: 1200 // Exactly 1.2s smooth tactile feedback
         };
 
         let sessionUser = null;
         let selectedMemberData = null;
         let activeConfirmResolver = null;
         let isProcessing = false;
+
+        // Helper: Enforces minimum 1200ms execution for smooth visual UX
+        async function pacedFetch(url, options = {}) {
+            const startTime = Date.now();
+            const response = await fetch(url, options);
+            const data = await response.json();
+            const elapsed = Date.now() - startTime;
+            if (elapsed < config.idealDelay) {
+                await new Promise(r => setTimeout(r, config.idealDelay - elapsed));
+            }
+            return data;
+        }
 
         function setBtnLock(btnId, lock, text = "") {
             const btn = document.getElementById(btnId);
@@ -603,7 +584,7 @@
             }
         });
 
-        function handleKmpLogin(e) {
+        async function handleKmpLogin(e) {
             e.preventDefault();
             if (isProcessing) return;
             isProcessing = true;
@@ -611,11 +592,10 @@
 
             const username = document.getElementById('kmpUserInput').value.trim();
             const pin = document.getElementById('kmpPassInput').value.trim();
-            showLoader("Authenticating...");
+            showLoader("Authenticating Credentials...");
 
-            fetch(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}&_ts=${Date.now()}`);
                 hideLoader();
                 if (res.success && res.user) {
                     sessionUser = res.user;
@@ -625,9 +605,13 @@
                 } else {
                     uiAlert("Auth Failed", res.error || "Invalid username or PIN.");
                 }
-            })
-            .catch(() => { hideLoader(); uiAlert("Network Error", "Timeout during authentication."); })
-            .finally(() => { isProcessing = false; setBtnLock('btnLogin', false); });
+            } catch (err) {
+                hideLoader();
+                uiAlert("Network Error", "Unable to connect to server.");
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnLogin', false);
+            }
         }
 
         function logoutKmp() {
@@ -648,13 +632,12 @@
 
             if (sessionUser.role === "Admin") {
                 badge.className = "text-[9px] sm:text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-800 text-white";
-                document.getElementById('tabBtnUsers').classList.remove('hidden-view');
                 document.getElementById('btnTopAddMember').classList.remove('hidden-view');
             }
         }
 
         function switchKmpTab(tab) {
-            ['members', 'approvals', 'defaulters', 'users'].forEach(t => {
+            ['members', 'approvals', 'defaulters'].forEach(t => {
                 const el = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
                 const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
                 if (el) el.classList.add('hidden-view');
@@ -668,7 +651,6 @@
 
             if (tab === 'approvals') loadKmpPendingApprovals();
             if (tab === 'defaulters') loadOverdueDefaulters();
-            if (tab === 'users') loadStaffUsersList();
         }
 
         function refreshCurrentLedger() {
@@ -676,17 +658,16 @@
             else if (document.getElementById('searchInput').value.trim()) searchMemberRecords();
         }
 
-        function searchMemberRecords() {
+        async function searchMemberRecords() {
             const raw = document.getElementById('searchInput').value.trim();
             if (!raw) return uiAlert("Search", "Enter search query.");
             if (isProcessing) return;
             isProcessing = true;
             setBtnLock('btnSearch', true, 'Searching...');
-            showLoader("Searching Database...");
+            showLoader("Scanning Ledger Database...");
 
-            fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(raw)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(raw)}&_ts=${Date.now()}`);
                 hideLoader();
                 if (!res || !res.results || res.results.length === 0) return uiAlert("Search", "No accounts found.");
                 if (res.results.length === 1) {
@@ -699,15 +680,19 @@
                     });
                     document.getElementById('multiKittySelectorWrapper').classList.remove('hidden-view');
                 }
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnSearch', false); });
+            } catch (err) {
+                hideLoader();
+                uiAlert("Error", "Failed to search member records.");
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnSearch', false);
+            }
         }
 
-        function loadMemberLedger(member) {
+        async function loadMemberLedger(member) {
             document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
             selectedMemberData = member;
-            showLoader("Loading Statement Records...");
+            showLoader("Synchronizing Ledger Records...");
 
             document.getElementById('viewCustName').innerText = member.name;
             document.getElementById('viewCustPhone').innerText = "+91 " + member.phone;
@@ -724,9 +709,8 @@
                 document.getElementById('btnSuperAdminEditCust').classList.remove('hidden-view');
             }
 
-            fetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode)}&_ts=${Date.now()}`);
                 hideLoader();
                 if (!res || !res.profile) return uiAlert("Error", "Could not load profile ledger.");
 
@@ -780,30 +764,33 @@
                     }
                 }
                 document.getElementById('memberProfileSection').classList.remove('hidden-view');
-            })
-            .catch(() => hideLoader());
+            } catch (err) {
+                hideLoader();
+            }
         }
 
-        function saveWinnerCount() {
+        async function saveWinnerCount() {
             if (!selectedMemberData || isProcessing) return;
             isProcessing = true;
             setBtnLock('btnSaveWinCount', true, 'Saving...');
 
             const wins = document.getElementById('selWinCount').value;
-            showLoader("Updating Draw Winner Records...");
+            showLoader("Committing Draw Allocation...");
 
-            fetch(`${config.scriptUrl}?action=updateWinCount&phone=${encodeURIComponent(selectedMemberData.phone)}&acCode=${encodeURIComponent(selectedMemberData.acCode)}&winCount=${wins}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=updateWinCount&phone=${encodeURIComponent(selectedMemberData.phone)}&acCode=${encodeURIComponent(selectedMemberData.acCode)}&winCount=${wins}&_ts=${Date.now()}`);
                 hideLoader();
                 if (res.success) {
                     uiAlert("Updated", `Participant draw wins successfully recorded as ${wins}.`);
                     selectedMemberData.winCount = wins;
                     loadMemberLedger(selectedMemberData);
                 } else uiAlert("Error", res.error || "Update failed.");
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnSaveWinCount', false); });
+            } catch (err) {
+                hideLoader();
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnSaveWinCount', false);
+            }
         }
 
         function openManualDepositModal() {
@@ -842,7 +829,7 @@
             }
         }
 
-        function submitManualDeposit(e) {
+        async function submitManualDeposit(e) {
             e.preventDefault();
             if (isProcessing) return;
 
@@ -855,43 +842,45 @@
 
             isProcessing = true;
             setBtnLock('btnSubmitDeposit', true, 'Recording...');
-            showLoader("Recording Counter Payment...");
+            showLoader("Recording & Hedging 22K Gold...");
 
-            fetch(config.scriptUrl, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({
-                    action: "manualEntry",
-                    phone: selectedMemberData.phone,
-                    kittyNumber: selectedMemberData.acCode,
-                    month: month,
-                    amount: amount,
-                    rateUsed: rate10g,
-                    utr: ref
-                })
-            })
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "manualEntry",
+                        phone: selectedMemberData.phone,
+                        kittyNumber: selectedMemberData.acCode,
+                        month: month,
+                        amount: amount,
+                        rateUsed: rate10g,
+                        utr: ref
+                    })
+                });
                 hideLoader();
                 if (res.success) {
                     closeManualDepositModal();
                     uiAlert("Committed", `Transaction booked successfully. ${res.grams} grams credited.`);
                     loadMemberLedger(selectedMemberData);
                 } else uiAlert("Error", res.error || "Failed to commit payment.");
-            })
-            .catch(() => { hideLoader(); uiAlert("Network Error", "Timeout committing payment."); })
-            .finally(() => { isProcessing = false; setBtnLock('btnSubmitDeposit', false); });
+            } catch (err) {
+                hideLoader();
+                uiAlert("Network Error", "Timeout committing payment.");
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnSubmitDeposit', false);
+            }
         }
 
-        function loadKmpPendingApprovals() {
+        async function loadKmpPendingApprovals() {
             if (isProcessing) return;
             isProcessing = true;
             setBtnLock('btnRefreshQueue', true, 'Refreshing...');
             showLoader("Accessing Verification Queue...");
 
-            fetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(list => {
+            try {
+                const list = await pacedFetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`);
                 hideLoader();
                 const tbody = document.getElementById('kmpApprovalTableBody');
                 if (!list || list.length === 0) {
@@ -933,42 +922,43 @@
                         </tr>
                     `;
                 });
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnRefreshQueue', false); });
+            } catch (err) {
+                hideLoader();
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnRefreshQueue', false);
+            }
         }
 
-        // TIER-1 RATE REVIEW (Mandatory Gold Rate)
-        function reviewTxPrompt(row, amount) {
+        async function reviewTxPrompt(row, amount) {
             const rate = prompt(`Enter Today's 22K Gold Rate for 10 Grams for Installment INR ${amount}:`, "68500");
             if (!rate || isNaN(rate) || parseFloat(rate) <= 0) {
                 return alert("A valid 22K gold rate is mandatory to review!");
             }
 
-            showLoader("Recording Rate Verification...");
-            fetch(config.scriptUrl, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({
-                    action: "reviewTransaction",
-                    row: row,
-                    rateUsed: parseFloat(rate),
-                    authUser: sessionUser.username,
-                    authPin: sessionUser.pin
-                })
-            })
-            .then(r => r.json())
-            .then(res => {
+            showLoader("Recording 22K Benchmark...");
+            try {
+                const res = await pacedFetch(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "reviewTransaction",
+                        row: row,
+                        rateUsed: parseFloat(rate),
+                        authUser: sessionUser.username,
+                        authPin: sessionUser.pin
+                    })
+                });
                 hideLoader();
                 if (res.success) {
                     uiAlert("Reviewed", `Allocated: ${res.gramsBooked} grams @ INR ${res.rateUsed}. Ready for final admin approval.`);
                     loadKmpPendingApprovals();
                 } else uiAlert("Error", res.error);
-            })
-            .catch(() => hideLoader());
+            } catch (err) {
+                hideLoader();
+            }
         }
 
-        // TIER-2 FINAL APPROVAL (Requires Rate Already Set Or Prompts For It)
         async function approveTxDirect(row, isReviewed) {
             let rateToUse = 0;
             if (!isReviewed) {
@@ -982,38 +972,37 @@
             const confirmed = await uiConfirm("Approve", "Commit transaction to customer passbook?");
             if (!confirmed) return;
 
-            showLoader("Posting Authorization to Database...");
-            fetch(config.scriptUrl, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({
-                    action: "finalApprove",
-                    row: row,
-                    rateUsed: rateToUse,
-                    authUser: sessionUser.username,
-                    authPin: sessionUser.pin
-                })
-            })
-            .then(r => r.json())
-            .then(res => {
+            showLoader("Posting Authorization to Ledger...");
+            try {
+                const res = await pacedFetch(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "finalApprove",
+                        row: row,
+                        rateUsed: rateToUse,
+                        authUser: sessionUser.username,
+                        authPin: sessionUser.pin
+                    })
+                });
                 hideLoader();
                 if (res.success) {
                     uiAlert("Committed", `Transaction successfully booked. ${res.gramsBooked} grams permanently credited.`);
                     loadKmpPendingApprovals();
                 } else uiAlert("Error", res.error);
-            })
-            .catch(() => hideLoader());
+            } catch (err) {
+                hideLoader();
+            }
         }
 
-        function loadOverdueDefaulters() {
+        async function loadOverdueDefaulters() {
             if (isProcessing) return;
             isProcessing = true;
             setBtnLock('btnRefreshDefaulters', true, 'Auditing...');
-            showLoader("Auditing Overdue Schedules in Database...");
+            showLoader("Auditing Defaulters via Calendar Engine...");
 
-            fetch(`${config.scriptUrl}?action=getOverdueDefaulters&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=getOverdueDefaulters&_ts=${Date.now()}`);
                 hideLoader();
                 const tbody = document.getElementById('defaulterTableBody');
                 if (!res || !res.defaulters || res.defaulters.length === 0) {
@@ -1038,73 +1027,12 @@
                         </tr>
                     `;
                 });
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnRefreshDefaulters', false); });
-        }
-
-        function sendBulkEmailReminders() {
-            if (isProcessing) return;
-            isProcessing = true;
-            setBtnLock('btnBulkEmail', true, 'Dispatching...');
-            showLoader("Dispatching Bulk Notices via Gateway...");
-
-            fetch(`${config.scriptUrl}?action=sendBulkOverdueEmails&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            } catch (err) {
                 hideLoader();
-                if (res.success) {
-                    uiAlert("Dispatch Summary", `Notices sent: ${res.sentCount}`);
-                } else uiAlert("Error", res.error || "Failed to send emails.");
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnBulkEmail', false); });
-        }
-
-        function loadStaffUsersList() {
-            if (!sessionUser || sessionUser.role !== "Admin") return;
-            showLoader("Retrieving Operators...");
-
-            fetch(`${config.scriptUrl}?action=getStaffUsers&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
-                hideLoader();
-                if (!res.success) return uiAlert("Access Denied", res.error);
-                const tbody = document.getElementById('userTableBody');
-                tbody.innerHTML = "";
-
-                res.users.forEach(u => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="p-3 font-bold text-slate-900">${u.username}</td>
-                            <td class="p-3 font-semibold">${u.role}</td>
-                            <td class="p-3">${u.canApprove ? 'Authorized' : 'Restricted'}</td>
-                            <td class="p-3">${u.canFinalApprove ? 'Authorized' : 'Restricted'}</td>
-                            <td class="p-3"><span class="px-2 py-0.5 rounded font-bold ${u.status === 'Active' ? 'bg-slate-100 text-slate-800' : 'bg-rose-100 text-rose-800'}">${u.status}</span></td>
-                            <td class="p-3 text-center">
-                                ${u.username.toLowerCase() !== 'admin' ? `<button onclick="deleteStaffUser('${u.username}')" class="text-rose-700 font-bold cursor-pointer">Remove</button>` : '<span class="text-slate-400 italic">Master Authority</span>'}
-                            </td>
-                        </tr>
-                    `;
-                });
-            })
-            .catch(() => hideLoader());
-        }
-
-        function deleteStaffUser(target) {
-            if (!confirm(`Remove operator ${target}?`)) return;
-            showLoader("Removing operator...");
-
-            fetch(`${config.scriptUrl}?action=deleteStaffUser&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&targetUser=${encodeURIComponent(target)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
-                hideLoader();
-                if (res.success) {
-                    uiAlert("Success", "Operator removed.");
-                    loadStaffUsersList();
-                } else uiAlert("Error", res.error);
-            })
-            .catch(() => hideLoader());
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnRefreshDefaulters', false);
+            }
         }
 
         // SUPER ADMIN PROFILE & MPIN EDIT
@@ -1123,7 +1051,7 @@
 
         function closeEditCustomerModal() { document.getElementById('editCustomerModal').classList.add('hidden-view'); }
 
-        function submitSuperAdminCustomerEdit(e) {
+        async function submitSuperAdminCustomerEdit(e) {
             e.preventDefault();
             if (isProcessing) return;
             isProcessing = true;
@@ -1146,13 +1074,12 @@
                 newMpin: document.getElementById('editCustMpin').value.trim()
             };
 
-            fetch(config.scriptUrl, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            })
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payload)
+                });
                 hideLoader();
                 if (res.success) {
                     uiAlert("Success", "Customer profile and security MPIN updated.");
@@ -1164,9 +1091,12 @@
                     selectedMemberData.mpin = payload.newMpin;
                     loadMemberLedger(selectedMemberData);
                 } else uiAlert("Error", res.error || "Update failed.");
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnSaveCustEdit', false); });
+            } catch (err) {
+                hideLoader();
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnSaveCustEdit', false);
+            }
         }
 
         // SUPER ADMIN TRANSACTION ROW EDIT
@@ -1182,7 +1112,7 @@
 
         function closeEditTxModal() { document.getElementById('editTxModal').classList.add('hidden-view'); }
 
-        function submitSuperAdminTxEdit(e) {
+        async function submitSuperAdminTxEdit(e) {
             e.preventDefault();
             if (isProcessing) return;
             isProcessing = true;
@@ -1201,33 +1131,35 @@
                 utr: document.getElementById('editTxUtr').value.trim()
             };
 
-            fetch(config.scriptUrl, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            })
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payload)
+                });
                 hideLoader();
                 if (res.success) {
                     uiAlert("Success", "Transaction record permanently modified.");
                     closeEditTxModal();
                     loadMemberLedger(selectedMemberData);
                 } else uiAlert("Error", res.error || "Update rejected.");
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnSaveTxEdit', false); });
+            } catch (err) {
+                hideLoader();
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnSaveTxEdit', false);
+            }
         }
 
         function openAddMemberModal() { document.getElementById('addMemberModal').classList.remove('hidden-view'); }
         function closeAddMemberModal() { document.getElementById('addMemberModal').classList.add('hidden-view'); }
 
-        function submitNewMember(e) {
+        async function submitNewMember(e) {
             e.preventDefault();
             if (isProcessing) return;
             isProcessing = true;
             setBtnLock('btnSubmitMember', true, 'Enrolling...');
-            showLoader("Enrolling Member into System Database...");
+            showLoader("Enrolling Member into Database...");
 
             const payload = {
                 action: "addMember",
@@ -1240,21 +1172,23 @@
                 email: document.getElementById('newEmail').value.trim()
             };
 
-            fetch(config.scriptUrl, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            })
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payload)
+                });
                 hideLoader();
                 if (res && res.success) {
                     uiAlert("Enrollment Confirmed", "Member registered in database.");
                     closeAddMemberModal();
                 } else uiAlert("Enrollment Failure", res.error || "Unable to save member.");
-            })
-            .catch(() => hideLoader())
-            .finally(() => { isProcessing = false; setBtnLock('btnSubmitMember', false); });
+            } catch (err) {
+                hideLoader();
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnSubmitMember', false);
+            }
         }
 
         async function confirmRemoveMember() {
@@ -1263,16 +1197,16 @@
             if (!confirmed) return;
 
             showLoader("Deleting Member from Database...");
-            fetch(`${config.scriptUrl}?action=deleteMember&phone=${encodeURIComponent(selectedMemberData.phone)}&kittyNumber=${encodeURIComponent(selectedMemberData.acCode)}&_ts=${Date.now()}`)
-            .then(r => r.json())
-            .then(res => {
+            try {
+                const res = await pacedFetch(`${config.scriptUrl}?action=deleteMember&phone=${encodeURIComponent(selectedMemberData.phone)}&kittyNumber=${encodeURIComponent(selectedMemberData.acCode)}&_ts=${Date.now()}`);
                 hideLoader();
                 if (res && res.success) {
                     uiAlert("Deleted", "Member record successfully deleted.");
                     document.getElementById('memberProfileSection').classList.add('hidden-view');
                 } else uiAlert("Error", res.error || "Unable to delete record.");
-            })
-            .catch(() => hideLoader());
+            } catch (err) {
+                hideLoader();
+            }
         }
     </script>
 </body>
