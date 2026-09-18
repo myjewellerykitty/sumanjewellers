@@ -189,7 +189,7 @@
         </div>
     </div>
 
-    <!-- Client Controller Script with Zero-Delay Direct Fetch -->
+    <!-- Client Controller Script with Instant Local Cache Execution -->
     <script>
         const config = {
             name: "Suman Jewellers",
@@ -205,7 +205,6 @@
         let globalWinCount = 0;
         let isProcessing = false;
 
-        // Zero-Lag Direct Network Request
         async function directFetch(url, options = {}) {
             const response = await fetch(url, options);
             return await response.json();
@@ -239,15 +238,33 @@
             if (rawPhone.length !== 10) return alert("Enter valid 10-digit mobile number.");
             if (isProcessing) return;
 
+            globalCustomerPhone = rawPhone;
+            const cacheKey = `grms_auth_${rawPhone}`;
+            const cached = localStorage.getItem(cacheKey);
+
+            // INSTANT UI TRANSITION (0.05s) if user ever checked before
+            if (cached) {
+                const res = JSON.parse(cached);
+                document.getElementById('phoneSection').classList.add('hidden-view');
+                if (res.hasMpin) {
+                    document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
+                    document.getElementById('mpinLoginSection').classList.remove('hidden-view');
+                } else {
+                    document.getElementById('firstTimeMpinSection').classList.remove('hidden-view');
+                }
+            } else {
+                showLoader("Accessing Account Records...");
+            }
+
             isProcessing = true;
             setBtnLock('btnPhoneContinue', true, 'Checking...');
-            showLoader("Accessing Account Records...");
-            globalCustomerPhone = rawPhone;
 
             try {
                 const res = await directFetch(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}`);
                 hideLoader();
                 if (!res.success) return alert(res.error || "Account not found.");
+
+                localStorage.setItem(cacheKey, JSON.stringify(res));
                 document.getElementById('phoneSection').classList.add('hidden-view');
 
                 if (res.hasMpin) {
@@ -258,7 +275,7 @@
                 }
             } catch (err) {
                 hideLoader();
-                alert("Connection error.");
+                if (!cached) alert("Connection error.");
             } finally {
                 isProcessing = false;
                 setBtnLock('btnPhoneContinue', false);
@@ -315,25 +332,45 @@
         }
 
         async function fetchUserProfile(phone) {
-            showLoader("Retrieving Schemes...");
-            try {
-                const res = await directFetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(phone)}`);
-                hideLoader();
-                if (!res || !res.results || res.results.length === 0) return alert("No scheme records found.");
+            const cacheKey = `grms_members_${phone}`;
+            const cached = localStorage.getItem(cacheKey);
+
+            if (cached) {
+                const res = JSON.parse(cached);
                 if (res.results.length === 1) {
                     document.getElementById('authContainer').classList.add('hidden-view');
                     loadPassbook(phone, res.results[0].acCode);
                 } else {
-                    const sel = document.getElementById('kittySelect');
-                    sel.innerHTML = "";
-                    res.results.forEach(item => {
-                        sel.innerHTML += `<option value="${item.acCode}">A/C: ${item.acCode} - ${item.name}</option>`;
-                    });
-                    document.getElementById('multiKittyWrapper').classList.remove('hidden-view');
+                    renderMultiKitty(res.results);
+                }
+            } else {
+                showLoader("Retrieving Schemes...");
+            }
+
+            try {
+                const res = await directFetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(phone)}`);
+                hideLoader();
+                if (!res || !res.results || res.results.length === 0) return alert("No scheme records found.");
+                localStorage.setItem(cacheKey, JSON.stringify(res));
+
+                if (res.results.length === 1) {
+                    document.getElementById('authContainer').classList.add('hidden-view');
+                    loadPassbook(phone, res.results[0].acCode);
+                } else {
+                    renderMultiKitty(res.results);
                 }
             } catch (err) {
                 hideLoader();
             }
+        }
+
+        function renderMultiKitty(results) {
+            const sel = document.getElementById('kittySelect');
+            sel.innerHTML = "";
+            results.forEach(item => {
+                sel.innerHTML += `<option value="${item.acCode}">A/C: ${item.acCode} - ${item.name}</option>`;
+            });
+            document.getElementById('multiKittyWrapper').classList.remove('hidden-view');
         }
 
         function confirmSelectedKitty() {
@@ -343,82 +380,95 @@
         }
 
         async function loadPassbook(phone, acCode) {
-            showLoader("Opening Customer Passbook...");
+            const cacheKey = `grms_pb_${phone}_${acCode}`;
+            const cached = localStorage.getItem(cacheKey);
+
+            // INSTANT RENDER FROM CACHE (<50ms)
+            if (cached) {
+                renderPassbookUI(JSON.parse(cached));
+            } else {
+                showLoader("Opening Customer Passbook...");
+            }
+
             try {
                 const data = await directFetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}`);
                 hideLoader();
                 if (!data || !data.profile) return alert("Unable to load profile.");
-
-                globalCustomerPhone = data.profile.phone;
-                globalAcCode = data.profile.acCode;
-                globalMonthlyAmount = Number(data.profile.monthlyAmount) || 0;
-                globalWinCount = Number(data.profile.winCount) || 0;
-
-                document.getElementById('custName').innerText = data.profile.name;
-                document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
-                document.getElementById('custAmount').innerText = "₹" + globalMonthlyAmount.toLocaleString('en-IN');
-                document.getElementById('lblAcCode').innerText = data.profile.acCode;
-                document.getElementById('lblCustId').innerText = data.profile.customerId || "-";
-                document.getElementById('lblDoj').innerText = data.profile.doj || "-";
-
-                const txs = data.transactions || [];
-                let paidCount = 0;
-                let gramsTotal = 0;
-                txs.forEach(t => {
-                    if (t.status === "Paid") {
-                        paidCount++;
-                        gramsTotal += Number(t.bookedGrams) || 0;
-                    }
-                });
-
-                document.getElementById('custLiveBalance').innerText = "₹" + (paidCount * globalMonthlyAmount).toLocaleString('en-IN');
-                document.getElementById('lblTotalGoldGrams').innerText = gramsTotal.toFixed(3) + " g";
-
-                const badge = document.getElementById('badgeWinnerStatus');
-                let prize = 0;
-                if (globalWinCount > 0) {
-                    prize = (globalWinCount === 1) ? 15000 : (globalWinCount === 2) ? 30000 : 45000;
-                    badge.innerText = `${globalWinCount}x Draw Winner`;
-                    badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800";
-                } else {
-                    prize = (globalMonthlyAmount === 8000) ? 3000 : 2000;
-                    badge.innerText = "Non-Winner Plan";
-                    badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700";
-                }
-
-                document.getElementById('lblRewardBenefit').innerText = "+₹" + prize.toLocaleString('en-IN');
-                document.getElementById('lblTotalMaturity').innerText = "₹" + ((11 * globalMonthlyAmount) + prize).toLocaleString('en-IN');
-
-                const grid = document.getElementById('gridWrapper');
-                grid.innerHTML = "";
-                const nextPayable = data.nextPayableMonth || 1;
-
-                for (let m = 1; m <= config.schemeMonths; m++) {
-                    let tx = txs.find(t => Number(t.month) === m);
-                    let label = "Pay Now", style = "", action = "";
-
-                    if (tx && tx.status === "Paid") {
-                        label = "Paid";
-                        style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[10px]";
-                    } else if (tx && tx.status === "Pending") {
-                        label = "In Review";
-                        style = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse font-semibold";
-                    } else if (m === nextPayable && !data.isSchemeComplete) {
-                        label = "Pay Now";
-                        style = "bg-slate-900 text-white font-bold cursor-pointer active-press";
-                        action = `onclick="openPaymentModal(${m})"`;
-                    } else {
-                        label = "Locked";
-                        style = "bg-slate-100 border text-slate-400 cursor-not-allowed opacity-60";
-                    }
-
-                    grid.innerHTML += `<div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[46px]"><span class="text-[9px] uppercase text-slate-400 font-mono">M-${m}</span>${label}</div>`;
-                }
-
-                document.getElementById('passbookContainer').classList.remove('hidden-view');
+                localStorage.setItem(cacheKey, JSON.stringify(data));
+                renderPassbookUI(data);
             } catch (err) {
                 hideLoader();
             }
+        }
+
+        function renderPassbookUI(data) {
+            globalCustomerPhone = data.profile.phone;
+            globalAcCode = data.profile.acCode;
+            globalMonthlyAmount = Number(data.profile.monthlyAmount) || 0;
+            globalWinCount = Number(data.profile.winCount) || 0;
+
+            document.getElementById('custName').innerText = data.profile.name;
+            document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
+            document.getElementById('custAmount').innerText = "₹" + globalMonthlyAmount.toLocaleString('en-IN');
+            document.getElementById('lblAcCode').innerText = data.profile.acCode;
+            document.getElementById('lblCustId').innerText = data.profile.customerId || "-";
+            document.getElementById('lblDoj').innerText = data.profile.doj || "-";
+
+            const txs = data.transactions || [];
+            let paidCount = 0;
+            let gramsTotal = 0;
+            txs.forEach(t => {
+                if (t.status === "Paid") {
+                    paidCount++;
+                    gramsTotal += Number(t.bookedGrams) || 0;
+                }
+            });
+
+            document.getElementById('custLiveBalance').innerText = "₹" + (paidCount * globalMonthlyAmount).toLocaleString('en-IN');
+            document.getElementById('lblTotalGoldGrams').innerText = gramsTotal.toFixed(3) + " g";
+
+            const badge = document.getElementById('badgeWinnerStatus');
+            let prize = 0;
+            if (globalWinCount > 0) {
+                prize = (globalWinCount === 1) ? 15000 : (globalWinCount === 2) ? 30000 : 45000;
+                badge.innerText = `${globalWinCount}x Draw Winner`;
+                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800";
+            } else {
+                prize = (globalMonthlyAmount === 8000) ? 3000 : 2000;
+                badge.innerText = "Non-Winner Plan";
+                badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700";
+            }
+
+            document.getElementById('lblRewardBenefit').innerText = "+₹" + prize.toLocaleString('en-IN');
+            document.getElementById('lblTotalMaturity').innerText = "₹" + ((11 * globalMonthlyAmount) + prize).toLocaleString('en-IN');
+
+            const grid = document.getElementById('gridWrapper');
+            grid.innerHTML = "";
+            const nextPayable = data.nextPayableMonth || 1;
+
+            for (let m = 1; m <= config.schemeMonths; m++) {
+                let tx = txs.find(t => Number(t.month) === m);
+                let label = "Pay Now", style = "", action = "";
+
+                if (tx && tx.status === "Paid") {
+                    label = "Paid";
+                    style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[10px]";
+                } else if (tx && tx.status === "Pending") {
+                    label = "In Review";
+                    style = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse font-semibold";
+                } else if (m === nextPayable && !data.isSchemeComplete) {
+                    label = "Pay Now";
+                    style = "bg-slate-900 text-white font-bold cursor-pointer active-press";
+                    action = `onclick="openPaymentModal(${m})"`;
+                } else {
+                    label = "Locked";
+                    style = "bg-slate-100 border text-slate-400 cursor-not-allowed opacity-60";
+                }
+
+                grid.innerHTML += `<div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[46px]"><span class="text-[9px] uppercase text-slate-400 font-mono">M-${m}</span>${label}</div>`;
+            }
+
+            document.getElementById('passbookContainer').classList.remove('hidden-view');
         }
 
         function openPaymentModal(m) {
@@ -471,6 +521,7 @@
                     } else {
                         alert(res.error || "Notice: Proof received.");
                     }
+                    localStorage.removeItem(`grms_pb_${globalCustomerPhone}_${globalAcCode}`);
                     loadPassbook(globalCustomerPhone, globalAcCode);
                 } catch (err) {
                     hideLoader();
