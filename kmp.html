@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <!-- QUEUE AUTHORIZATION MODAL (Replaces broken browser prompt) -->
+    <!-- QUEUE AUTHORIZATION MODAL (Rate Mandatory For Approval) -->
     <div id="queueActionModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup space-y-3">
             <div class="flex justify-between items-center border-b pb-2">
@@ -60,7 +60,7 @@
                     <h3 id="qaModalTitle" class="text-sm font-black text-slate-900 uppercase">Authorize Installment</h3>
                     <p id="qaModalSubtitle" class="text-[11px] text-slate-500 font-mono mt-0.5">-</p>
                 </div>
-                <button onclick="closeQueueActionModal()" class="text-slate-400 hover:text-black font-bold text-base">&times;</button>
+                <button onclick="closeQueueActionModal()" class="text-slate-400 hover:text-black font-bold text-base cursor-pointer">&times;</button>
             </div>
             <div>
                 <label class="font-bold text-slate-700 block mb-1 text-xs">Today's 22K Gold Rate for 10 Grams (INR) *</label>
@@ -132,7 +132,7 @@
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
             <div class="flex justify-between items-center border-b pb-2 mb-3">
                 <h3 class="text-sm font-black text-slate-900 uppercase">Super Admin: Edit Transaction</h3>
-                <button onclick="closeEditTxModal()" class="text-slate-400 hover:text-black font-bold">&times;</button>
+                <button onclick="closeEditTxModal()" class="text-slate-400 hover:text-black font-bold cursor-pointer">&times;</button>
             </div>
             <form onsubmit="submitSuperAdminTxEdit(event)" class="space-y-3 text-xs">
                 <input type="hidden" id="editTxRow">
@@ -207,6 +207,7 @@
                 <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer active-press">Directory</button>
                 <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer active-press">Queue</button>
                 <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer active-press">Overdue</button>
+                <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-[11px] sm:text-xs font-semibold px-2.5 py-1.5 rounded-lg cursor-pointer active-press">Permissions</button>
                 <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-2.5 py-1.5 rounded-lg text-[11px] sm:text-xs uppercase tracking-wider transition-all cursor-pointer active-press">
                     + Enroll
                 </button>
@@ -269,12 +270,10 @@
                             <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-                            <!-- Super Admin Edit Profile & MPIN Button -->
                             <button id="btnSuperAdminEditCust" onclick="openSuperAdminCustomerModal()" class="hidden-view bg-amber-700 hover:bg-amber-600 text-white text-xs font-bold px-3 py-2 rounded-lg cursor-pointer active-press">
                                 Edit Profile &amp; MPIN
                             </button>
 
-                            <!-- WINS DROPDOWN & COMMIT BUTTON -->
                             <div class="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-1 text-xs">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase px-1.5 sm:px-2">Wins:</span>
                                 <select id="selWinCount" class="bg-slate-900 text-white border border-slate-700 rounded text-xs font-bold px-1.5 py-1 focus:outline-none">
@@ -421,7 +420,79 @@
             </div>
         </div>
 
+        <!-- TAB 4: ACCESS CONTROL (PERMISSIONS / USERS) -->
+        <div id="tabContentUsers" class="space-view space-y-3.5 sm:space-y-4 hidden-view">
+            <div class="flex justify-between items-center bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
+                <div>
+                    <h2 class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-tight">Access Control &amp; Operators</h2>
+                    <p class="text-[11px] text-slate-500">Manage showroom staff login PINs and approval powers</p>
+                </div>
+                <button onclick="openUserEditModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg cursor-pointer active-press">
+                    + Add Operator
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="text-slate-500 bg-slate-50 border-b border-slate-200">
+                                <th class="p-3 uppercase">Username</th>
+                                <th class="p-3 uppercase">Role</th>
+                                <th class="p-3 uppercase">Rate Review</th>
+                                <th class="p-3 uppercase">Final Approve</th>
+                                <th class="p-3 uppercase">Status</th>
+                                <th class="p-3 uppercase text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </main>
+
+    <!-- MODAL: ADD/EDIT OPERATOR USER -->
+    <div id="userEditModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-6 sm:pt-10 z-50 overflow-y-auto">
+        <div class="bg-white rounded-xl p-5 w-full max-w-sm shadow-2xl border border-slate-200 animate-popup space-y-3 text-xs">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="text-sm font-black text-slate-900 uppercase">Manage Operator</h3>
+                <button onclick="closeUserEditModal()" class="text-slate-400 font-bold text-base cursor-pointer">&times;</button>
+            </div>
+            <form onsubmit="submitStaffUser(event)" class="space-y-3">
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Username *</label>
+                    <input type="text" id="opUsername" required class="w-full px-3 py-2 border rounded-lg font-bold">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Security PIN *</label>
+                    <input type="password" id="opPin" required maxlength="6" class="w-full px-3 py-2 border rounded-lg font-mono font-bold">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Role *</label>
+                    <select id="opRole" class="w-full px-3 py-2 border rounded-lg font-semibold">
+                        <option value="Staff">Staff</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <div class="space-y-2 pt-1">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="opCanApprove" class="rounded text-amber-600">
+                        <span class="font-bold text-slate-700">Can Review 22K Rates</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="opCanFinalApprove" class="rounded text-amber-600">
+                        <span class="font-bold text-slate-700">Can Final Approve to Ledger</span>
+                    </label>
+                </div>
+                <div class="flex gap-2 pt-2 border-t">
+                    <button type="button" onclick="closeUserEditModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-xl font-bold cursor-pointer active-press">Cancel</button>
+                    <button type="submit" id="btnSaveOperator" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl font-bold uppercase cursor-pointer active-press">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- MODAL: MANUAL COUNTER DEPOSIT -->
     <div id="manualDepositModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
@@ -534,9 +605,8 @@
         let activeConfirmResolver = null;
         let isProcessing = false;
 
-        // Pending Queue Action State
         let activeQueueItem = null;
-        let activeQueueAction = null; // 'review' or 'approve'
+        let activeQueueAction = null;
 
         async function directFetch(url, options = {}) {
             const response = await fetch(url, options);
@@ -655,11 +725,12 @@
             if (sessionUser.role === "Admin") {
                 badge.className = "text-[9px] sm:text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-800 text-white";
                 document.getElementById('btnTopAddMember').classList.remove('hidden-view');
+                document.getElementById('tabBtnUsers').classList.remove('hidden-view');
             }
         }
 
         function switchKmpTab(tab) {
-            ['members', 'approvals', 'defaulters'].forEach(t => {
+            ['members', 'approvals', 'defaulters', 'users'].forEach(t => {
                 const el = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
                 const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
                 if (el) el.classList.add('hidden-view');
@@ -673,6 +744,7 @@
 
             if (tab === 'approvals') loadKmpPendingApprovals();
             if (tab === 'defaulters') loadOverdueDefaulters();
+            if (tab === 'users') loadStaffUsersList();
         }
 
         function refreshCurrentLedger() {
@@ -933,7 +1005,7 @@
             }
         }
 
-        // QUEUE LOGIC WITH MODAL (FIXED)
+        // QUEUE LOGIC WITH DIRECT MODAL & MANDATORY RATE
         async function loadKmpPendingApprovals() {
             if (isProcessing) return;
 
@@ -1011,7 +1083,7 @@
             const amtStr = Number(activeQueueItem.amount).toLocaleString('en-IN');
             
             document.getElementById('qaModalSubtitle').innerText = `${activeQueueItem.name} | Month ${activeQueueItem.month} | INR ${amtStr}`;
-            document.getElementById('qaGoldRateInput').value = activeQueueItem.rateApplied || "68500";
+            document.getElementById('qaGoldRateInput').value = activeQueueItem.rateApplied || "";
 
             if (actionType === 'review') {
                 document.getElementById('qaModalTitle').innerText = isReviewed ? "Update 22K Rate Benchmark" : "Set 22K Gold Benchmark";
@@ -1037,7 +1109,7 @@
 
             const rate = parseFloat(document.getElementById('qaGoldRateInput').value);
             if (!rate || isNaN(rate) || rate <= 0) {
-                return uiAlert("Validation", "Valid 22K gold rate is mandatory.");
+                return uiAlert("Rate Required", "CRITICAL: You CANNOT approve or review a transaction without a valid 22K gold rate!");
             }
 
             isProcessing = true;
@@ -1132,6 +1204,95 @@
             });
         }
 
+        // TAB 4: ACCESS CONTROL (STAFF USERS)
+        async function loadStaffUsersList() {
+            if (!sessionUser || sessionUser.role !== "Admin") return;
+            showLoader("Retrieving Operators...");
+
+            try {
+                const res = await directFetch(`${config.scriptUrl}?action=getStaffUsers&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}`);
+                hideLoader();
+                if (!res.success) return uiAlert("Access Denied", res.error);
+                const tbody = document.getElementById('userTableBody');
+                tbody.innerHTML = "";
+
+                res.users.forEach(u => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-3 font-bold text-slate-900">${u.username}</td>
+                            <td class="p-3 font-semibold">${u.role}</td>
+                            <td class="p-3">${u.canApprove ? 'Authorized' : 'Restricted'}</td>
+                            <td class="p-3">${u.canFinalApprove ? 'Authorized' : 'Restricted'}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 rounded font-bold ${u.status === 'Active' ? 'bg-slate-100 text-slate-800' : 'bg-rose-100 text-rose-800'}">${u.status}</span></td>
+                            <td class="p-3 text-center">
+                                ${u.username.toLowerCase() !== 'admin' ? `<button onclick="deleteStaffUser('${u.username}')" class="text-rose-700 font-bold cursor-pointer">Remove</button>` : '<span class="text-slate-400 italic">Master Authority</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                hideLoader();
+            }
+        }
+
+        function openUserEditModal() { document.getElementById('userEditModal').classList.remove('hidden-view'); }
+        function closeUserEditModal() { document.getElementById('userEditModal').classList.add('hidden-view'); }
+
+        async function submitStaffUser(e) {
+            e.preventDefault();
+            if (isProcessing) return;
+            isProcessing = true;
+            setBtnLock('btnSaveOperator', true, 'Saving...');
+            showLoader("Saving Operator...");
+
+            const payload = {
+                action: "saveStaffUser",
+                adminUser: sessionUser.username,
+                adminPin: sessionUser.pin,
+                username: document.getElementById('opUsername').value.trim(),
+                pin: document.getElementById('opPin').value.trim(),
+                role: document.getElementById('opRole').value,
+                canApprove: document.getElementById('opCanApprove').checked,
+                canFinalApprove: document.getElementById('opCanFinalApprove').checked
+            };
+
+            try {
+                const res = await directFetch(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payload)
+                });
+                hideLoader();
+                if (res.success) {
+                    uiAlert("Success", "Operator saved successfully.");
+                    closeUserEditModal();
+                    loadStaffUsersList();
+                } else uiAlert("Error", res.error);
+            } catch (err) {
+                hideLoader();
+            } finally {
+                isProcessing = false;
+                setBtnLock('btnSaveOperator', false);
+            }
+        }
+
+        async function deleteStaffUser(target) {
+            if (!confirm(`Remove operator ${target}?`)) return;
+            showLoader("Removing operator...");
+
+            try {
+                const res = await directFetch(`${config.scriptUrl}?action=deleteStaffUser&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&targetUser=${encodeURIComponent(target)}`);
+                hideLoader();
+                if (res.success) {
+                    uiAlert("Success", "Operator removed.");
+                    loadStaffUsersList();
+                } else uiAlert("Error", res.error);
+            } catch (err) {
+                hideLoader();
+            }
+        }
+
+        // SUPER ADMIN PROFILE & MPIN EDIT
         function openSuperAdminCustomerModal() {
             if (!selectedMemberData) return;
             document.getElementById('editCustName').value = selectedMemberData.name;
