@@ -1568,11 +1568,11 @@
             .then(res => {
                 hideLoader();
                 const tbody = document.getElementById('defaulterTableBody');
-                tbody.innerHTML = "";
                 if (!res.defaulters || res.defaulters.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">Zero overdue accounts found.</td></tr>`;
                     return;
                 }
+                tbody.innerHTML = "";
                 res.defaulters.forEach(d => {
                     tbody.innerHTML += `
                         <tr>
