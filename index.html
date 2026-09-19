@@ -89,32 +89,12 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- FLOATING ON-SCREEN NOTIFICATION CONTAINER -->
+    <!-- FLOATING ON-SCREEN NOTIFICATION CONTAINER (ZERO GITHUB SAYS POPUP) -->
     <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[99999] flex flex-col items-center gap-2 pointer-events-none w-full max-w-sm px-4"></div>
 
     <div id="cursorDot" class="cursor-dot"></div>
     <div id="cursorRing" class="cursor-ring"></div>
 
-    <!-- License Lock Screen Notice -->
-    <div id="licenseExpiredOverlay" class="hidden-view fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-[99998]">
-        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl border border-rose-200 animate-bounce-short">
-            <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center mx-auto text-2xl font-bold">
-                ⚠️
-            </div>
-            <h2 class="text-base sm:text-lg font-black uppercase text-slate-900">Portal License Notice</h2>
-            <p id="lblLicenseMsg" class="text-xs text-slate-600 leading-relaxed">
-                The software license has expired or is paused. Contact Ofbuzz Technology for renewal.
-            </p>
-            <div class="pt-2 border-t border-slate-100 space-y-2">
-                <a href="tel:+917827201014" class="block w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider active-press">
-                    Call Ofbuzz Authority: +91 7827201014
-                </a>
-                <p class="text-[10px] text-slate-400 font-mono uppercase">Managed by Ofbuzz Technology &bull; Cloud License Engine</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Global Loading Overlay -->
     <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-4 sm:pt-6 px-3 z-50">
         <div class="bg-white rounded-2xl py-3 px-5 shadow-2xl border border-amber-300 flex items-center gap-3.5 max-w-sm w-full animate-bounce-short">
             <div class="w-7 h-7 border-3 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow shrink-0"></div>
@@ -125,6 +105,7 @@
         </div>
     </div>
 
+    <!-- MAIN CUSTOMER VIEW CONTAINER -->
     <div id="customerView" class="max-w-md mx-auto w-full p-3 sm:p-4 flex-1">
         <div>
             <!-- Header with Official White Suman Jewellers Logo in Badge -->
@@ -142,11 +123,10 @@
             </header>
 
             <div id="authContainer">
-                <!-- Mobile or GRMS A/C Step -->
                 <div id="phoneSection" class="reveal bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div>
-                        <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">Registered Mobile or GRMS A/C Number</label>
-                        <input type="text" id="phoneInput" placeholder="Enter Mobile (e.g. 9876543210) or A/C No (e.g. 2)" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 focus:bg-white transition-all font-mono">
+                        <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">Registered Mobile Number</label>
+                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 focus:bg-white transition-all font-mono">
                     </div>
                     <button onclick="handlePhoneContinue()" id="btnPhoneContinue" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer active-press">
                         Access GRMS Passbook
@@ -160,11 +140,10 @@
                     </div>
                 </div>
 
-                <!-- MPIN Login Step -->
                 <div id="mpinLoginSection" class="hidden-view bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div class="text-center">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900">Enter Security MPIN</h3>
-                        <p class="text-xs text-slate-500 mt-0.5"><span id="lblMpinPhone" class="font-bold text-slate-800 font-mono"></span></p>
+                        <p class="text-xs text-slate-500 mt-0.5">Mobile: <span id="lblMpinPhone" class="font-bold text-slate-800 font-mono"></span></p>
                     </div>
                     <div>
                         <input type="password" id="mpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-600">
@@ -173,12 +152,11 @@
                         Verify MPIN &amp; Open Passbook
                     </button>
                     <div class="flex justify-between items-center text-xs pt-1">
-                        <button onclick="resetToPhoneStep()" class="text-slate-400 hover:text-slate-600 font-semibold cursor-pointer active-press">← Change Account</button>
+                        <button onclick="resetToPhoneStep()" class="text-slate-400 hover:text-slate-600 font-semibold cursor-pointer active-press">← Change Phone</button>
                         <button onclick="requestCurrentMpinRecovery()" class="text-amber-800 hover:underline font-bold cursor-pointer active-press">Forgot MPIN?</button>
                     </div>
                 </div>
 
-                <!-- First Time MPIN Setup -->
                 <div id="firstTimeMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div class="text-center">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900">Set Security 4-Digit MPIN</h3>
@@ -193,7 +171,6 @@
                     </button>
                 </div>
 
-                <!-- Multi-Account Selector -->
                 <div id="multiKittyWrapper" class="hidden-view bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3 mb-4 sm:mb-5">
                     <label class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">Multiple GRMS Plans Linked</label>
                     <select id="kittySelect" class="w-full px-3 py-2.5 bg-white border border-amber-300 rounded-xl text-sm font-semibold text-slate-900"></select>
@@ -268,6 +245,7 @@
                     <p id="lblDrawDetails" class="text-[10px] sm:text-[11px] text-slate-500 text-center italic leading-tight"></p>
                 </div>
 
+                <!-- 11-Month Sequential Ledger Grid (NOW SHOWS PAYMENT DATE) -->
                 <div class="reveal bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
                         <div>
@@ -276,7 +254,7 @@
                         </div>
                         <span class="text-[10px] text-slate-400 font-semibold">Due: 15th monthly</span>
                     </div>
-                    <div id="gridWrapper" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
+                    <div id="gridWrapper" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
                 </div>
 
                 <div class="reveal space-y-2">
@@ -479,8 +457,42 @@
         </div>
     </footer>
 
-    <!-- Client Script with Zero-Browser-Alert On-Screen Notification Engine & 5-Digit Rate -->
+    <!-- Client Script with Expiry Engine, Formatters & On-Screen Toasts -->
     <script>
+        // =========================================================================
+        // 1-YEAR AUTO-EXPIRY ENGINE (FROM 18/09/2026 TO 18/09/2027)
+        // =========================================================================
+        const ACTIVATION_DATE_STR = "18/09/2026";
+        const EXPIRY_DATE_STR = "18/09/2027";
+        const EXPIRY_TIMESTAMP = new Date("2027-09-18T23:59:59+05:30").getTime();
+
+        function verifyPortalLicense() {
+            if (Date.now() > EXPIRY_TIMESTAMP) {
+                document.body.innerHTML = `
+                    <div class="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
+                        <div class="w-16 h-16 rounded-full bg-rose-500/10 border-2 border-rose-500 flex items-center justify-center text-rose-500 text-3xl font-black mb-4">
+                            &times;
+                        </div>
+                        <h1 class="text-xl font-bold uppercase tracking-wider text-slate-100 mb-1">Portal License Expired</h1>
+                        <p class="text-xs text-slate-400 max-w-sm mb-4">
+                            The 1-year operational license for Suman Jewellers GRMS Portal (Activated: ${ACTIVATION_DATE_STR}) has expired on ${EXPIRY_DATE_STR}.
+                        </p>
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-xs space-y-1.5 mb-6 text-slate-300 font-mono">
+                            <p><strong>License Status:</strong> <span class="text-rose-400 font-bold">EXPIRED</span></p>
+                            <p><strong>Activation Date:</strong> ${ACTIVATION_DATE_STR}</p>
+                            <p><strong>Expiry Date:</strong> ${EXPIRY_DATE_STR}</p>
+                        </div>
+                        <a href="https://wa.me/917840000934?text=Hello%20Suman%20Jewellers,%20portal%20license%20renewal%20inquiry." target="_blank" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider transition-all">
+                            Contact Showroom for Renewal
+                        </a>
+                        <p class="text-[10px] text-slate-600 mt-6 font-mono tracking-widest uppercase">AN OFBUZZ PRODUCT &bull; OFBUZZ TECHNOLOGY</p>
+                    </div>
+                `;
+                return false;
+            }
+            return true;
+        }
+
         const config = {
             name: "Suman Jewellers",
             upiVpa: "vyapar.178552646415@hdfcbank",
@@ -498,18 +510,14 @@
 
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
-        function formatGoldRate5Digit(val) {
-            if (!val) return "-";
-            const num = Math.round(parseFloat(val));
-            if (isNaN(num)) return "-";
-            const s = num.toString().padStart(5, '0');
-            if (s.length === 5) {
-                return s.charAt(0) + ',' + s.slice(1);
-            }
-            return num.toLocaleString('en-IN');
+        // FORMAT GOLD RATE (5 Digits in Thousands: XX,XXX | 6 Digits in Lakhs: X,XX,XXX)
+        function formatGoldRate(val) {
+            const num = parseFloat(val);
+            if (isNaN(num) || num <= 0) return "-";
+            return "₹" + num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
         }
 
-        // ON-SCREEN NOTIFICATION ENGINE (REPLACES "GITHUB SAYS..." COMPLETELY)
+        // ON-SCREEN NOTIFICATION ENGINE (REPLACES BROWSER ALERT)
         function showNotification(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -546,7 +554,7 @@
         window.alert = function(msg) {
             const lower = (msg || '').toString().toLowerCase();
             let type = 'info';
-            if (lower.includes('error') || lower.includes('fail') || lower.includes('incorrect') || lower.includes('timeout') || lower.includes('invalid') || lower.includes('please enter') || lower.includes('required') || lower.includes('no grms')) {
+            if (lower.includes('error') || lower.includes('fail') || lower.includes('incorrect') || lower.includes('timeout') || lower.includes('invalid') || lower.includes('please enter') || lower.includes('required')) {
                 type = 'error';
             } else if (lower.includes('success') || lower.includes('approved') || lower.includes('copied') || lower.includes('submitted')) {
                 type = 'success';
@@ -563,31 +571,22 @@
             document.getElementById('loadingOverlay').classList.add('hidden-view');
         }
 
-        // DUAL LOGIN: SUPPORTS MOBILE NUMBER OR GRMS ACCOUNT NUMBER (e.g. 2, GRMS-02)
         function handlePhoneContinue() {
-            const rawInput = document.getElementById('phoneInput').value.trim();
-            if (!rawInput) return alert("Please enter your registered Mobile Number or GRMS Account Number.");
+            const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
+            if (rawPhone.length !== 10) return alert("Please enter a valid 10-digit mobile number.");
 
-            showLoader("Verifying Account...");
+            showLoader("Checking Account...");
+            globalCustomerPhone = rawPhone;
 
-            fetch(`${config.scriptUrl}?action=checkCustomer&identifier=${encodeURIComponent(rawInput)}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (res.licenseExpired) {
-                    document.getElementById('lblLicenseMsg').innerText = res.message;
-                    document.getElementById('licenseExpiredOverlay').classList.remove('hidden-view');
-                    return;
-                }
-                if (!res.success) return alert(res.error || "No active account found for: " + rawInput);
-                
-                globalCustomerPhone = res.phone;
-                globalAcCode = res.acCode;
-
+                if (!res.success) return alert(res.error || "Account not located.");
                 document.getElementById('phoneSection').classList.add('hidden-view');
 
                 if (res.hasMpin) {
-                    document.getElementById('lblMpinPhone').innerText = res.name + " (" + (res.acCode ? "A/C: " + res.acCode : "+91 " + res.phone) + ")";
+                    document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
                     document.getElementById('mpinInput').value = "";
                     document.getElementById('mpinLoginSection').classList.remove('hidden-view');
                 } else {
@@ -606,18 +605,13 @@
 
             showLoader("Authenticating MPIN...");
 
-            fetch(`${config.scriptUrl}?action=loginMpin&identifier=${encodeURIComponent(globalCustomerPhone || globalAcCode)}&mpin=${mpin}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (res.licenseExpired) {
-                    document.getElementById('lblLicenseMsg').innerText = res.message;
-                    document.getElementById('licenseExpiredOverlay').classList.remove('hidden-view');
-                    return;
-                }
                 if (res.success) {
                     document.getElementById('mpinLoginSection').classList.add('hidden-view');
-                    fetchUserProfile(res.phone || globalCustomerPhone, res.acCode || globalAcCode);
+                    fetchUserProfile(globalCustomerPhone);
                 } else {
                     alert(res.error || "Incorrect MPIN.");
                 }
@@ -635,22 +629,21 @@
 
             showLoader("Saving Security PIN...");
 
-            fetch(`${config.scriptUrl}?action=setInitialMpin&identifier=${encodeURIComponent(globalCustomerPhone || globalAcCode)}&mpin=${p1}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
                 if (res.success) {
                     document.getElementById('firstTimeMpinSection').classList.add('hidden-view');
-                    fetchUserProfile(globalCustomerPhone, globalAcCode);
+                    fetchUserProfile(globalCustomerPhone);
                 } else alert("Failed to save PIN.");
             })
             .catch(() => hideLoader());
         }
 
-        function fetchUserProfile(phone, acCode) {
+        function fetchUserProfile(phone) {
             showLoader("Loading Details...");
-            const queryParam = phone || acCode;
-            fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(queryParam)}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(phone)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -659,7 +652,7 @@
 
                 if (activeMatches.length === 1) {
                     document.getElementById('authContainer').classList.add('hidden-view');
-                    loadPassbook(activeMatches[0].phone, activeMatches[0].acCode);
+                    loadPassbook(phone, activeMatches[0].acCode);
                 } else {
                     const sel = document.getElementById('kittySelect');
                     sel.innerHTML = "";
@@ -674,9 +667,8 @@
 
         function confirmSelectedKitty() {
             const ac = document.getElementById('kittySelect').value;
-            const chosen = activeMatches.find(m => m.acCode === ac);
             document.getElementById('authContainer').classList.add('hidden-view');
-            loadPassbook(chosen ? chosen.phone : globalCustomerPhone, ac);
+            loadPassbook(globalCustomerPhone, ac);
         }
 
         function loadPassbook(phone, acCode) {
@@ -685,11 +677,6 @@
             .then(r => r.json())
             .then(data => {
                 hideLoader();
-                if (data.licenseExpired) {
-                    document.getElementById('lblLicenseMsg').innerText = data.message;
-                    document.getElementById('licenseExpiredOverlay').classList.remove('hidden-view');
-                    return;
-                }
                 if (!data || !data.profile) return alert("Failed to load ledger profile.");
 
                 globalCustomerPhone = data.profile.phone;
@@ -736,6 +723,7 @@
                 document.getElementById('lblRewardBenefit').innerText = "+₹" + prize.toLocaleString('en-IN');
                 document.getElementById('lblTotalMaturity').innerText = "₹" + ((11 * globalMonthlyAmount) + prize).toLocaleString('en-IN');
 
+                // PASSBOOK GRID WITH DATES & XX,XXX FORMATTED RATES
                 const grid = document.getElementById('gridWrapper');
                 grid.innerHTML = "";
                 const nextPayable = data.nextPayableMonth || 1;
@@ -746,17 +734,14 @@
 
                     if (tx && tx.status === "Paid") {
                         let gWeight = (Number(tx.bookedGrams) || 0).toFixed(3);
-                        label = (Number(gWeight) > 0) ? `Paid (${gWeight}g)` : `Paid`;
-                        style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[10px]";
-                        if (tx.paymentDate && tx.paymentDate !== "-") {
-                            dateBadge = `<div class="text-[8px] text-emerald-700 font-mono font-normal mt-0.5">${tx.paymentDate}</div>`;
-                        }
+                        let rateFormatted = formatGoldRate(tx.rate);
+                        label = `<span class="font-black">${gWeight}g</span><span class="text-[9px] text-emerald-700 block">${rateFormatted}</span>`;
+                        dateBadge = tx.date ? `<span class="text-[8px] text-slate-400 font-mono block mt-0.5">${tx.date.split(' ')[0]}</span>` : '';
+                        style = "bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px]";
                     } else if (tx && (tx.status === "Pending" || tx.status === "Reviewed")) {
-                        label = "In Review";
+                        label = `<span class="font-bold">In Review</span>`;
+                        dateBadge = tx.date ? `<span class="text-[8px] text-amber-700 font-mono block mt-0.5">${tx.date.split(' ')[0]}</span>` : '';
                         style = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse font-semibold";
-                        if (tx.paymentDate && tx.paymentDate !== "-") {
-                            dateBadge = `<div class="text-[8px] text-amber-700 font-mono font-normal mt-0.5">${tx.paymentDate}</div>`;
-                        }
                     } else if (m === nextPayable && !data.isSchemeComplete) {
                         label = "Pay Now";
                         style = "bg-slate-900 text-white font-bold cursor-pointer active-press";
@@ -767,9 +752,9 @@
                     }
 
                     grid.innerHTML += `
-                        <div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[52px]">
-                            <span class="text-[9px] uppercase text-slate-400 font-mono">Month ${m}</span>
-                            <div>${label}</div>
+                        <div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[58px]">
+                            <span class="text-[9px] uppercase text-slate-400 font-mono font-bold">Month ${m}</span>
+                            ${label}
                             ${dateBadge}
                         </div>
                     `;
@@ -854,7 +839,7 @@
                     hideLoader();
                     closePaymentModal();
                     if (res && res.success) {
-                        alert(`Installment submitted successfully! (Recorded: ${res.paymentDate})`);
+                        alert("Installment submitted successfully!");
                     } else {
                         alert(res.error || "Notice: Payment slip registered.");
                     }
@@ -908,7 +893,7 @@
 
         function requestCurrentMpinRecovery() {
             showLoader("Sending MPIN to Email...");
-            fetch(`${config.scriptUrl}?action=requestOldMpin&identifier=${encodeURIComponent(globalCustomerPhone || globalAcCode)}&_ts=${Date.now()}`)
+            fetch(`${config.scriptUrl}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
                 hideLoader();
@@ -927,6 +912,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Check 1-Year License Expiry
+            if (!verifyPortalLicense()) return;
+
             const dot = document.getElementById('cursorDot');
             const ring = document.getElementById('cursorRing');
 
