@@ -45,7 +45,7 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal (In-Page) -->
+    <!-- In-Page Confirmation Modal -->
     <div id="uiConfirmDialog" class="hidden-view fixed inset-0 bg-slate-950/50 backdrop-blur-xs flex items-start justify-center pt-10 px-3 z-50">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup">
             <h3 id="uiConfirmTitle" class="text-sm font-bold text-slate-900 uppercase mb-1">Confirmation</h3>
@@ -57,7 +57,7 @@
         </div>
     </div>
 
-    <!-- DEDICATED QUEUE ACTION MODAL (ASKS GOLD RATE BEFORE CONFIRMING) -->
+    <!-- DEDICATED QUEUE ACTION MODAL (VALIDATES 5/6 DIGIT RATE & SHOWS DATE) -->
     <div id="queueActionModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup space-y-4">
             <div class="flex justify-between items-center border-b pb-2">
@@ -74,22 +74,20 @@
                 <div class="flex justify-between"><span class="text-slate-500">Account Code:</span><strong id="qaAcCode" class="font-mono text-slate-900">-</strong></div>
                 <div class="flex justify-between"><span class="text-slate-500">Installment Month:</span><strong id="qaMonth" class="font-mono text-slate-900">-</strong></div>
                 <div class="flex justify-between"><span class="text-slate-500">Remittance Amount:</span><strong id="qaAmount" class="font-mono text-amber-900 text-sm font-black">₹0</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Payment Date:</span><span id="qaDate" class="font-mono text-slate-600 font-semibold">-</span></div>
                 <div class="flex justify-between"><span class="text-slate-500">UTR / Reference:</span><span id="qaUtr" class="font-mono text-slate-600 font-semibold">-</span></div>
             </div>
 
-            <!-- Gold Rate Input with 5-Digit formatting -->
+            <!-- Rate Input (XX,XXX / X,XX,XXX) -->
             <div class="space-y-1.5">
                 <label class="font-bold text-slate-700 text-xs block">
-                    Today's 22K Gold Rate for 10 Grams (5-Digit Format X,XXXX) <span class="text-rose-600">*</span>
+                    Today's 22K Gold Rate for 10 Grams (5 or 6 Digits) <span class="text-rose-600">*</span>
                 </label>
-                <input type="number" id="qaGoldRateInput" oninput="calculateQueueModalGrams()" placeholder="e.g. 68500" class="w-full px-3 py-2.5 bg-amber-50/60 border border-amber-300 rounded-xl font-mono text-sm font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <div class="flex justify-between text-[10px] text-slate-500">
-                    <span>Formatted Rate: <strong id="qaFormattedRateBadge" class="text-amber-800 font-mono">6,8500</strong></span>
-                    <span>Standard 10-Gram 22K</span>
-                </div>
+                <input type="number" id="qaGoldRateInput" oninput="calculateQueueModalGrams()" placeholder="e.g. 68500 (5 digits) or 102500 (6 digits)" class="w-full px-3 py-2.5 bg-amber-50/60 border border-amber-300 rounded-xl font-mono text-sm font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <p class="text-[10px] text-slate-500">Format: 5 Digits in Thousands (e.g. 68,500) or 6 Digits in Lakhs (e.g. 1,02,000).</p>
             </div>
 
-            <!-- Calculated Output -->
+            <!-- Live Calculated Grams Output -->
             <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-center">
                 <span class="text-[10px] uppercase font-bold text-amber-800 block">Calculated 22K Gold Allocation</span>
                 <span id="qaCalculatedGrams" class="text-base font-mono font-black text-amber-950">0.000 Grams</span>
@@ -231,8 +229,8 @@
                     <input type="number" id="depositAmount" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono font-bold">
                 </div>
                 <div>
-                    <label class="font-bold text-slate-600 block mb-1">22K Gold Rate / 10g (INR) *</label>
-                    <input type="number" id="depositRate" required placeholder="e.g. 68500" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono font-bold">
+                    <label class="font-bold text-slate-600 block mb-1">22K Gold Rate / 10g (5 or 6 Digits) *</label>
+                    <input type="number" id="depositRate" required placeholder="e.g. 68500 (5 digits) or 102500 (6 digits)" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono font-bold">
                 </div>
                 <div>
                     <label class="font-bold text-slate-600 block mb-1">UTR / Cash Voucher Reference</label>
@@ -339,7 +337,7 @@
         </div>
     </div>
 
-    <!-- Header Navigation with ALL Requested Buttons -->
+    <!-- Header Navigation with ALL Requested Buttons Matching Reference -->
     <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md border-b border-slate-800">
         <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-col md:flex-row justify-between items-center gap-3">
             
@@ -491,7 +489,7 @@
                     </div>
                 </div>
 
-                <!-- Ledger Records Table With Date Display & X,XXXX Rate -->
+                <!-- Ledger Records Table WITH PAYMENT DATES & XX,XXX RATES -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="p-4 border-b flex justify-between items-center bg-slate-50">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Scheme Ledger (11 Months)</h3>
@@ -503,9 +501,9 @@
                                 <tr class="text-slate-500 bg-white border-b">
                                     <th class="p-3">Schedule</th>
                                     <th class="p-3">Status</th>
-                                    <th class="p-3">Payment Date</th>
                                     <th class="p-3">Remittance</th>
-                                    <th class="p-3">22K Rate (X,XXXX)</th>
+                                    <th class="p-3">Payment Date</th>
+                                    <th class="p-3">22K Rate (10g)</th>
                                     <th class="p-3">Weight</th>
                                     <th class="p-3">Reference / UTR</th>
                                     <th class="p-3 text-center">Action</th>
@@ -518,7 +516,7 @@
             </section>
         </div>
 
-        <!-- Tab 2: Queue (EXACT VIEW WITH IN-PAGE MODAL & DATE DISPLAY) -->
+        <!-- Tab 2: Queue (EXACT VIEW WITH IN-PAGE MODAL) -->
         <div id="tabContentApprovals" class="space-y-4 hidden-view">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -536,7 +534,7 @@
                                 <th class="p-3">Account</th>
                                 <th class="p-3">Month</th>
                                 <th class="p-3">Deposit</th>
-                                <th class="p-3">Payment Date</th>
+                                <th class="p-3">Date Submitted</th>
                                 <th class="p-3">Review Status</th>
                                 <th class="p-3">Reference</th>
                                 <th class="p-3 text-center">Actions</th>
@@ -611,7 +609,7 @@
         <p class="font-bold uppercase tracking-wider text-slate-700 text-[10px]">Suman Jewellers &bull; Operations Console</p>
     </footer>
 
-    <!-- Client Script -->
+    <!-- Client Script with Formatted Rates, Dates & Toast Notifications -->
     <script>
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
@@ -625,19 +623,14 @@
         let activeQueueItem = null;
         let activeConfirmResolver = null;
 
-        // FORMATS 5-DIGIT GOLD RATE AS STRICTLY X,XXXX (e.g. 68500 -> 6,8500)
-        function formatGoldRate5Digit(val) {
-            if (!val) return "-";
-            const num = Math.round(parseFloat(val));
-            if (isNaN(num)) return "-";
-            const s = num.toString().padStart(5, '0');
-            if (s.length === 5) {
-                return s.charAt(0) + ',' + s.slice(1);
-            }
-            return num.toLocaleString('en-IN');
+        // FORMAT GOLD RATE (5 Digits: XX,XXX | 6 Digits: X,XX,XXX)
+        function formatGoldRate(val) {
+            const num = parseFloat(val);
+            if (isNaN(num) || num <= 0) return "-";
+            return "₹" + num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
         }
 
-        // ON-SCREEN TOAST NOTIFICATIONS (NO BROWSER DIALOGS)
+        // ON-SCREEN FLOATING TOAST NOTIFICATION ENGINE
         function showNotification(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -686,10 +679,6 @@
             showNotification(`${title}: ${message}`, 'info');
         }
 
-        function closeUiAlert() {
-            document.getElementById('uiAlertDialog').classList.add('hidden-view');
-        }
-
         function uiConfirm(title, message) {
             return new Promise((resolve) => {
                 activeConfirmResolver = resolve;
@@ -735,10 +724,6 @@
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (res.licenseExpired) {
-                    alert(res.message);
-                    return;
-                }
                 if (res.success && res.user) {
                     sessionUser = res.user;
                     sessionUser.pin = pin;
@@ -940,6 +925,7 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
+                // STATEMENT TABLE SHOWS EXACT PAYMENT DATE & FORMATTED XX,XXX RATE
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     const rowData = txs.find(t => Number(t.month) === m);
                     if (rowData) {
@@ -950,10 +936,10 @@
                             <tr>
                                 <td class="p-3 font-bold">Month ${m}</td>
                                 <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${rowData.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${rowData.status}</span></td>
-                                <td class="p-3 font-mono text-slate-600">${rowData.paymentDate || '-'}</td>
                                 <td class="p-3 font-mono font-bold">₹${Number(rowData.amount).toLocaleString('en-IN')}</td>
-                                <td class="p-3 font-mono font-bold text-amber-900">${rowData.rate || '-'}</td>
-                                <td class="p-3 font-mono font-bold">${(Number(rowData.bookedGrams)||0).toFixed(3)}g</td>
+                                <td class="p-3 font-mono text-[11px] text-slate-600">${rowData.date || '-'}</td>
+                                <td class="p-3 font-mono font-semibold">${formatGoldRate(rowData.rate)}</td>
+                                <td class="p-3 font-mono font-bold text-amber-950">${(Number(rowData.bookedGrams)||0).toFixed(3)}g</td>
                                 <td class="p-3 font-mono text-slate-500">${rowData.utr || 'Showroom'}</td>
                                 <td class="p-3 text-center">${editBtn}</td>
                             </tr>
@@ -963,7 +949,12 @@
                             <tr class="text-slate-400">
                                 <td class="p-3">Month ${m}</td>
                                 <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 font-medium">Unpaid</span></td>
-                                <td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 font-mono">-</td><td class="p-3 text-center">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 text-center">-</td>
                             </tr>
                         `;
                     }
@@ -1121,7 +1112,7 @@
             document.getElementById('editTxRow').value = tx.row;
             document.getElementById('editTxAmount').value = tx.amount;
             document.getElementById('editTxStatus').value = tx.status;
-            document.getElementById('editTxRate').value = tx.rawRate || tx.rate || "";
+            document.getElementById('editTxRate').value = tx.rate || "";
             document.getElementById('editTxGrams').value = tx.bookedGrams || "";
             document.getElementById('editTxUtr').value = tx.utr || "";
             document.getElementById('editTxModal').classList.remove('hidden-view');
@@ -1201,7 +1192,9 @@
             const month = document.getElementById('depositMonth').value;
             const ref = document.getElementById('depositRef').value.trim() || "Showroom Counter Cash";
 
-            if (!amount || !rate10g) return alert("Amount and gold rate are strictly required.");
+            if (!amount || isNaN(rate10g) || rate10g < 10000 || rate10g > 999999) {
+                return alert("Validation Error: Gold rate must be 5 digits (XX,XXX) or 6 digits (X,XX,XXX).");
+            }
 
             const btn = document.getElementById('btnSubmitDeposit');
             isSubmitting = true;
@@ -1229,7 +1222,7 @@
                 hideLoader();
                 closeManualDepositModal();
                 if (res.success) {
-                    alert(`Payment committed. ${res.grams}g booked at Rate: ${res.rateFormatted} (Date: ${res.paymentDate})`);
+                    alert(`Payment committed. ${res.grams}g booked on ${res.date}.`);
                 } else {
                     alert(res.error || "Duplicate or rejected transaction.");
                 }
@@ -1414,7 +1407,9 @@
             });
         }
 
-        // QUEUE VERIFICATION MODAL ACTION LOGIC
+        // ======================================================================
+        // QUEUE VERIFICATION MODAL ENGINE WITH 5/6 DIGIT RATE RESTRICTIONS
+        // ======================================================================
         function loadKmpPendingApprovals() {
             showLoader("Accessing Queue...");
             fetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
@@ -1435,7 +1430,7 @@
                             <td class="p-3 font-mono font-bold">${i.acCode}</td>
                             <td class="p-3 font-bold">M-${i.month}</td>
                             <td class="p-3 font-mono font-bold">₹${rawAmount.toLocaleString('en-IN')}</td>
-                            <td class="p-3 font-mono text-slate-600">${i.paymentDate || '-'}</td>
+                            <td class="p-3 font-mono text-[11px] text-slate-600">${i.timestamp || '-'}</td>
                             <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status === 'Reviewed' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${i.status}</span></td>
                             <td class="p-3 font-mono text-slate-600">${i.utr || '-'}</td>
                             <td class="p-3 text-center whitespace-nowrap">
@@ -1452,13 +1447,13 @@
             });
         }
 
-        // OPENS MODAL (NO WINDOW.PROMPT - WORKS IN ALL IFRAMES)
         function openQueueModal(item, mode) {
             activeQueueItem = item;
             document.getElementById('qaMemberName').innerText = item.name;
             document.getElementById('qaAcCode').innerText = item.acCode;
             document.getElementById('qaMonth').innerText = "Month " + item.month;
             document.getElementById('qaAmount').innerText = "₹" + (parseFloat(item.amount) || 0).toLocaleString('en-IN');
+            document.getElementById('qaDate').innerText = item.timestamp || "Today";
             document.getElementById('qaUtr').innerText = item.utr || "Counter Cash";
 
             const initialRate = parseFloat(item.rateApplied) || 68500;
@@ -1485,13 +1480,11 @@
             if (!activeQueueItem) return;
             const amt = parseFloat(activeQueueItem.amount) || 0;
             const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value) || 0;
-            if (rate10g > 0 && amt > 0) {
+            if (rate10g >= 10000 && rate10g <= 999999 && amt > 0) {
                 const grams = (amt / (rate10g / 10)).toFixed(3);
                 document.getElementById('qaCalculatedGrams').innerText = grams + " Grams";
-                document.getElementById('qaFormattedRateBadge').innerText = formatGoldRate5Digit(rate10g);
             } else {
                 document.getElementById('qaCalculatedGrams').innerText = "0.000 Grams";
-                document.getElementById('qaFormattedRateBadge').innerText = "-";
             }
         }
 
@@ -1499,8 +1492,8 @@
             if (!activeQueueItem) return;
             const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value);
 
-            if (isNaN(rate10g) || rate10g <= 0) {
-                alert("Please enter a valid 5-digit 22K Gold Rate for 10 grams (e.g. 68500).");
+            if (isNaN(rate10g) || rate10g < 10000 || rate10g > 999999) {
+                alert("Validation Error: Gold rate must be 5 digits in thousands (e.g. 68,500) or 6 digits in lakhs (e.g. 1,02,500).");
                 return;
             }
 
@@ -1527,7 +1520,8 @@
                 hideLoader();
                 if (res && res.success) {
                     closeQueueActionModal();
-                    alert(isApprove ? `Payment Approved! ${res.gramsBooked}g gold credited at Rate: ${res.rateFormatted} (Date: ${res.paymentDate})` : `Rate Reviewed! ${res.gramsBooked}g locked at Rate: ${res.rateFormatted}`);
+                    const rateFormatted = formatGoldRate(rate10g);
+                    alert(isApprove ? `Payment Approved! ${res.gramsBooked}g gold credited at ${rateFormatted} on ${res.date}.` : `Rate Reviewed! ${res.gramsBooked}g locked at ${rateFormatted}.`);
                     loadKmpPendingApprovals();
                     if (typeof loadLiveDirectoryFeed === "function") loadLiveDirectoryFeed();
                 } else {
