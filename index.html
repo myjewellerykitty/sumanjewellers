@@ -223,7 +223,7 @@
                         <span class="text-[10px] font-semibold text-slate-400 uppercase">Live Accumulated</span>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-                        <span id="lblTotalGoldGrams" class="text-xl sm:text-2xl font-black text-slate-900 font-mono">0.000 g</span>
+                        <span id="lblTotalGoldGrams" class="text-xl sm:text-2xl font-black text-slate-900 font-mono">0.0000 g</span>
                     </div>
                 </div>
 
@@ -245,7 +245,7 @@
                     <p id="lblDrawDetails" class="text-[10px] sm:text-[11px] text-slate-500 text-center italic leading-tight"></p>
                 </div>
 
-                <!-- 11-Month Sequential Ledger Grid (NOW SHOWS PAYMENT DATE) -->
+                <!-- 11-Month Sequential Ledger Grid (SHOWS EXACT .XXXX WEIGHT & PAYMENT DATE) -->
                 <div class="reveal bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
                         <div>
@@ -361,11 +361,11 @@
 
             <div id="channelBankView" class="hidden-view bg-slate-50 rounded-xl p-3.5 border border-slate-200 mb-3.5 space-y-2 text-xs text-slate-800">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">Showroom Bank Transfer Credentials</p>
-                <div><span class="text-slate-400 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold">HDFC BANK LTD.</span></div>
-                <div><span class="text-slate-400 block text-[9px] uppercase">Account Title</span><span class="font-semibold">Suman Jewellers </span></div>
+                <div><span class="text-slate-400 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold">State Bank of India</span></div>
+                <div><span class="text-slate-400 block text-[9px] uppercase">Account Title</span><span class="font-semibold">Suman Jewellers Retail Private Limited</span></div>
                 <div class="grid grid-cols-2 gap-2 pt-1">
-                    <div><span class="text-slate-400 block text-[9px] uppercase">Account Number</span><span class="font-bold font-mono">50200016538756</span></div>
-                    <div><span class="text-slate-400 block text-[9px] uppercase">IFSC Code</span><span class="font-bold font-mono">HDFC0009113</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">Account Number</span><span class="font-bold font-mono">39485720194</span></div>
+                    <div><span class="text-slate-400 block text-[9px] uppercase">IFSC Code</span><span class="font-bold font-mono">SBIN0001824</span></div>
                 </div>
             </div>
 
@@ -510,11 +510,18 @@
 
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
-        // FORMAT GOLD RATE (5 Digits in Thousands: XX,XXX | 6 Digits in Lakhs: X,XX,XXX)
+        // FORMAT GOLD RATE (5 Digits: XX,XXX | 6 Digits: X,XX,XXX)
         function formatGoldRate(val) {
             const num = parseFloat(val);
             if (isNaN(num) || num <= 0) return "-";
             return "₹" + num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+        }
+
+        // FORMAT GOLD WEIGHT (Strictly 4 Decimals: X.XXXX, XX.XXXX, XXX.XXXX)
+        function formatGoldWeight(val) {
+            const num = parseFloat(val);
+            if (isNaN(num) || num < 0) return "0.0000";
+            return num.toFixed(4);
         }
 
         // ON-SCREEN NOTIFICATION ENGINE (REPLACES BROWSER ALERT)
@@ -704,7 +711,7 @@
                 });
 
                 document.getElementById('custLiveBalance').innerText = "₹" + (paidCount * globalMonthlyAmount).toLocaleString('en-IN');
-                document.getElementById('lblTotalGoldGrams').innerText = gramsTotal.toFixed(3) + " g";
+                document.getElementById('lblTotalGoldGrams').innerText = formatGoldWeight(gramsTotal) + " g";
 
                 const badge = document.getElementById('badgeWinnerStatus');
                 let prize = 0;
@@ -723,7 +730,7 @@
                 document.getElementById('lblRewardBenefit').innerText = "+₹" + prize.toLocaleString('en-IN');
                 document.getElementById('lblTotalMaturity').innerText = "₹" + ((11 * globalMonthlyAmount) + prize).toLocaleString('en-IN');
 
-                // PASSBOOK GRID WITH DATES & XX,XXX FORMATTED RATES
+                // PASSBOOK GRID WITH DATES, FORMATTED RATES & 4-DECIMAL WEIGHT
                 const grid = document.getElementById('gridWrapper');
                 grid.innerHTML = "";
                 const nextPayable = data.nextPayableMonth || 1;
@@ -733,7 +740,7 @@
                     let label = "Pay Now", style = "", action = "", dateBadge = "";
 
                     if (tx && tx.status === "Paid") {
-                        let gWeight = (Number(tx.bookedGrams) || 0).toFixed(3);
+                        let gWeight = formatGoldWeight(tx.bookedGrams);
                         let rateFormatted = formatGoldRate(tx.rate);
                         label = `<span class="font-black">${gWeight}g</span><span class="text-[9px] text-emerald-700 block">${rateFormatted}</span>`;
                         dateBadge = tx.date ? `<span class="text-[8px] text-slate-400 font-mono block mt-0.5">${tx.date.split(' ')[0]}</span>` : '';
@@ -912,7 +919,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Check 1-Year License Expiry
             if (!verifyPortalLicense()) return;
 
             const dot = document.getElementById('cursorDot');
