@@ -508,21 +508,18 @@
 
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
-        // FORMAT GOLD RATE (5 Digits: XX,XXX | 6 Digits: X,XX,XXX)
         function formatGoldRate(val) {
             const num = parseFloat(val);
             if (isNaN(num) || num <= 0) return "-";
             return "₹" + num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
         }
 
-        // FORMAT GOLD WEIGHT (Strictly 4 Decimals: X.XXXX, XX.XXXX, XXX.XXXX)
         function formatGoldWeight(val) {
             const num = parseFloat(val);
             if (isNaN(num) || num < 0) return "0.0000";
             return num.toFixed(4);
         }
 
-        // ON-SCREEN NOTIFICATION ENGINE (REPLACES BROWSER ALERT)
         function showNotification(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -575,6 +572,14 @@
             document.getElementById('loadingOverlay').classList.add('hidden-view');
         }
 
+        function fetchFast(url, options = {}) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s hard limit
+            return fetch(url, { ...options, signal: controller.signal })
+                .then(r => { clearTimeout(timeoutId); return r.json(); })
+                .catch(e => { clearTimeout(timeoutId); throw e; });
+        }
+
         function handlePhoneContinue() {
             const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
             if (rawPhone.length !== 10) return alert("Please enter a valid 10-digit mobile number.");
@@ -582,8 +587,7 @@
             showLoader("Checking Account...");
             globalCustomerPhone = rawPhone;
 
-            fetch(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
-            .then(r => r.json())
+            fetchFast(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
                 if (!res.success) return alert(res.error || "Account not located.");
@@ -599,7 +603,7 @@
             })
             .catch(() => {
                 hideLoader();
-                alert("Server connection timeout.");
+                alert("Server connection timeout. Please try again.");
             });
         }
 
@@ -609,8 +613,7 @@
 
             showLoader("Authenticating MPIN...");
 
-            fetch(`${config.scriptUrl}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
-            .then(r => r.json())
+            fetchFast(`${config.scriptUrl}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
                 if (res.success) {
@@ -622,7 +625,7 @@
             })
             .catch(() => {
                 hideLoader();
-                alert("Connection failed.");
+                alert("Connection failed. Try again.");
             });
         }
 
@@ -633,8 +636,7 @@
 
             showLoader("Saving Security PIN...");
 
-            fetch(`${config.scriptUrl}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}&_ts=${Date.now()}`)
-            .then(r => r.json())
+            fetchFast(`${config.scriptUrl}?action=setInitialMpin&phone=${globalCustomerPhone}&mpin=${p1}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
                 if (res.success) {
@@ -642,13 +644,12 @@
                     fetchUserProfile(globalCustomerPhone);
                 } else alert("Failed to save PIN.");
             })
-            .catch(() => hideLoader());
+            .catch(() => { hideLoader(); alert("Network timeout."); });
         }
 
         function fetchUserProfile(phone) {
             showLoader("Loading Details...");
-            fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(phone)}&_ts=${Date.now()}`)
-            .then(r => r.json())
+            fetchFast(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(phone)}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
                 if (!res || !res.results || res.results.length === 0) return alert("No GRMS account located.");
@@ -666,7 +667,7 @@
                     document.getElementById('multiKittyWrapper').classList.remove('hidden-view');
                 }
             })
-            .catch(() => hideLoader());
+            .catch(() => { hideLoader(); alert("Failed to load profile."); });
         }
 
         function confirmSelectedKitty() {
@@ -677,8 +678,7 @@
 
         function loadPassbook(phone, acCode) {
             showLoader("Retrieving Ledger...");
-            fetch(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`)
-            .then(r => r.json())
+            fetchFast(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`)
             .then(data => {
                 hideLoader();
                 if (!data || !data.profile) return alert("Failed to load ledger profile.");
@@ -727,7 +727,6 @@
                 document.getElementById('lblRewardBenefit').innerText = "+₹" + prize.toLocaleString('en-IN');
                 document.getElementById('lblTotalMaturity').innerText = "₹" + ((11 * globalMonthlyAmount) + prize).toLocaleString('en-IN');
 
-                // PASSBOOK GRID WITH DATES, FORMATTED RATES & 4-DECIMAL WEIGHT
                 const grid = document.getElementById('gridWrapper');
                 grid.innerHTML = "";
                 const nextPayable = data.nextPayableMonth || 1;
@@ -766,7 +765,7 @@
 
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
             })
-            .catch(() => hideLoader());
+            .catch(() => { hideLoader(); alert("Failed to retrieve ledger."); });
         }
 
         function openPaymentModal(m) {
@@ -833,12 +832,11 @@
                     screenshotUrl: base64 || ""
                 };
 
-                fetch(config.scriptUrl, {
+                fetchFast(config.scriptUrl, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 })
-                .then(r => r.json())
                 .then(res => {
                     hideLoader();
                     closePaymentModal();
@@ -897,14 +895,13 @@
 
         function requestCurrentMpinRecovery() {
             showLoader("Sending MPIN to Email...");
-            fetch(`${config.scriptUrl}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`)
-            .then(r => r.json())
+            fetchFast(`${config.scriptUrl}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
                 if (res.success) alert("MPIN sent to your registered email: " + res.email);
                 else alert(res.error || "No registered email found on file.");
             })
-            .catch(() => hideLoader());
+            .catch(() => { hideLoader(); alert("Request timeout."); });
         }
 
         function openTermsModal() {
