@@ -516,7 +516,7 @@
             </section>
         </div>
 
-        <!-- Tab 2: Queue (EXACT VIEW WITH IN-PAGE MODAL) -->
+        <!-- Tab 2: Queue (OPTIMISTIC ZERO-WAIT VERIFICATION) -->
         <div id="tabContentApprovals" class="space-y-4 hidden-view">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -686,6 +686,10 @@
             showNotification(`${title}: ${message}`, 'info');
         }
 
+        function closeUiAlert() {
+            document.getElementById('uiAlertDialog').classList.add('hidden-view');
+        }
+
         function uiConfirm(title, message) {
             return new Promise((resolve) => {
                 activeConfirmResolver = resolve;
@@ -793,18 +797,25 @@
         }
 
         function loadLiveDirectoryFeed() {
-            showLoader("Syncing Live Directory...");
+            // Stale-While-Revalidate: If cached in sessionStorage, render in 0ms!
+            const localCache = sessionStorage.getItem("GRMS_DIR_CACHE");
+            if (localCache) {
+                allMembersFeed = JSON.parse(localCache);
+                document.getElementById('lblTotalMemberCount').innerText = `${allMembersFeed.length} Registered Members`;
+                renderLiveDirectoryTable(allMembersFeed);
+            }
+
             fetch(`${config.scriptUrl}?action=getAllMembers&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                hideLoader();
                 if (res && res.success) {
                     allMembersFeed = res.members || [];
+                    sessionStorage.setItem("GRMS_DIR_CACHE", JSON.stringify(allMembersFeed));
                     document.getElementById('lblTotalMemberCount').innerText = `${allMembersFeed.length} Registered Members`;
                     renderLiveDirectoryTable(allMembersFeed);
                 }
             })
-            .catch(() => hideLoader());
+            .catch(() => {});
         }
 
         function renderLiveDirectoryTable(membersList) {
@@ -1415,7 +1426,7 @@
         }
 
         // ======================================================================
-        // QUEUE VERIFICATION MODAL ENGINE WITH 5/6 DIGIT RATE & STRICT .XXXX WEIGHT
+        // QUEUE VERIFICATION ENGINE (OPTIMISTIC 0-WAIT EXECUTION)
         // ======================================================================
         function loadKmpPendingApprovals() {
             showLoader("Accessing Queue...");
@@ -1432,13 +1443,13 @@
                 list.forEach(i => {
                     const rawAmount = parseFloat(i.amount) || 0;
                     tbody.innerHTML += `
-                        <tr>
+                        <tr id="qRow_${i.row}">
                             <td class="p-3 font-bold">${i.name}<br><span class="text-[10px] font-mono text-slate-400">+91 ${i.phone}</span></td>
                             <td class="p-3 font-mono font-bold">${i.acCode}</td>
                             <td class="p-3 font-bold">M-${i.month}</td>
                             <td class="p-3 font-mono font-bold">₹${rawAmount.toLocaleString('en-IN')}</td>
                             <td class="p-3 font-mono text-[11px] text-slate-600">${i.timestamp || '-'}</td>
-                            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status === 'Reviewed' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${i.status}</span></td>
+                            <td class="p-3"><span id="qStatus_${i.row}" class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status === 'Reviewed' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${i.status}</span></td>
                             <td class="p-3 font-mono text-slate-600">${i.utr || '-'}</td>
                             <td class="p-3 text-center whitespace-nowrap">
                                 <button onclick='openQueueModal(${JSON.stringify(i)}, "review")' class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press">Rate Review</button>
@@ -1496,6 +1507,7 @@
             }
         }
 
+        // SUBMITS WITH OPTIMISTIC INSTANT UI FEEDBACK (NO DOUBLE-FETCH FREEZE)
         function submitQueueAction(actionType) {
             if (!activeQueueItem) return;
             const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value);
@@ -1506,13 +1518,31 @@
             }
 
             const isApprove = (actionType === 'approve');
-            const actionName = isApprove ? "approve" : "reviewTransaction";
+            const targetRow = activeQueueItem.row;
+            const rateFormatted = formatGoldRate(rate10g);
+            const calculatedGrams = formatGoldWeight(parseFloat(activeQueueItem.amount) / (rate10g / 10));
 
-            showLoader(isApprove ? "Committing Ledger Approval..." : "Setting Reviewed Rate...");
+            // 1. Close Modal & Update DOM Instantly (0.05 second perceived execution)
+            closeQueueActionModal();
 
+            const statusBadge = document.getElementById(`qStatus_${targetRow}`);
+            const rowElem = document.getElementById(`qRow_${targetRow}`);
+
+            if (isApprove) {
+                if (rowElem) rowElem.classList.add("opacity-40", "bg-emerald-50");
+                alert(`Payment Approved! ${calculatedGrams}g gold credited at ${rateFormatted}.`);
+            } else {
+                if (statusBadge) {
+                    statusBadge.innerText = "Reviewed";
+                    statusBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-800";
+                }
+                alert(`Rate Reviewed! ${calculatedGrams}g locked at ${rateFormatted}.`);
+            }
+
+            // 2. Dispatch Background Sync
             const payload = {
-                action: actionName,
-                row: activeQueueItem.row,
+                action: isApprove ? "approve" : "reviewTransaction",
+                row: targetRow,
                 rateUsed: rate10g,
                 authUser: (sessionUser && sessionUser.username) ? sessionUser.username : "Admin",
                 authPin: (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108"
@@ -1525,21 +1555,15 @@
             })
             .then(r => r.json())
             .then(res => {
-                hideLoader();
-                if (res && res.success) {
-                    closeQueueActionModal();
-                    const rateFormatted = formatGoldRate(rate10g);
-                    const gramsFormatted = formatGoldWeight(res.gramsBooked);
-                    alert(isApprove ? `Payment Approved! ${gramsFormatted}g gold credited at ${rateFormatted} on ${res.date}.` : `Rate Reviewed! ${gramsFormatted}g locked at ${rateFormatted}.`);
+                if (!res || !res.success) {
+                    alert("Sync Error: " + (res ? res.error : "Transaction could not be confirmed."));
                     loadKmpPendingApprovals();
-                    if (typeof loadLiveDirectoryFeed === "function") loadLiveDirectoryFeed();
-                } else {
-                    alert(res.error || "Action failed.");
+                } else if (isApprove) {
+                    if (rowElem) rowElem.remove();
                 }
             })
-            .catch(err => {
-                hideLoader();
-                alert("Network Error: Could not communicate with backend server.");
+            .catch(() => {
+                alert("Network Warning: Server unreachable, changes may be delayed.");
             });
         }
 
