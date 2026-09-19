@@ -269,7 +269,7 @@
     </div>
 
     <script>
-        // 1-Year Expiry Engine
+        // 1-Year Expiry Lock Engine
         const EXPIRY_TIMESTAMP = new Date("2027-09-19T23:59:59+05:30").getTime();
 
         function checkSystemExpiry() {
@@ -514,7 +514,6 @@
                 document.getElementById('authContainer').classList.add('hidden-view');
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
 
-                // Instant Client-Side Computation
                 renderPassbookUI(res);
             })
             .catch(() => {
@@ -547,7 +546,6 @@
             document.getElementById('custLiveBalance').innerText = "₹" + totalPrincipal.toLocaleString('en-IN');
             document.getElementById('lblTotalGoldGrams').innerText = formatGramsDisplay(totalGrams);
 
-            // Client-Side Reward & Maturity Computation
             const wins = parseInt(p.winCount, 10) || 0;
             const badge = document.getElementById('badgeWinnerStatus');
             const monthlyAmt = Number(p.monthlyAmount) || 0;
@@ -568,7 +566,6 @@
             document.getElementById('lblRewardBenefit').innerText = "+₹" + bonus.toLocaleString('en-IN');
             document.getElementById('lblTotalMaturity').innerText = "₹" + ((11 * monthlyAmt) + bonus).toLocaleString('en-IN');
 
-            // Render Sequential 11-Month Grid with Payment Timestamps
             const grid = document.getElementById('gridWrapper');
             grid.innerHTML = "";
 
