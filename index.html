@@ -13,53 +13,35 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        .animate-spin-slow {
-            animation: spinSlow 0.9s linear infinite;
-        }
+        .animate-spin-slow { animation: spinSlow 0.9s linear infinite; }
 
         @keyframes bounceShort {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-3px); }
         }
-        .animate-bounce-short {
-            animation: bounceShort 0.35s ease-out;
-        }
+        .animate-bounce-short { animation: bounceShort 0.35s ease-out; }
 
         @keyframes toastIn {
             from { opacity: 0; transform: translateY(-16px) scale(0.96); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .animate-toast {
-            animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+        .animate-toast { animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         @media (hover: hover) and (pointer: fine) {
             * { cursor: none !important; }
             .cursor-dot {
-                position: fixed;
-                top: 0; left: 0;
-                width: 6px; height: 6px;
-                background-color: #b45309;
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 9999;
-                transform: translate(-50%, -50%);
-                transition: opacity 0.2s ease;
+                position: fixed; top: 0; left: 0; width: 6px; height: 6px;
+                background-color: #b45309; border-radius: 50%; pointer-events: none;
+                z-index: 9999; transform: translate(-50%, -50%);
             }
             .cursor-ring {
-                position: fixed;
-                top: 0; left: 0;
-                width: 32px; height: 32px;
-                border: 1.5px solid rgba(180, 83, 9, 0.55);
-                border-radius: 50%;
-                pointer-events: none;
-                z-index: 9998;
-                transform: translate(-50%, -50%);
-                transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+                position: fixed; top: 0; left: 0; width: 32px; height: 32px;
+                border: 1.5px solid rgba(180, 83, 9, 0.55); border-radius: 50%;
+                pointer-events: none; z-index: 9998; transform: translate(-50%, -50%);
+                transition: width 0.2s ease, height 0.2s ease;
             }
             .cursor-ring.active-hover {
-                width: 48px; height: 48px;
-                border-color: #78350f;
+                width: 48px; height: 48px; border-color: #78350f;
                 background-color: rgba(245, 158, 11, 0.12);
             }
         }
@@ -68,30 +50,17 @@
         }
 
         .reveal {
-            opacity: 0;
-            transform: translateY(18px);
-            transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-            will-change: opacity, transform;
+            opacity: 0; transform: translateY(18px);
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .reveal.is-visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .reveal.is-visible { opacity: 1; transform: translateY(0); }
 
-        .active-press {
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-        }
-        .active-press:active {
-            transform: scale(0.96);
-            filter: brightness(0.92);
-        }
+        .active-press:active { transform: scale(0.96); filter: brightness(0.92); }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- FLOATING ON-SCREEN NOTIFICATION CONTAINER -->
     <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[99999] flex flex-col items-center gap-2 pointer-events-none w-full max-w-sm px-4"></div>
-
     <div id="cursorDot" class="cursor-dot"></div>
     <div id="cursorRing" class="cursor-ring"></div>
 
@@ -108,7 +77,6 @@
     <!-- MAIN CUSTOMER VIEW CONTAINER -->
     <div id="customerView" class="max-w-md mx-auto w-full p-3 sm:p-4 flex-1">
         <div>
-            <!-- Header with Official White Suman Jewellers Logo in Badge -->
             <header class="reveal bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4 sm:mb-5">
                 <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-28 sm:h-32 object-cover object-center">
                 <div class="p-3 sm:p-4 text-center relative pt-8">
@@ -125,18 +93,11 @@
                 <div id="phoneSection" class="reveal bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div>
                         <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">Registered Mobile Number</label>
-                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 focus:bg-white transition-all font-mono">
+                        <input type="tel" id="phoneInput" placeholder="Enter 10-Digit Mobile Number" maxlength="10" class="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 font-mono">
                     </div>
                     <button onclick="handlePhoneContinue()" id="btnPhoneContinue" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer active-press">
                         Access GRMS Passbook
                     </button>
-
-                    <div class="pt-2 flex items-center justify-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity">
-                        <img src="https://i.pinimg.com/736x/bd/d0/5c/bdd05c94afb66b5a72f5e17a7a879ab3.jpg" alt="Ofbuzz Logo" class="w-3.5 h-3.5 rounded-full object-cover border border-slate-300">
-                        <span class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">
-                            AN OFBUZZ PRODUCT &bull; OFBUZZ TECHNOLOGY
-                        </span>
-                    </div>
                 </div>
 
                 <div id="mpinLoginSection" class="hidden-view bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
@@ -151,15 +112,15 @@
                         Verify MPIN &amp; Open Passbook
                     </button>
                     <div class="flex justify-between items-center text-xs pt-1">
-                        <button onclick="resetToPhoneStep()" class="text-slate-400 hover:text-slate-600 font-semibold cursor-pointer active-press">← Change Phone</button>
-                        <button onclick="requestCurrentMpinRecovery()" class="text-amber-800 hover:underline font-bold cursor-pointer active-press">Forgot MPIN?</button>
+                        <button onclick="resetToPhoneStep()" class="text-slate-400 hover:text-slate-600 font-semibold cursor-pointer">← Change Phone</button>
+                        <button onclick="requestCurrentMpinRecovery()" class="text-amber-800 hover:underline font-bold cursor-pointer">Forgot MPIN?</button>
                     </div>
                 </div>
 
                 <div id="firstTimeMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div class="text-center">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900">Set Security 4-Digit MPIN</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Welcome! Create a secure PIN for future logins.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Create a secure PIN for future logins.</p>
                     </div>
                     <div class="space-y-2.5">
                         <input type="password" id="firstMpin1" placeholder="Enter 4-Digit MPIN" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-lg font-bold tracking-widest">
@@ -244,7 +205,7 @@
                     <p id="lblDrawDetails" class="text-[10px] sm:text-[11px] text-slate-500 text-center italic leading-tight"></p>
                 </div>
 
-                <!-- 11-Month Sequential Ledger Grid (SHOWS FULL PAYMENT DATE & TIME) -->
+                <!-- 11-Month Sequential Ledger Grid with Full Payment Timestamps -->
                 <div class="reveal bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
                         <div>
@@ -262,109 +223,34 @@
                             <h4 class="text-xs font-bold text-slate-900">Showroom Verification Desk</h4>
                             <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">Need help with draw dates or passbook?</p>
                         </div>
-                        <a id="supportLink" href="https://wa.me/919810000000" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all cursor-pointer shrink-0 active-press">
+                        <a id="supportLink" href="https://wa.me/919810000000" target="_blank" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer active-press">
                             Contact Desk
                         </a>
                     </div>
-
-                    <button onclick="openTermsModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold py-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 active-press">
-                        View Scheme Terms &amp; Conditions
-                    </button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Scheme Terms Modal -->
-    <div id="termsModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-lg shadow-xl border border-slate-200 max-h-[85vh] flex flex-col justify-between animate-bounce-short">
-            <div>
-                <div class="border-b border-slate-100 pb-2.5 mb-2.5 flex justify-between items-center">
-                    <div>
-                        <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase">Terms &amp; Conditions</h3>
-                        <p class="text-[10px] sm:text-[11px] text-amber-800 font-semibold">Golden Rose Magic Scheme (GRMS)</p>
-                    </div>
-                    <button onclick="closeTermsModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer p-1 active-press">&times;</button>
-                </div>
-                <div class="overflow-y-auto max-h-[55vh] pr-1.5">
-                    <ol class="text-[10px] sm:text-[11px] text-slate-600 space-y-2 list-decimal pl-4 leading-relaxed text-justify">
-                        <li>For Enrollment in Golden Rose Magic Scheme (GRMS) you must duly fill in &amp; sign the application form and deposit it at the Showroom with two photographs and a copy of any one official identity card document. Collect the Passbook and keep it in safe custody.</li>
-                        <li><strong>Key Terms:</strong>
-                            <ul class="list-disc pl-4 mt-1 space-y-0.5 text-slate-500">
-                                <li><em>Monthly Installment:</em> Amount to be given by participants to Suman Jewellers every month.</li>
-                                <li><em>Principal Amount:</em> Total installment sum paid by participant across 11 months.</li>
-                                <li><em>Interest Amount:</em> Lump-sum bonus provided upon maturity for non-winners.</li>
-                                <li><em>Winner:</em> Member who wins the lucky draw during the scheme tenure.</li>
-                            </ul>
-                        </li>
-                        <li>In case the passbook is lost, a fee of Rs.50/- will be charged for issuing a duplicate passbook.</li>
-                        <li>The GRMS will start on completion of 100 members and the tenure of the scheme will be 11 months. Every month there will be a draw continuing continuously for 11 months up to maturity. The draw will be held between the 21st and 25th of every calendar month.</li>
-                        <li>Every month one winner will receive Rs.15,000/- (for Rs.8,000/- monthly plan) or Rs.10,000/- (for Rs.5,000/- monthly plan). The amount is added on maturity to the principal amount after 11 months (i.e. one winner every month).</li>
-                        <li>The scheme continues for the winner and the winner remains fully eligible for all subsequent draws up to maturity. Any participant, including previous winners, can win multiple times.</li>
-                        <li>You agree to receive official communications via Phone Call, SMS, or WhatsApp on numbers registered in the Passbook.</li>
-                        <li>You are requested to attend the GRMS Draw in person to inspect that the process is fair and transparent. After the draw is conducted, Suman Jewellers will not be responsible for any objections.</li>
-                        <li>You are requested to inform the showroom in advance about your attendance for the draw by the 18th–20th of each month. Inquire for the exact date, timing, and venue.</li>
-                        <li><strong>Maturity &amp; Interest Rules:</strong>
-                            <ul class="list-disc pl-4 mt-1 space-y-0.5 text-slate-500">
-                                <li><strong>Rs.8,000 Scheme (Non-Winners):</strong> 11 &times; Rs.8,000 = Rs.88,000 + Rs.3,000 (Interest) = <strong>Rs.91,000/-</strong> maturity.</li>
-                                <li><strong>Rs.5,000 Scheme (Non-Winners):</strong> 11 &times; Rs.5,000 = Rs.55,000 + Rs.2,000 (Interest) = <strong>Rs.57,000/-</strong> maturity.</li>
-                                <li><em>Note:</em> The fixed Interest Amount is not applicable if a participant wins a draw; the draw prize replaces interest.</li>
-                            </ul>
-                        </li>
-                        <li>You must pay the first installment by cash or card at the Showroom. Subsequent monthly installments can be made via Cash / Cheque / PDC / Demand Draft / ECS / Online UPI. Always obtain a computerized receipt at the cash counter. Suman Jewellers is not responsible for payments made to unauthorized individuals.</li>
-                        <li>Payments can be made in multiples of the monthly installment. The monthly due date is the <strong>15th of every calendar month</strong>. For online deposits (NEFT/ECS/UPI), inform the showroom with the transaction UTR number.</li>
-                    </ol>
-                </div>
-            </div>
-            <button onclick="closeTermsModal()" class="w-full mt-3.5 bg-slate-900 text-white font-bold py-2.5 rounded-xl text-xs cursor-pointer active-press">
-                Close Terms
-            </button>
         </div>
     </div>
 
     <!-- Payment Submission Modal -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto animate-bounce-short">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl border border-slate-100 animate-bounce-short">
             <div class="border-b border-slate-100 pb-3 mb-3.5 flex justify-between items-start">
                 <div>
                     <h3 class="text-sm sm:text-base font-bold text-slate-900">GRMS Installment Payment</h3>
                     <p id="modalMonthTarget" class="text-xs font-medium text-slate-500 mt-0.5">Month Allocation</p>
                 </div>
-                <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer p-1 active-press">&times;</button>
-            </div>
-
-            <div id="multiKittySelectionContainer" class="hidden-view mb-3.5 bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
-                <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
-                    Select GRMS Accounts To Include In Payment:
-                </label>
-                <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-32 overflow-y-auto pt-1"></div>
+                <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer p-1">&times;</button>
             </div>
 
             <a id="btnUpiAppPay" href="#" class="w-full mb-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active-press">
                 Pay Via UPI App (GPay / PhonePe / Paytm)
             </a>
 
-            <button onclick="togglePaymentMethodView()" id="btnPaymentToggle" class="w-full mb-3.5 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold py-2 rounded-xl transition-all cursor-pointer text-center active-press">
-                Switch to Bank Account Credentials
-            </button>
-
             <div id="channelUpiView" class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col items-center justify-center mb-3.5">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Scan Official Showroom QR Code</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Scan Showroom QR Code</p>
                 <div class="w-32 h-32 sm:w-36 sm:h-36 bg-white p-2 rounded-lg border border-slate-200 shadow-sm flex items-center justify-center">
-                    <img id="qrCodeImg" src="" alt="UPI Payment QR Code" class="w-full h-full object-contain">
-                </div>
-                <button onclick="copyUpiId()" class="mt-2.5 text-xs font-mono text-slate-700 hover:text-slate-900 font-semibold cursor-pointer active-press">
-                    Copy VPA: <span id="lblUpiVpa" class="font-bold text-slate-900">vyapar.178552646415@hdfcbank</span>
-                </button>
-            </div>
-
-            <div id="channelBankView" class="hidden-view bg-slate-50 rounded-xl p-3.5 border border-slate-200 mb-3.5 space-y-2 text-xs text-slate-800">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">Showroom Bank Transfer Credentials</p>
-                <div><span class="text-slate-400 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold">HDFC BANK LTD.</span></div>
-                <div><span class="text-slate-400 block text-[9px] uppercase">Account Title</span><span class="font-semibold">Suman Jewellers </span></div>
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <div><span class="text-slate-400 block text-[9px] uppercase">Account Number</span><span class="font-bold font-mono">50200016538756</span></div>
-                    <div><span class="text-slate-400 block text-[9px] uppercase">IFSC Code</span><span class="font-bold font-mono">HDFC0009113</span></div>
+                    <img id="qrCodeImg" src="" alt="UPI QR Code" class="w-full h-full object-contain">
                 </div>
             </div>
 
@@ -373,72 +259,17 @@
                     <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Transaction UTR / Reference</label>
                     <input type="text" id="utrInput" placeholder="Enter 12-Digit Bank UTR" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono">
                 </div>
-                <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Payment Confirmation Slip</label>
-                    <input type="file" id="fileInput" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 cursor-pointer">
-                </div>
             </div>
 
             <div class="flex gap-2">
-                <button onclick="closePaymentModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-200 cursor-pointer active-press">Cancel</button>
+                <button onclick="closePaymentModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-sm font-semibold cursor-pointer">Cancel</button>
                 <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 bg-[#800020] hover:bg-[#650019] text-white py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider cursor-pointer active-press">Submit Proof</button>
             </div>
         </div>
     </div>
 
-    <!-- Standardized Luxury Footer -->
-    <footer class="reveal bg-slate-900 text-slate-300 border-t border-slate-800 mt-10 pt-10 pb-8 text-xs">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-                
-                <div class="space-y-3">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full border border-amber-400/40 p-0.5 flex items-center justify-center shrink-0 bg-white shadow-xs">
-                            <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Logo" class="w-full h-full object-contain">
-                        </div>
-                        <span class="font-bold tracking-tight uppercase text-white">Suman Jewellers</span>
-                    </div>
-                    <p class="text-[11px] text-slate-400 leading-relaxed">
-                        Pure 22K Gold &amp; Certified Diamond jewellery crafted with heritage, trust, and transparent monthly kitty schemes since 1996.
-                    </p>
-                    <div class="pt-1">
-                        <a href="https://maps.app.goo.gl/iAv32xCsxuh1K7pa8" target="_blank" class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors active-press">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span>Visit Our Showroom</span>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="space-y-2.5">
-                    <h5 class="text-[11px] font-bold text-white uppercase tracking-wider">Explore</h5>
-                    <ul class="space-y-2 text-[11px]">
-                        <li><a href="https://www.sumanjewellers.co.in/collection" target="_blank" class="hover:text-amber-400 transition-colors">Jewellery Collection</a></li>
-                        <li><a href="https://maps.app.goo.gl/iAv32xCsxuh1K7pa8" target="_blank" class="hover:text-amber-400 transition-colors">Locate Store</a></li>
-                        <li><a href="https://www.sumanjewellers.co.in/about/blogs" target="_blank" class="hover:text-amber-400 transition-colors">Articles &amp; Blogs</a></li>
-                        <li><a href="https://www.sumanjewellers.co.in/about/contact-us" target="_blank" class="hover:text-amber-400 transition-colors">Contact Support</a></li>
-                    </ul>
-                </div>
-
-                <div class="space-y-2.5">
-                    <h5 class="text-[11px] font-bold text-white uppercase tracking-wider">Showroom Hours</h5>
-                    <p class="text-[11px] text-slate-400 leading-relaxed">Mon - Sun: 11:00 AM - 8:30 PM<br>Tuesday: Open</p>
-                    <p class="text-[10px] text-amber-400/80 font-mono mt-1">100% BIS Hallmarked 916 Gold</p>
-                </div>
-
-                <div class="space-y-2.5">
-                    <h5 class="text-[11px] font-bold text-white uppercase tracking-wider">Security Guarantee</h5>
-                    <p class="text-[11px] text-slate-400 leading-relaxed">Computerized automated receipts &amp; 100% verified bank allocations.</p>
-                </div>
-            </div>
-
-            <div class="border-t border-slate-800/80 pt-5 text-center text-[10px] text-slate-500">
-                &copy; 2026 Suman Jewellers. All Rights Reserved. Golden Rose Magic Scheme.
-            </div>
-        </div>
-    </footer>
-
     <script>
-        // EXPIRY LOCK: Exact 1 year from 19 September 2026
+        // 1-Year Expiry Engine
         const EXPIRY_TIMESTAMP = new Date("2027-09-19T23:59:59+05:30").getTime();
 
         function checkSystemExpiry() {
@@ -446,8 +277,8 @@
                 document.body.innerHTML = `
                     <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#090d16;color:#fff;text-align:center;padding:24px;font-family:sans-serif;">
                         <div style="width:64px;height:64px;border-radius:50%;background:#e11d48;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;">🔒</div>
-                        <h1 style="font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Portal License Expired</h1>
-                        <p style="font-size:13px;color:#94a3b8;max-width:380px;line-height:1.5;">This operational instance expired on 19 September 2027. Contact software administrators to renew the license.</p>
+                        <h1 style="font-size:20px;font-weight:900;text-transform:uppercase;">Portal License Expired</h1>
+                        <p style="font-size:13px;color:#94a3b8;max-width:380px;line-height:1.5;margin-top:8px;">This operational instance expired on 19 September 2027. Contact administration for renewal.</p>
                     </div>
                 `;
                 return true;
@@ -467,9 +298,9 @@
         let allCustomerAccounts = [];
         let targetPayMonth = 1;
 
-        // Custom Grams Formatter: X.XXXX (<10), XX.XXXX (10-99), XXX.XXXX (>=100)
-        function formatGramsDisplay(grams) {
-            const num = parseFloat(grams);
+        // Dynamic Precision Formatter: X.XXXX (<10), XX.XXXX (10-99), XXX.XXXX (>=100)
+        function formatGramsDisplay(val) {
+            const num = parseFloat(val);
             if (isNaN(num) || num <= 0) return "0.0000 g";
             return num.toFixed(4) + " g";
         }
@@ -512,11 +343,9 @@
         window.addEventListener('DOMContentLoaded', () => {
             if (checkSystemExpiry()) return;
             setupCursor();
-            revealElements();
+            document.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
             const savedPhone = localStorage.getItem('grms_phone');
-            if (savedPhone) {
-                document.getElementById('phoneInput').value = savedPhone;
-            }
+            if (savedPhone) document.getElementById('phoneInput').value = savedPhone;
         });
 
         function setupCursor() {
@@ -535,17 +364,11 @@
             });
         }
 
-        function revealElements() {
-            document.querySelectorAll('.reveal').forEach(el => el.classList.add('is-visible'));
-        }
-
         function handlePhoneContinue() {
             if (checkSystemExpiry()) return;
             const input = document.getElementById('phoneInput').value.replace(/\D/g, '').slice(-10);
-            if (input.length !== 10) {
-                showNotification("Please enter a valid 10-digit mobile number.", "error");
-                return;
-            }
+            if (input.length !== 10) return showNotification("Enter a valid 10-digit mobile number.", "error");
+
             currentPhone = input;
             showLoader("Verifying phone number...");
 
@@ -563,24 +386,21 @@
                         document.getElementById('firstTimeMpinSection').classList.remove('hidden-view');
                     }
                 } else {
-                    showNotification(res.error || "No active account found for this number.", "error");
+                    showNotification(res.error || "No active account found.", "error");
                 }
             })
             .catch(() => {
                 hideLoader();
-                showNotification("Network timeout. Please check your connection.", "error");
+                showNotification("Network timeout. Please retry.", "error");
             });
         }
 
         function verifyMpinAndProceed() {
             if (checkSystemExpiry()) return;
             const pin = document.getElementById('mpinInput').value.trim();
-            if (pin.length !== 4) {
-                showNotification("Please enter your 4-digit MPIN.", "error");
-                return;
-            }
-            showLoader("Verifying security MPIN...");
+            if (pin.length !== 4) return showNotification("Please enter 4-digit MPIN.", "error");
 
+            showLoader("Verifying security MPIN...");
             fetch(`${config.scriptUrl}?action=loginMpin&phone=${encodeURIComponent(currentPhone)}&mpin=${encodeURIComponent(pin)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
@@ -635,7 +455,7 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    showNotification("MPIN sent to your registered email address.", "success");
+                    showNotification("MPIN sent to your registered email.", "success");
                 } else {
                     showNotification(res.error || "Could not recover MPIN.", "error");
                 }
@@ -647,7 +467,7 @@
         }
 
         function loadCustomerAccounts() {
-            showLoader("Loading associated GRMS accounts...");
+            showLoader("Loading linked accounts...");
             fetch(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(currentPhone)}&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
@@ -660,7 +480,7 @@
                         const sel = document.getElementById('kittySelect');
                         sel.innerHTML = "";
                         allCustomerAccounts.forEach(acc => {
-                            sel.innerHTML += `<option value="${acc.acCode}">Account ${acc.acCode} (${acc.name} - ₹${Number(acc.monthlyAmount).toLocaleString('en-IN')}/m)</option>`;
+                            sel.innerHTML += `<option value="${acc.acCode}">Account ${acc.acCode} (${acc.name} - ₹${Number(acc.monthlyAmount).toLocaleString('en-IN')})</option>`;
                         });
                         document.getElementById('authContainer').classList.remove('hidden-view');
                         document.getElementById('mpinLoginSection').classList.add('hidden-view');
@@ -677,8 +497,7 @@
         }
 
         function confirmSelectedKitty() {
-            const ac = document.getElementById('kittySelect').value;
-            openPassbook(ac);
+            openPassbook(document.getElementById('kittySelect').value);
         }
 
         function openPassbook(acCode) {
@@ -687,16 +506,15 @@
             .then(r => r.json())
             .then(res => {
                 hideLoader();
-                if (!res || !res.profile) {
-                    showNotification("Passbook details unavailable.", "error");
-                    return;
-                }
+                if (!res || !res.profile) return showNotification("Passbook details unavailable.", "error");
+
                 currentProfile = res.profile;
                 currentTransactions = res.transactions || [];
 
                 document.getElementById('authContainer').classList.add('hidden-view');
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
 
+                // Instant Client-Side Computation
                 renderPassbookUI(res);
             })
             .catch(() => {
@@ -718,20 +536,18 @@
 
             let totalPrincipal = 0;
             let totalGrams = 0;
-            let paidMonthsCount = 0;
 
             txs.forEach(t => {
                 if (t.status && t.status.toLowerCase() === 'paid') {
                     totalPrincipal += parseFloat(t.amount) || 0;
                     totalGrams += parseFloat(t.bookedGrams) || 0;
-                    paidMonthsCount++;
                 }
             });
 
             document.getElementById('custLiveBalance').innerText = "₹" + totalPrincipal.toLocaleString('en-IN');
             document.getElementById('lblTotalGoldGrams').innerText = formatGramsDisplay(totalGrams);
 
-            // Reward Calculation
+            // Client-Side Reward & Maturity Computation
             const wins = parseInt(p.winCount, 10) || 0;
             const badge = document.getElementById('badgeWinnerStatus');
             const monthlyAmt = Number(p.monthlyAmount) || 0;
@@ -741,18 +557,18 @@
                 badge.innerText = `${wins}x Event Winner`;
                 badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-mono";
                 bonus = (wins === 1) ? 15000 : (wins === 2) ? 30000 : 45000;
-                document.getElementById('lblDrawDetails').innerText = `Congratulations! Scheme draw winner reward of ₹${bonus.toLocaleString('en-IN')} added on maturity.`;
+                document.getElementById('lblDrawDetails').innerText = `Lucky Draw winner prize of ₹${bonus.toLocaleString('en-IN')} added on maturity.`;
             } else {
                 badge.innerText = "Non-Winner";
                 badge.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700";
                 bonus = (monthlyAmt === 8000) ? 3000 : 2000;
-                document.getElementById('lblDrawDetails').innerText = `Standard fixed maturity interest bonus of ₹${bonus.toLocaleString('en-IN')} will be credited at settlement.`;
+                document.getElementById('lblDrawDetails').innerText = `Fixed maturity interest bonus of ₹${bonus.toLocaleString('en-IN')} credited at settlement.`;
             }
 
             document.getElementById('lblRewardBenefit').innerText = "+₹" + bonus.toLocaleString('en-IN');
             document.getElementById('lblTotalMaturity').innerText = "₹" + ((11 * monthlyAmt) + bonus).toLocaleString('en-IN');
 
-            // Render Sequential 11-Month Grid with Recorded Date & Formatted Grams
+            // Render Sequential 11-Month Grid with Payment Timestamps
             const grid = document.getElementById('gridWrapper');
             grid.innerHTML = "";
 
@@ -827,11 +643,9 @@
             document.getElementById('modalMonthTarget').innerText = `Allocation for Month ${month}`;
             const amount = Number(currentProfile.monthlyAmount);
 
-            // Configure UPI App Pay Link
             const upiUrl = `upi://pay?pa=${encodeURIComponent(config.upiId)}&pn=Suman%20Jewellers&am=${amount}&cu=INR&tn=GRMS%20M${month}%20${currentProfile.acCode}`;
             document.getElementById('btnUpiAppPay').href = upiUrl;
 
-            // Generate Instant QR Code
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
             document.getElementById('qrCodeImg').src = qrUrl;
 
@@ -842,34 +656,12 @@
             document.getElementById('paymentModal').classList.add('hidden-view');
         }
 
-        function togglePaymentMethodView() {
-            const upiView = document.getElementById('channelUpiView');
-            const bankView = document.getElementById('channelBankView');
-            const btn = document.getElementById('btnPaymentToggle');
-
-            if (upiView.classList.contains('hidden-view')) {
-                upiView.classList.remove('hidden-view');
-                bankView.classList.add('hidden-view');
-                btn.innerText = "Switch to Bank Account Credentials";
-            } else {
-                upiView.classList.add('hidden-view');
-                bankView.classList.remove('hidden-view');
-                btn.innerText = "Switch to UPI QR Payment";
-            }
-        }
-
-        function copyUpiId() {
-            navigator.clipboard.writeText(config.upiId).then(() => {
-                showNotification("UPI VPA copied to clipboard!", "success");
-            });
-        }
-
         function submitPaymentData() {
             if (checkSystemExpiry()) return;
             const utr = document.getElementById('utrInput').value.trim();
-            if (!utr) return showNotification("Please input 12-digit transaction UTR number.", "error");
+            if (!utr) return showNotification("Please input transaction UTR number.", "error");
 
-            showLoader("Submitting payment verification slip...");
+            showLoader("Submitting payment verification...");
 
             const payload = {
                 action: "submit",
@@ -877,8 +669,7 @@
                 acCode: currentProfile.acCode,
                 month: targetPayMonth,
                 amount: currentProfile.monthlyAmount,
-                utr: utr,
-                screenshotUrl: ""
+                utr: utr
             };
 
             fetch(config.scriptUrl, {
@@ -901,14 +692,6 @@
                 hideLoader();
                 showNotification("Communication timeout submitting slip.", "error");
             });
-        }
-
-        function openTermsModal() {
-            document.getElementById('termsModal').classList.remove('hidden-view');
-        }
-
-        function closeTermsModal() {
-            document.getElementById('termsModal').classList.add('hidden-view');
         }
 
         function logoutCustomer() {
