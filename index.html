@@ -33,6 +33,7 @@
             animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
+        /* Desktop Precision Interactive Cursor */
         @media (hover: hover) and (pointer: fine) {
             * { cursor: none !important; }
             .cursor-dot {
@@ -89,12 +90,33 @@
 </head>
 <body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- FLOATING ON-SCREEN NOTIFICATION CONTAINER (NO GITHUB SAYS POPUP) -->
+    <!-- FLOATING ON-SCREEN NOTIFICATION CONTAINER (ZERO GITHUB SAYS POPUP) -->
     <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[99999] flex flex-col items-center gap-2 pointer-events-none w-full max-w-sm px-4"></div>
 
+    <!-- Desktop Cursor Elements -->
     <div id="cursorDot" class="cursor-dot"></div>
     <div id="cursorRing" class="cursor-ring"></div>
 
+    <!-- License Expiry / Lock Screen Notice -->
+    <div id="licenseExpiredOverlay" class="hidden-view fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-[99998]">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl border border-rose-200 animate-bounce-short">
+            <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center mx-auto text-2xl font-bold">
+                ⚠️
+            </div>
+            <h2 class="text-base sm:text-lg font-black uppercase text-slate-900">Portal License Expired</h2>
+            <p id="lblLicenseMsg" class="text-xs text-slate-600 leading-relaxed">
+                The annual subscription for this jewellery portal has expired or has been paused. Please contact Ofbuzz Technology for renewal.
+            </p>
+            <div class="pt-2 border-t border-slate-100 space-y-2">
+                <a href="tel:+917827201014" class="block w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider active-press">
+                    Call Ofbuzz Authority: +91 7827201014
+                </a>
+                <p class="text-[10px] text-slate-400 font-mono uppercase">Managed by Ofbuzz Technology &bull; Cloud License Engine</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Loading Overlay -->
     <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-4 sm:pt-6 px-3 z-50">
         <div class="bg-white rounded-2xl py-3 px-5 shadow-2xl border border-amber-300 flex items-center gap-3.5 max-w-sm w-full animate-bounce-short">
             <div class="w-7 h-7 border-3 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow shrink-0"></div>
@@ -105,12 +127,14 @@
         </div>
     </div>
 
+    <!-- Main Container -->
     <div id="customerView" class="max-w-md mx-auto w-full p-3 sm:p-4 flex-1">
         <div>
             <!-- Header with Official White Suman Jewellers Logo in Badge -->
             <header class="reveal bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-4 sm:mb-5">
                 <img src="https://i.pinimg.com/736x/e0/2d/25/e02d25f6a4cfc5970b015b7a951fa722.jpg" alt="Banner" class="w-full h-28 sm:h-32 object-cover object-center">
                 <div class="p-3 sm:p-4 text-center relative pt-8">
+                    <!-- Circular White Framed Logo Asset -->
                     <div class="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-amber-400 shadow-md overflow-hidden bg-white p-1 flex items-center justify-center">
                         <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Suman Jewellers Logo" class="w-full h-full object-contain">
                     </div>
@@ -120,7 +144,9 @@
                 </div>
             </header>
 
+            <!-- Authentication Container -->
             <div id="authContainer">
+                <!-- Mobile Phone Step -->
                 <div id="phoneSection" class="reveal bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div>
                         <label class="text-[11px] font-bold text-slate-600 uppercase tracking-wider block mb-1.5">Registered Mobile Number</label>
@@ -138,6 +164,7 @@
                     </div>
                 </div>
 
+                <!-- MPIN Login Step -->
                 <div id="mpinLoginSection" class="hidden-view bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div class="text-center">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900">Enter Security MPIN</h3>
@@ -155,6 +182,7 @@
                     </div>
                 </div>
 
+                <!-- First Time MPIN Setup -->
                 <div id="firstTimeMpinSection" class="hidden-view bg-white rounded-2xl shadow-sm p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-5 space-y-3.5">
                     <div class="text-center">
                         <h3 class="text-sm sm:text-base font-bold text-slate-900">Set Security 4-Digit MPIN</h3>
@@ -169,6 +197,7 @@
                     </button>
                 </div>
 
+                <!-- Multi-Account Selector -->
                 <div id="multiKittyWrapper" class="hidden-view bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3 mb-4 sm:mb-5">
                     <label class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">Multiple GRMS Plans Linked</label>
                     <select id="kittySelect" class="w-full px-3 py-2.5 bg-white border border-amber-300 rounded-xl text-sm font-semibold text-slate-900"></select>
@@ -176,7 +205,10 @@
                 </div>
             </div>
 
+            <!-- Passbook Container -->
             <div id="passbookContainer" class="hidden-view space-y-4">
+                
+                <!-- Account Overview Card -->
                 <div class="reveal bg-slate-900 text-white rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden border border-slate-800">
                     <div class="space-y-3">
                         <div class="flex justify-between items-start">
@@ -213,6 +245,7 @@
                     </div>
                 </div>
 
+                <!-- Accumulated 22K Gold Weight Card -->
                 <div class="reveal bg-white border border-slate-200 text-slate-900 rounded-2xl p-4 shadow-sm space-y-2">
                     <div class="flex justify-between items-center">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -225,6 +258,7 @@
                     </div>
                 </div>
 
+                <!-- Maturity Projection Card (Zero Formulas - In Memory) -->
                 <div id="rewardCard" class="reveal bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                         <span class="text-[11px] sm:text-xs font-bold text-slate-900 uppercase tracking-wider">Maturity Projection (11 Months)</span>
@@ -243,6 +277,7 @@
                     <p id="lblDrawDetails" class="text-[10px] sm:text-[11px] text-slate-500 text-center italic leading-tight"></p>
                 </div>
 
+                <!-- 11-Month Sequential Ledger Grid With Payment Date & Gold Rate -->
                 <div class="reveal bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
                         <div>
@@ -251,9 +286,10 @@
                         </div>
                         <span class="text-[10px] text-slate-400 font-semibold">Due: 15th monthly</span>
                     </div>
-                    <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
+                    <div id="gridWrapper" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
                 </div>
 
+                <!-- Showroom Verification Desk & Terms -->
                 <div class="reveal space-y-2">
                     <div class="bg-white rounded-xl p-3.5 sm:p-4 border border-slate-200 flex items-center justify-between shadow-sm gap-2">
                         <div>
@@ -454,11 +490,12 @@
         </div>
     </footer>
 
-    <!-- Client Script with Zero-Browser-Alert On-Screen Notification Engine -->
+    <!-- Client Script With Zero-Browser-Alert On-Screen Notification Engine & 5-Digit Rate -->
     <script>
         const config = {
             name: "Suman Jewellers",
             upiVpa: "vyapar.178552646415@hdfcbank",
+            // Set your active Apps Script Web App Deployment URL
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             schemeMonths: 11
         };
@@ -473,9 +510,19 @@
 
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
-        // =========================================================================
+        // FORMATS 5-DIGIT GOLD RATE AS STRICTLY X,XXXX (e.g. 68500 -> 6,8500)
+        function formatGoldRate5Digit(val) {
+            if (!val) return "-";
+            const num = Math.round(parseFloat(val));
+            if (isNaN(num)) return "-";
+            const s = num.toString().padStart(5, '0');
+            if (s.length === 5) {
+                return s.charAt(0) + ',' + s.slice(1);
+            }
+            return num.toLocaleString('en-IN');
+        }
+
         // ON-SCREEN NOTIFICATION ENGINE (REPLACES "GITHUB SAYS..." COMPLETELY)
-        // =========================================================================
         function showNotification(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -541,6 +588,11 @@
             .then(r => r.json())
             .then(res => {
                 hideLoader();
+                if (res.licenseExpired) {
+                    document.getElementById('lblLicenseMsg').innerText = res.message;
+                    document.getElementById('licenseExpiredOverlay').classList.remove('hidden-view');
+                    return;
+                }
                 if (!res.success) return alert(res.error || "Account not located.");
                 document.getElementById('phoneSection').classList.add('hidden-view');
 
@@ -568,6 +620,11 @@
             .then(r => r.json())
             .then(res => {
                 hideLoader();
+                if (res.licenseExpired) {
+                    document.getElementById('lblLicenseMsg').innerText = res.message;
+                    document.getElementById('licenseExpiredOverlay').classList.remove('hidden-view');
+                    return;
+                }
                 if (res.success) {
                     document.getElementById('mpinLoginSection').classList.add('hidden-view');
                     fetchUserProfile(globalCustomerPhone);
@@ -636,6 +693,11 @@
             .then(r => r.json())
             .then(data => {
                 hideLoader();
+                if (data.licenseExpired) {
+                    document.getElementById('lblLicenseMsg').innerText = data.message;
+                    document.getElementById('licenseExpiredOverlay').classList.remove('hidden-view');
+                    return;
+                }
                 if (!data || !data.profile) return alert("Failed to load ledger profile.");
 
                 globalCustomerPhone = data.profile.phone;
@@ -688,15 +750,21 @@
 
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     let tx = txs.find(t => Number(t.month) === m);
-                    let label = "Pay Now", style = "", action = "";
+                    let label = "Pay Now", style = "", action = "", dateBadge = "";
 
                     if (tx && tx.status === "Paid") {
                         let gWeight = (Number(tx.bookedGrams) || 0).toFixed(3);
                         label = (Number(gWeight) > 0) ? `Paid (${gWeight}g)` : `Paid`;
                         style = "bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[10px]";
+                        if (tx.paymentDate && tx.paymentDate !== "-") {
+                            dateBadge = `<div class="text-[8px] text-emerald-700 font-mono font-normal mt-0.5">${tx.paymentDate}</div>`;
+                        }
                     } else if (tx && (tx.status === "Pending" || tx.status === "Reviewed")) {
                         label = "In Review";
                         style = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse font-semibold";
+                        if (tx.paymentDate && tx.paymentDate !== "-") {
+                            dateBadge = `<div class="text-[8px] text-amber-700 font-mono font-normal mt-0.5">${tx.paymentDate}</div>`;
+                        }
                     } else if (m === nextPayable && !data.isSchemeComplete) {
                         label = "Pay Now";
                         style = "bg-slate-900 text-white font-bold cursor-pointer active-press";
@@ -706,7 +774,13 @@
                         style = "bg-slate-100 border text-slate-400 cursor-not-allowed opacity-60";
                     }
 
-                    grid.innerHTML += `<div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[46px]"><span class="text-[9px] uppercase text-slate-400 font-mono">M-${m}</span>${label}</div>`;
+                    grid.innerHTML += `
+                        <div ${action} class="p-2.5 rounded-xl ${style} text-center text-xs flex flex-col justify-center min-h-[52px]">
+                            <span class="text-[9px] uppercase text-slate-400 font-mono">Month ${m}</span>
+                            <div>${label}</div>
+                            ${dateBadge}
+                        </div>
+                    `;
                 }
 
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
@@ -788,7 +862,7 @@
                     hideLoader();
                     closePaymentModal();
                     if (res && res.success) {
-                        alert("Installment submitted successfully!");
+                        alert(`Installment submitted successfully! (Recorded: ${res.paymentDate})`);
                     } else {
                         alert(res.error || "Notice: Payment slip registered.");
                     }
