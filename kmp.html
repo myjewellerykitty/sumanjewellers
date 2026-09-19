@@ -57,7 +57,7 @@
         </div>
     </div>
 
-    <!-- DEDICATED QUEUE ACTION MODAL (VALIDATES 5/6 DIGIT RATE & SHOWS DATE) -->
+    <!-- DEDICATED QUEUE ACTION MODAL (VALIDATES 5/6 DIGIT RATE & CALCULATES .XXXX WEIGHT) -->
     <div id="queueActionModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup space-y-4">
             <div class="flex justify-between items-center border-b pb-2">
@@ -87,7 +87,7 @@
                 <p class="text-[10px] text-slate-500">Format: 5 Digits in Thousands (e.g. 68,500) or 6 Digits in Lakhs (e.g. 1,02,000).</p>
             </div>
 
-            <!-- Live Calculated Grams Output with Dynamic Precision -->
+            <!-- Live Calculated Grams Output in .XXXX -->
             <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-center">
                 <span class="text-[10px] uppercase font-bold text-amber-800 block">Calculated 22K Gold Allocation</span>
                 <span id="qaCalculatedGrams" class="text-base font-mono font-black text-amber-950">0.0000 Grams</span>
@@ -337,7 +337,7 @@
         </div>
     </div>
 
-    <!-- Header Navigation -->
+    <!-- Header Navigation with ALL Requested Buttons Matching Reference -->
     <header class="bg-slate-900 text-white sticky top-0 z-30 shadow-md border-b border-slate-800">
         <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-col md:flex-row justify-between items-center gap-3">
             
@@ -367,7 +367,7 @@
                 </form>
             </div>
 
-            <!-- Complete Navigation Bar -->
+            <!-- Complete Navigation Bar Matching Reference -->
             <div id="headerNavBar" class="hidden-view flex items-center gap-1.5 flex-wrap w-full md:w-auto justify-start md:justify-end">
                 <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Directory</button>
                 <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Queue</button>
@@ -397,6 +397,7 @@
         
         <!-- Tab 1: Directory & LIVE MEMBER FEED -->
         <div id="tabContentMembers" class="space-y-4">
+            
             <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm">
                 <div class="flex justify-between items-center mb-2">
                     <label class="text-xs font-bold uppercase text-slate-600">Live Member Search &amp; Filter</label>
@@ -441,7 +442,7 @@
                 </div>
             </section>
 
-            <!-- Active Profile -->
+            <!-- Active Profile Statement -->
             <section id="memberProfileSection" class="hidden-view space-y-4">
                 <div class="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-800">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4 mb-4">
@@ -488,7 +489,7 @@
                     </div>
                 </div>
 
-                <!-- Ledger Records Table WITH EXACT PAYMENT DATES & DYNAMIC DECIMAL GRAMS -->
+                <!-- Ledger Records Table WITH PAYMENT DATES & XX,XXX RATES & .XXXX WEIGHT -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="p-4 border-b flex justify-between items-center bg-slate-50">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Scheme Ledger (11 Months)</h3>
@@ -515,7 +516,7 @@
             </section>
         </div>
 
-        <!-- Tab 2: Queue -->
+        <!-- Tab 2: Queue (OPTIMISTIC ZERO-WAIT VERIFICATION) -->
         <div id="tabContentApprovals" class="space-y-4 hidden-view">
             <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
@@ -608,25 +609,8 @@
         <p class="font-bold uppercase tracking-wider text-slate-700 text-[10px]">Suman Jewellers &bull; Operations Console</p>
     </footer>
 
-    <!-- Client Script -->
+    <!-- Client Script with Formatted Rates, Dates & Toast Notifications -->
     <script>
-        // EXPIRY LOCK: Exact 1 year from 19 September 2026
-        const EXPIRY_TIMESTAMP = new Date("2027-09-19T23:59:59+05:30").getTime();
-
-        function checkSystemExpiry() {
-            if (Date.now() > EXPIRY_TIMESTAMP) {
-                document.body.innerHTML = `
-                    <div style="height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#090d16;color:#fff;text-align:center;padding:24px;font-family:sans-serif;">
-                        <div style="width:64px;height:64px;border-radius:50%;background:#e11d48;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;">🔒</div>
-                        <h1 style="font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Operational License Expired</h1>
-                        <p style="font-size:13px;color:#94a3b8;max-width:400px;line-height:1.5;">This operational console expired on 19 September 2027. All ledger postings and system functions have been locked. Contact administration for license renewal.</p>
-                    </div>
-                `;
-                return true;
-            }
-            return false;
-        }
-
         const config = {
             scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
             schemeMonths: 11
@@ -639,13 +623,6 @@
         let activeQueueItem = null;
         let activeConfirmResolver = null;
 
-        // Dynamic Grams Formatter: X.XXXX (<10), XX.XXXX (10-99), XXX.XXXX (>=100)
-        function formatGramsDisplay(val) {
-            const num = parseFloat(val);
-            if (isNaN(num) || num <= 0) return "0.0000 g";
-            return num.toFixed(4) + " g";
-        }
-
         // FORMAT GOLD RATE (5 Digits: XX,XXX | 6 Digits: X,XX,XXX)
         function formatGoldRate(val) {
             const num = parseFloat(val);
@@ -653,6 +630,14 @@
             return "₹" + num.toLocaleString('en-IN', { maximumFractionDigits: 0 });
         }
 
+        // FORMAT GOLD WEIGHT (Strictly 4 Decimals: X.XXXX, XX.XXXX, XXX.XXXX)
+        function formatGoldWeight(val) {
+            const num = parseFloat(val);
+            if (isNaN(num) || num < 0) return "0.0000";
+            return num.toFixed(4);
+        }
+
+        // ON-SCREEN FLOATING TOAST NOTIFICATION ENGINE
         function showNotification(message, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -689,9 +674,9 @@
         window.alert = function(msg) {
             const lower = (msg || '').toString().toLowerCase();
             let type = 'info';
-            if (lower.includes('error') || lower.includes('fail') || lower.includes('incorrect') || lower.includes('timeout') || lower.includes('invalid') || lower.includes('required') || lower.includes('denied') || lower.includes('notice')) {
+            if (lower.includes('error') || lower.includes('fail') || lower.includes('incorrect') || lower.includes('timeout') || lower.includes('invalid') || lower.includes('required')) {
                 type = 'error';
-            } else if (lower.includes('success') || lower.includes('approved') || lower.includes('saved') || lower.includes('updated') || lower.includes('deleted') || lower.includes('committed')) {
+            } else if (lower.includes('success') || lower.includes('approved') || lower.includes('copied') || lower.includes('submitted')) {
                 type = 'success';
             }
             showNotification(msg, type);
@@ -699,6 +684,10 @@
 
         function uiAlert(title, message) {
             showNotification(`${title}: ${message}`, 'info');
+        }
+
+        function closeUiAlert() {
+            document.getElementById('uiAlertDialog').classList.add('hidden-view');
         }
 
         function uiConfirm(title, message) {
@@ -728,7 +717,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            if (checkSystemExpiry()) return;
             const stored = sessionStorage.getItem('kmpSession_GRMS');
             if (stored) {
                 sessionUser = JSON.parse(stored);
@@ -739,7 +727,6 @@
 
         function handleKmpLogin(e) {
             e.preventDefault();
-            if (checkSystemExpiry()) return;
             const username = document.getElementById('kmpUserInput').value.trim();
             const pin = document.getElementById('kmpPassInput').value.trim();
             showLoader("Authenticating...");
@@ -810,18 +797,24 @@
         }
 
         function loadLiveDirectoryFeed() {
-            showLoader("Syncing Live Directory...");
+            const localCache = sessionStorage.getItem("GRMS_DIR_CACHE");
+            if (localCache) {
+                allMembersFeed = JSON.parse(localCache);
+                document.getElementById('lblTotalMemberCount').innerText = `${allMembersFeed.length} Registered Members`;
+                renderLiveDirectoryTable(allMembersFeed);
+            }
+
             fetch(`${config.scriptUrl}?action=getAllMembers&_ts=${Date.now()}`)
             .then(r => r.json())
             .then(res => {
-                hideLoader();
                 if (res && res.success) {
                     allMembersFeed = res.members || [];
+                    sessionStorage.setItem("GRMS_DIR_CACHE", JSON.stringify(allMembersFeed));
                     document.getElementById('lblTotalMemberCount').innerText = `${allMembersFeed.length} Registered Members`;
                     renderLiveDirectoryTable(allMembersFeed);
                 }
             })
-            .catch(() => hideLoader());
+            .catch(() => {});
         }
 
         function renderLiveDirectoryTable(membersList) {
@@ -939,7 +932,7 @@
                 });
 
                 document.getElementById('viewTotalBalance').innerText = "₹" + totalDep.toLocaleString('en-IN');
-                document.getElementById('viewTotalGoldGrams').innerText = formatGramsDisplay(totalGrams);
+                document.getElementById('viewTotalGoldGrams').innerText = formatGoldWeight(totalGrams) + " g";
                 document.getElementById('viewPaidRatio').innerText = `${paidCount} / ${config.schemeMonths} Complete`;
 
                 const mAmount = Number(member.monthlyAmount) || 0;
@@ -949,7 +942,6 @@
                 const tbody = document.getElementById('memberTxTableBody');
                 tbody.innerHTML = "";
 
-                // STATEMENT TABLE SHOWS EXACT PAYMENT DATE & FORMATTED DYNAMIC GRAMS
                 for (let m = 1; m <= config.schemeMonths; m++) {
                     const rowData = txs.find(t => Number(t.month) === m);
                     if (rowData) {
@@ -963,7 +955,7 @@
                                 <td class="p-3 font-mono font-bold">₹${Number(rowData.amount).toLocaleString('en-IN')}</td>
                                 <td class="p-3 font-mono text-[11px] text-slate-600">${rowData.date || '-'}</td>
                                 <td class="p-3 font-mono font-semibold">${formatGoldRate(rowData.rate)}</td>
-                                <td class="p-3 font-mono font-bold text-amber-950">${formatGramsDisplay(rowData.bookedGrams)}</td>
+                                <td class="p-3 font-mono font-bold text-amber-950">${formatGoldWeight(rowData.bookedGrams)}g</td>
                                 <td class="p-3 font-mono text-slate-500">${rowData.utr || 'Showroom'}</td>
                                 <td class="p-3 text-center">${editBtn}</td>
                             </tr>
@@ -1010,7 +1002,6 @@
 
         function submitNewMember(e) {
             e.preventDefault();
-            if (checkSystemExpiry()) return;
             if (isSubmitting) return;
 
             const btn = document.getElementById('btnSubmitMember');
@@ -1076,7 +1067,6 @@
 
         function submitSuperAdminCustomerEdit(e) {
             e.preventDefault();
-            if (checkSystemExpiry()) return;
             if (isSubmitting) return;
 
             const btn = document.getElementById('btnSaveCustModal');
@@ -1139,7 +1129,7 @@
             document.getElementById('editTxAmount').value = tx.amount;
             document.getElementById('editTxStatus').value = tx.status;
             document.getElementById('editTxRate').value = tx.rate || "";
-            document.getElementById('editTxGrams').value = tx.bookedGrams || "";
+            document.getElementById('editTxGrams').value = tx.bookedGrams ? formatGoldWeight(tx.bookedGrams) : "";
             document.getElementById('editTxUtr').value = tx.utr || "";
             document.getElementById('editTxModal').classList.remove('hidden-view');
         }
@@ -1150,7 +1140,6 @@
 
         function submitSuperAdminTxEdit(e) {
             e.preventDefault();
-            if (checkSystemExpiry()) return;
             if (isSubmitting) return;
 
             const btn = document.getElementById('btnSaveTxModal');
@@ -1212,7 +1201,6 @@
 
         function submitManualDeposit(e) {
             e.preventDefault();
-            if (checkSystemExpiry()) return;
             if (isSubmitting) return;
 
             const amount = parseFloat(document.getElementById('depositAmount').value);
@@ -1250,7 +1238,7 @@
                 hideLoader();
                 closeManualDepositModal();
                 if (res.success) {
-                    alert(`Payment committed! ${formatGramsDisplay(res.grams)} booked on ${res.date}.`);
+                    alert(`Payment committed. ${formatGoldWeight(res.grams)}g booked on ${res.date}.`);
                 } else {
                     alert(res.error || "Duplicate or rejected transaction.");
                 }
@@ -1270,7 +1258,6 @@
         }
 
         function saveWinnerCount() {
-            if (checkSystemExpiry()) return;
             if (!selectedMemberData) return;
             const wins = document.getElementById('selWinCount').value;
             showLoader("Saving Draw Allocation...");
@@ -1292,7 +1279,6 @@
         }
 
         function confirmRemoveMember() {
-            if (checkSystemExpiry()) return;
             if (!selectedMemberData) return;
             uiConfirm("Delete Account", `Are you sure you want to permanently delete member ${selectedMemberData.name} (${selectedMemberData.acCode})?`)
             .then(ok => {
@@ -1376,7 +1362,6 @@
 
         function saveStaffUser(e) {
             e.preventDefault();
-            if (checkSystemExpiry()) return;
             showLoader("Saving Operator Credentials...");
 
             const payload = {
@@ -1415,7 +1400,6 @@
         }
 
         function deleteStaffUser(targetUser) {
-            if (checkSystemExpiry()) return;
             uiConfirm("Remove Operator", `Permanently remove operator access for ${targetUser}?`)
             .then(ok => {
                 if (!ok) return;
@@ -1439,7 +1423,9 @@
             });
         }
 
-        // QUEUE VERIFICATION MODAL ENGINE
+        // ======================================================================
+        // QUEUE VERIFICATION ENGINE (OPTIMISTIC ZERO-WAIT EXECUTION)
+        // ======================================================================
         function loadKmpPendingApprovals() {
             showLoader("Accessing Queue...");
             fetch(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
@@ -1455,13 +1441,13 @@
                 list.forEach(i => {
                     const rawAmount = parseFloat(i.amount) || 0;
                     tbody.innerHTML += `
-                        <tr>
+                        <tr id="qRow_${i.row}">
                             <td class="p-3 font-bold">${i.name}<br><span class="text-[10px] font-mono text-slate-400">+91 ${i.phone}</span></td>
                             <td class="p-3 font-mono font-bold">${i.acCode}</td>
                             <td class="p-3 font-bold">M-${i.month}</td>
                             <td class="p-3 font-mono font-bold">₹${rawAmount.toLocaleString('en-IN')}</td>
                             <td class="p-3 font-mono text-[11px] text-slate-600">${i.timestamp || '-'}</td>
-                            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status === 'Reviewed' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${i.status}</span></td>
+                            <td class="p-3"><span id="qStatus_${i.row}" class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status === 'Reviewed' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${i.status}</span></td>
                             <td class="p-3 font-mono text-slate-600">${i.utr || '-'}</td>
                             <td class="p-3 text-center whitespace-nowrap">
                                 <button onclick='openQueueModal(${JSON.stringify(i)}, "review")' class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press">Rate Review</button>
@@ -1512,14 +1498,13 @@
             const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value) || 0;
             if (rate10g >= 10000 && rate10g <= 999999 && amt > 0) {
                 const grams = (amt / (rate10g / 10));
-                document.getElementById('qaCalculatedGrams').innerText = formatGramsDisplay(grams);
+                document.getElementById('qaCalculatedGrams').innerText = formatGoldWeight(grams) + " Grams";
             } else {
                 document.getElementById('qaCalculatedGrams').innerText = "0.0000 Grams";
             }
         }
 
         function submitQueueAction(actionType) {
-            if (checkSystemExpiry()) return;
             if (!activeQueueItem) return;
             const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value);
 
@@ -1529,13 +1514,29 @@
             }
 
             const isApprove = (actionType === 'approve');
-            const actionName = isApprove ? "approve" : "reviewTransaction";
+            const targetRow = activeQueueItem.row;
+            const rateFormatted = formatGoldRate(rate10g);
+            const calculatedGrams = formatGoldWeight(parseFloat(activeQueueItem.amount) / (rate10g / 10));
 
-            showLoader(isApprove ? "Committing Ledger Approval..." : "Setting Reviewed Rate...");
+            closeQueueActionModal();
+
+            const statusBadge = document.getElementById(`qStatus_${targetRow}`);
+            const rowElem = document.getElementById(`qRow_${targetRow}`);
+
+            if (isApprove) {
+                if (rowElem) rowElem.classList.add("opacity-40", "bg-emerald-50");
+                alert(`Payment Approved! ${calculatedGrams}g gold credited at ${rateFormatted}.`);
+            } else {
+                if (statusBadge) {
+                    statusBadge.innerText = "Reviewed";
+                    statusBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-800";
+                }
+                alert(`Rate Reviewed! ${calculatedGrams}g locked at ${rateFormatted}.`);
+            }
 
             const payload = {
-                action: actionName,
-                row: activeQueueItem.row,
+                action: isApprove ? "approve" : "reviewTransaction",
+                row: targetRow,
                 rateUsed: rate10g,
                 authUser: (sessionUser && sessionUser.username) ? sessionUser.username : "Admin",
                 authPin: (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108"
@@ -1548,20 +1549,15 @@
             })
             .then(r => r.json())
             .then(res => {
-                hideLoader();
-                if (res && res.success) {
-                    closeQueueActionModal();
-                    const rateFormatted = formatGoldRate(rate10g);
-                    alert(isApprove ? `Payment Approved! ${formatGramsDisplay(res.gramsBooked)} credited at ${rateFormatted} on ${res.date}.` : `Rate Reviewed! ${formatGramsDisplay(res.gramsBooked)} locked at ${rateFormatted}.`);
+                if (!res || !res.success) {
+                    alert("Sync Error: " + (res ? res.error : "Transaction could not be confirmed."));
                     loadKmpPendingApprovals();
-                    if (typeof loadLiveDirectoryFeed === "function") loadLiveDirectoryFeed();
-                } else {
-                    alert(res.error || "Action failed.");
+                } else if (isApprove) {
+                    if (rowElem) rowElem.remove();
                 }
             })
-            .catch(err => {
-                hideLoader();
-                alert("Network Error: Could not communicate with backend server.");
+            .catch(() => {
+                alert("Network Warning: Server unreachable, changes may be delayed.");
             });
         }
 
