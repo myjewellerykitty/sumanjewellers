@@ -57,12 +57,12 @@
         </div>
     </div>
 
-    <!-- EXCEL EXPORT AUTHENTICATION & SELECTION MODAL -->
+    <!-- EXCEL EXPORT & GOOGLE SHEET SYNC AUTHENTICATION MODAL -->
     <div id="exportModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-sm w-full animate-popup space-y-4">
             <div class="flex justify-between items-center border-b pb-2">
                 <div>
-                    <h3 class="text-sm font-black text-slate-900 uppercase">Export Live Data (XLS)</h3>
+                    <h3 class="text-sm font-black text-slate-900 uppercase">Live Data Export &amp; Backup</h3>
                     <p class="text-[10px] text-slate-500 font-medium">Verify operator security PIN to proceed</p>
                 </div>
                 <button onclick="closeExportModal()" class="text-slate-400 hover:text-black font-bold text-lg cursor-pointer">&times;</button>
@@ -79,16 +79,20 @@
                 </button>
             </div>
 
-            <!-- Step 2: Option Selection -->
+            <!-- Step 2: 3 Options Selection -->
             <div id="exportOptionsSection" class="hidden-view space-y-2.5">
-                <p class="text-xs text-slate-600 font-semibold text-center mb-1">Select Report to Download:</p>
+                <p class="text-xs text-slate-600 font-semibold text-center mb-1">Choose Export or Sync Action:</p>
                 <button type="button" onclick="executeExport('payments')" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider flex items-center justify-between cursor-pointer active-press">
-                    <span>Payments / Transactions</span>
+                    <span>Complete Payments Ledger</span>
                     <span class="font-mono text-[10px] bg-slate-800 px-2 py-0.5 rounded">.XLS</span>
                 </button>
                 <button type="button" onclick="executeExport('customers')" class="w-full bg-amber-700 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider flex items-center justify-between cursor-pointer active-press">
-                    <span>Customer Directory Details</span>
+                    <span>Customer Directory Register</span>
                     <span class="font-mono text-[10px] bg-amber-800 px-2 py-0.5 rounded">.XLS</span>
+                </button>
+                <button type="button" onclick="executeExport('syncSheet')" class="w-full bg-[#007042] hover:bg-[#005a35] text-white font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider flex items-center justify-between cursor-pointer active-press">
+                    <span>Sync to Permanent Backup Sheet</span>
+                    <span class="font-mono text-[10px] bg-emerald-900 px-2 py-0.5 rounded">SHEET SYNC</span>
                 </button>
             </div>
         </div>
@@ -405,9 +409,9 @@
                 <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Overdue</button>
                 <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Permissions</button>
                 
-                <!-- Dedicated Live Data XLS Export Trigger Button -->
+                <!-- Dedicated Live Data XLS & Sync Trigger Button -->
                 <button onclick="openExportModal()" id="btnTopExportXls" class="bg-emerald-800 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press flex items-center gap-1">
-                    <span>Export XLS</span>
+                    <span>Export / Sync</span>
                 </button>
 
                 <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-[#c25e00] hover:bg-[#a34f00] text-white font-bold px-3 py-1.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
@@ -772,7 +776,7 @@
         }
 
         // ==========================================================================
-        // LIVE XLS DATA EXPORT ENGINE
+        // LIVE XLS DATA EXPORT & DEDICATED GOOGLE SHEET SYNC ENGINE
         // ==========================================================================
         function openExportModal() {
             document.getElementById('exportPinInput').value = "";
@@ -823,9 +827,9 @@
 
         function executeExport(type) {
             closeExportModal();
-            showLoader("Compiling " + (type === 'customers' ? 'Customers' : 'Payments') + " XLS...");
 
             if (type === 'customers') {
+                showLoader("Compiling Customer Directory...");
                 fetchFast(`${config.scriptUrl}?action=getAllMembers&_ts=${Date.now()}`)
                 .then(res => {
                     hideLoader();
@@ -871,53 +875,93 @@
                     alert("Timeout generating customer export.");
                 });
             } else if (type === 'payments') {
-                fetchFast(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
-                .then(pendingList => {
-                    fetchFast(`${config.scriptUrl}?action=getAllMembers&_ts=${Date.now()}`)
-                    .then(memRes => {
+                showLoader("Compiling Complete Payments...");
+                fetchFast(`${config.scriptUrl}?action=getAllMembers&_ts=${Date.now()}`)
+                .then(memRes => {
+                    const members = (memRes && memRes.members) ? memRes.members : allMembersFeed;
+                    if (!members || members.length === 0) {
                         hideLoader();
-                        const members = (memRes && memRes.members) ? memRes.members : allMembersFeed;
+                        return alert("No member directory located.");
+                    }
+
+                    // Pull Passbooks across all accounts in parallel batches
+                    const passbookPromises = members.map(m => 
+                        fetchFast(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(m.phone)}&kittyNumber=${encodeURIComponent(m.acCode)}&_ts=${Date.now()}`)
+                        .then(r => ({ member: m, data: r }))
+                        .catch(() => ({ member: m, data: null }))
+                    );
+
+                    Promise.all(passbookPromises).then(results => {
+                        hideLoader();
                         let tableHtml = `<table border="1"><thead><tr>
                             <th>Phone</th>
                             <th>Member Name</th>
                             <th>Account Code</th>
+                            <th>Token ID</th>
                             <th>Month</th>
                             <th>Amount</th>
                             <th>Status</th>
-                            <th>Submission Date</th>
-                            <th>Gold Rate (10g)</th>
+                            <th>Payment Date</th>
+                            <th>22K Gold Rate (10g)</th>
                             <th>Booked Grams</th>
                             <th>Reference / UTR</th>
                         </tr></thead><tbody>`;
 
-                        const allTxs = Array.isArray(pendingList) ? pendingList : [];
-                        allTxs.forEach(t => {
-                            tableHtml += `<tr>
-                                <td style="mso-number-format:'\\@'">${t.phone || ''}</td>
-                                <td>${t.name || ''}</td>
-                                <td style="mso-number-format:'\\@'">${t.acCode || ''}</td>
-                                <td>${t.month || ''}</td>
-                                <td>${t.amount || 0}</td>
-                                <td>${t.status || ''}</td>
-                                <td>${t.timestamp || ''}</td>
-                                <td>${t.rateApplied || ''}</td>
-                                <td>${t.bookedGrams || ''}</td>
-                                <td style="mso-number-format:'\\@'">${t.utr || ''}</td>
-                            </tr>`;
+                        let rowCount = 0;
+                        results.forEach(item => {
+                            const m = item.member;
+                            const txs = (item.data && item.data.transactions) ? item.data.transactions : [];
+                            txs.forEach(t => {
+                                rowCount++;
+                                tableHtml += `<tr>
+                                    <td style="mso-number-format:'\\@'">${m.phone}</td>
+                                    <td>${m.name}</td>
+                                    <td style="mso-number-format:'\\@'">${m.acCode}</td>
+                                    <td style="mso-number-format:'\\@'">${m.customerId || '-'}</td>
+                                    <td>Month ${t.month}</td>
+                                    <td>${t.amount}</td>
+                                    <td>${t.status}</td>
+                                    <td>${t.date || '-'}</td>
+                                    <td>${t.rate || '-'}</td>
+                                    <td>${t.bookedGrams ? t.bookedGrams + 'g' : '-'}</td>
+                                    <td style="mso-number-format:'\\@'">${t.utr || 'Showroom'}</td>
+                                </tr>`;
+                            });
                         });
 
                         tableHtml += `</tbody></table>`;
-                        downloadXmlExcel(tableHtml, `GRMS_Payments_${new Date().toISOString().slice(0, 10)}.xls`);
-                        alert("Payments ledger downloaded successfully.");
+                        if (rowCount === 0) {
+                            return alert("No transaction records found to export.");
+                        }
+                        downloadXmlExcel(tableHtml, `GRMS_Complete_Payments_${new Date().toISOString().slice(0, 10)}.xls`);
+                        alert(`Complete payments exported successfully (${rowCount} records).`);
                     })
                     .catch(() => {
                         hideLoader();
-                        alert("Error generating complete payments export.");
+                        alert("Timeout retrieving full payments records.");
                     });
                 })
                 .catch(() => {
                     hideLoader();
-                    alert("Timeout fetching transaction data.");
+                    alert("Timeout connecting to server.");
+                });
+            } else if (type === 'syncSheet') {
+                showLoader("Syncing Database to Backup Sheet...");
+                const adminUser = (sessionUser && sessionUser.username) ? sessionUser.username : "Admin";
+                const adminPin = (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108";
+
+                fetchFast(`${config.scriptUrl}?action=syncBackupToSheet&adminUser=${encodeURIComponent(adminUser)}&adminPin=${encodeURIComponent(adminPin)}&_ts=${Date.now()}`)
+                .then(res => {
+                    hideLoader();
+                    if (res && res.success) {
+                        alert(`Live Sync Complete! Customers: ${res.customersSynced}, Transactions: ${res.transactionsSynced}. Updated: ${res.lastSync}`);
+                    } else {
+                        alert("Sync Error: " + (res ? res.error : "Failed to sync."));
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    alert("Timeout communicating with backup sheet.");
                 });
             }
         }
