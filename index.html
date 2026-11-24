@@ -95,7 +95,7 @@
     <div id="cursorDot" class="cursor-dot"></div>
     <div id="cursorRing" class="cursor-ring"></div>
 
-    <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-4 sm:pt-6 px-3 z-50">
+    <div id="loadingOverlay" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-4 sm:pt-6 px-3 z-[80]">
         <div class="bg-white rounded-2xl py-3 px-5 shadow-2xl border border-amber-300 flex items-center gap-3.5 max-w-sm w-full animate-bounce-short">
             <div class="w-7 h-7 border-3 border-amber-200 border-t-amber-800 rounded-full animate-spin-slow shrink-0"></div>
             <div>
@@ -171,22 +171,26 @@
                     </button>
                 </div>
 
-                <!-- Scenario C: Group Selection Wrapper -->
+                <!-- Scenario C: Group Selection -->
                 <div id="groupSelectionWrapper" class="hidden-view bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 mb-4 sm:mb-5">
-                    <div class="border-b border-slate-100 pb-2">
-                        <label class="text-xs font-black text-slate-900 uppercase tracking-wider block">Select Your Group</label>
-                        <p class="text-[11px] text-slate-500 mt-0.5">Choose a kitty group linked to your mobile number</p>
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <div>
+                            <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase">Select Your Group</h3>
+                            <p class="text-[11px] text-slate-500">Choose a GRMS group linked to your mobile number</p>
+                        </div>
+                        <button onclick="logoutCustomer()" class="text-[10px] font-bold text-slate-500 hover:text-slate-800 cursor-pointer">Logout</button>
                     </div>
                     <div id="groupSelectionList" class="space-y-2"></div>
                 </div>
 
-                <!-- Scenario B & D: Multi-Kitty Account Selection Wrapper -->
+                <!-- Scenario B / D: Kitty Account Selection -->
                 <div id="multiKittyWrapper" class="hidden-view bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-3 mb-4 sm:mb-5">
                     <div class="flex justify-between items-center">
-                        <label id="lblSelectAccountTitle" class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">Select Kitty Account</label>
-                        <button id="btnBackToGroups" onclick="backToGroupSelection()" class="hidden-view text-[10px] font-bold text-amber-800 hover:underline cursor-pointer active-press">&larr; All Groups</button>
+                        <label id="lblSelectAccountHeader" class="text-[11px] font-bold text-amber-900 uppercase tracking-wider block">Select Kitty Account</label>
+                        <button id="btnBackToGroups" onclick="showGroupSelectorView()" class="hidden-view text-[10px] font-bold text-amber-800 underline cursor-pointer">&larr; All Groups</button>
                     </div>
                     <div id="kittyAccountCardsList" class="space-y-2"></div>
+                    <select id="kittySelect" class="hidden-view w-full px-3 py-2.5 bg-white border border-amber-300 rounded-xl text-sm font-semibold text-slate-900"></select>
                 </div>
             </div>
 
@@ -199,12 +203,14 @@
                                 <p id="custPhone" class="text-xs text-slate-400 font-mono mt-0.5">-</p>
                             </div>
                             <div class="flex flex-col items-end gap-1.5">
-                                <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] sm:text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1.5 whitespace-nowrap">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    <span id="lblActiveGroupBadge">GRMS Active | Group 24</span>
-                                </span>
                                 <div class="flex items-center gap-1.5">
-                                    <button onclick="openSwitchAccountModal()" id="btnSwitchAccount" class="text-[9px] sm:text-[10px] bg-amber-600/90 hover:bg-amber-500 text-slate-950 font-bold px-2.5 py-1 rounded cursor-pointer active-press">
+                                    <span id="grpStatusBadge" class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] sm:text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        <span id="lblActiveGroupBadge">GRMS Active | Group 24</span>
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button id="btnSwitchAccount" onclick="openSwitchAccountModal()" class="hidden-view text-[9px] sm:text-[10px] bg-amber-600/90 hover:bg-amber-500 text-slate-950 font-bold px-2.5 py-1 rounded cursor-pointer active-press">
                                         Switch Account
                                     </button>
                                     <button onclick="logoutCustomer()" class="text-[9px] sm:text-[10px] bg-slate-800 hover:bg-rose-900/60 text-slate-300 px-2.5 py-1 rounded cursor-pointer active-press">
@@ -212,11 +218,6 @@
                                     </button>
                                 </div>
                             </div>
-                        </div>
-
-                        <div id="accountSettlementBanner" class="hidden-view bg-emerald-950/70 border border-emerald-700/60 rounded-xl px-3 py-2 flex justify-between items-center text-[11px]">
-                            <span class="font-bold text-emerald-300 uppercase tracking-wider">Account Status</span>
-                            <span id="lblAccountSettlementStatus" class="font-mono font-bold text-emerald-200">Active</span>
                         </div>
                         
                         <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-[10px] sm:text-[11px]">
@@ -238,43 +239,43 @@
                     </div>
                 </div>
 
-                <!-- Total Booked Gold Weight (22KT) -->
-                <div class="reveal bg-white border border-slate-200 text-slate-900 rounded-2xl p-4 shadow-sm space-y-2.5">
+                <!-- Booked Gold Weight (22KT) -->
+                <div class="reveal bg-white border border-slate-200 text-slate-900 rounded-2xl p-4 shadow-sm space-y-2">
                     <div class="flex justify-between items-center">
                         <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">
                             Booked Gold (22KT)
                         </h4>
-                        <span class="text-[10px] font-semibold text-slate-400 uppercase">22KT Purity</span>
+                        <span id="lblAccountSettlementTag" class="text-[10px] font-semibold text-slate-400 uppercase">Live Accumulated</span>
                     </div>
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
                         <span id="lblTotalGoldGrams" class="text-xl sm:text-2xl font-black text-slate-900 font-mono">0.0000 g (22KT)</span>
                     </div>
-                    <div id="goldSplitRow" class="hidden-view grid grid-cols-2 gap-2 pt-1 text-center text-[11px]">
+                    <div id="passbookSettlementSummaryRow" class="hidden-view grid grid-cols-2 gap-2 pt-1 text-center text-[11px]">
                         <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
                             <span class="text-[9px] text-slate-500 uppercase block font-bold">Settled Gold (22KT)</span>
-                            <span id="lblPassbookSettledGold" class="font-mono font-bold text-slate-700">0.0000 g (22KT)</span>
+                            <span id="lblPassbookSettledGrams" class="font-mono font-bold text-slate-800">0.0000 g (22KT)</span>
                         </div>
                         <div class="bg-amber-50 p-2 rounded-lg border border-amber-100">
                             <span class="text-[9px] text-amber-800 uppercase block font-bold">Remaining Gold (22KT)</span>
-                            <span id="lblPassbookRemainingGold" class="font-mono font-bold text-amber-950">0.0000 g (22KT)</span>
+                            <span id="lblPassbookRemainingGrams" class="font-mono font-bold text-amber-950">0.0000 g (22KT)</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 11-Month Simplified Sequential Installment Grid -->
-                <div class="reveal bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex justify-between items-center">
+                <!-- Simplified 11-Installment Ledger Grid -->
+                <div class="reveal bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
                         <div>
                             <p class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Installment Ledger (11 Months)</p>
                             <p class="text-[10px] text-amber-800 font-medium">Sequential payment strictly required</p>
                         </div>
-                        <span class="text-[10px] text-slate-500 font-semibold">Due: 20th of every month</span>
+                        <span class="text-[10px] text-slate-400 font-semibold">Due: 20th of every month</span>
                     </div>
                     <div id="gridWrapper" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5"></div>
 
-                    <!-- Pay Multiple Accounts Action -->
-                    <div id="payMultipleContainer" class="pt-2 border-t border-slate-100">
-                        <button onclick="openCombinedPaymentModal()" class="w-full bg-amber-700 hover:bg-amber-600 text-white text-xs font-bold py-2.5 rounded-xl uppercase tracking-wider transition-all cursor-pointer active-press">
+                    <!-- Pay Multiple Accounts Action Button -->
+                    <div id="multiAccountPayBar" class="hidden-view mt-3 pt-3 border-t border-slate-100">
+                        <button onclick="openCombinedPaymentModal()" class="w-full bg-[#800020] hover:bg-[#650019] text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-all cursor-pointer active-press">
                             Pay Multiple Accounts
                         </button>
                     </div>
@@ -291,7 +292,7 @@
                         </a>
                     </div>
 
-                    <!-- Detailed Statement Button Placed Immediately Above Terms & Conditions -->
+                    <!-- Detailed Statement Button placed immediately above Terms & Conditions -->
                     <button onclick="openDetailedStatementPrompt()" class="w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 active-press">
                         Detailed Statement
                     </button>
@@ -305,136 +306,83 @@
     </div>
 
     <!-- Switch Account Modal -->
-    <div id="switchAccountModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-6 sm:pt-10 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-4 sm:p-5 w-full max-w-md shadow-xl border border-slate-200 animate-bounce-short space-y-3.5">
+    <div id="switchAccountModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-8 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-4 sm:p-5 w-full max-w-md shadow-xl border border-slate-200 animate-bounce-short space-y-3">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
                 <div>
                     <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase">Switch Account</h3>
-                    <p class="text-[10px] text-slate-500">Select another kitty account linked to +91 <span id="lblSwitchPhone" class="font-mono font-bold"></span></p>
+                    <p class="text-[10px] text-slate-500">Select any authorized kitty account linked to your mobile</p>
                 </div>
                 <button onclick="closeSwitchAccountModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer p-1 active-press">&times;</button>
             </div>
-            <div id="switchAccountList" class="space-y-2 max-h-[60vh] overflow-y-auto"></div>
+            <div id="switchAccountList" class="space-y-2 max-h-72 overflow-y-auto"></div>
             <button onclick="closeSwitchAccountModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs cursor-pointer active-press">
                 Close
             </button>
         </div>
     </div>
 
-    <!-- MPIN Verification Modal for Detailed Statement -->
-    <div id="statementMpinModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-10 z-50">
+    <!-- MPIN Verification Modal for Detailed Statement & Settlement Request -->
+    <div id="mpinVerifyActionModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-10 z-[60]">
         <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-2xl border border-slate-200 animate-bounce-short space-y-3.5">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                 <div>
-                    <h3 class="text-xs sm:text-sm font-black text-slate-900 uppercase">Verify Security MPIN</h3>
-                    <p class="text-[10px] text-slate-500">Re-enter 4-digit MPIN to view Detailed Statement</p>
+                    <h3 id="mpinActionTitle" class="text-xs sm:text-sm font-black text-slate-900 uppercase">Verify Security MPIN</h3>
+                    <p id="mpinActionSubtitle" class="text-[11px] text-slate-500">Enter your 4-digit MPIN to continue</p>
                 </div>
-                <button onclick="closeStatementMpinModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer active-press">&times;</button>
+                <button onclick="closeMpinVerifyActionModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer">&times;</button>
             </div>
             <div>
-                <input type="password" id="statementMpinInput" placeholder="••••" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-600">
+                <input type="password" id="actionMpinInput" maxlength="4" placeholder="••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-mono text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-600">
             </div>
             <div class="flex gap-2">
-                <button onclick="closeStatementMpinModal()" class="w-1/2 bg-slate-100 text-slate-700 font-bold py-2.5 rounded-xl text-xs cursor-pointer active-press">Cancel</button>
-                <button onclick="verifyStatementMpin()" id="btnVerifyStmtMpin" class="w-1/2 bg-[#800020] hover:bg-[#650019] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">Verify</button>
+                <button onclick="closeMpinVerifyActionModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-bold cursor-pointer active-press">Cancel</button>
+                <button onclick="confirmActionMpin()" id="btnConfirmActionMpin" class="w-1/2 bg-[#800020] hover:bg-[#650019] text-white py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer active-press">Verify</button>
             </div>
         </div>
     </div>
 
-    <!-- MPIN-Protected Detailed Statement Modal -->
-    <div id="detailedStatementModal" class="hidden-view fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-6 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-2xl shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col justify-between animate-bounce-short">
-            <div class="border-b border-slate-200 pb-3 mb-3 flex justify-between items-center">
+    <!-- Detailed Statement Modal (MPIN Protected) -->
+    <div id="detailedStatementModal" class="hidden-view fixed inset-0 bg-slate-900/65 backdrop-blur-xs flex items-start justify-center p-2 sm:p-4 pt-3 sm:pt-6 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-2xl shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto space-y-4 animate-bounce-short">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3 sticky top-0 bg-white z-10">
                 <div>
-                    <h3 class="text-sm sm:text-base font-black text-slate-900 uppercase">Detailed Account Statement</h3>
-                    <p id="stmtHeaderSubtitle" class="text-[11px] text-amber-800 font-semibold">Suman Jewellers &bull; Golden Rose Magic Scheme</p>
+                    <h3 class="text-sm sm:text-base font-black text-slate-900 uppercase">Detailed Statement</h3>
+                    <p class="text-[11px] text-amber-800 font-semibold">Suman Jewellers &bull; Golden Rose Magic Scheme</p>
                 </div>
-                <button onclick="closeDetailedStatementModal()" class="text-slate-400 hover:text-slate-800 font-bold text-xl cursor-pointer p-1 active-press">&times;</button>
+                <button onclick="closeDetailedStatementModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-xl cursor-pointer active-press">
+                    Back / Close
+                </button>
             </div>
 
-            <div id="detailedStatementBody" class="overflow-y-auto pr-1 space-y-4 text-xs">
-                <!-- Populated dynamically after server MPIN verification -->
-            </div>
+            <div id="detailedStatementBody" class="space-y-4 text-xs"></div>
 
-            <div class="pt-3 mt-3 border-t border-slate-200 flex gap-2">
-                <button onclick="closeDetailedStatementModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
+            <div class="pt-3 border-t border-slate-200 flex justify-end">
+                <button onclick="closeDetailedStatementModal()" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
                     Close Statement
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Combined Payment Modal (Pay Multiple Accounts) -->
-    <div id="combinedPaymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-6 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl border border-slate-100 max-h-[92vh] overflow-y-auto animate-bounce-short">
-            <div class="border-b border-slate-100 pb-3 mb-3 flex justify-between items-start">
-                <div>
-                    <h3 class="text-sm sm:text-base font-bold text-slate-900">Pay Multiple Accounts</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Combined single remittance across eligible kitty accounts</p>
-                </div>
-                <button onclick="closeCombinedPaymentModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer p-1 active-press">&times;</button>
+    <!-- Settlement Request Confirmation Modal -->
+    <div id="settlementConfirmModal" class="hidden-view fixed inset-0 bg-slate-950/65 backdrop-blur-xs flex items-start justify-center p-3 pt-10 z-[70]">
+        <div class="bg-white rounded-2xl p-5 w-full max-w-md shadow-2xl border border-slate-200 space-y-3.5 animate-bounce-short">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <h3 class="text-sm font-black text-slate-900 uppercase">Confirm Gold Settlement Request</h3>
+                <button onclick="closeSettlementConfirmModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl cursor-pointer">&times;</button>
             </div>
-
-            <div class="mb-3 space-y-2">
-                <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Select Accounts To Pay</span>
-                    <button type="button" onclick="toggleSelectAllEligibleAccounts()" class="text-[10px] font-bold text-amber-800 hover:underline cursor-pointer active-press">
-                        Select All Eligible
-                    </button>
-                </div>
-                <div id="combinedAccountsList" class="space-y-2 max-h-48 overflow-y-auto bg-slate-50 p-2.5 rounded-xl border border-slate-200"></div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Jewellery settlement requires physical verification and approval at the Suman Jewellers showroom. Your booked 22KT gold balance will only be updated once the Owner Admin approves your settlement.
+            </p>
+            <div id="settlementConfirmSummary" class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1 text-xs"></div>
+            <div>
+                <label class="text-[11px] font-bold text-slate-600 uppercase block mb-1">Optional Remarks</label>
+                <input type="text" id="settlementRequestRemarks" placeholder="e.g. Visiting showroom this weekend" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs">
             </div>
-
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3 flex justify-between items-center">
-                <div>
-                    <span class="text-[10px] font-bold text-amber-900 uppercase block">Combined Payable Total</span>
-                    <span id="lblCombinedCount" class="text-[10px] text-amber-700">0 accounts selected</span>
-                </div>
-                <span id="lblCombinedTotalAmount" class="text-lg font-black font-mono text-amber-950">₹0</span>
-            </div>
-
-            <a id="btnCombinedUpiPay" href="#" class="w-full mb-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active-press">
-                Pay Combined Amount Via UPI App
-            </a>
-
-            <button type="button" onclick="toggleCombinedPaymentMethodView()" id="btnCombinedMethodToggle" class="w-full mb-3 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold py-2 rounded-xl transition-all cursor-pointer text-center active-press">
-                Switch to Bank Account Credentials
-            </button>
-
-            <div id="combinedUpiView" class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col items-center justify-center mb-3">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Scan Official Showroom QR Code</p>
-                <div class="w-32 h-32 bg-white p-2 rounded-lg border border-slate-200 shadow-sm flex items-center justify-center">
-                    <img id="combinedQrCodeImg" src="" alt="Combined UPI QR Code" class="w-full h-full object-contain">
-                </div>
-                <button type="button" onclick="copyUpiId()" class="mt-2 text-xs font-mono text-slate-700 hover:text-slate-900 font-semibold cursor-pointer active-press">
-                    Copy VPA: <span class="font-bold text-slate-900">vyapar.178552646415@hdfcbank</span>
-                </button>
-            </div>
-
-            <div id="combinedBankView" class="hidden-view bg-slate-50 rounded-xl p-3 border border-slate-200 mb-3 space-y-1.5 text-xs text-slate-800">
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 pb-1">Showroom Bank Transfer Credentials</p>
-                <div><span class="text-slate-400 font-medium block text-[9px] uppercase">Bank Name</span><span class="font-bold">HDFC BANK LTD.</span></div>
-                <div><span class="text-slate-400 block text-[9px] uppercase">Account Title</span><span class="font-semibold">SUMAN JEWELLERS</span></div>
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <div><span class="text-slate-400 block text-[9px] uppercase">Account Number</span><span class="font-bold font-mono">50200016538756</span></div>
-                    <div><span class="text-slate-400 block text-[9px] uppercase">IFSC Code</span><span class="font-bold font-mono">HDFC0009113</span></div>
-                </div>
-            </div>
-
-            <div class="space-y-2.5 mb-4">
-                <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Single Transaction UTR / Reference *</label>
-                    <input type="text" id="combinedUtrInput" placeholder="Enter 12-Digit Bank UTR" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono">
-                </div>
-                <div>
-                    <label class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Combined Payment Confirmation Slip</label>
-                    <input type="file" id="combinedFileInput" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 cursor-pointer">
-                </div>
-            </div>
-
-            <div class="flex gap-2">
-                <button type="button" onclick="closeCombinedPaymentModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-200 cursor-pointer active-press">Cancel</button>
-                <button type="button" onclick="submitCombinedPayment()" id="btnSubmitCombinedPay" class="w-1/2 bg-[#800020] hover:bg-[#650019] text-white py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider cursor-pointer active-press">Submit Payment</button>
+            <div class="flex gap-2 pt-1">
+                <button onclick="closeSettlementConfirmModal()" class="w-1/2 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-bold cursor-pointer active-press">Cancel</button>
+                <button onclick="submitCustomerSettlementRequest()" id="btnSubmitSettlementReq" class="w-1/2 bg-[#800020] hover:bg-[#650019] text-white py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer active-press">Submit Request</button>
             </div>
         </div>
     </div>
@@ -476,7 +424,7 @@
                             </ul>
                         </li>
                         <li>You must pay the first installment by cash or card at the Showroom. Subsequent monthly installments can be made via Cash / Cheque / PDC / Demand Draft / ECS / Online UPI. Always obtain a computerized receipt at the cash counter. Suman Jewellers is not responsible for payments made to unauthorized individuals.</li>
-                        <li>Payments can be made in multiples of the monthly installment. The monthly due date is the <strong>20th of every calendar month</strong>. For online deposits (NEFT/ECS/UPI), inform the showroom with the transaction UTR number.</li>
+                        <li>Payments can be made in multiples of the monthly installment. The monthly due date is the <strong>20th of every month</strong>. For online deposits (NEFT/ECS/UPI), inform the showroom with the transaction UTR number.</li>
                     </ol>
                 </div>
             </div>
@@ -486,15 +434,29 @@
         </div>
     </div>
 
-    <!-- Single Installment Payment Submission Modal -->
+    <!-- Payment Submission Modal (Single & Combined Multi-Account) -->
     <div id="paymentModal" class="hidden-view fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 sm:pt-8 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-xl border border-slate-100 max-h-[90vh] overflow-y-auto animate-bounce-short">
             <div class="border-b border-slate-100 pb-3 mb-3.5 flex justify-between items-start">
                 <div>
-                    <h3 class="text-sm sm:text-base font-bold text-slate-900">GRMS Installment Payment</h3>
+                    <h3 id="paymentModalTitle" class="text-sm sm:text-base font-bold text-slate-900">GRMS Installment Payment</h3>
                     <p id="modalMonthTarget" class="text-xs font-medium text-slate-500 mt-0.5">Installment Allocation</p>
                 </div>
                 <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg cursor-pointer p-1 active-press">&times;</button>
+            </div>
+
+            <div id="multiKittySelectionContainer" class="hidden-view mb-3.5 bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+                <div class="flex justify-between items-center">
+                    <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                        Select Eligible Accounts:
+                    </label>
+                    <button type="button" onclick="toggleSelectAllEligibleAccounts()" class="text-[10px] font-bold text-amber-800 underline cursor-pointer">Select All Eligible</button>
+                </div>
+                <div id="multiKittyCheckboxList" class="space-y-1.5 max-h-44 overflow-y-auto pt-1"></div>
+                <div class="pt-2 border-t border-slate-200 flex justify-between items-center text-xs">
+                    <span class="font-bold text-slate-600 uppercase">Combined Payable:</span>
+                    <span id="lblCombinedTotalAmount" class="font-mono font-black text-base text-slate-900">₹0</span>
+                </div>
             </div>
 
             <a id="btnUpiAppPay" href="#" class="w-full mb-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all active-press">
@@ -660,11 +622,12 @@
         let globalGroupNumber = 24;
         let globalMonthlyAmount = 0;
         let globalWinCount = 0;
-        let activeMatches = [];
-        let distinctGroupsForCustomer = [];
-        let verifiedCustomerMpin = null;
+        let activeAccountsList = [];
+        let activePassbookPayload = null;
+        let isCombinedPaymentMode = false;
+        let pendingMpinAction = null;
+        let verifiedSessionMpin = null;
         let isSubmitting = false;
-        let combinedEligibleList = [];
 
         document.getElementById('lblUpiVpa').innerText = config.upiVpa;
 
@@ -678,10 +641,6 @@
             const num = parseFloat(val);
             if (isNaN(num) || num < 0) return "0.0000";
             return num.toFixed(4);
-        }
-
-        function formatGoldWeight22KT(val) {
-            return formatGoldWeight(val) + " g (22KT)";
         }
 
         function showNotification(message, type = 'info') {
@@ -698,7 +657,7 @@
                 'bg-slate-900 text-slate-100 border-slate-700'
             }`;
 
-            const badge = isErr ? '[NOTICE]' : isSucc ? '[CONFIRMED]' : '[INFO]';
+            const badge = isErr ? '[ERROR]' : isSucc ? '[SUCCESS]' : '[INFO]';
 
             toast.innerHTML = `
                 <div class="flex items-center gap-2.5">
@@ -713,13 +672,13 @@
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateY(-12px)';
                 setTimeout(() => toast.remove(), 280);
-            }, 3500);
+            }, 3600);
         }
 
         window.alert = function(msg) {
             const lower = (msg || '').toString().toLowerCase();
             let type = 'info';
-            if (lower.includes('error') || lower.includes('fail') || lower.includes('incorrect') || lower.includes('timeout') || lower.includes('invalid') || lower.includes('required') || lower.includes('denied') || lower.includes('locked')) {
+            if (lower.includes('error') || lower.includes('fail') || lower.includes('incorrect') || lower.includes('timeout') || lower.includes('invalid') || lower.includes('required') || lower.includes('denied')) {
                 type = 'error';
             } else if (lower.includes('success') || lower.includes('approved') || lower.includes('copied') || lower.includes('submitted') || lower.includes('switched')) {
                 type = 'success';
@@ -744,20 +703,20 @@
                 .catch(e => { clearTimeout(timeoutId); throw e; });
         }
 
-        // ==========================================================================
-        // AUTHENTICATION & MULTI-GROUP / MULTI-ACCOUNT SCENARIO ROUTER
-        // ==========================================================================
         function handlePhoneContinue() {
             const rawPhone = document.getElementById('phoneInput').value.trim().replace(/\D/g, "");
-            if (rawPhone.length !== 10) return alert("Please enter a valid 10-digit mobile number.");
+            if (rawPhone.length !== 10) return showNotification("Please enter a valid 10-digit mobile number.", "error");
 
-            showLoader("Checking Account...");
+            const btn = document.getElementById('btnPhoneContinue');
+            btn.disabled = true;
+            showLoader("Verifying...");
             globalCustomerPhone = rawPhone;
 
             fetchFast(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
-                if (!res.success) return alert(res.error || "Account not located.");
+                btn.disabled = false;
+                if (!res.success) return showNotification(res.error || "Account not located.", "error");
                 document.getElementById('phoneSection').classList.add('hidden-view');
 
                 if (res.hasMpin) {
@@ -770,42 +729,45 @@
             })
             .catch(() => {
                 hideLoader();
-                alert("Unable to connect right now. Please try again.");
+                btn.disabled = false;
+                showNotification("Unable to complete request. Please try again.", "error");
             });
         }
 
         function verifyMpinAndProceed() {
             const mpin = document.getElementById('mpinInput').value.trim();
-            if (mpin.length !== 4) return alert("Enter 4-digit MPIN.");
+            if (mpin.length !== 4) return showNotification("Enter 4-digit MPIN.", "error");
 
+            const btn = document.getElementById('btnVerifyMpin');
+            btn.disabled = true;
             showLoader("Verifying...");
 
             fetchFast(`${config.scriptUrl}?action=loginMpin&phone=${globalCustomerPhone}&mpin=${mpin}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
+                btn.disabled = false;
                 if (res.success) {
-                    verifiedCustomerMpin = mpin;
+                    verifiedSessionMpin = mpin;
                     document.getElementById('mpinLoginSection').classList.add('hidden-view');
-                    if (res.mpinConflictDetected) {
-                        showNotification("Multiple MPIN configurations detected across linked accounts. Authenticated securely.", "info");
-                    } else {
-                        showNotification("Login successful.", "success");
-                    }
+                    showNotification("Login successful.", "success");
                     fetchUserProfile(globalCustomerPhone);
                 } else {
-                    alert(res.error || "Incorrect MPIN.");
+                    showNotification(res.error || "Incorrect MPIN.", "error");
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Unable to complete request. Try again.");
+                btn.disabled = false;
+                showNotification("Unable to complete request. Try again.", "error");
             });
         }
 
         function saveInitialMpin() {
             const p1 = document.getElementById('firstMpin1').value.trim();
             const p2 = document.getElementById('firstMpin2').value.trim();
-            if (p1.length !== 4 || p1 !== p2) return alert("MPIN must be 4 digits and match.");
+            if (p1.length !== 4 || !/^\d{4}$/.test(p1) || p1 !== p2) {
+                return showNotification("MPIN must be 4 numeric digits and match.", "error");
+            }
 
             showLoader("Saving...");
 
@@ -813,181 +775,173 @@
             .then(res => {
                 hideLoader();
                 if (res.success) {
-                    verifiedCustomerMpin = p1;
+                    verifiedSessionMpin = p1;
                     document.getElementById('firstTimeMpinSection').classList.add('hidden-view');
-                    showNotification("Security MPIN saved successfully.", "success");
+                    showNotification("Security MPIN saved.", "success");
                     fetchUserProfile(globalCustomerPhone);
-                } else alert(res.error || "Failed to save PIN.");
+                } else {
+                    showNotification(res.error || "Failed to save PIN.", "error");
+                }
             })
-            .catch(() => { hideLoader(); alert("Request timeout."); });
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            });
         }
 
+        // ==========================================================================
+        // SCENARIOS A, B, C, D: GROUP & KITTY ACCOUNT ROUTING
+        // ==========================================================================
         function fetchUserProfile(phone) {
             showLoader("Loading...");
             fetchFast(`${config.scriptUrl}?action=getCustomerAccounts&phone=${encodeURIComponent(phone)}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
-                if (!res || !res.accounts || res.accounts.length === 0) return alert("No GRMS account located.");
-                activeMatches = res.accounts;
+                if (!res || !res.accounts || res.accounts.length === 0) {
+                    return showNotification("No GRMS account located.", "error");
+                }
+                activeAccountsList = res.accounts;
 
-                const groupMap = {};
-                activeMatches.forEach(acc => {
-                    const g = acc.groupNumber || 24;
-                    if (!groupMap[g]) groupMap[g] = [];
-                    groupMap[g].push(acc);
-                });
-                distinctGroupsForCustomer = Object.keys(groupMap).map(Number).sort((a, b) => a - b);
+                if (activeAccountsList.length > 1) {
+                    document.getElementById('btnSwitchAccount').classList.remove('hidden-view');
+                    document.getElementById('multiAccountPayBar').classList.remove('hidden-view');
+                } else {
+                    document.getElementById('btnSwitchAccount').classList.add('hidden-view');
+                    document.getElementById('multiAccountPayBar').classList.add('hidden-view');
+                }
+
+                const groups = [...new Set(activeAccountsList.map(a => Number(a.groupNumber) || 24))].sort((a, b) => a - b);
 
                 // Scenario A: One Group, One Kitty Account -> Open directly
-                if (distinctGroupsForCustomer.length === 1 && activeMatches.length === 1) {
+                if (groups.length === 1 && activeAccountsList.length === 1) {
                     document.getElementById('authContainer').classList.add('hidden-view');
-                    loadPassbook(phone, activeMatches[0].acCode);
+                    loadPassbook(phone, activeAccountsList[0].acCode);
                     return;
                 }
 
-                // Scenario B: One Group, Multiple Kitty Accounts -> Show account cards directly
-                if (distinctGroupsForCustomer.length === 1 && activeMatches.length > 1) {
-                    document.getElementById('btnBackToGroups').classList.add('hidden-view');
-                    renderAccountSelectionCards(distinctGroupsForCustomer[0], activeMatches);
+                // Scenario B: One Group, Multiple Kitty Accounts -> Show account selection directly
+                if (groups.length === 1 && activeAccountsList.length > 1) {
+                    renderAccountSelectionForGroup(groups[0], false);
                     return;
                 }
 
                 // Scenario C: Multiple Groups -> First display Group Selection
-                renderGroupSelection(groupMap);
+                showGroupSelectorView();
             })
-            .catch(() => { hideLoader(); alert("Unable to load records."); });
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to load records.", "error");
+            });
         }
 
-        function renderGroupSelection(groupMap) {
+        function showGroupSelectorView() {
             document.getElementById('multiKittyWrapper').classList.add('hidden-view');
+            const groups = [...new Set(activeAccountsList.map(a => Number(a.groupNumber) || 24))].sort((a, b) => a - b);
             const listEl = document.getElementById('groupSelectionList');
             listEl.innerHTML = "";
 
-            distinctGroupsForCustomer.forEach(grpNum => {
-                const count = groupMap[grpNum].length;
+            groups.forEach(gNum => {
+                const count = activeAccountsList.filter(a => Number(a.groupNumber) === gNum).length;
                 listEl.innerHTML += `
-                    <button type="button" onclick="selectCustomerGroup(${grpNum})" class="w-full text-left bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 rounded-xl p-3.5 flex justify-between items-center transition-all cursor-pointer active-press">
+                    <button type="button" onclick="handleGroupChoice(${gNum})" class="w-full text-left bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-400 p-3.5 rounded-xl flex justify-between items-center transition-all cursor-pointer active-press">
                         <div>
-                            <span class="text-xs font-black text-slate-900 uppercase block">Group ${grpNum}</span>
-                            <span class="text-[11px] text-slate-500">${count} Kitty Account${count > 1 ? 's' : ''} Linked</span>
+                            <span class="text-xs font-black text-slate-900 uppercase">Group ${gNum}</span>
+                            <span class="text-[10px] text-slate-500 block mt-0.5">${count} ${count === 1 ? 'Kitty Account' : 'Kitty Accounts'}</span>
                         </div>
-                        <span class="text-xs font-bold text-amber-800">Open &rarr;</span>
+                        <span class="text-xs font-bold text-amber-800">Select &rarr;</span>
                     </button>
                 `;
             });
+
             document.getElementById('groupSelectionWrapper').classList.remove('hidden-view');
         }
 
-        function selectCustomerGroup(grpNum) {
-            const groupAccounts = activeMatches.filter(a => (a.groupNumber || 24) === grpNum);
-            document.getElementById('groupSelectionWrapper').classList.add('hidden-view');
-
-            if (groupAccounts.length === 1) {
+        function handleGroupChoice(groupNum) {
+            const matching = activeAccountsList.filter(a => Number(a.groupNumber) === Number(groupNum));
+            if (matching.length === 1) {
+                document.getElementById('groupSelectionWrapper').classList.add('hidden-view');
                 document.getElementById('authContainer').classList.add('hidden-view');
-                loadPassbook(globalCustomerPhone, groupAccounts[0].acCode);
+                loadPassbook(globalCustomerPhone, matching[0].acCode);
             } else {
-                // Scenario D: Group Contains Multiple Kitty Accounts
-                document.getElementById('btnBackToGroups').classList.remove('hidden-view');
-                renderAccountSelectionCards(grpNum, groupAccounts);
+                document.getElementById('groupSelectionWrapper').classList.add('hidden-view');
+                renderAccountSelectionForGroup(groupNum, true);
             }
         }
 
-        function backToGroupSelection() {
-            const groupMap = {};
-            activeMatches.forEach(acc => {
-                const g = acc.groupNumber || 24;
-                if (!groupMap[g]) groupMap[g] = [];
-                groupMap[g].push(acc);
-            });
-            renderGroupSelection(groupMap);
-        }
+        function renderAccountSelectionForGroup(groupNum, showBackToGroups) {
+            const matching = activeAccountsList.filter(a => Number(a.groupNumber) === Number(groupNum));
+            document.getElementById('lblSelectAccountHeader').innerText = `Group ${groupNum} — Select Kitty Account`;
 
-        function renderAccountSelectionCards(grpNum, accountsList) {
-            document.getElementById('lblSelectAccountTitle').innerText = `Group ${grpNum} — Select Kitty Account`;
-            const container = document.getElementById('kittyAccountCardsList');
-            container.innerHTML = "";
+            const backBtn = document.getElementById('btnBackToGroups');
+            if (showBackToGroups) backBtn.classList.remove('hidden-view');
+            else backBtn.classList.add('hidden-view');
 
-            accountsList.forEach(item => {
-                container.innerHTML += `
-                    <button type="button" onclick="selectKittyAccountFromCard('${item.acCode}')" class="w-full text-left bg-white hover:bg-amber-100/60 border border-amber-300 rounded-xl p-3 flex justify-between items-center transition-all cursor-pointer active-press">
+            const cardsEl = document.getElementById('kittyAccountCardsList');
+            cardsEl.innerHTML = "";
+            matching.forEach(acc => {
+                cardsEl.innerHTML += `
+                    <button type="button" onclick="selectAndOpenAccount('${acc.acCode}')" class="w-full text-left bg-white hover:bg-slate-50 border border-amber-300 p-3 rounded-xl flex justify-between items-center transition-all cursor-pointer active-press">
                         <div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-bold bg-slate-900 text-amber-300 px-2 py-0.5 rounded uppercase">Group ${item.groupNumber || 24}</span>
-                                <span class="text-xs font-mono font-black text-slate-900">${item.acCode}</span>
-                            </div>
-                            <p class="text-[11px] font-semibold text-slate-700 mt-1">${item.name}</p>
+                            <div class="text-xs font-bold text-slate-900">Group ${acc.groupNumber} &mdash; A/C: <span class="font-mono text-amber-900">${acc.acCode}</span></div>
+                            <div class="text-[11px] text-slate-600 mt-0.5">${acc.name} &bull; ₹${Number(acc.monthlyAmount).toLocaleString('en-IN')}/month</div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-xs font-mono font-black text-amber-900 block">₹${Number(item.monthlyAmount).toLocaleString('en-IN')}/mo</span>
-                            <span class="text-[10px] font-bold text-slate-500">Select &rarr;</span>
-                        </div>
+                        <span class="text-[11px] font-bold bg-slate-900 text-white px-2.5 py-1 rounded-lg">Open</span>
                     </button>
                 `;
             });
+
             document.getElementById('multiKittyWrapper').classList.remove('hidden-view');
         }
 
-        function selectKittyAccountFromCard(acCode) {
+        function selectAndOpenAccount(acCode) {
             document.getElementById('multiKittyWrapper').classList.add('hidden-view');
             document.getElementById('groupSelectionWrapper').classList.add('hidden-view');
             document.getElementById('authContainer').classList.add('hidden-view');
             loadPassbook(globalCustomerPhone, acCode);
         }
 
+        function confirmSelectedKitty() {
+            const ac = document.getElementById('kittySelect').value;
+            selectAndOpenAccount(ac);
+        }
+
         // ==========================================================================
         // SWITCH ACCOUNT FEATURE (WITHOUT LOGOUT)
         // ==========================================================================
         function openSwitchAccountModal() {
-            if (!globalCustomerPhone) return;
-            document.getElementById('lblSwitchPhone').innerText = globalCustomerPhone;
+            if (!activeAccountsList || activeAccountsList.length <= 1) return;
             const listEl = document.getElementById('switchAccountList');
-            listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">Loading linked accounts...</p>`;
-            document.getElementById('switchAccountModal').classList.remove('hidden-view');
-
-            fetchFast(`${config.scriptUrl}?action=getCustomerAccounts&phone=${encodeURIComponent(globalCustomerPhone)}&_ts=${Date.now()}`)
-            .then(res => {
-                if (res && res.accounts) activeMatches = res.accounts;
-                renderSwitchAccountOptions();
-            })
-            .catch(() => {
-                renderSwitchAccountOptions();
-            });
-        }
-
-        function renderSwitchAccountOptions() {
-            const listEl = document.getElementById('switchAccountList');
-            if (!activeMatches || activeMatches.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">No additional accounts found.</p>`;
-                return;
-            }
             listEl.innerHTML = "";
-            activeMatches.forEach(acc => {
-                const isCurrent = (acc.acCode.toLowerCase() === (globalAcCode || "").toLowerCase());
+
+            activeAccountsList.forEach(acc => {
+                const isCurrent = (acc.acCode === globalAcCode);
                 listEl.innerHTML += `
-                    <button type="button" onclick="switchCustomerAccount('${acc.acCode}')" class="w-full text-left p-3 rounded-xl border transition-all cursor-pointer active-press flex justify-between items-center ${isCurrent ? 'bg-amber-50 border-amber-400' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'}">
+                    <button type="button" onclick="switchCustomerAccount('${acc.acCode}')" class="w-full text-left p-3 rounded-xl border ${isCurrent ? 'bg-amber-50 border-amber-400' : 'bg-slate-50 hover:bg-white border-slate-200'} flex justify-between items-center transition-all cursor-pointer active-press">
                         <div>
-                            <div class="text-xs font-bold text-slate-900">
-                                Group ${acc.groupNumber || 24} &mdash; ₹${Number(acc.monthlyAmount).toLocaleString('en-IN')} &mdash; <span class="font-mono">${acc.acCode}</span>
-                            </div>
-                            <div class="text-[10px] text-slate-500 mt-0.5">${acc.name} &bull; ${acc.accountStatus || 'Active'}</div>
+                            <p class="text-xs font-bold text-slate-900">
+                                Group ${acc.groupNumber} &mdash; ₹${Number(acc.monthlyAmount).toLocaleString('en-IN')} &mdash; ${acc.acCode}
+                            </p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">${acc.name} &bull; ${acc.paidCount}/${acc.totalMonths} Paid</p>
                         </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isCurrent ? 'bg-amber-600 text-slate-950' : 'bg-slate-900 text-white'}">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isCurrent ? 'bg-amber-600 text-white' : 'bg-slate-200 text-slate-700'}">
                             ${isCurrent ? 'Current' : 'Switch'}
                         </span>
                     </button>
                 `;
             });
+
+            document.getElementById('switchAccountModal').classList.remove('hidden-view');
         }
 
         function closeSwitchAccountModal() {
             document.getElementById('switchAccountModal').classList.add('hidden-view');
         }
 
-        function switchCustomerAccount(targetAcCode) {
+        function switchCustomerAccount(acCode) {
             closeSwitchAccountModal();
-            if (targetAcCode.toLowerCase() === (globalAcCode || "").toLowerCase()) return;
+            if (acCode === globalAcCode) return;
 
-            // Clear account-specific UI immediately so no cross-account leakage occurs
+            // Clear account-specific interface values immediately to prevent cross-account leakage
             document.getElementById('custName').innerText = "-";
             document.getElementById('lblAcCode').innerText = "-";
             document.getElementById('lblCustId').innerText = "-";
@@ -996,77 +950,38 @@
             document.getElementById('custLiveBalance').innerText = "₹0";
             document.getElementById('lblTotalGoldGrams').innerText = "0.0000 g (22KT)";
             document.getElementById('gridWrapper').innerHTML = "";
-            document.getElementById('accountSettlementBanner').classList.add('hidden-view');
-            document.getElementById('goldSplitRow').classList.add('hidden-view');
+            activePassbookPayload = null;
 
-            showNotification("Switched to account " + targetAcCode, "success");
-            loadPassbook(globalCustomerPhone, targetAcCode);
+            loadPassbook(globalCustomerPhone, acCode, true);
         }
 
         // ==========================================================================
-        // PASSBOOK LEDGER RENDERING (SIMPLIFIED 1-11 GRID, GROUP BADGE, 22KT DISPLAY)
+        // PASSBOOK RENDERER (GROUP BADGE, 22KT DISPLAY, SIMPLIFIED 1..11 GRID)
         // ==========================================================================
-        function calculateMaturityProjection(monthlyAmt, winCount, planBenefits) {
-            const totalMonths = (planBenefits && planBenefits.durationMonths) ? planBenefits.durationMonths : 11;
-            let prize = 0;
-            let statusLabel = "Non-Winner Plan";
-            let description = "";
-
-            if (planBenefits && typeof planBenefits.applicableBonus === "number") {
-                prize = planBenefits.applicableBonus;
-                if (winCount > 0) {
-                    statusLabel = `${winCount}x Draw Winner`;
-                    description = `Draw prize of ₹${prize.toLocaleString('en-IN')} converted to 22KT Gold and credited with Installment ${totalMonths} payment.`;
-                } else {
-                    description = `Non-Winner Gift Bonus of ₹${prize.toLocaleString('en-IN')} converted to 22KT Gold upon Installment ${totalMonths} payment.`;
-                }
-            } else {
-                if (winCount > 0) {
-                    prize = (winCount === 1) ? 15000 : (winCount === 2) ? 30000 : 45000;
-                    statusLabel = `${winCount}x Draw Winner`;
-                    description = `Draw prize of ₹${prize.toLocaleString('en-IN')} converted to 22KT Gold and credited with Installment 11 payment.`;
-                } else {
-                    prize = (monthlyAmt === 8000) ? 3000 : 2000;
-                    description = `Non-Winner Gift Bonus of ₹${prize.toLocaleString('en-IN')} converted to 22KT Gold upon Installment 11 payment.`;
-                }
-            }
-
-            return {
-                statusLabel,
-                bonusAmount: prize,
-                totalMaturityValue: (totalMonths * monthlyAmt) + prize,
-                description
-            };
-        }
-
-        function loadPassbook(phone, acCode) {
+        function loadPassbook(phone, acCode, isSwitch = false) {
             showLoader("Loading...");
             fetchFast(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(phone)}&kittyNumber=${encodeURIComponent(acCode)}&_ts=${Date.now()}`)
             .then(data => {
                 hideLoader();
-                if (!data || !data.profile) return alert("Unable to load account records.");
+                if (!data || !data.profile) return showNotification("Unable to load ledger records.", "error");
 
+                activePassbookPayload = data;
                 globalCustomerPhone = data.profile.phone;
                 globalAcCode = data.profile.acCode;
-                globalGroupNumber = data.profile.groupNumber || 24;
+                globalGroupNumber = Number(data.profile.groupNumber) || 24;
                 globalMonthlyAmount = Number(data.profile.monthlyAmount) || 0;
                 globalWinCount = Number(data.profile.winCount) || 0;
 
+                const accStatus = (data.profile.accountStatus || "Active").toString();
+                const statusPrefix = accStatus.toLowerCase() === "settled" ? "GRMS Settled" : "GRMS Active";
+                document.getElementById('lblActiveGroupBadge').innerText = `${statusPrefix} | Group ${globalGroupNumber}`;
+
                 document.getElementById('custName').innerText = data.profile.name;
                 document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
-                document.getElementById('lblActiveGroupBadge').innerText = `GRMS Active | Group ${globalGroupNumber}`;
                 document.getElementById('custAmount').innerText = "₹" + globalMonthlyAmount.toLocaleString('en-IN');
                 document.getElementById('lblAcCode').innerText = data.profile.acCode;
                 document.getElementById('lblCustId').innerText = data.profile.customerId || "-";
                 document.getElementById('lblDoj').innerText = data.profile.doj || "-";
-
-                const accStatus = (data.profile.accountStatus || "Active").toString();
-                if (accStatus.toLowerCase() !== "active") {
-                    document.getElementById('lblAccountSettlementStatus').innerText = accStatus;
-                    document.getElementById('accountSettlementBanner').classList.remove('hidden-view');
-                } else {
-                    document.getElementById('accountSettlementBanner').classList.add('hidden-view');
-                }
 
                 document.getElementById('supportLink').href = `https://wa.me/917840000934?text=Hello%20Suman%20Jewellers,%20inquiring%20about%20GRMS%20Group%20${globalGroupNumber}%20A/C%20${encodeURIComponent(data.profile.acCode)}.`;
 
@@ -1081,298 +996,335 @@
                 });
 
                 const settledGrams = Number(data.settledGrams) || 0;
-                const remainingGrams = (typeof data.remainingGrams === "number")
-                    ? Number(data.remainingGrams)
-                    : Math.max(0, gramsTotal - settledGrams);
+                const remainingGrams = (data.remainingGrams !== undefined) ? Number(data.remainingGrams) : Math.max(0, gramsTotal - settledGrams);
 
                 document.getElementById('custLiveBalance').innerText = "₹" + (paidCount * globalMonthlyAmount).toLocaleString('en-IN');
-                document.getElementById('lblTotalGoldGrams').innerText = formatGoldWeight22KT(gramsTotal);
+                document.getElementById('lblTotalGoldGrams').innerText = formatGoldWeight(gramsTotal) + " g (22KT)";
 
-                if (settledGrams > 0) {
-                    document.getElementById('lblPassbookSettledGold').innerText = formatGoldWeight22KT(settledGrams);
-                    document.getElementById('lblPassbookRemainingGold').innerText = formatGoldWeight22KT(remainingGrams);
-                    document.getElementById('goldSplitRow').classList.remove('hidden-view');
+                const stlRow = document.getElementById('passbookSettlementSummaryRow');
+                if (settledGrams > 0 || accStatus.toLowerCase().includes("settled")) {
+                    stlRow.classList.remove('hidden-view');
+                    document.getElementById('lblPassbookSettledGrams').innerText = formatGoldWeight(settledGrams) + " g (22KT)";
+                    document.getElementById('lblPassbookRemainingGrams').innerText = formatGoldWeight(remainingGrams) + " g (22KT)";
+                    document.getElementById('lblAccountSettlementTag').innerText = accStatus;
                 } else {
-                    document.getElementById('goldSplitRow').classList.add('hidden-view');
+                    stlRow.classList.add('hidden-view');
+                    document.getElementById('lblAccountSettlementTag').innerText = "Live Accumulated";
                 }
 
-                // Simplified Installment Cards: Serial numbers 1..11 + Pay / Paid / Pending / Locked only
+                // Simplified Installment Cards: Serial numbers 1..11 & States: Pay, Paid, Pending, Locked
                 const grid = document.getElementById('gridWrapper');
                 grid.innerHTML = "";
+                const totalInstallments = (data.profile.planBenefits && data.profile.planBenefits.durationMonths) ? data.profile.planBenefits.durationMonths : config.schemeMonths;
                 const nextPayable = data.nextPayableMonth || 1;
-                const totalMonths = (data.profile.planBenefits && data.profile.planBenefits.durationMonths) ? data.profile.planBenefits.durationMonths : config.schemeMonths;
+                const isAccountSettled = accStatus.toLowerCase() === "settled";
 
-                for (let m = 1; m <= totalMonths; m++) {
+                for (let m = 1; m <= totalInstallments; m++) {
                     let tx = txs.find(t => Number(t.month) === m);
                     let stateLabel = "Locked";
-                    let style = "bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed opacity-65";
+                    let cardStyle = "bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed opacity-65";
+                    let numStyle = "text-slate-400";
                     let action = "";
 
                     if (tx && tx.status === "Paid") {
                         stateLabel = "Paid";
-                        style = "bg-emerald-50 border border-emerald-200 text-emerald-800";
+                        cardStyle = "bg-emerald-50 border border-emerald-200 text-emerald-800";
+                        numStyle = "text-emerald-900";
                     } else if (tx && (tx.status === "Pending" || tx.status === "Reviewed")) {
-                        // Reviewed but not yet finally approved displays as Pending on customer grid
+                        // Internal Reviewed status displays as Pending on simplified customer grid
                         stateLabel = "Pending";
-                        style = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse";
-                    } else if (m === nextPayable && !data.isSchemeComplete) {
+                        cardStyle = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse";
+                        numStyle = "text-amber-900";
+                    } else if (m === nextPayable && !data.isSchemeComplete && !isAccountSettled) {
                         stateLabel = "Pay";
-                        style = "bg-slate-900 border border-slate-900 text-white cursor-pointer active-press";
+                        cardStyle = "bg-slate-900 border border-slate-900 text-white cursor-pointer active-press shadow-xs";
+                        numStyle = "text-amber-400";
                         action = `onclick="openPaymentModal(${m})"`;
                     }
 
                     grid.innerHTML += `
-                        <div ${action} class="p-3 rounded-xl ${style} text-center flex flex-col items-center justify-center min-h-[60px]">
-                            <span class="text-sm font-mono font-black leading-none">${m}</span>
-                            <span class="text-[11px] font-bold uppercase tracking-wider mt-1.5">${stateLabel}</span>
+                        <div ${action} class="p-3 rounded-xl ${cardStyle} text-center flex flex-col items-center justify-center min-h-[60px]">
+                            <span class="text-sm font-mono font-black ${numStyle}">${m}</span>
+                            <span class="text-[11px] font-bold uppercase tracking-wider mt-0.5">${stateLabel}</span>
                         </div>
                     `;
                 }
 
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
+                if (isSwitch) {
+                    showNotification(`Switched to Group ${globalGroupNumber} — ${globalAcCode}`, "success");
+                }
             })
-            .catch(() => { hideLoader(); alert("Unable to load records."); });
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to load records.", "error");
+            });
         }
 
         // ==========================================================================
-        // MPIN-PROTECTED DETAILED STATEMENT & SETTLEMENT REQUEST
+        // MPIN REVERIFICATION & DETAILED STATEMENT + SETTLEMENT REQUEST
         // ==========================================================================
         function openDetailedStatementPrompt() {
-            if (!globalCustomerPhone || !globalAcCode) return;
-            document.getElementById('statementMpinInput').value = "";
-            document.getElementById('statementMpinModal').classList.remove('hidden-view');
-            setTimeout(() => document.getElementById('statementMpinInput').focus(), 100);
+            pendingMpinAction = "detailedStatement";
+            document.getElementById('mpinActionTitle').innerText = "Verify MPIN for Statement";
+            document.getElementById('mpinActionSubtitle').innerText = "Enter your 4-digit MPIN to view Detailed Statement";
+            document.getElementById('actionMpinInput').value = "";
+            document.getElementById('mpinVerifyActionModal').classList.remove('hidden-view');
         }
 
-        function closeStatementMpinModal() {
-            document.getElementById('statementMpinModal').classList.add('hidden-view');
+        function closeMpinVerifyActionModal() {
+            document.getElementById('mpinVerifyActionModal').classList.add('hidden-view');
+            pendingMpinAction = null;
         }
 
-        function verifyStatementMpin() {
-            const mpin = document.getElementById('statementMpinInput').value.trim();
-            if (mpin.length !== 4) return alert("Please enter your 4-digit MPIN.");
+        function confirmActionMpin() {
+            const mpin = document.getElementById('actionMpinInput').value.trim();
+            if (mpin.length !== 4 || !/^\d{4}$/.test(mpin)) {
+                return showNotification("Please enter your 4-digit MPIN.", "error");
+            }
 
-            const btn = document.getElementById('btnVerifyStmtMpin');
+            const btn = document.getElementById('btnConfirmActionMpin');
             btn.disabled = true;
-            btn.innerText = "Verifying...";
             showLoader("Preparing Statement...");
 
-            fetchFast(`${config.scriptUrl}?action=getDetailedStatement&phone=${encodeURIComponent(globalCustomerPhone)}&kittyNumber=${encodeURIComponent(globalAcCode)}&mpin=${encodeURIComponent(mpin)}&_ts=${Date.now()}`)
+            fetchFast(`${config.scriptUrl}?action=getDetailedStatement&phone=${encodeURIComponent(globalCustomerPhone)}&acCode=${encodeURIComponent(globalAcCode)}&mpin=${encodeURIComponent(mpin)}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
+                btn.disabled = false;
                 if (!res || !res.success) {
-                    alert(res ? res.error : "Incorrect MPIN.");
-                    return;
+                    return showNotification(res ? res.error : "Incorrect MPIN.", "error");
                 }
-                verifiedCustomerMpin = mpin;
-                closeStatementMpinModal();
+                verifiedSessionMpin = mpin;
+                closeMpinVerifyActionModal();
                 renderDetailedStatementModal(res);
             })
             .catch(() => {
                 hideLoader();
-                alert("Unable to complete request. Please try again.");
-            })
-            .finally(() => {
                 btn.disabled = false;
-                btn.innerText = "Verify";
+                showNotification("Unable to load records.", "error");
             });
         }
 
         function renderDetailedStatementModal(stmt) {
             const p = stmt.profile;
             const txs = stmt.transactions || [];
-            const settlements = stmt.settlementHistory || [];
-            const totalMonths = (p.planBenefits && p.planBenefits.durationMonths) ? p.planBenefits.durationMonths : 11;
+            const totalInstallments = (p.planBenefits && p.planBenefits.durationMonths) ? p.planBenefits.durationMonths : 11;
+            const paidTxs = txs.filter(t => t.status === "Paid");
+            const pendingTxs = txs.filter(t => t.status === "Pending" || t.status === "Reviewed");
+            const paidCount = paidTxs.length;
+            const pendingCount = pendingTxs.length;
+            const remainingCount = Math.max(0, totalInstallments - paidCount);
 
-            let paidCount = 0;
-            let pendingCount = 0;
-            let totalDeposited = 0;
-            txs.forEach(t => {
-                const st = (t.status || "").toLowerCase();
-                if (st === "paid") {
-                    paidCount++;
-                    totalDeposited += Number(t.amount) || 0;
-                } else if (st === "pending" || st === "reviewed") {
-                    pendingCount++;
-                }
-            });
+            const monthlyAmt = Number(p.monthlyAmount) || 0;
+            const depositedAmt = paidCount * monthlyAmt;
+            const remainingPayableAmt = remainingCount * monthlyAmt;
 
-            const remainingInstallments = Math.max(0, totalMonths - paidCount);
-            const remainingPayableAmount = remainingInstallments * (Number(p.monthlyAmount) || 0);
-            const proj = calculateMaturityProjection(Number(p.monthlyAmount) || 0, Number(p.winCount) || 0, p.planBenefits);
+            const bookedGrams = Number(stmt.totalBookedGrams) || 0;
+            const settledGrams = Number(stmt.settledGrams) || 0;
+            const remainingGrams = Number(stmt.remainingGrams) || 0;
 
-            document.getElementById('stmtHeaderSubtitle').innerText = `Group ${p.groupNumber} | Account ${p.acCode}`;
+            // Preserved Maturity & Lucky Draw Calculation Logic
+            const wins = Number(p.winCount) || 0;
+            const benefits = p.planBenefits || {};
+            let prize = 0;
+            let winnerStatusText = "Non-Winner";
+            let drawRuleExplanation = "";
 
-            let txRowsHtml = "";
-            if (txs.length === 0) {
-                txRowsHtml = `<tr><td colspan="6" class="p-3 text-center text-slate-400">No installment records yet.</td></tr>`;
+            if (wins > 0) {
+                prize = (benefits.applicableBonus !== undefined)
+                    ? Number(benefits.applicableBonus)
+                    : ((wins === 1) ? 15000 : (wins === 2) ? 30000 : 45000);
+                winnerStatusText = `${wins}x Lucky Draw Winner`;
+                drawRuleExplanation = `Draw benefit of ₹${prize.toLocaleString('en-IN')} is converted to 22KT Gold upon Installment ${totalInstallments} completion.`;
             } else {
-                txs.forEach(t => {
-                    const displayStatus = (t.status === "Reviewed") ? "Pending (In Review)" : t.status;
-                    txRowsHtml += `
-                        <tr class="border-b border-slate-100">
-                            <td class="p-2 font-mono font-bold">#${t.month}</td>
-                            <td class="p-2 font-mono">₹${Number(t.amount).toLocaleString('en-IN')}</td>
-                            <td class="p-2 font-mono text-[10px]">${t.date || '-'}</td>
-                            <td class="p-2 font-mono text-[10px]">${t.utr || '-'}</td>
-                            <td class="p-2"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${t.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${displayStatus}</span></td>
-                            <td class="p-2 font-mono text-[10px]">${t.rate ? formatGoldRate(t.rate) : '-'} / ${formatGoldWeight22KT(t.bookedGrams)}</td>
-                        </tr>
-                    `;
-                });
+                prize = (benefits.applicableBonus !== undefined)
+                    ? Number(benefits.applicableBonus)
+                    : ((monthlyAmt === 8000) ? 3000 : 2000);
+                winnerStatusText = "Non-Winner";
+                drawRuleExplanation = `Non-Winner bonus of ₹${prize.toLocaleString('en-IN')} is converted to 22KT Gold upon Installment ${totalInstallments} completion.`;
             }
+            const totalMaturityValue = (totalInstallments * monthlyAmt) + prize;
 
-            let settlementSectionHtml = "";
-            const isSettledComplete = (p.accountStatus || "").toLowerCase() === "settled" || (stmt.isSchemeComplete && stmt.remainingGrams <= 0);
+            // Settlement Eligibility & Button State
             const activeReq = stmt.activeSettlementRequest;
-
+            const accStatus = (p.accountStatus || "Active").toString();
             let settlementActionHtml = "";
-            if (isSettledComplete) {
+
+            if (accStatus.toLowerCase() === "settled" || (stmt.isSchemeComplete && remainingGrams <= 0)) {
                 settlementActionHtml = `
-                    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
-                        <span class="text-xs font-black text-emerald-900 uppercase block">Customer Settled</span>
-                        <p class="text-[11px] text-emerald-700 mt-0.5">All eligible 22KT gold for this account has been settled at the showroom.</p>
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-emerald-900 uppercase text-xs block">Customer Settled</span>
+                            <span class="text-[11px] text-emerald-700">Full 22KT gold entitlement has been delivered by showroom.</span>
+                        </div>
+                        <span class="bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase">Settled</span>
                     </div>
                 `;
-            } else if (activeReq && ["requested", "pending", "partially settled"].indexOf((activeReq.status || "").toLowerCase()) !== -1) {
+            } else if (activeReq && ["Requested", "Pending", "Partially Settled"].includes(activeReq.status)) {
                 settlementActionHtml = `
                     <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1">
                         <div class="flex justify-between items-center">
-                            <span class="text-[11px] font-bold text-amber-900 uppercase">Settlement Request Status</span>
-                            <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-950 font-bold text-[10px]">${activeReq.status}</span>
+                            <span class="font-bold text-amber-950 uppercase text-xs">Settlement Request ${activeReq.status}</span>
+                            <span class="font-mono text-[10px] font-bold text-amber-800">${activeReq.requestId}</span>
                         </div>
-                        <p class="text-[11px] text-amber-800">Reference: <span class="font-mono font-bold">${activeReq.requestId}</span> &bull; Date: ${activeReq.requestDate}</p>
-                        <p class="text-[10px] text-slate-600">Jewellery settlement requires showroom approval by Owner Admin.</p>
+                        <p class="text-[11px] text-amber-800">Submitted on ${activeReq.requestDate}. Showroom approval required to complete jewellery delivery.</p>
                     </div>
                 `;
-            } else if (stmt.isSchemeComplete && stmt.remainingGrams > 0) {
+            } else if (stmt.isSchemeComplete && remainingGrams > 0) {
                 settlementActionHtml = `
                     <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
-                        <p class="text-[11px] text-slate-600">All ${totalMonths} installments are complete. You may submit a gold settlement request for showroom approval.</p>
-                        <button type="button" onclick="requestCustomerSettlement()" id="btnRequestSettlement" class="w-full bg-[#800020] hover:bg-[#650019] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
+                        <p class="text-[11px] text-slate-600">All ${totalInstallments} installments are complete. Jewellery settlement requires showroom approval.</p>
+                        <button type="button" onclick="openSettlementConfirmModal()" class="w-full bg-[#800020] hover:bg-[#650019] text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
                             Request Settlement
                         </button>
                     </div>
                 `;
             } else {
                 settlementActionHtml = `
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-500">
-                        Settlement Eligibility: Available after completing all ${totalMonths} monthly installments. Jewellery settlement requires showroom approval.
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                        <p class="text-[11px] text-slate-600">Settlement becomes eligible after completing all ${totalInstallments} monthly installments. Showroom approval is required.</p>
                     </div>
                 `;
             }
 
-            let pastSettlementsHtml = "";
-            if (settlements.length > 0) {
-                pastSettlementsHtml = `<div class="space-y-1.5 pt-2">
-                    <p class="text-[10px] font-bold uppercase text-slate-500">Completed Settlements</p>
-                    ${settlements.map(s => `
-                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex justify-between items-center text-[11px]">
-                            <div>
-                                <span class="font-mono font-bold text-slate-900">${s.settlementRef}</span> (${s.settlementType})
-                                <span class="block text-[10px] text-slate-500">Date: ${s.settlementDate}</span>
+            // Transaction rows HTML
+            let txRowsHtml = "";
+            if (txs.length === 0) {
+                txRowsHtml = `<tr><td colspan="7" class="p-3 text-center text-slate-400">No transactions recorded yet.</td></tr>`;
+            } else {
+                txs.forEach(t => {
+                    txRowsHtml += `
+                        <tr class="border-b border-slate-100">
+                            <td class="p-2 font-mono font-bold">#${t.month}</td>
+                            <td class="p-2 font-mono">₹${Number(t.amount).toLocaleString('en-IN')}</td>
+                            <td class="p-2 font-mono text-[10px]">${t.date || '-'}</td>
+                            <td class="p-2 font-mono text-[10px]">${t.utr || '-'}</td>
+                            <td class="p-2 font-bold">${t.status}</td>
+                            <td class="p-2 font-mono">${formatGoldRate(t.rate)}</td>
+                            <td class="p-2 font-mono font-bold text-amber-950">${t.bookedGrams > 0 ? formatGoldWeight(t.bookedGrams) + ' g (22KT)' : '-'}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Completed settlements HTML
+            let stlHistoryHtml = "";
+            const stlList = stmt.settlementHistory || [];
+            if (stlList.length > 0) {
+                stlHistoryHtml = `
+                    <div class="space-y-1.5 pt-2">
+                        <p class="text-[10px] font-bold uppercase text-slate-500">Completed Showroom Settlements</p>
+                        ${stlList.map(s => `
+                            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex justify-between items-center text-[11px]">
+                                <div>
+                                    <span class="font-bold text-slate-900">${s.settlementType} Settlement</span>
+                                    <span class="font-mono text-[10px] text-slate-500 block">${s.settlementRef} &bull; ${s.settlementDate}</span>
+                                </div>
+                                <div class="text-right font-mono">
+                                    <span class="font-bold text-emerald-800 block">Settled: ${formatGoldWeight(s.currentSettledGrams)} g (22KT)</span>
+                                    <span class="text-[10px] text-slate-500">Remaining: ${formatGoldWeight(s.remainingGrams)} g (22KT)</span>
+                                </div>
                             </div>
-                            <div class="text-right font-mono">
-                                <span class="font-bold text-emerald-800 block">Settled: ${formatGoldWeight22KT(s.currentSettledGrams)}</span>
-                                <span class="text-[10px] text-slate-600">Remaining: ${formatGoldWeight22KT(s.remainingGrams)}</span>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>`;
+                        `).join('')}
+                    </div>
+                `;
             }
 
             document.getElementById('detailedStatementBody').innerHTML = `
                 <!-- Customer Details -->
                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                    <h4 class="text-[11px] font-black uppercase text-slate-800 border-b border-slate-200 pb-1">Customer Details</h4>
-                    <div class="grid grid-cols-2 gap-2 text-[11px]">
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Customer Name</span><strong class="text-slate-900">${p.name}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Registered Mobile</span><strong class="font-mono text-slate-900">+91 ${p.phone}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Email Address</span><strong class="font-mono text-slate-800">${p.email || '-'}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Customer ID / Token ID</span><strong class="font-mono text-slate-900">${p.customerId || '-'}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Account Code</span><strong class="font-mono text-amber-900">${p.acCode}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Group Number</span><strong class="font-mono text-slate-900">Group ${p.groupNumber}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Kitty Plan</span><strong class="text-slate-900">${p.planName || '-'}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Date of Joining</span><strong class="font-mono text-slate-900">${p.doj || '-'}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Monthly Installment</span><strong class="font-mono text-slate-900">₹${Number(p.monthlyAmount).toLocaleString('en-IN')}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Account Status</span><strong class="text-emerald-800">${p.accountStatus || 'Active'}</strong></div>
+                    <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-1">Customer Details</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-[11px]">
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Customer Name</span><strong class="text-slate-900">${p.name}</strong></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Registered Mobile</span><strong class="font-mono text-slate-900">+91 ${p.phone}</strong></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Email Address</span><strong class="font-mono text-slate-800 break-all">${p.email || '-'}</strong></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Customer ID / Token ID</span><strong class="font-mono text-slate-900">${p.customerId || '-'}</strong></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Account Code</span><strong class="font-mono text-amber-900">${p.acCode}</strong></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Group Number</span><strong class="text-slate-900">Group ${p.groupNumber}</strong></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Kitty Plan</span><strong class="text-slate-900">${p.planName}</strong></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Date of Joining</span><strong class="font-mono text-slate-900">${p.doj || '-'}</strong></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Monthly Installment</span><strong class="font-mono text-slate-900">₹${monthlyAmt.toLocaleString('en-IN')}</strong></div>
+                        <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Account Status</span><strong class="text-emerald-800 uppercase">${accStatus}</strong></div>
                     </div>
                 </div>
 
                 <!-- Payment Summary -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                    <h4 class="text-[11px] font-black uppercase text-slate-800 border-b border-slate-200 pb-1">Payment Summary</h4>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Total Installments</span><strong class="font-mono">${totalMonths}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Paid Installments</span><strong class="font-mono text-emerald-700">${paidCount}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Pending Installments</span><strong class="font-mono text-amber-700">${pendingCount}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Remaining Installments</span><strong class="font-mono">${remainingInstallments}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Total Deposited</span><strong class="font-mono text-slate-900">₹${totalDeposited.toLocaleString('en-IN')}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Remaining Payable</span><strong class="font-mono text-slate-900">₹${remainingPayableAmount.toLocaleString('en-IN')}</strong></div>
+                <div class="bg-white border border-slate-200 rounded-xl p-3.5 space-y-2">
+                    <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-1">Payment Summary</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                        <div class="bg-slate-50 p-2 rounded-lg"><span class="text-slate-400 block text-[9px] uppercase font-bold">Total Installments</span><strong class="font-mono">${totalInstallments}</strong></div>
+                        <div class="bg-emerald-50 p-2 rounded-lg"><span class="text-emerald-700 block text-[9px] uppercase font-bold">Paid</span><strong class="font-mono text-emerald-900">${paidCount}</strong></div>
+                        <div class="bg-amber-50 p-2 rounded-lg"><span class="text-amber-700 block text-[9px] uppercase font-bold">Pending</span><strong class="font-mono text-amber-900">${pendingCount}</strong></div>
+                        <div class="bg-slate-50 p-2 rounded-lg"><span class="text-slate-400 block text-[9px] uppercase font-bold">Remaining</span><strong class="font-mono">${remainingCount}</strong></div>
                     </div>
-                    <p class="text-[10px] text-slate-600 pt-1">Payment Due Date: <strong>Due: 20th of every month</strong></p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] pt-1">
+                        <div class="bg-slate-50 p-2 rounded-lg"><span class="text-slate-400 block text-[9px] uppercase font-bold">Total Deposited</span><strong class="font-mono text-slate-900">₹${depositedAmt.toLocaleString('en-IN')}</strong></div>
+                        <div class="bg-slate-50 p-2 rounded-lg"><span class="text-slate-400 block text-[9px] uppercase font-bold">Remaining Payable</span><strong class="font-mono text-slate-900">₹${remainingPayableAmt.toLocaleString('en-IN')}</strong></div>
+                        <div class="bg-amber-50 p-2 rounded-lg"><span class="text-amber-800 block text-[9px] uppercase font-bold">Payment Due Date</span><strong class="text-amber-950">Due: 20th of every month</strong></div>
+                    </div>
                 </div>
 
                 <!-- Gold Summary (22KT) -->
                 <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3.5 space-y-2">
-                    <h4 class="text-[11px] font-black uppercase text-amber-950 border-b border-amber-200 pb-1">Gold Summary (22KT)</h4>
-                    <div class="grid grid-cols-3 gap-2 text-center text-[11px]">
-                        <div class="bg-white p-2 rounded-lg border border-amber-100">
-                            <span class="text-[9px] text-slate-500 uppercase block">Total Booked Gold (22KT)</span>
-                            <strong class="font-mono text-slate-900">${formatGoldWeight22KT(stmt.totalBookedGrams)}</strong>
+                    <h4 class="text-[11px] font-black text-amber-950 uppercase tracking-wider border-b border-amber-200 pb-1">Gold Summary (22KT)</h4>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-white p-2.5 rounded-lg border border-amber-100">
+                            <span class="text-[9px] text-slate-500 uppercase font-bold block">Booked Gold (22KT)</span>
+                            <strong class="font-mono text-xs sm:text-sm text-slate-900">${formatGoldWeight(bookedGrams)} g (22KT)</strong>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-amber-100">
-                            <span class="text-[9px] text-slate-500 uppercase block">Settled Gold (22KT)</span>
-                            <strong class="font-mono text-slate-700">${formatGoldWeight22KT(stmt.settledGrams)}</strong>
+                        <div class="bg-white p-2.5 rounded-lg border border-amber-100">
+                            <span class="text-[9px] text-slate-500 uppercase font-bold block">Settled Gold (22KT)</span>
+                            <strong class="font-mono text-xs sm:text-sm text-slate-900">${formatGoldWeight(settledGrams)} g (22KT)</strong>
                         </div>
-                        <div class="bg-white p-2 rounded-lg border border-amber-100">
-                            <span class="text-[9px] text-amber-800 uppercase block">Remaining Gold (22KT)</span>
-                            <strong class="font-mono text-amber-950">${formatGoldWeight22KT(stmt.remainingGrams)}</strong>
+                        <div class="bg-white p-2.5 rounded-lg border border-amber-200">
+                            <span class="text-[9px] text-amber-800 uppercase font-bold block">Remaining Gold (22KT)</span>
+                            <strong class="font-mono text-xs sm:text-sm text-amber-950">${formatGoldWeight(remainingGrams)} g (22KT)</strong>
                         </div>
                     </div>
                 </div>
 
-                <!-- Lucky Draw & Maturity Details (Preserved Calculation Logic) -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                    <div class="flex justify-between items-center border-b border-slate-200 pb-1">
-                        <h4 class="text-[11px] font-black uppercase text-slate-800">Lucky Draw &amp; Maturity Details</h4>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 text-slate-800">${proj.statusLabel}</span>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2 text-[11px]">
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Number of Wins</span><strong class="font-mono">${p.winCount || 0}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Draw Bonus / Gift</span><strong class="font-mono text-emerald-700">+₹${proj.bonusAmount.toLocaleString('en-IN')}</strong></div>
-                        <div><span class="text-slate-500 block text-[9px] uppercase">Maturity Value</span><strong class="font-mono text-amber-900">₹${proj.totalMaturityValue.toLocaleString('en-IN')}</strong></div>
-                    </div>
-                    <p class="text-[10px] text-slate-600 italic">${proj.description}</p>
-                </div>
-
-                <!-- Settlement Details -->
+                <!-- Lucky Draw & Maturity Details -->
                 <div class="bg-white border border-slate-200 rounded-xl p-3.5 space-y-2">
-                    <h4 class="text-[11px] font-black uppercase text-slate-800 border-b border-slate-200 pb-1">Settlement Details</h4>
-                    ${settlementActionHtml}
-                    ${pastSettlementsHtml}
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-1">
+                        <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-wider">Lucky Draw &amp; Maturity Details</h4>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded ${wins > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}">${winnerStatusText}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center text-[11px]">
+                        <div class="bg-slate-50 p-2 rounded-lg"><span class="text-slate-400 block text-[9px] uppercase font-bold">Number of Wins</span><strong class="font-mono">${wins}</strong></div>
+                        <div class="bg-slate-50 p-2 rounded-lg"><span class="text-slate-400 block text-[9px] uppercase font-bold">Draw Bonus / Gift</span><strong class="font-mono text-emerald-700">+₹${prize.toLocaleString('en-IN')}</strong></div>
+                        <div class="bg-amber-50 p-2 rounded-lg"><span class="text-amber-800 block text-[9px] uppercase font-bold">Maturity Value</span><strong class="font-mono text-amber-950">₹${totalMaturityValue.toLocaleString('en-IN')}</strong></div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 italic">${drawRuleExplanation}</p>
                 </div>
 
                 <!-- Complete Transaction History -->
                 <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
                     <div class="p-3 bg-slate-50 border-b border-slate-200">
-                        <h4 class="text-[11px] font-black uppercase text-slate-800">Complete Transaction History</h4>
+                        <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-wider">Complete Transaction History</h4>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-[11px]">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-600 border-b">
+                            <thead class="bg-slate-50 text-slate-500 border-b">
+                                <tr>
                                     <th class="p-2">No.</th>
                                     <th class="p-2">Amount</th>
                                     <th class="p-2">Date</th>
                                     <th class="p-2">Reference</th>
                                     <th class="p-2">Status</th>
-                                    <th class="p-2">22KT Rate &amp; Weight</th>
+                                    <th class="p-2">22KT Rate</th>
+                                    <th class="p-2">Booked Gold (22KT)</th>
                                 </tr>
                             </thead>
                             <tbody>${txRowsHtml}</tbody>
                         </table>
                     </div>
+                </div>
+
+                <!-- Settlement Details & Request Action -->
+                <div class="bg-white border border-slate-200 rounded-xl p-3.5 space-y-2">
+                    <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-1">Settlement Details</h4>
+                    ${settlementActionHtml}
+                    ${stlHistoryHtml}
                 </div>
             `;
 
@@ -1383,259 +1335,169 @@
             document.getElementById('detailedStatementModal').classList.add('hidden-view');
         }
 
-        function requestCustomerSettlement() {
-            if (!globalCustomerPhone || !globalAcCode || !verifiedCustomerMpin) {
-                return alert("Please verify MPIN first.");
+        function openSettlementConfirmModal() {
+            if (!activePassbookPayload || !activePassbookPayload.profile) return;
+            const p = activePassbookPayload.profile;
+            document.getElementById('settlementRequestRemarks').value = "";
+            document.getElementById('settlementConfirmSummary').innerHTML = `
+                <div class="flex justify-between"><span class="text-slate-500">Customer Name:</span><strong>${p.name}</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Group &amp; Account:</span><strong class="font-mono">Group ${p.groupNumber} &mdash; ${p.acCode}</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Booked Gold (22KT):</span><strong class="font-mono">${formatGoldWeight(activePassbookPayload.totalBookedGrams)} g (22KT)</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Previously Settled (22KT):</span><strong class="font-mono">${formatGoldWeight(activePassbookPayload.settledGrams)} g (22KT)</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Remaining Gold (22KT):</span><strong class="font-mono text-amber-950">${formatGoldWeight(activePassbookPayload.remainingGrams)} g (22KT)</strong></div>
+            `;
+            document.getElementById('settlementConfirmModal').classList.remove('hidden-view');
+        }
+
+        function closeSettlementConfirmModal() {
+            document.getElementById('settlementConfirmModal').classList.add('hidden-view');
+        }
+
+        function submitCustomerSettlementRequest() {
+            if (isSubmitting) return;
+            if (!verifiedSessionMpin) {
+                return showNotification("Please verify your MPIN first.", "error");
             }
-            const btn = document.getElementById('btnRequestSettlement');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerText = "Submitting Request...";
-            }
+
+            const btn = document.getElementById('btnSubmitSettlementReq');
+            isSubmitting = true;
+            btn.disabled = true;
+            btn.innerText = "Submitting...";
             showLoader("Submitting Settlement Request...");
+
+            const payload = {
+                action: "requestSettlement",
+                phone: globalCustomerPhone,
+                acCode: globalAcCode,
+                mpin: verifiedSessionMpin,
+                remarks: document.getElementById('settlementRequestRemarks').value.trim()
+            };
 
             fetchFast(config.scriptUrl, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({
-                    action: "requestSettlement",
-                    phone: globalCustomerPhone,
-                    acCode: globalAcCode,
-                    mpin: verifiedCustomerMpin
-                })
+                body: JSON.stringify(payload)
             })
             .then(res => {
                 hideLoader();
+                closeSettlementConfirmModal();
+                closeDetailedStatementModal();
                 if (res && res.success) {
                     showNotification(`Settlement request submitted (${res.requestId}). Showroom approval required.`, "success");
-                    closeDetailedStatementModal();
                     loadPassbook(globalCustomerPhone, globalAcCode);
                 } else {
-                    alert(res ? res.error : "Unable to submit settlement request.");
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerText = "Request Settlement";
-                    }
+                    showNotification(res ? res.error : "Unable to submit settlement request.", "error");
                 }
             })
             .catch(() => {
                 hideLoader();
-                alert("Unable to complete request.");
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = "Request Settlement";
-                }
+                showNotification("Unable to complete request.", "error");
+            })
+            .finally(() => {
+                isSubmitting = false;
+                btn.disabled = false;
+                btn.innerText = "Submit Request";
             });
         }
 
         // ==========================================================================
-        // PAY MULTIPLE ACCOUNTS (COMBINED PAYMENT & ALLOCATION)
+        // SINGLE & COMBINED MULTI-ACCOUNT PAYMENT MODAL
         // ==========================================================================
-        function openCombinedPaymentModal() {
-            if (!globalCustomerPhone) return;
-            document.getElementById('combinedUtrInput').value = "";
-            document.getElementById('combinedFileInput').value = "";
-            document.getElementById('combinedAccountsList').innerHTML = `<p class="text-xs text-slate-500 text-center py-3">Loading eligible accounts...</p>`;
-            document.getElementById('combinedPaymentModal').classList.remove('hidden-view');
+        function openPaymentModal(m) {
+            isCombinedPaymentMode = false;
+            currentSelectedMonth = m;
+            document.getElementById('utrInput').value = "";
+            document.getElementById('fileInput').value = "";
+            document.getElementById('paymentModalTitle').innerText = "GRMS Installment Payment";
+            document.getElementById('multiKittySelectionContainer').classList.add('hidden-view');
+            document.getElementById('modalMonthTarget').innerText = `Group ${globalGroupNumber} (${globalAcCode}) — Installment #${m} (Amount: ₹${globalMonthlyAmount.toLocaleString('en-IN')})`;
 
+            updatePaymentQrAndUpi(globalMonthlyAmount, `GRMS G${globalGroupNumber} I${m} - ${globalAcCode}`);
+            document.getElementById('paymentModal').classList.remove('hidden-view');
+        }
+
+        function openCombinedPaymentModal() {
+            isCombinedPaymentMode = true;
+            currentSelectedMonth = null;
+            document.getElementById('utrInput').value = "";
+            document.getElementById('fileInput').value = "";
+            document.getElementById('paymentModalTitle').innerText = "Pay Multiple Accounts";
+            document.getElementById('modalMonthTarget').innerText = "Select eligible kitty accounts for one combined payment";
+
+            showLoader("Checking Accounts...");
             fetchFast(`${config.scriptUrl}?action=getCustomerAccounts&phone=${encodeURIComponent(globalCustomerPhone)}&_ts=${Date.now()}`)
             .then(res => {
-                combinedEligibleList = (res && res.accounts) ? res.accounts : [];
-                renderCombinedAccountsCheckboxes();
-            })
-            .catch(() => {
-                document.getElementById('combinedAccountsList').innerHTML = `<p class="text-xs text-rose-600 text-center py-3">Unable to load accounts.</p>`;
-            });
-        }
+                hideLoader();
+                const accounts = (res && res.accounts) ? res.accounts : activeAccountsList;
+                activeAccountsList = accounts;
 
-        function closeCombinedPaymentModal() {
-            document.getElementById('combinedPaymentModal').classList.add('hidden-view');
-        }
+                const listEl = document.getElementById('multiKittyCheckboxList');
+                listEl.innerHTML = "";
 
-        function renderCombinedAccountsCheckboxes() {
-            const container = document.getElementById('combinedAccountsList');
-            if (!combinedEligibleList || combinedEligibleList.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-3">No accounts found.</p>`;
-                recalculateCombinedTotal();
-                return;
-            }
+                accounts.forEach(acc => {
+                    const eligible = !!acc.isEligibleForPayment;
+                    const checkedAttr = (eligible && acc.acCode === globalAcCode) ? "checked" : "";
+                    const disabledAttr = eligible ? "" : "disabled";
 
-            container.innerHTML = "";
-            combinedEligibleList.forEach((acc, idx) => {
-                const eligible = !!acc.isEligibleForPayment;
-                container.innerHTML += `
-                    <label class="flex items-center justify-between gap-2.5 p-2.5 rounded-lg border ${eligible ? 'bg-white border-slate-200 cursor-pointer' : 'bg-slate-100 border-slate-200 opacity-60 cursor-not-allowed'}">
-                        <div class="flex items-center gap-2.5">
-                            <input type="checkbox" class="combined-acc-chk rounded" data-index="${idx}" ${eligible ? '' : 'disabled'} onchange="recalculateCombinedTotal()">
-                            <div>
-                                <div class="text-xs font-bold text-slate-900">
-                                    Group ${acc.groupNumber} &mdash; <span class="font-mono">${acc.acCode}</span>
-                                </div>
-                                <div class="text-[10px] ${eligible ? 'text-emerald-700 font-semibold' : 'text-slate-500'}">
-                                    ${eligible ? `Installment #${acc.nextInstallment} Eligible` : acc.eligibilityReason}
+                    listEl.innerHTML += `
+                        <label class="flex items-center justify-between gap-2 p-2.5 rounded-lg border ${eligible ? 'bg-white border-slate-200 cursor-pointer' : 'bg-slate-100 border-slate-200 opacity-60 cursor-not-allowed'} text-xs">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" class="combined-acc-cb rounded"
+                                    data-ac="${acc.acCode}"
+                                    data-group="${acc.groupNumber}"
+                                    data-month="${acc.nextInstallment || 0}"
+                                    data-amount="${acc.monthlyAmount}"
+                                    onchange="recalculateCombinedTotal()"
+                                    ${checkedAttr} ${disabledAttr}>
+                                <div>
+                                    <span class="font-bold text-slate-900">Group ${acc.groupNumber} &mdash; ${acc.acCode}</span>
+                                    <span class="text-[10px] block ${eligible ? 'text-emerald-700 font-semibold' : 'text-slate-500'}">
+                                        ${eligible ? `Next Installment: #${acc.nextInstallment}` : acc.eligibilityReason}
+                                    </span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="text-right font-mono">
-                            <span class="text-xs font-black text-slate-900">₹${Number(acc.monthlyAmount).toLocaleString('en-IN')}</span>
-                        </div>
-                    </label>
-                `;
+                            <span class="font-mono font-bold text-slate-900">₹${Number(acc.monthlyAmount).toLocaleString('en-IN')}</span>
+                        </label>
+                    `;
+                });
+
+                document.getElementById('multiKittySelectionContainer').classList.remove('hidden-view');
+                recalculateCombinedTotal();
+                document.getElementById('paymentModal').classList.remove('hidden-view');
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to load accounts.", "error");
             });
-            recalculateCombinedTotal();
         }
 
         function toggleSelectAllEligibleAccounts() {
-            const boxes = document.querySelectorAll('.combined-acc-chk:not(:disabled)');
-            const allChecked = Array.from(boxes).every(b => b.checked);
-            boxes.forEach(b => { b.checked = !allChecked; });
+            const cbs = document.querySelectorAll('.combined-acc-cb:not(:disabled)');
+            const allChecked = Array.from(cbs).every(cb => cb.checked);
+            cbs.forEach(cb => { cb.checked = !allChecked; });
             recalculateCombinedTotal();
         }
 
         function recalculateCombinedTotal() {
-            const boxes = document.querySelectorAll('.combined-acc-chk:checked');
+            const cbs = document.querySelectorAll('.combined-acc-cb:checked');
             let total = 0;
-            let count = 0;
-            boxes.forEach(b => {
-                const idx = parseInt(b.getAttribute('data-index'), 10);
-                const acc = combinedEligibleList[idx];
-                if (acc && acc.isEligibleForPayment) {
-                    total += Number(acc.monthlyAmount) || 0;
-                    count++;
-                }
+            const parts = [];
+            cbs.forEach(cb => {
+                const amt = parseFloat(cb.getAttribute('data-amount')) || 0;
+                total += amt;
+                parts.push(`₹${amt.toLocaleString('en-IN')}`);
             });
 
-            document.getElementById('lblCombinedCount').innerText = `${count} account${count === 1 ? '' : 's'} selected`;
-            document.getElementById('lblCombinedTotalAmount').innerText = "₹" + total.toLocaleString('en-IN');
-
-            const note = encodeURIComponent(`GRMS Combined (${count} A/C) - ${globalCustomerPhone}`);
-            const upiUri = `upi://pay?pa=${config.upiVpa}&pn=${encodeURIComponent(config.name)}&am=${total}&cu=INR&tn=${note}`;
-            document.getElementById('btnCombinedUpiPay').href = upiUri;
-            document.getElementById('combinedQrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUri)}`;
+            const breakdown = parts.length > 1 ? ` (${parts.join(' + ')})` : '';
+            document.getElementById('lblCombinedTotalAmount').innerText = `₹${total.toLocaleString('en-IN')}${breakdown}`;
+            updatePaymentQrAndUpi(total > 0 ? total : globalMonthlyAmount, `GRMS Combined - ${globalCustomerPhone}`);
         }
 
-        function toggleCombinedPaymentMethodView() {
-            const upiBox = document.getElementById('combinedUpiView');
-            const bankBox = document.getElementById('combinedBankView');
-            const btn = document.getElementById('btnCombinedMethodToggle');
-            if (upiBox.classList.contains('hidden-view')) {
-                upiBox.classList.remove('hidden-view');
-                bankBox.classList.add('hidden-view');
-                btn.innerText = "Switch to Bank Account Credentials";
-            } else {
-                upiBox.classList.add('hidden-view');
-                bankBox.classList.remove('hidden-view');
-                btn.innerText = "Switch to Instant UPI QR Display";
-            }
-        }
-
-        function submitCombinedPayment() {
-            if (isSubmitting) return;
-
-            const boxes = document.querySelectorAll('.combined-acc-chk:checked');
-            const allocations = [];
-            let totalAmount = 0;
-
-            boxes.forEach(b => {
-                const idx = parseInt(b.getAttribute('data-index'), 10);
-                const acc = combinedEligibleList[idx];
-                if (acc && acc.isEligibleForPayment) {
-                    allocations.push({
-                        acCode: acc.acCode,
-                        groupNumber: acc.groupNumber,
-                        month: acc.nextInstallment,
-                        amount: Number(acc.monthlyAmount) || 0
-                    });
-                    totalAmount += Number(acc.monthlyAmount) || 0;
-                }
-            });
-
-            if (allocations.length === 0) {
-                return alert("Please select at least one eligible kitty account.");
-            }
-
-            const utr = document.getElementById('combinedUtrInput').value.trim();
-            const fileBox = document.getElementById('combinedFileInput').files[0];
-            if (!utr && !fileBox) {
-                return alert("Please enter transaction UTR reference or attach payment slip.");
-            }
-
-            const btn = document.getElementById('btnSubmitCombinedPay');
-            isSubmitting = true;
-            btn.disabled = true;
-            btn.innerText = "Processing Payment...";
-            showLoader("Processing Payment...");
-
-            const sendPayload = (base64Img) => {
-                fetchFast(config.scriptUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({
-                        action: "submitCombined",
-                        phone: globalCustomerPhone,
-                        allocations: allocations,
-                        totalAmount: totalAmount,
-                        utr: utr || "Combined Online Deposit",
-                        screenshotUrl: base64Img || ""
-                    })
-                })
-                .then(res => {
-                    hideLoader();
-                    if (res && res.success) {
-                        closeCombinedPaymentModal();
-                        showNotification(`Combined payment submitted (${res.combinedRef}) across ${res.allocatedCount} accounts.`, "success");
-                        loadPassbook(globalCustomerPhone, globalAcCode);
-                    } else {
-                        alert(res ? res.error : "Combined payment validation failed.");
-                    }
-                })
-                .catch(() => {
-                    hideLoader();
-                    alert("Unable to complete request. Please check your connection.");
-                })
-                .finally(() => {
-                    isSubmitting = false;
-                    btn.disabled = false;
-                    btn.innerText = "Submit Payment";
-                });
-            };
-
-            if (fileBox) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        let w = img.width, h = img.height;
-                        if (w > 260) { h = Math.round((h * 260) / w); w = 260; }
-                        canvas.width = w; canvas.height = h;
-                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        sendPayload(canvas.toDataURL('image/jpeg', 0.25));
-                    };
-                    img.src = reader.result;
-                };
-                reader.readAsDataURL(fileBox);
-            } else {
-                sendPayload("");
-            }
-        }
-
-        // ==========================================================================
-        // SINGLE INSTALLMENT PAYMENT MODAL (PRESERVED)
-        // ==========================================================================
-        function openPaymentModal(m) {
-            currentSelectedMonth = m;
-            document.getElementById('utrInput').value = "";
-            document.getElementById('fileInput').value = "";
-            document.getElementById('modalMonthTarget').innerText = `Group ${globalGroupNumber} | Installment #${m} (Amount: ₹${globalMonthlyAmount.toLocaleString('en-IN')})`;
-
-            const note = encodeURIComponent(`GRMS G${globalGroupNumber} I${m} - ${globalAcCode}`);
-            document.getElementById('btnUpiAppPay').href = `upi://pay?pa=${config.upiVpa}&pn=${encodeURIComponent(config.name)}&am=${globalMonthlyAmount}&cu=INR&tn=${note}`;
-            
-            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`upi://pay?pa=${config.upiVpa}&pn=${encodeURIComponent(config.name)}&am=${globalMonthlyAmount}&cu=INR&tn=${note}`)}`;
-            document.getElementById('qrCodeImg').src = qrApiUrl;
-
-            document.getElementById('paymentModal').classList.remove('hidden-view');
+        function updatePaymentQrAndUpi(amount, noteText) {
+            const note = encodeURIComponent(noteText);
+            const upiUri = `upi://pay?pa=${config.upiVpa}&pn=${encodeURIComponent(config.name)}&am=${amount}&cu=INR&tn=${note}`;
+            document.getElementById('btnUpiAppPay').href = upiUri;
+            document.getElementById('qrCodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUri)}`;
         }
 
         function closePaymentModal() {
@@ -1644,7 +1506,7 @@
 
         function copyUpiId() {
             navigator.clipboard.writeText(config.upiVpa);
-            alert("Merchant UPI VPA copied to clipboard: " + config.upiVpa);
+            showNotification("Merchant UPI VPA copied to clipboard: " + config.upiVpa, "success");
         }
 
         function togglePaymentMethodView() {
@@ -1667,17 +1529,45 @@
 
             const utr = document.getElementById('utrInput').value.trim();
             const fileBox = document.getElementById('fileInput').files[0];
-            if (!utr && !fileBox) return alert("Please enter bank UTR or attach payment slip screenshot.");
+            if (!utr && !fileBox) {
+                return showNotification("Please enter bank UTR or attach payment slip screenshot.", "error");
+            }
+
+            let allocations = [];
+            let combinedTotal = 0;
+
+            if (isCombinedPaymentMode) {
+                const cbs = document.querySelectorAll('.combined-acc-cb:checked');
+                if (cbs.length === 0) {
+                    return showNotification("Please select at least one eligible kitty account.", "error");
+                }
+                cbs.forEach(cb => {
+                    const amt = parseFloat(cb.getAttribute('data-amount')) || 0;
+                    combinedTotal += amt;
+                    allocations.push({
+                        acCode: cb.getAttribute('data-ac'),
+                        groupNumber: parseInt(cb.getAttribute('data-group'), 10) || 24,
+                        month: parseInt(cb.getAttribute('data-month'), 10) || 1,
+                        amount: amt
+                    });
+                });
+            }
 
             const btn = document.getElementById('submitPayBtn');
             isSubmitting = true;
             btn.disabled = true;
-            btn.innerText = "Processing Payment...";
-
+            btn.innerText = "Processing...";
             showLoader("Processing Payment...");
 
             const executePost = (base64) => {
-                const payload = {
+                const payload = isCombinedPaymentMode ? {
+                    action: "submitCombined",
+                    phone: globalCustomerPhone,
+                    totalAmount: combinedTotal,
+                    allocations: allocations,
+                    utr: utr || "Combined Online Deposit",
+                    screenshotUrl: base64 || ""
+                } : {
                     action: "submit",
                     id: globalCustomerPhone,
                     acCode: globalAcCode,
@@ -1694,18 +1584,21 @@
                 })
                 .then(res => {
                     hideLoader();
-                    closePaymentModal();
                     if (res && res.success) {
-                        alert("Installment submitted successfully!");
+                        closePaymentModal();
+                        if (isCombinedPaymentMode) {
+                            showNotification(`Combined payment submitted (${res.combinedRef}) across ${res.allocatedCount} account(s).`, "success");
+                        } else {
+                            showNotification("Installment submitted successfully!", "success");
+                        }
+                        loadPassbook(globalCustomerPhone, globalAcCode);
                     } else {
-                        alert(res.error || "Notice: Payment slip registered.");
+                        showNotification(res ? res.error : "Unable to submit payment.", "error");
                     }
-                    loadPassbook(globalCustomerPhone, globalAcCode);
                 })
                 .catch(() => {
                     hideLoader();
-                    closePaymentModal();
-                    loadPassbook(globalCustomerPhone, globalAcCode);
+                    showNotification("Unable to complete request. Please check connection.", "error");
                 })
                 .finally(() => {
                     isSubmitting = false;
@@ -1736,33 +1629,35 @@
 
         function resetToPhoneStep() {
             document.getElementById('mpinLoginSection').classList.add('hidden-view');
-            document.getElementById('groupSelectionWrapper').classList.add('hidden-view');
-            document.getElementById('multiKittyWrapper').classList.add('hidden-view');
             document.getElementById('phoneSection').classList.remove('hidden-view');
         }
 
         function logoutCustomer() {
             document.getElementById('passbookContainer').classList.add('hidden-view');
-            document.getElementById('authContainer').classList.remove('hidden-view');
-            document.getElementById('phoneSection').classList.remove('hidden-view');
             document.getElementById('groupSelectionWrapper').classList.add('hidden-view');
             document.getElementById('multiKittyWrapper').classList.add('hidden-view');
+            document.getElementById('authContainer').classList.remove('hidden-view');
+            document.getElementById('phoneSection').classList.remove('hidden-view');
             document.getElementById('phoneInput').value = "";
             globalCustomerPhone = null;
             globalAcCode = null;
-            verifiedCustomerMpin = null;
-            activeMatches = [];
+            activeAccountsList = [];
+            activePassbookPayload = null;
+            verifiedSessionMpin = null;
         }
 
         function requestCurrentMpinRecovery() {
-            showLoader("Sending MPIN to Email...");
+            showLoader("Sending MPIN...");
             fetchFast(`${config.scriptUrl}?action=requestOldMpin&phone=${globalCustomerPhone}&_ts=${Date.now()}`)
             .then(res => {
                 hideLoader();
-                if (res.success) alert("MPIN sent to your registered email: " + res.email);
-                else alert(res.error || "No registered email found on file.");
+                if (res.success) showNotification("MPIN sent to your registered email: " + res.email, "success");
+                else showNotification(res.error || "No registered email found on file.", "error");
             })
-            .catch(() => { hideLoader(); alert("Request timeout."); });
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            });
         }
 
         function openTermsModal() {
