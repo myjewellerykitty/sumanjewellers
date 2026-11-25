@@ -1252,4 +1252,2564 @@
                 <body>
                     ${htmlContent}
                 </body>
-                </html>
+                <' + '/html>
+            `;
+            const blob = new Blob([fullTemplate], { type: "application/vnd.ms-excel;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function executeExport(type) {
+            closeExportModal();
+
+            if (type === 'customers') {
+                showLoader("Compiling Customer Directory...");
+                fetchFast(`${config.scriptUrl}?action=getAllMembers&_ts=${Date.now()}`)
+                .then(res => {
+                    hideLoader();
+                    const list = (res && res.members) ? res.members : allMembersFeed;
+                    if (!list || list.length === 0) return showNotification("No customer records found to export.", "error");
+
+                    let tableHtml = `<table border="1"><thead><tr>
+                        <th>Group</th>
+                        <th>Phone</th>
+                        <th>Name</th>
+                        <th>Plan Name</th>
+                        <th>Monthly Amount</th>
+                        <th>Customer ID</th>
+                        <th>Account Code</th>
+                        <th>Date of Joining</th>
+                        <th>Email</th>
+                        <th>Win Count</th>
+                        <th>Paid Months</th>
+                        <th>Total Deposited</th>
+                        <th>Booked Gold (22KT)</th>
+                        <th>Settled Gold (22KT)</th>
+                        <th>Remaining Gold (22KT)</th>
+                        <th>Account Status</th>
+                    </tr></thead><tbody>`;
+
+                    list.forEach(m => {
+                        tableHtml += `<tr>
+                            <td>Group ${m.groupNumber || 24}</td>
+                            <td style="mso-number-format:'\\@'">${m.phone}</td>
+                            <td>${m.name}</td>
+                            <td>${m.planName || ''}</td>
+                            <td>${m.monthlyAmount}</td>
+                            <td style="mso-number-format:'\\@'">${m.customerId}</td>
+                            <td style="mso-number-format:'\\@'">${m.acCode}</td>
+                            <td>${m.doj}</td>
+                            <td>${m.email}</td>
+                            <td>${m.winCount}</td>
+                            <td>${m.paidMonths}</td>
+                            <td>${m.totalDeposited}</td>
+                            <td>${formatGoldWeight(m.bookedGrams)}</td>
+                            <td>${formatGoldWeight(m.settledGrams)}</td>
+                            <td>${formatGoldWeight(m.remainingGrams)}</td>
+                            <td>${m.accountStatus || 'Active'}</td>
+                        </tr>`;
+                    });
+
+                    tableHtml += `</tbody></table>`;
+                    downloadXmlExcel(tableHtml, `GRMS_Customers_${new Date().toISOString().slice(0, 10)}.xls`);
+                    showNotification("Customer directory downloaded successfully.", "success");
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+            } else if (type === 'payments') {
+                showLoader("Compiling Complete Payments...");
+                fetchFast(`${config.scriptUrl}?action=getAllMembers&_ts=${Date.now()}`)
+                .then(memRes => {
+                    const members = (memRes && memRes.members) ? memRes.members : allMembersFeed;
+                    if (!members || members.length === 0) {
+                        hideLoader();
+                        return showNotification("No member directory located.", "error");
+                    }
+
+                    const passbookPromises = members.map(m => 
+                        fetchFast(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(m.phone)}&kittyNumber=${encodeURIComponent(m.acCode)}&_ts=${Date.now()}`)
+                        .then(r => ({ member: m, data: r }))
+                        .catch(() => ({ member: m, data: null }))
+                    );
+
+                    Promise.all(passbookPromises).then(results => {
+                        hideLoader();
+                        let tableHtml = `<table border="1"><thead><tr>
+                            <th>Group</th>
+                            <th>Phone</th>
+                            <th>Member Name</th>
+                            <th>Account Code</th>
+                            <th>Token ID</th>
+                            <th>Installment</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Payment Date</th>
+                            <th>22KT Gold Rate (10g)</th>
+                            <th>Booked Gold (22KT)</th>
+                            <th>Reference / UTR</th>
+                            <th>Combined Batch Ref</th>
+                        </tr></thead><tbody>`;
+
+                        let rowCount = 0;
+                        results.forEach(item => {
+                            const m = item.member;
+                            const txs = (item.data && item.data.transactions) ? item.data.transactions : [];
+                            txs.forEach(t => {
+                                rowCount++;
+                                tableHtml += `<tr>
+                                    <td>Group ${m.groupNumber || 24}</td>
+                                    <td style="mso-number-format:'\\@'">${m.phone}</td>
+                                    <td>${m.name}</td>
+                                    <td style="mso-number-format:'\\@'">${m.acCode}</td>
+                                    <td style="mso-number-format:'\\@'">${m.customerId || '-'}</td>
+                                    <td>Installment ${t.month}</td>
+                                    <td>${t.amount}</td>
+                                    <td>${t.status}</td>
+                                    <td>${t.date || '-'}</td>
+                                    <td>${t.rate || '-'}</td>
+                                    <td>${t.bookedGrams ? formatGoldWeight(t.bookedGrams) + ' g (22KT)' : '-'}</td>
+                                    <td style="mso-number-format:'\\@'">${t.utr || 'Showroom'}</td>
+                                    <td style="mso-number-format:'\\@'">${t.combinedRef || '-'}</td>
+                                </tr>`;
+                            });
+                        });
+
+                        tableHtml += `</tbody></table>`;
+                        if (rowCount === 0) {
+                            return showNotification("No transaction records found to export.", "error");
+                        }
+                        downloadXmlExcel(tableHtml, `GRMS_Complete_Payments_${new Date().toISOString().slice(0, 10)}.xls`);
+                        showNotification(`Complete payments exported (${rowCount} records).`, "success");
+                    })
+                    .catch(() => {
+                        hideLoader();
+                        showNotification("Unable to complete request.", "error");
+                    });
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+            } else if (type === 'syncSheet') {
+                showLoader("Updating Permanent Backup...");
+                const adminUser = (sessionUser && sessionUser.username) ? sessionUser.username : "Admin";
+                const adminPin = (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108";
+
+                fetchFast(`${config.scriptUrl}?action=syncBackupToSheet&adminUser=${encodeURIComponent(adminUser)}&adminPin=${encodeURIComponent(adminPin)}&_ts=${Date.now()}`)
+                .then(res => {
+                    hideLoader();
+                    if (res && res.success) {
+                        showNotification(`Permanent Data Backup complete! Customers: ${res.customersSynced}, Transactions: ${res.transactionsSynced}.`, "success");
+                    } else {
+                        showNotification("Backup failed: " + (res ? res.error : "Unauthorized or unable to sync."), "error");
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete backup request.", "error");
+                });
+            }
+        }
+
+        // ==========================================================================
+        // SESSION & NAVIGATION INITIALIZATION
+        // ==========================================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const preselectedGroup = urlParams.get('group');
+            if (preselectedGroup) {
+                sessionStorage.setItem('GRMS_ACTIVE_GROUP_FILTER', preselectedGroup);
+            }
+
+            const stored = sessionStorage.getItem('kmpSession_GRMS');
+            if (stored) {
+                sessionUser = JSON.parse(stored);
+                renderUserUI();
+                loadGroupsAndPlansMetadata();
+                loadLiveDirectoryFeed();
+            }
+        });
+
+        function handleKmpLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('kmpUserInput').value.trim();
+            const pin = document.getElementById('kmpPassInput').value.trim();
+            showLoader("Verifying...");
+
+            const onLoginSuccess = (res) => {
+                hideLoader();
+                if (res && res.success && res.user) {
+                    sessionUser = res.user;
+                    sessionUser.pin = pin;
+                    sessionStorage.setItem('kmpSession_GRMS', JSON.stringify(sessionUser));
+                    showNotification("Signed in as " + sessionUser.username, "success");
+                    renderUserUI();
+                    loadGroupsAndPlansMetadata();
+                    loadLiveDirectoryFeed();
+                } else {
+                    showNotification((res && res.error) ? res.error : "Invalid username or PIN.", "error");
+                }
+            };
+
+            fetchFast(`${config.scriptUrl}?action=staffLogin&username=${encodeURIComponent(username)}&pin=${encodeURIComponent(pin)}&_ts=${Date.now()}`)
+            .then(onLoginSuccess)
+            .catch(() => {
+                fetchFast(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ action: "staffLogin", username: username, pin: pin })
+                })
+                .then(onLoginSuccess)
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+            });
+        }
+
+        function logoutKmp() {
+            sessionStorage.removeItem('kmpSession_GRMS');
+            window.location.reload();
+        }
+
+        function renderUserUI() {
+            document.getElementById('headerLoginBar').classList.add('hidden-view');
+            document.getElementById('headerNavBar').classList.remove('hidden-view');
+            document.getElementById('sessionBadgeContainer').classList.remove('hidden-view');
+            document.getElementById('loggedOutPlaceholder').classList.add('hidden-view');
+            document.getElementById('kmpMainView').classList.remove('hidden-view');
+
+            document.getElementById('lblActiveUser').innerText = sessionUser.username;
+            const badge = document.getElementById('kmpRoleBadge');
+            badge.innerText = sessionUser.role;
+
+            const isOwnerAdmin = (sessionUser.role === "Admin");
+            const adminOnlyTabs = ['tabBtnPlans', 'tabBtnReferrals', 'tabBtnSettlements', 'tabBtnStlHistory', 'tabBtnUsers'];
+
+            if (isOwnerAdmin) {
+                badge.className = "text-[10px] font-bold uppercase px-2.5 py-0.5 rounded bg-amber-500 text-slate-950";
+                adminOnlyTabs.forEach(id => document.getElementById(id).classList.remove('hidden-view'));
+                document.getElementById('btnTopAddMember').classList.remove('hidden-view');
+            } else {
+                badge.className = "text-[10px] font-bold uppercase px-2.5 py-0.5 rounded bg-slate-800 text-slate-300";
+                adminOnlyTabs.forEach(id => document.getElementById(id).classList.add('hidden-view'));
+            }
+        }
+
+        function switchKmpTab(tab) {
+            const allTabs = ['members', 'approvals', 'defaulters', 'plans', 'referrals', 'settlements', 'stlHistory', 'users'];
+            allTabs.forEach(t => {
+                const cap = t.charAt(0).toUpperCase() + t.slice(1);
+                const el = document.getElementById('tabContent' + cap);
+                const btn = document.getElementById('tabBtn' + cap);
+                if (el) el.classList.add('hidden-view');
+                if (btn) btn.className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press";
+            });
+
+            const activeCap = tab.charAt(0).toUpperCase() + tab.slice(1);
+            const activeContent = document.getElementById('tabContent' + activeCap);
+            const activeBtn = document.getElementById('tabBtn' + activeCap);
+            if (activeContent) activeContent.classList.remove('hidden-view');
+            if (activeBtn) activeBtn.className = "bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press";
+
+            if (tab === 'members') loadLiveDirectoryFeed();
+            if (tab === 'approvals') loadKmpPendingApprovals();
+            if (tab === 'defaulters') loadOverdueDefaulters();
+            if (tab === 'plans') loadGroupsAndPlansAdminTab();
+            if (tab === 'referrals') loadStaffReferralsTab();
+            if (tab === 'settlements') loadSettlementRequests();
+            if (tab === 'stlHistory') loadSettlementHistory();
+            if (tab === 'users') loadStaffUsersList();
+        }
+
+        // ==========================================================================
+        // GROUPS & KITTY PLANS METADATA & OWNER ADMIN MANAGEMENT
+        // ==========================================================================
+        function loadGroupsAndPlansMetadata() {
+            Promise.all([
+                fetchFast(`${config.scriptUrl}?action=getGroups&_ts=${Date.now()}`),
+                fetchFast(`${config.scriptUrl}?action=getKittyPlans&_ts=${Date.now()}`)
+            ]).then(([gRes, pRes]) => {
+                if (gRes && gRes.success) {
+                    cachedGroupsList = gRes.groups || [];
+                    populateGroupFilterDropdowns();
+                }
+                if (pRes && pRes.success) {
+                    cachedPlansList = pRes.plans || [];
+                }
+            }).catch(() => {});
+        }
+
+        function populateGroupFilterDropdowns() {
+            const dirFilter = document.getElementById('directoryGroupFilter');
+            const stlFilter = document.getElementById('stlFilterGroup');
+            const preselected = sessionStorage.getItem('GRMS_ACTIVE_GROUP_FILTER') || "ALL";
+
+            [dirFilter, stlFilter].forEach(sel => {
+                if (!sel) return;
+                const currentVal = sel.value || "ALL";
+                sel.innerHTML = `<option value="ALL">All Groups</option>`;
+                cachedGroupsList.forEach(g => {
+                    sel.innerHTML += `<option value="${g.groupNumber}">Group ${g.groupNumber} (${g.status})</option>`;
+                });
+                if (sel === dirFilter && preselected !== "ALL") {
+                    sel.value = preselected;
+                    sessionStorage.removeItem('GRMS_ACTIVE_GROUP_FILTER');
+                } else {
+                    sel.value = currentVal;
+                }
+            });
+            filterLiveDirectoryTable();
+        }
+
+        function loadGroupsAndPlansAdminTab() {
+            if (!sessionUser || sessionUser.role !== "Admin") return;
+            showLoader("Loading Groups & Plans...");
+            Promise.all([
+                fetchFast(`${config.scriptUrl}?action=getGroups&_ts=${Date.now()}`),
+                fetchFast(`${config.scriptUrl}?action=getKittyPlans&_ts=${Date.now()}`)
+            ]).then(([gRes, pRes]) => {
+                hideLoader();
+                cachedGroupsList = (gRes && gRes.groups) ? gRes.groups : [];
+                cachedPlansList = (pRes && pRes.plans) ? pRes.plans : [];
+                populateGroupFilterDropdowns();
+                renderGroupsAdminCards();
+                renderKittyPlansAdminTable();
+            }).catch(() => {
+                hideLoader();
+                showNotification("Unable to load groups and plans.", "error");
+            });
+        }
+
+        function renderGroupsAdminCards() {
+            const box = document.getElementById('groupsCardsContainer');
+            box.innerHTML = "";
+            cachedGroupsList.forEach(g => {
+                const isActive = g.status === "Active";
+                box.innerHTML += `
+                    <div class="bg-white rounded-2xl p-4 border ${isActive ? 'border-amber-300' : 'border-slate-200'} shadow-sm space-y-2.5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-sm font-black text-slate-900 uppercase">Group ${g.groupNumber}</h4>
+                                <p class="text-[10px] text-slate-500">${g.groupName}</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isActive ? 'bg-emerald-100 text-emerald-800' : g.status === 'Archived' ? 'bg-slate-200 text-slate-700' : 'bg-amber-100 text-amber-800'}">${g.status}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-center bg-slate-50 p-2 rounded-xl text-[11px]">
+                            <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Plans</span><strong class="font-mono">${g.planCount || 0}</strong></div>
+                            <div><span class="text-slate-400 block text-[9px] uppercase font-bold">Members</span><strong class="font-mono">${g.memberCount || 0}</strong></div>
+                        </div>
+                        <div class="flex gap-1.5 pt-1 text-[10px]">
+                            <button onclick="viewMembersForGroup(${g.groupNumber})" class="flex-1 bg-slate-900 text-white font-bold py-1.5 rounded-lg cursor-pointer active-press">View Members</button>
+                            ${g.status !== 'Active' ? `<button onclick="changeGroupStatus(${g.groupNumber}, 'Active')" class="bg-emerald-700 text-white font-bold px-2 py-1.5 rounded-lg cursor-pointer active-press">Activate</button>` : ''}
+                            ${g.status === 'Active' ? `<button onclick="changeGroupStatus(${g.groupNumber}, 'Inactive')" class="bg-slate-200 text-slate-800 font-bold px-2 py-1.5 rounded-lg cursor-pointer active-press">Deactivate</button>` : ''}
+                            ${g.status !== 'Archived' ? `<button onclick="changeGroupStatus(${g.groupNumber}, 'Archived')" class="bg-rose-100 text-rose-800 font-bold px-2 py-1.5 rounded-lg cursor-pointer active-press">Archive</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function viewMembersForGroup(groupNum) {
+            switchKmpTab('members');
+            const sel = document.getElementById('directoryGroupFilter');
+            if (sel) sel.value = String(groupNum);
+            filterLiveDirectoryTable();
+        }
+
+        function createNextAutoGroup() {
+            if (!sessionUser || sessionUser.role !== "Admin") return;
+            uiConfirm("Create New Group", "Automatically assign and activate the next sequential GRMS group number?")
+            .then(ok => {
+                if (!ok) return;
+                showLoader("Creating Group...");
+                fetchFast(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "createGroup",
+                        adminUser: sessionUser.username,
+                        adminPin: sessionUser.pin
+                    })
+                })
+                .then(res => {
+                    hideLoader();
+                    if (res && res.success) {
+                        showNotification(`Group ${res.groupNumber} created and activated.`, "success");
+                        loadGroupsAndPlansAdminTab();
+                    } else {
+                        showNotification(res ? res.error : "Unable to create group.", "error");
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+            });
+        }
+
+        function changeGroupStatus(groupNumber, status) {
+            uiConfirm(`${status} Group ${groupNumber}`, `Are you sure you want to mark Group ${groupNumber} as ${status}? Historical financial records remain preserved.`)
+            .then(ok => {
+                if (!ok) return;
+                showLoader("Updating Group...");
+                fetchFast(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "updateGroupStatus",
+                        adminUser: sessionUser.username,
+                        adminPin: sessionUser.pin,
+                        groupNumber: groupNumber,
+                        status: status
+                    })
+                })
+                .then(res => {
+                    hideLoader();
+                    if (res && res.success) {
+                        showNotification(`Group ${groupNumber} marked as ${status}.`, "success");
+                        loadGroupsAndPlansAdminTab();
+                    } else {
+                        showNotification(res ? res.error : "Unable to update group.", "error");
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+            });
+        }
+
+        function renderKittyPlansAdminTable() {
+            const tbody = document.getElementById('kittyPlansTableBody');
+            if (!cachedPlansList || cachedPlansList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No kitty plans configured yet.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = "";
+            cachedPlansList.forEach(p => {
+                const isAct = p.status === "Active";
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-bold">Group ${p.groupNumber}</td>
+                        <td class="p-3 font-bold text-slate-900">${p.planName}</td>
+                        <td class="p-3 font-mono font-bold text-amber-900">₹${Number(p.monthlyAmount).toLocaleString('en-IN')}</td>
+                        <td class="p-3 font-mono text-[11px]">₹${Number(p.winner1Bonus).toLocaleString('en-IN')} / ₹${Number(p.winner2Bonus).toLocaleString('en-IN')} / ₹${Number(p.winner3Bonus).toLocaleString('en-IN')}</td>
+                        <td class="p-3 font-mono text-[11px]">₹${Number(p.nonWinnerBonus).toLocaleString('en-IN')}</td>
+                        <td class="p-3 font-mono font-bold">${p.enrolledCount || 0}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${isAct ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}">${p.status}</span></td>
+                        <td class="p-3 text-center whitespace-nowrap space-x-1">
+                            <button onclick='openKittyPlanModal(${JSON.stringify(p)})' class="bg-slate-900 text-white font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">Edit</button>
+                            <button onclick="toggleKittyPlanStatus('${p.planId}', '${isAct ? 'Inactive' : 'Active'}')" class="bg-amber-700 text-white font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">${isAct ? 'Deactivate' : 'Activate'}</button>
+                            <button onclick="removeOrArchiveKittyPlan('${p.planId}', ${p.enrolledCount || 0})" class="bg-rose-100 text-rose-800 font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">Remove</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openKittyPlanModal(planObj = null) {
+            const grpSel = document.getElementById('kpGroupNumber');
+            grpSel.innerHTML = "";
+            cachedGroupsList.forEach(g => {
+                grpSel.innerHTML += `<option value="${g.groupNumber}">Group ${g.groupNumber} (${g.status})</option>`;
+            });
+
+            if (planObj) {
+                document.getElementById('kittyPlanModalTitle').innerText = "Edit Kitty Plan";
+                document.getElementById('kpEditId').value = planObj.planId;
+                grpSel.value = planObj.groupNumber;
+                document.getElementById('kpMonthlyAmount').value = planObj.monthlyAmount;
+                document.getElementById('kpPlanName').value = planObj.planName;
+                document.getElementById('kpWin1').value = planObj.winner1Bonus;
+                document.getElementById('kpWin2').value = planObj.winner2Bonus;
+                document.getElementById('kpWin3').value = planObj.winner3Bonus;
+                document.getElementById('kpNonWin').value = planObj.nonWinnerBonus;
+                document.getElementById('kpStatus').value = planObj.status === "Archived" ? "Inactive" : planObj.status;
+            } else {
+                document.getElementById('kittyPlanModalTitle').innerText = "Add Custom Kitty Plan";
+                document.getElementById('kpEditId').value = "";
+                document.getElementById('kpMonthlyAmount').value = "";
+                document.getElementById('kpPlanName').value = "";
+                document.getElementById('kpWin1').value = "";
+                document.getElementById('kpWin2').value = "";
+                document.getElementById('kpWin3').value = "";
+                document.getElementById('kpNonWin').value = "";
+                document.getElementById('kpStatus').value = "Active";
+            }
+            document.getElementById('kittyPlanModal').classList.remove('hidden-view');
+        }
+
+        function closeKittyPlanModal() {
+            document.getElementById('kittyPlanModal').classList.add('hidden-view');
+        }
+
+        function submitKittyPlanForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveKittyPlan');
+            btn.disabled = true;
+            showLoader("Saving Plan...");
+
+            const payload = {
+                action: "saveKittyPlan",
+                adminUser: sessionUser.username,
+                adminPin: sessionUser.pin,
+                planId: document.getElementById('kpEditId').value,
+                groupNumber: document.getElementById('kpGroupNumber').value,
+                monthlyAmount: document.getElementById('kpMonthlyAmount').value,
+                planName: document.getElementById('kpPlanName').value.trim(),
+                winner1Bonus: document.getElementById('kpWin1').value,
+                winner2Bonus: document.getElementById('kpWin2').value,
+                winner3Bonus: document.getElementById('kpWin3').value,
+                nonWinnerBonus: document.getElementById('kpNonWin').value,
+                status: document.getElementById('kpStatus').value
+            };
+
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                hideLoader();
+                btn.disabled = false;
+                if (res && res.success) {
+                    closeKittyPlanModal();
+                    showNotification(res.message || "Kitty plan saved.", "success");
+                    loadGroupsAndPlansAdminTab();
+                } else {
+                    showNotification(res ? res.error : "Unable to save kitty plan.", "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                btn.disabled = false;
+                showNotification("Unable to complete request.", "error");
+            });
+        }
+
+        function toggleKittyPlanStatus(planId, newStatus) {
+            showLoader("Updating Plan...");
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "toggleKittyPlanStatus",
+                    adminUser: sessionUser.username,
+                    adminPin: sessionUser.pin,
+                    planId: planId,
+                    status: newStatus
+                })
+            })
+            .then(res => {
+                hideLoader();
+                if (res && res.success) {
+                    showNotification(`Plan marked ${newStatus}.`, "success");
+                    loadGroupsAndPlansAdminTab();
+                } else {
+                    showNotification(res ? res.error : "Unable to update plan.", "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            });
+        }
+
+        function removeOrArchiveKittyPlan(planId, enrolledCount) {
+            const msg = enrolledCount > 0
+                ? "This plan already has enrolled customers. Removing it will safely archive the plan so historical records remain intact while blocking new registrations. Proceed?"
+                : "Permanently remove this unused kitty plan?";
+            uiConfirm("Remove Kitty Plan", msg).then(ok => {
+                if (!ok) return;
+                showLoader("Processing...");
+                fetchFast(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "deleteOrArchiveKittyPlan",
+                        adminUser: sessionUser.username,
+                        adminPin: sessionUser.pin,
+                        planId: planId
+                    })
+                })
+                .then(res => {
+                    hideLoader();
+                    if (res && res.success) {
+                        showNotification(res.message || "Plan updated.", "success");
+                        loadGroupsAndPlansAdminTab();
+                    } else {
+                        showNotification(res ? res.error : "Unable to remove plan.", "error");
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+            });
+        }
+
+        // ==========================================================================
+        // STAFF REFERRAL MANAGEMENT (OWNER ADMIN ONLY)
+        // ==========================================================================
+        function loadStaffReferralsTab() {
+            if (!sessionUser || sessionUser.role !== "Admin") return;
+            showLoader("Loading Referrals...");
+            Promise.all([
+                fetchFast(`${config.scriptUrl}?action=getStaffReferrals&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`),
+                fetchFast(`${config.scriptUrl}?action=getReferralTracking&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`)
+            ]).then(([rRes, tRes]) => {
+                hideLoader();
+                if (rRes && rRes.success) renderStaffReferralsTable(rRes.referrals || []);
+                if (tRes && tRes.success) {
+                    cachedReferralTracking = tRes.records || [];
+                    populateReferralTrackingFilter(rRes.referrals || []);
+                    renderReferralTrackingTable(cachedReferralTracking);
+                }
+            }).catch(() => {
+                hideLoader();
+                showNotification("Unable to load referral records.", "error");
+            });
+        }
+
+        function renderStaffReferralsTable(list) {
+            const tbody = document.getElementById('staffReferralsTableBody');
+            tbody.innerHTML = "";
+            list.forEach(r => {
+                const isAct = r.status === "Active";
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-bold text-slate-900">${r.staffName}</td>
+                        <td class="p-3 font-mono font-bold text-amber-900">${r.referralCode}</td>
+                        <td class="p-3 text-slate-600">${r.linkedUsername || '-'}</td>
+                        <td class="p-3 font-mono font-bold">${r.referredCount || 0}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${isAct ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${r.status}</span></td>
+                        <td class="p-3 text-center whitespace-nowrap space-x-1">
+                            <button onclick='openReferralModal(${JSON.stringify(r)})' class="bg-slate-900 text-white font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">Edit</button>
+                            <button onclick="toggleReferralStatus('${r.referralId}', '${isAct ? 'Inactive' : 'Active'}')" class="bg-amber-700 text-white font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">${isAct ? 'Deactivate' : 'Activate'}</button>
+                            ${r.referralCode !== 'DIRECT' ? `<button onclick="deleteReferralIdentity('${r.referralId}', '${r.referralCode}')" class="bg-rose-100 text-rose-800 font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">Remove</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function populateReferralTrackingFilter(refs) {
+            const sel = document.getElementById('referralTrackingCodeFilter');
+            sel.innerHTML = `<option value="ALL">All Referral Codes</option>`;
+            refs.forEach(r => {
+                sel.innerHTML += `<option value="${r.referralCode}">${r.referralCode} — ${r.staffName}</option>`;
+            });
+        }
+
+        function filterReferralTrackingTable() {
+            const code = document.getElementById('referralTrackingCodeFilter').value;
+            if (code === "ALL") {
+                renderReferralTrackingTable(cachedReferralTracking);
+                return;
+            }
+            renderReferralTrackingTable(cachedReferralTracking.filter(x => x.referralCode === code));
+        }
+
+        function renderReferralTrackingTable(records) {
+            const tbody = document.getElementById('referralTrackingTableBody');
+            if (!records || records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-5 text-center text-slate-400">No referred customers found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = "";
+            records.forEach(rec => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-mono">${rec.referralDate}</td>
+                        <td class="p-3 font-bold text-slate-900">${rec.staffName}</td>
+                        <td class="p-3 font-mono font-bold text-amber-900">${rec.referralCode}</td>
+                        <td class="p-3"><strong>${rec.customerName}</strong><br><span class="font-mono text-[10px] text-slate-500">+91 ${rec.phone}</span></td>
+                        <td class="p-3 font-mono font-bold">${rec.accountCode}</td>
+                        <td class="p-3 font-bold">Group ${rec.groupNumber}</td>
+                        <td class="p-3">${rec.planName}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openReferralModal(refObj = null) {
+            if (refObj) {
+                document.getElementById('referralModalTitle').innerText = "Edit Referral Identity";
+                document.getElementById('refEditId').value = refObj.referralId;
+                document.getElementById('refStaffName').value = refObj.staffName;
+                document.getElementById('refCodeInput').value = refObj.referralCode;
+                document.getElementById('refLinkedUser').value = refObj.linkedUsername || "";
+                document.getElementById('refStatusInput').value = refObj.status;
+            } else {
+                document.getElementById('referralModalTitle').innerText = "Add Referral Identity";
+                document.getElementById('refEditId').value = "";
+                document.getElementById('refStaffName').value = "";
+                document.getElementById('refCodeInput').value = "";
+                document.getElementById('refLinkedUser').value = "";
+                document.getElementById('refStatusInput').value = "Active";
+            }
+            document.getElementById('referralModal').classList.remove('hidden-view');
+        }
+
+        function closeReferralModal() {
+            document.getElementById('referralModal').classList.add('hidden-view');
+        }
+
+        function submitStaffReferralForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveReferral');
+            btn.disabled = true;
+            showLoader("Saving...");
+
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "saveStaffReferral",
+                    adminUser: sessionUser.username,
+                    adminPin: sessionUser.pin,
+                    referralId: document.getElementById('refEditId').value,
+                    staffName: document.getElementById('refStaffName').value.trim(),
+                    referralCode: document.getElementById('refCodeInput').value.trim().toUpperCase(),
+                    linkedUsername: document.getElementById('refLinkedUser').value.trim(),
+                    status: document.getElementById('refStatusInput').value
+                })
+            })
+            .then(res => {
+                hideLoader();
+                btn.disabled = false;
+                if (res && res.success) {
+                    closeReferralModal();
+                    showNotification("Staff referral identity saved.", "success");
+                    loadStaffReferralsTab();
+                } else {
+                    showNotification(res ? res.error : "Unable to save referral identity.", "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                btn.disabled = false;
+                showNotification("Unable to complete request.", "error");
+            });
+        }
+
+        function toggleReferralStatus(referralId, status) {
+            showLoader("Updating...");
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "toggleStaffReferralStatus",
+                    adminUser: sessionUser.username,
+                    adminPin: sessionUser.pin,
+                    referralId: referralId,
+                    status: status
+                })
+            })
+            .then(res => {
+                hideLoader();
+                if (res && res.success) {
+                    showNotification(`Referral identity marked ${status}.`, "success");
+                    loadStaffReferralsTab();
+                } else {
+                    showNotification(res ? res.error : "Unable to update status.", "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            });
+        }
+
+        function deleteReferralIdentity(referralId, code) {
+            uiConfirm("Remove Referral Identity", `Remove referral code ${code}? Historical customer referral records remain preserved.`)
+            .then(ok => {
+                if (!ok) return;
+                showLoader("Processing...");
+                fetchFast(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "deleteStaffReferral",
+                        adminUser: sessionUser.username,
+                        adminPin: sessionUser.pin,
+                        referralId: referralId
+                    })
+                })
+                .then(res => {
+                    hideLoader();
+                    if (res && res.success) {
+                        showNotification(res.message || "Referral identity removed.", "success");
+                        loadStaffReferralsTab();
+                    } else {
+                        showNotification(res ? res.error : "Unable to remove referral identity.", "error");
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+            });
+        }
+
+        // ==========================================================================
+        // DIRECTORY, MEMBER LEDGER & MANDATORY REGISTRATION + ENROLLMENT PDF
+        // ==========================================================================
+        function loadLiveDirectoryFeed() {
+            const localCache = sessionStorage.getItem("GRMS_DIR_CACHE");
+            if (localCache) {
+                allMembersFeed = JSON.parse(localCache);
+                filterLiveDirectoryTable();
+                executeWeeklyBackupCycle();
+            }
+
+            fetchFast(`${config.scriptUrl}?action=getAllMembers&_ts=${Date.now()}`)
+            .then(res => {
+                if (res && res.success) {
+                    allMembersFeed = res.members || [];
+                    sessionStorage.setItem("GRMS_DIR_CACHE", JSON.stringify(allMembersFeed));
+                    filterLiveDirectoryTable();
+                    executeWeeklyBackupCycle();
+                }
+            })
+            .catch(() => {});
+        }
+
+        function filterLiveDirectoryTable() {
+            const val = (document.getElementById('searchInput').value || "").trim().toLowerCase();
+            const grpFilter = (document.getElementById('directoryGroupFilter') ? document.getElementById('directoryGroupFilter').value : "ALL");
+
+            const filtered = allMembersFeed.filter(m => {
+                const grpMatch = (grpFilter === "ALL") || (String(m.groupNumber || 24) === String(grpFilter));
+                if (!grpMatch) return false;
+                if (!val) return true;
+                return (
+                    m.name.toLowerCase().includes(val) ||
+                    m.phone.includes(val) ||
+                    m.acCode.toLowerCase().includes(val) ||
+                    m.customerId.toLowerCase().includes(val) ||
+                    ("group " + (m.groupNumber || 24)).includes(val)
+                );
+            });
+
+            document.getElementById('lblTotalMemberCount').innerText = `${filtered.length} Registered Members`;
+            renderLiveDirectoryTable(filtered);
+        }
+
+        function renderLiveDirectoryTable(membersList) {
+            const tbody = document.getElementById('liveDirectoryTableBody');
+            if (!membersList || membersList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No active members found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = "";
+            membersList.forEach(m => {
+                const isSuperAdmin = (sessionUser && sessionUser.role === "Admin");
+                const grpNum = m.groupNumber || 24;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="p-3">
+                            <strong class="text-slate-900">${m.name}</strong>
+                            <div class="text-[10px] font-mono text-slate-500">+91 ${m.phone}</div>
+                        </td>
+                        <td class="p-3 font-mono font-bold text-slate-800">
+                            <span class="bg-amber-100 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase mr-1">Group ${grpNum}</span>
+                            ${m.acCode}
+                            <div class="text-[10px] font-normal text-slate-400 font-mono">${m.customerId}</div>
+                        </td>
+                        <td class="p-3 font-mono font-bold text-slate-900">₹${Number(m.monthlyAmount).toLocaleString('en-IN')}</td>
+                        <td class="p-3"><span class="bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold px-2 py-0.5 rounded text-[10px]">${m.paidMonths || 0} / 11 M</span></td>
+                        <td class="p-3 font-mono font-bold text-amber-900">₹${Number(m.totalDeposited || 0).toLocaleString('en-IN')}</td>
+                        <td class="p-3 font-mono font-bold text-slate-800">${formatGoldWeight(m.remainingGrams !== undefined ? m.remainingGrams : m.bookedGrams)} g (22KT)</td>
+                        <td class="p-3 font-bold ${m.winCount > 0 ? 'text-emerald-700' : 'text-slate-400'}">${m.winCount || 0} Wins</td>
+                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                            <button onclick='loadMemberLedger(${JSON.stringify(m)})' class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1 rounded-lg text-[10px] cursor-pointer active-press">
+                                Statement
+                            </button>
+                            ${isSuperAdmin ? `
+                                <button onclick='quickEditMemberFromTable(${JSON.stringify(m)})' class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2 py-1 rounded-lg text-[10px] cursor-pointer active-press">
+                                    Edit MPIN
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function searchMemberRecords() {
+            const raw = document.getElementById('searchInput').value.trim();
+            if (!raw) return showNotification("Enter mobile number or account code.", "error");
+            showLoader("Loading...");
+
+            fetchFast(`${config.scriptUrl}?action=searchMembers&query=${encodeURIComponent(raw)}&_ts=${Date.now()}`)
+            .then(res => {
+                hideLoader();
+                if (!res || !res.results || res.results.length === 0) return showNotification("No accounts located.", "error");
+                if (res.results.length === 1) {
+                    loadMemberLedger(res.results[0]);
+                } else {
+                    const pills = document.getElementById('kittySelectionPills');
+                    pills.innerHTML = "";
+                    res.results.forEach(m => {
+                        pills.innerHTML += `<button onclick='loadMemberLedger(${JSON.stringify(m)})' class="bg-white border text-slate-800 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer active-press">Group ${m.groupNumber || 24} &mdash; A/C: ${m.acCode} (${m.name})</button>`;
+                    });
+                    document.getElementById('multiKittySelectorWrapper').classList.remove('hidden-view');
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            });
+        }
+
+        function loadMemberLedger(member) {
+            document.getElementById('multiKittySelectorWrapper').classList.add('hidden-view');
+            selectedMemberData = member;
+            showLoader("Loading...");
+
+            const grpNum = Number(member.groupNumber) || 24;
+            document.getElementById('viewGroupBadge').innerText = `Group ${grpNum}`;
+            document.getElementById('viewAccStatusBadge').innerText = member.accountStatus || "Active";
+            document.getElementById('viewCustName').innerText = member.name;
+            document.getElementById('viewCustPhone').innerText = "+91 " + member.phone;
+            document.getElementById('viewCustId').innerText = member.customerId || "-";
+            document.getElementById('viewKittyNo').innerText = member.acCode;
+            document.getElementById('viewMonthlyAmount').innerText = "₹" + Number(member.monthlyAmount).toLocaleString('en-IN');
+            document.getElementById('viewOtherDetails').innerText = member.doj || "-";
+
+            const wins = Number(member.winCount) || 0;
+            document.getElementById('selWinCount').value = wins;
+            document.getElementById('viewWinBadge').innerText = wins > 0 ? `${wins}x Event Winner` : "Standard Member";
+
+            if (sessionUser && sessionUser.role === "Admin") {
+                document.getElementById('btnSuperAdminEditCust').classList.remove('hidden-view');
+                document.getElementById('btnAdminEarlyCloseSettle').classList.remove('hidden-view');
+            } else {
+                document.getElementById('btnSuperAdminEditCust').classList.add('hidden-view');
+                document.getElementById('btnAdminEarlyCloseSettle').classList.add('hidden-view');
+            }
+
+            fetchFast(`${config.scriptUrl}?action=getData&phone=${encodeURIComponent(member.phone)}&kittyNumber=${encodeURIComponent(member.acCode)}&_ts=${Date.now()}`)
+            .then(res => {
+                hideLoader();
+                if (!res || !res.profile) return showNotification("Unable to load profile ledger.", "error");
+
+                selectedMemberData.groupNumber = res.profile.groupNumber || grpNum;
+                selectedMemberData.planName = res.profile.planName;
+                selectedMemberData.accountStatus = res.profile.accountStatus || "Active";
+                document.getElementById('viewGroupBadge').innerText = `Group ${selectedMemberData.groupNumber}`;
+                document.getElementById('viewAccStatusBadge').innerText = selectedMemberData.accountStatus;
+
+                const txs = res.transactions || [];
+                let paidCount = 0, totalDep = 0, totalGrams = 0;
+                txs.forEach(t => {
+                    if (t.status && t.status.toLowerCase() === "paid") {
+                        paidCount++;
+                        totalDep += parseFloat(t.amount) || 0;
+                        totalGrams += parseFloat(t.bookedGrams) || 0;
+                    }
+                });
+
+                const settledGrams = Number(res.settledGrams) || 0;
+                const remGrams = (res.remainingGrams !== undefined) ? Number(res.remainingGrams) : Math.max(0, totalGrams - settledGrams);
+                selectedMemberData.paidCount = paidCount;
+                selectedMemberData.bookedGrams = Number(totalGrams.toFixed(4));
+                selectedMemberData.settledGrams = Number(settledGrams.toFixed(4));
+                selectedMemberData.remainingGrams = Number(remGrams.toFixed(4));
+
+                document.getElementById('viewTotalBalance').innerText = "₹" + totalDep.toLocaleString('en-IN');
+                document.getElementById('viewTotalGoldGrams').innerText = formatGoldWeight(totalGrams) + " g (22KT)";
+                document.getElementById('viewSettledRemainingGrams').innerText = `${formatGoldWeight(settledGrams)} / ${formatGoldWeight(remGrams)} g (22KT)`;
+                document.getElementById('viewPaidRatio').innerText = `${paidCount} / ${config.schemeMonths} Complete`;
+
+                const mAmount = Number(member.monthlyAmount) || 0;
+                const benefits = res.profile.planBenefits || {};
+                let prize = (benefits.applicableBonus !== undefined)
+                    ? Number(benefits.applicableBonus)
+                    : ((wins === 1) ? 15000 : (wins === 2) ? 30000 : (wins >= 3) ? 45000 : (mAmount === 8000 ? 3000 : 2000));
+                document.getElementById('viewMaturityTotal').innerText = "₹" + ((11 * mAmount) + prize).toLocaleString('en-IN');
+
+                const tbody = document.getElementById('memberTxTableBody');
+                tbody.innerHTML = "";
+
+                for (let m = 1; m <= config.schemeMonths; m++) {
+                    const rowData = txs.find(t => Number(t.month) === m);
+                    if (rowData) {
+                        const isSuperAdmin = (sessionUser && sessionUser.role === "Admin");
+                        const editBtn = isSuperAdmin ? `<button onclick='openEditTxModal(${JSON.stringify(rowData)})' class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press">Edit</button>` : "-";
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="p-3 font-bold">Installment ${m}</td>
+                                <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${rowData.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${rowData.status}</span></td>
+                                <td class="p-3 font-mono font-bold">₹${Number(rowData.amount).toLocaleString('en-IN')}</td>
+                                <td class="p-3 font-mono text-[11px] text-slate-600">${rowData.date || '-'}</td>
+                                <td class="p-3 font-mono font-semibold">${formatGoldRate(rowData.rate)}</td>
+                                <td class="p-3 font-mono font-bold text-amber-950">${formatGoldWeight(rowData.bookedGrams)} g (22KT)</td>
+                                <td class="p-3 font-mono text-slate-500">${rowData.utr || 'Showroom'}</td>
+                                <td class="p-3 text-center">${editBtn}</td>
+                            </tr>
+                        `;
+                    } else {
+                        tbody.innerHTML += `
+                            <tr class="text-slate-400">
+                                <td class="p-3">Installment ${m}</td>
+                                <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-100 font-medium">Unpaid</span></td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 font-mono">-</td>
+                                <td class="p-3 text-center">-</td>
+                            </tr>
+                        `;
+                    }
+                }
+                document.getElementById('memberProfileSection').classList.remove('hidden-view');
+                document.getElementById('memberProfileSection').scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to load statement.", "error");
+            });
+        }
+
+        function quickEditMemberFromTable(m) {
+            selectedMemberData = m;
+            openSuperAdminCustomerModal();
+        }
+
+        // ==========================================================================
+        // UPGRADED CUSTOMER REGISTRATION MODAL (MANDATORY FIELDS + GROUP + PLAN + REFERRAL)
+        // ==========================================================================
+        function openAddMemberModal() {
+            document.getElementById('newPhone').value = "";
+            document.getElementById('newName').value = "";
+            document.getElementById('newCustId').value = "";
+            document.getElementById('newKittyNo').value = "";
+            document.getElementById('newRemarks').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('newEmail').value = "";
+            document.getElementById('newReferralCode').value = "";
+
+            showLoader("Loading Plans...");
+            Promise.all([
+                fetchFast(`${config.scriptUrl}?action=getGroups&_ts=${Date.now()}`),
+                fetchFast(`${config.scriptUrl}?action=getKittyPlans&_ts=${Date.now()}`)
+            ]).then(([gRes, pRes]) => {
+                hideLoader();
+                cachedGroupsList = (gRes && gRes.groups) ? gRes.groups : [];
+                cachedPlansList = (pRes && pRes.plans) ? pRes.plans : [];
+
+                const activeGroups = cachedGroupsList.filter(g => g.status === "Active");
+                const gSel = document.getElementById('newGroupSelect');
+                gSel.innerHTML = "";
+                activeGroups.forEach(g => {
+                    gSel.innerHTML += `<option value="${g.groupNumber}">Group ${g.groupNumber} — ${g.groupName}</option>`;
+                });
+                if (activeGroups.length > 0) {
+                    gSel.value = activeGroups[activeGroups.length - 1].groupNumber;
+                }
+                onRegistrationGroupChange();
+                document.getElementById('addMemberModal').classList.remove('hidden-view');
+            }).catch(() => {
+                hideLoader();
+                showNotification("Unable to load group plans.", "error");
+            });
+        }
+
+        function onRegistrationGroupChange() {
+            const grpNum = parseInt(document.getElementById('newGroupSelect').value, 10);
+            const activePlans = cachedPlansList.filter(p => Number(p.groupNumber) === grpNum && p.status === "Active");
+            const pSel = document.getElementById('newPlanSelect');
+            pSel.innerHTML = "";
+
+            if (activePlans.length === 0) {
+                pSel.innerHTML = `<option value="">No Active Plans in Group ${grpNum}</option>`;
+                document.getElementById('newAmount').value = "";
+                return;
+            }
+            activePlans.forEach(p => {
+                pSel.innerHTML += `<option value="${p.planId}" data-amount="${p.monthlyAmount}" data-name="${p.planName}">${p.planName} (₹${Number(p.monthlyAmount).toLocaleString('en-IN')}/mo)</option>`;
+            });
+            onRegistrationPlanChange();
+        }
+
+        function onRegistrationPlanChange() {
+            const pSel = document.getElementById('newPlanSelect');
+            const opt = pSel.options[pSel.selectedIndex];
+            const amt = opt ? opt.getAttribute('data-amount') : "";
+            document.getElementById('newAmount').value = amt || "";
+        }
+
+        function closeAddMemberModal() {
+            document.getElementById('addMemberModal').classList.add('hidden-view');
+        }
+
+        function submitNewMember(e) {
+            e.preventDefault();
+            if (isSubmitting) return;
+
+            const phone = document.getElementById('newPhone').value.trim().replace(/\D/g, "");
+            const name = document.getElementById('newName').value.trim();
+            const email = document.getElementById('newEmail').value.trim();
+            const groupNumber = document.getElementById('newGroupSelect').value;
+            const pSel = document.getElementById('newPlanSelect');
+            const planId = pSel.value;
+            const planOpt = pSel.options[pSel.selectedIndex];
+            const planName = planOpt ? planOpt.getAttribute('data-name') : "";
+            const monthlyAmount = document.getElementById('newAmount').value;
+            const acCode = document.getElementById('newKittyNo').value.trim();
+            const customerId = document.getElementById('newCustId').value.trim();
+            const doj = document.getElementById('newRemarks').value;
+            const referralCode = document.getElementById('newReferralCode').value.trim().toUpperCase();
+
+            if (phone.length !== 10 || !name || !email || !groupNumber || !planId || !monthlyAmount || !acCode || !customerId || !doj || !referralCode) {
+                return showNotification("All registration fields are mandatory.", "error");
+            }
+
+            const btn = document.getElementById('btnSubmitMember');
+            isSubmitting = true;
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+            showLoader("Saving Registration...");
+
+            const payload = {
+                action: "addMember",
+                phone: phone,
+                name: name,
+                email: email,
+                groupNumber: groupNumber,
+                planId: planId,
+                planName: planName,
+                monthlyAmount: monthlyAmount,
+                customerId: customerId,
+                kittyNumber: acCode,
+                otherDetails: doj,
+                referralCode: referralCode
+            };
+
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                hideLoader();
+                if (res && res.success) {
+                    closeAddMemberModal();
+                    showNotification("Customer registered successfully.", "success");
+                    latestEnrollmentSnapshot = res.enrollmentSnapshot;
+                    openEnrollmentSuccessModal(res.enrollmentSnapshot);
+                    loadLiveDirectoryFeed();
+                } else {
+                    showNotification(res ? res.error : "Registration failed.", "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            })
+            .finally(() => {
+                isSubmitting = false;
+                btn.disabled = false;
+                btn.innerText = "Commit Registration";
+            });
+        }
+
+        function openEnrollmentSuccessModal(snap) {
+            if (!snap) return;
+            document.getElementById('lblEnrollmentSuccessRef').innerText = `Document Ref: ${snap.enrollmentRef}`;
+            document.getElementById('enrollmentSuccessSummary').innerHTML = `
+                <div class="flex justify-between"><span class="text-slate-500">Customer Name:</span><strong>${snap.name}</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Mobile Number:</span><strong class="font-mono">+91 ${snap.phone}</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Group &amp; Account:</span><strong class="font-mono">Group ${snap.groupNumber} &mdash; ${snap.acCode}</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Kitty Plan:</span><strong>${snap.planName}</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Monthly Installment:</span><strong class="font-mono">₹${Number(snap.monthlyAmount).toLocaleString('en-IN')}</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Date of Joining:</span><strong class="font-mono">${snap.doj}</strong></div>
+            `;
+            document.getElementById('enrollmentSuccessModal').classList.remove('hidden-view');
+        }
+
+        function closeEnrollmentSuccessModal() {
+            document.getElementById('enrollmentSuccessModal').classList.add('hidden-view');
+        }
+
+        function downloadLatestEnrollmentForm() {
+            if (!latestEnrollmentSnapshot) return;
+            generateEnrollmentPdf(latestEnrollmentSnapshot);
+        }
+
+        function downloadMemberEnrollmentForm() {
+            if (!selectedMemberData) return;
+            showLoader("Generating Form...");
+            fetchFast(`${config.scriptUrl}?action=getEnrollmentRecord&phone=${encodeURIComponent(selectedMemberData.phone)}&acCode=${encodeURIComponent(selectedMemberData.acCode)}&_ts=${Date.now()}`)
+            .then(res => {
+                hideLoader();
+                if (res && res.success && res.snapshot) {
+                    generateEnrollmentPdf(res.snapshot);
+                } else {
+                    showNotification(res ? res.error : "Enrollment record not found.", "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to generate form.", "error");
+            });
+        }
+
+        // ==========================================================================
+        // A4 PORTRAIT PDF GENERATOR: ENROLLMENT FORM & SETTLEMENT FORM
+        // ==========================================================================
+        function generateEnrollmentPdf(snap) {
+            try {
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    return showNotification("PDF generator library loading. Please retry in a moment.", "error");
+                }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+                const pageW = 210;
+                const margin = 15;
+                const contentW = pageW - margin * 2;
+                let y = 16;
+
+                doc.setFillColor(15, 23, 42);
+                doc.rect(margin, y, contentW, 22, "F");
+                doc.setTextColor(251, 191, 36);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                doc.text("SUMAN JEWELLERS", margin + 5, y + 8.5);
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9.5);
+                doc.text("GOLDEN ROSE MAGIC SCHEME (GRMS) — CUSTOMER ENROLLMENT FORM", margin + 5, y + 15.5);
+
+                y += 27;
+                doc.setTextColor(30, 41, 59);
+                doc.setFontSize(8.5);
+                doc.setFont("helvetica", "bold");
+                doc.text(`Enrollment Document No: ${snap.enrollmentRef}`, margin, y);
+                doc.text(`Enrollment Date: ${snap.enrollmentDate}`, pageW - margin, y, { align: "right" });
+
+                y += 5;
+                doc.setDrawColor(203, 213, 225);
+                doc.line(margin, y, pageW - margin, y);
+                y += 6;
+
+                const details = [
+                    ["Customer Name", snap.name, "Group Number", `Group ${snap.groupNumber}`],
+                    ["Registered Mobile", `+91 ${snap.phone}`, "Account Code", snap.acCode],
+                    ["Email Address", snap.email || "-", "Customer / Token ID", snap.customerId || "-"],
+                    ["Kitty Plan", snap.planName, "Monthly Installment", `Rs. ${Number(snap.monthlyAmount).toLocaleString('en-IN')}/-`],
+                    ["Date of Joining", snap.doj, "Scheme Duration", `${snap.durationMonths || 11} Months (11 Installments)`],
+                    ["Payment Due Date", snap.dueDateText || "20th of every month", "Gold Purity Standard", "22KT Hallmarked Gold"]
+                ];
+
+                doc.setFontSize(8.5);
+                details.forEach(row => {
+                    doc.setFillColor(248, 250, 252);
+                    doc.rect(margin, y - 4, contentW, 7.5, "F");
+                    doc.setDrawColor(226, 232, 240);
+                    doc.rect(margin, y - 4, contentW, 7.5, "S");
+
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(71, 85, 105);
+                    doc.text(row[0] + ":", margin + 2.5, y + 1);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text(String(row[1]), margin + 38, y + 1);
+
+                    doc.setTextColor(71, 85, 105);
+                    doc.text(row[2] + ":", margin + 95, y + 1);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text(String(row[3]), margin + 132, y + 1);
+                    y += 7.5;
+                });
+
+                y += 4;
+                const ben = snap.benefits || {};
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(9);
+                doc.setTextColor(128, 0, 32);
+                doc.text("APPLICABLE SCHEME BENEFIT PARAMETERS", margin, y);
+                y += 4.5;
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(8);
+                doc.setTextColor(30, 41, 59);
+                const benefitLine = `1x Draw Winner Benefit: Rs. ${Number(ben.winner1Bonus || 15000).toLocaleString('en-IN')}/- | 2x Winner: Rs. ${Number(ben.winner2Bonus || 30000).toLocaleString('en-IN')}/- | 3x+ Winner: Rs. ${Number(ben.winner3Bonus || 45000).toLocaleString('en-IN')}/- | Non-Winner Bonus: Rs. ${Number(ben.nonWinnerBonus || 2000).toLocaleString('en-IN')}/-`;
+                doc.text(benefitLine, margin, y);
+
+                y += 7;
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(9);
+                doc.setTextColor(15, 23, 42);
+                doc.text("COMPLETE TERMS & CONDITIONS (GOLDEN ROSE MAGIC SCHEME)", margin, y);
+                y += 4.5;
+
+                const termsClauses = [
+                    "1. For Enrollment in Golden Rose Magic Scheme (GRMS) you must duly fill in & sign the application form and deposit it at the Showroom with two photographs and a copy of any one official identity card document. Collect the Passbook and keep it in safe custody.",
+                    "2. Key Terms: Monthly Installment: Amount to be given by participants to Suman Jewellers every month. Principal Amount: Total installment sum paid by participant across 11 months. Interest Amount: Lump-sum bonus provided upon maturity for non-winners. Winner: Member who wins the lucky draw during the scheme tenure.",
+                    "3. In case the passbook is lost, a fee of Rs.50/- will be charged for issuing a duplicate passbook.",
+                    "4. The GRMS will start on completion of 100 members and the tenure of the scheme will be 11 months. Every month there will be a draw continuing continuously for 11 months up to maturity. The draw will be held between the 21st and 25th of every calendar month.",
+                    "5. Every month one winner will receive Rs.15,000/- (for Rs.8,000/- monthly plan) or Rs.10,000/- (for Rs.5,000/- monthly plan). The amount is added on maturity to the principal amount after 11 months (i.e. one winner every month).",
+                    "6. The scheme continues for the winner and the winner remains fully eligible for all subsequent draws up to maturity. Any participant, including previous winners, can win multiple times.",
+                    "7. You agree to receive official communications via Phone Call, SMS, or WhatsApp on numbers registered in the Passbook.",
+                    "8. You are requested to attend the GRMS Draw in person to inspect that the process is fair and transparent. After the draw is conducted, Suman Jewellers will not be responsible for any objections.",
+                    "9. You are requested to inform the showroom in advance about your attendance for the draw by the 18th-20th of each month. Inquire for the exact date, timing, and venue.",
+                    "10. Maturity & Interest Rules: Rs.8,000 Scheme (Non-Winners): 11 x Rs.8,000 = Rs.88,000 + Rs.3,000 (Interest) = Rs.91,000/- maturity. Rs.5,000 Scheme (Non-Winners): 11 x Rs.5,000 = Rs.55,000 + Rs.2,000 (Interest) = Rs.57,000/- maturity. Note: The fixed Interest Amount is not applicable if a participant wins a draw; the draw prize replaces interest.",
+                    "11. You must pay the first installment by cash or card at the Showroom. Subsequent monthly installments can be made via Cash / Cheque / PDC / Demand Draft / ECS / Online UPI. Always obtain a computerized receipt at the cash counter. Suman Jewellers is not responsible for payments made to unauthorized individuals.",
+                    "12. Payments can be made in multiples of the monthly installment. The monthly due date is the 20th of every month (Due: 20th of every month). For online deposits (NEFT/ECS/UPI), inform the showroom with the transaction UTR number."
+                ];
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(7.5);
+                doc.setTextColor(51, 65, 85);
+
+                termsClauses.forEach(clause => {
+                    const lines = doc.splitTextToSize(clause, contentW);
+                    if (y + (lines.length * 3.4) > 275) {
+                        doc.addPage();
+                        y = 18;
+                    }
+                    doc.text(lines, margin, y);
+                    y += (lines.length * 3.4) + 1.3;
+                });
+
+                if (y + 38 > 282) {
+                    doc.addPage();
+                    y = 20;
+                }
+
+                y += 3;
+                doc.setDrawColor(148, 163, 184);
+                doc.line(margin, y, pageW - margin, y);
+                y += 5;
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(8);
+                doc.setTextColor(15, 23, 42);
+                doc.text("CUSTOMER DECLARATION", margin, y);
+                y += 4;
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(7.5);
+                const decl = doc.splitTextToSize(
+                    `I, ${snap.name}, confirm that I have read, understood, and accepted all terms and conditions of the Suman Jewellers Golden Rose Magic Scheme (Group ${snap.groupNumber}, Account ${snap.acCode}).`,
+                    contentW
+                );
+                doc.text(decl, margin, y);
+                y += 16;
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(8);
+                doc.text("______________________________", margin, y);
+                doc.text("______________________________", pageW - margin, y, { align: "right" });
+                y += 4;
+                doc.text("Customer Signature", margin, y);
+                doc.text("Authorized Showroom Representative", pageW - margin, y, { align: "right" });
+
+                y += 7;
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(7);
+                doc.setTextColor(100, 116, 139);
+                doc.text(`Generated by Suman Jewellers Operations Portal | Powered by Ofbuzz Technology | Ref: ${snap.enrollmentRef}`, margin, y);
+
+                doc.save(`Enrollment_${snap.acCode}_${snap.enrollmentRef}.pdf`);
+                showNotification("Enrollment Form PDF downloaded.", "success");
+            } catch (err) {
+                showNotification("Unable to generate PDF document.", "error");
+            }
+        }
+
+        function generateSettlementPdf(snap) {
+            try {
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    return showNotification("PDF generator library loading. Please retry in a moment.", "error");
+                }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+                const pageW = 210;
+                const margin = 16;
+                const contentW = pageW - margin * 2;
+                let y = 18;
+
+                const isFinal = (snap.settlementType === "Full") || (Number(snap.remainingGrams) === 0);
+                const formTitle = isFinal ? "FINAL SETTLEMENT FORM (22KT GOLD)" : "PARTIAL SETTLEMENT FORM (22KT GOLD)";
+
+                doc.setFillColor(15, 23, 42);
+                doc.rect(margin, y, contentW, 24, "F");
+                doc.setTextColor(251, 191, 36);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(15);
+                doc.text("SUMAN JEWELLERS", margin + 6, y + 9);
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(10);
+                doc.text(`GOLDEN ROSE MAGIC SCHEME — ${formTitle}`, margin + 6, y + 17);
+
+                y += 30;
+                doc.setTextColor(15, 23, 42);
+                doc.setFontSize(9);
+                doc.setFont("helvetica", "bold");
+                doc.text(`Settlement Reference: ${snap.settlementRef}`, margin, y);
+                doc.text(`Settlement Date: ${snap.settlementDate}`, pageW - margin, y, { align: "right" });
+
+                y += 6;
+                doc.setDrawColor(203, 213, 225);
+                doc.line(margin, y, pageW - margin, y);
+                y += 8;
+
+                const infoRows = [
+                    ["Customer Name", snap.name, "Group Number", `Group ${snap.groupNumber}`],
+                    ["Registered Mobile", `+91 ${snap.phone}`, "Account Code", snap.acCode],
+                    ["Customer / Token ID", snap.customerId || "-", "Kitty Plan", snap.planName],
+                    ["Settlement Type", isFinal ? "Final Settlement" : "Partial Settlement", "Settlement Status", snap.status],
+                    ["Authorized Operator", snap.operator || "Admin", "Request Reference", snap.requestId || "-"]
+                ];
+
+                doc.setFontSize(9);
+                infoRows.forEach(r => {
+                    doc.setFillColor(248, 250, 252);
+                    doc.rect(margin, y - 4.5, contentW, 8.5, "F");
+                    doc.setDrawColor(226, 232, 240);
+                    doc.rect(margin, y - 4.5, contentW, 8.5, "S");
+
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(71, 85, 105);
+                    doc.text(r[0] + ":", margin + 3, y + 1);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text(String(r[1]), margin + 40, y + 1);
+
+                    doc.setTextColor(71, 85, 105);
+                    doc.text(r[2] + ":", margin + 96, y + 1);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text(String(r[3]), margin + 132, y + 1);
+                    y += 8.5;
+                });
+
+                y += 10;
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(10.5);
+                doc.setTextColor(128, 0, 32);
+                doc.text("22KT GOLD ENTITLEMENT & SETTLEMENT SUMMARY", margin, y);
+                y += 6;
+
+                const goldSummary = [
+                    ["Original Booked Gold Weight (22KT)", `${formatGoldWeight(snap.originalBookedGrams)} g (22KT)`],
+                    ["Previously Settled Gold Weight (22KT)", `${formatGoldWeight(snap.previouslySettledGrams)} g (22KT)`],
+                    ["Current Settled Gold Weight (22KT)", `${formatGoldWeight(snap.currentSettledGrams)} g (22KT)`],
+                    [isFinal ? "Final Remaining Gold (22KT)" : "Remaining Gold Weight (22KT)", `${formatGoldWeight(snap.remainingGrams)} g (22KT)`]
+                ];
+
+                goldSummary.forEach((gRow, idx) => {
+                    const isLast = idx === goldSummary.length - 1;
+                    doc.setFillColor(isLast ? 254 : 255, isLast ? 243 : 255, isLast ? 199 : 255);
+                    doc.rect(margin, y - 5, contentW, 10, "F");
+                    doc.setDrawColor(180, 83, 9);
+                    doc.rect(margin, y - 5, contentW, 10, "S");
+
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(9.5);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text(gRow[0], margin + 4, y + 1.5);
+                    doc.text(gRow[1], pageW - margin - 4, y + 1.5, { align: "right" });
+                    y += 10;
+                });
+
+                if (snap.remarks) {
+                    y += 6;
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(9);
+                    doc.text("Settlement Remarks:", margin, y);
+                    doc.setFont("helvetica", "normal");
+                    const remLines = doc.splitTextToSize(snap.remarks, contentW);
+                    y += 5;
+                    doc.text(remLines, margin, y);
+                    y += remLines.length * 4.5;
+                }
+
+                y += 12;
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(9.5);
+                doc.setTextColor(15, 23, 42);
+                doc.text("CUSTOMER ACKNOWLEDGEMENT", margin, y);
+                y += 5;
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(8.5);
+                const ackLines = doc.splitTextToSize(
+                    `I, ${snap.name}, hereby acknowledge receipt of jewellery equivalent to ${formatGoldWeight(snap.currentSettledGrams)} g (22KT) from Suman Jewellers against Group ${snap.groupNumber}, Account Code ${snap.acCode}. Remaining unredeemed balance stands at ${formatGoldWeight(snap.remainingGrams)} g (22KT).`,
+                    contentW
+                );
+                doc.text(ackLines, margin, y);
+                y += 26;
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(9);
+                doc.text("__________________________________", margin, y);
+                doc.text("__________________________________", pageW - margin, y, { align: "right" });
+                y += 5;
+                doc.text("Customer Signature", margin, y);
+                doc.text("Authorized Showroom Representative", pageW - margin, y, { align: "right" });
+
+                y += 14;
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(7.5);
+                doc.setTextColor(100, 116, 139);
+                doc.text(`Official Settlement Record | Suman Jewellers | Powered by Ofbuzz Technology | Ref: ${snap.settlementRef}`, margin, y);
+
+                const filePrefix = isFinal ? "Final_Settlement" : "Partial_Settlement";
+                doc.save(`${filePrefix}_${snap.acCode}_${snap.settlementRef}.pdf`);
+                showNotification(`${isFinal ? 'Final' : 'Partial'} Settlement Form PDF downloaded.`, "success");
+            } catch (err) {
+                showNotification("Unable to generate Settlement PDF.", "error");
+            }
+        }
+
+        // ==========================================================================
+        // OWNER ADMIN CUSTOMER & TRANSACTION OVERRIDES
+        // ==========================================================================
+        function openSuperAdminCustomerModal() {
+            if (!selectedMemberData) return;
+            document.getElementById('editCustName').value = selectedMemberData.name;
+            document.getElementById('editCustPhone').value = selectedMemberData.phone;
+            document.getElementById('editCustAmount').value = selectedMemberData.monthlyAmount;
+            document.getElementById('editCustAc').value = selectedMemberData.acCode;
+            document.getElementById('editCustId').value = selectedMemberData.customerId || "-";
+            document.getElementById('editCustDoj').value = selectedMemberData.doj || "";
+            document.getElementById('editCustEmail').value = selectedMemberData.email || "";
+            document.getElementById('editCustMpin').value = selectedMemberData.mpin || "";
+            document.getElementById('editCustomerModal').classList.remove('hidden-view');
+        }
+
+        function closeEditCustomerModal() {
+            document.getElementById('editCustomerModal').classList.add('hidden-view');
+        }
+
+        function submitSuperAdminCustomerEdit(e) {
+            e.preventDefault();
+            if (isSubmitting) return;
+
+            const btn = document.getElementById('btnSaveCustModal');
+            isSubmitting = true;
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+            showLoader("Saving...");
+
+            const payload = {
+                action: "superAdminEditCustomer",
+                adminUser: (sessionUser && sessionUser.username) ? sessionUser.username : "Admin",
+                adminPin: (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108",
+                oldPhone: selectedMemberData.phone,
+                oldAcCode: selectedMemberData.acCode,
+                newPhone: document.getElementById('editCustPhone').value.trim(),
+                newName: document.getElementById('editCustName').value.trim(),
+                newAmount: document.getElementById('editCustAmount').value.trim(),
+                newAcCode: document.getElementById('editCustAc').value.trim(),
+                newCustId: document.getElementById('editCustId').value.trim(),
+                newDoj: document.getElementById('editCustDoj').value.trim(),
+                newEmail: document.getElementById('editCustEmail').value.trim(),
+                newMpin: document.getElementById('editCustMpin').value.trim()
+            };
+
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                hideLoader();
+                if (res.success) {
+                    showNotification("Customer profile and security MPIN updated successfully.", "success");
+                    closeEditCustomerModal();
+                    selectedMemberData.phone = payload.newPhone;
+                    selectedMemberData.acCode = payload.newAcCode;
+                    selectedMemberData.name = payload.newName;
+                    selectedMemberData.monthlyAmount = payload.newAmount;
+                    selectedMemberData.mpin = payload.newMpin;
+                    loadLiveDirectoryFeed();
+                    loadMemberLedger(selectedMemberData);
+                } else {
+                    showNotification(res.error || "Update failed.", "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            })
+            .finally(() => {
+                isSubmitting = false;
+                btn.disabled = false;
+                btn.innerText = "Save Changes";
+            });
+        }
+
+        function openEditTxModal(tx) {
+            document.getElementById('editTxRow').value = tx.row;
+            document.getElementById('editTxAmount').value = tx.amount;
+            document.getElementById('editTxStatus').value = tx.status;
+            document.getElementById('editTxRate').value = tx.rate || "";
+            document.getElementById('editTxGrams').value = tx.bookedGrams ? formatGoldWeight(tx.bookedGrams) : "";
+            document.getElementById('editTxUtr').value = tx.utr || "";
+            document.getElementById('editTxModal').classList.remove('hidden-view');
+        }
+
+        function closeEditTxModal() {
+            document.getElementById('editTxModal').classList.add('hidden-view');
+        }
+
+        function submitSuperAdminTxEdit(e) {
+            e.preventDefault();
+            if (isSubmitting) return;
+
+            const btn = document.getElementById('btnSaveTxModal');
+            isSubmitting = true;
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+            showLoader("Updating Records...");
+
+            const payload = {
+                action: "superAdminEditTransaction",
+                adminUser: (sessionUser && sessionUser.username) ? sessionUser.username : "Admin",
+                adminPin: (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108",
+                row: document.getElementById('editTxRow').value,
+                amount: document.getElementById('editTxAmount').value,
+                status: document.getElementById('editTxStatus').value,
+                rateApplied: document.getElementById('editTxRate').value,
+                bookedGrams: document.getElementById('editTxGrams').value,
+                utr: document.getElementById('editTxUtr').value.trim()
+            };
+
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                hideLoader();
+                if (res.success) {
+                    showNotification("Transaction record updated.", "success");
+                    closeEditTxModal();
+                    loadMemberLedger(selectedMemberData);
+                } else {
+                    showNotification(res.error || "Update rejected.", "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            })
+            .finally(() => {
+                isSubmitting = false;
+                btn.disabled = false;
+                btn.innerText = "Commit Update";
+            });
+        }
+
+        function openManualDepositModal() {
+            if (!selectedMemberData) return;
+            document.getElementById('depositAmount').value = selectedMemberData.monthlyAmount;
+            document.getElementById('depositRate').value = "";
+            document.getElementById('depositRef').value = "";
+            document.getElementById('manualDepositModal').classList.remove('hidden-view');
+        }
+
+        function closeManualDepositModal() {
+            document.getElementById('manualDepositModal').classList.add('hidden-view');
+        }
+
+        function submitManualDeposit(e) {
+            e.preventDefault();
+            if (isSubmitting) return;
+
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const rate10g = parseFloat(document.getElementById('depositRate').value);
+            const month = document.getElementById('depositMonth').value;
+            const ref = document.getElementById('depositRef').value.trim() || "Showroom Counter Cash";
+
+            if (!amount || isNaN(rate10g) || rate10g < 10000 || rate10g > 999999) {
+                return showNotification("Gold rate must be 5 digits (XX,XXX) or 6 digits (X,XX,XXX).", "error");
+            }
+
+            const btn = document.getElementById('btnSubmitDeposit');
+            isSubmitting = true;
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+            showLoader("Processing Payment...");
+
+            const payload = {
+                action: "manualEntry",
+                phone: selectedMemberData.phone,
+                kittyNumber: selectedMemberData.acCode,
+                month: month,
+                amount: amount,
+                rateUsed: rate10g,
+                utr: ref
+            };
+
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                hideLoader();
+                closeManualDepositModal();
+                if (res.success) {
+                    showNotification(`Payment committed. ${formatGoldWeight(res.grams)} g (22KT) booked on ${res.date}.`, "success");
+                } else {
+                    showNotification(res.error || "Duplicate or rejected transaction.", "error");
+                }
+                loadMemberLedger(selectedMemberData);
+                loadLiveDirectoryFeed();
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+                loadMemberLedger(selectedMemberData);
+            })
+            .finally(() => {
+                isSubmitting = false;
+                btn.disabled = false;
+                btn.innerText = "Commit Transaction";
+            });
+        }
+
+        function saveWinnerCount() {
+            if (!selectedMemberData) return;
+            const wins = document.getElementById('selWinCount').value;
+            showLoader("Saving...");
+
+            fetchFast(`${config.scriptUrl}?action=updateWinCount&phone=${encodeURIComponent(selectedMemberData.phone)}&acCode=${encodeURIComponent(selectedMemberData.acCode)}&winCount=${wins}&_ts=${Date.now()}`)
+            .then(res => {
+                hideLoader();
+                if (res.success) {
+                    showNotification(`Event wins set to ${wins}.`, "success");
+                    selectedMemberData.winCount = wins;
+                    loadMemberLedger(selectedMemberData);
+                    loadLiveDirectoryFeed();
+                } else {
+                    showNotification(res.error || "Failed to update wins.", "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            });
+        }
+
+        function confirmRemoveMember() {
+            if (!selectedMemberData) return;
+            uiConfirm("Delete Account", `Are you sure you want to permanently delete member ${selectedMemberData.name} (${selectedMemberData.acCode})?`)
+            .then(ok => {
+                if (!ok) return;
+                showLoader("Deleting...");
+                fetchFast(`${config.scriptUrl}?action=deleteMember&phone=${encodeURIComponent(selectedMemberData.phone)}&kittyNumber=${encodeURIComponent(selectedMemberData.acCode)}&_ts=${Date.now()}`)
+                .then(res => {
+                    hideLoader();
+                    if (res.success) {
+                        showNotification("Member record successfully deleted.", "success");
+                        document.getElementById('memberProfileSection').classList.add('hidden-view');
+                        loadLiveDirectoryFeed();
+                    } else showNotification(res.error, "error");
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+            });
+        }
+
+        // ==========================================================================
+        // PAYMENT QUEUE (SINGLE & COMBINED GROUP BATCHES)
+        // ==========================================================================
+        function loadKmpPendingApprovals() {
+            showLoader("Loading...");
+            fetchFast(`${config.scriptUrl}?action=getData&id=all_pending&_ts=${Date.now()}`)
+            .then(list => {
+                hideLoader();
+                const tbody = document.getElementById('kmpApprovalTableBody');
+                if (!list || list.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 font-bold">Queue cleared. No pending items.</td></tr>`;
+                    return;
+                }
+
+                const groupedDisplay = [];
+                const combinedMap = {};
+
+                list.forEach(item => {
+                    if (item.combinedRef) {
+                        if (!combinedMap[item.combinedRef]) {
+                            combinedMap[item.combinedRef] = {
+                                isCombinedBatch: true,
+                                combinedRef: item.combinedRef,
+                                name: item.name,
+                                phone: item.phone,
+                                timestamp: item.timestamp,
+                                status: item.status,
+                                utr: item.utr,
+                                rateApplied: item.rateApplied,
+                                totalAmount: 0,
+                                items: []
+                            };
+                            groupedDisplay.push(combinedMap[item.combinedRef]);
+                        }
+                        combinedMap[item.combinedRef].totalAmount += (parseFloat(item.amount) || 0);
+                        combinedMap[item.combinedRef].items.push(item);
+                    } else {
+                        groupedDisplay.push(item);
+                    }
+                });
+
+                tbody.innerHTML = "";
+                groupedDisplay.forEach(entry => {
+                    if (entry.isCombinedBatch) {
+                        const allocLines = entry.items.map(sub =>
+                            `Group ${sub.groupNumber || 24} &bull; ${sub.acCode} (Inst #${sub.month}: ₹${Number(sub.amount).toLocaleString('en-IN')})`
+                        ).join('<br>');
+
+                        tbody.innerHTML += `
+                            <tr class="bg-amber-50/40">
+                                <td class="p-3 font-bold">
+                                    ${entry.name}
+                                    <span class="ml-1 text-[9px] bg-amber-800 text-white px-1.5 py-0.5 rounded uppercase">Combined</span>
+                                    <br><span class="text-[10px] font-mono text-slate-500">+91 ${entry.phone}</span>
+                                </td>
+                                <td class="p-3 font-mono text-[11px] font-semibold text-slate-800">${allocLines}</td>
+                                <td class="p-3 font-bold">${entry.items.length} Accounts</td>
+                                <td class="p-3 font-mono font-black text-amber-950">₹${entry.totalAmount.toLocaleString('en-IN')}</td>
+                                <td class="p-3 font-mono text-[11px] text-slate-600">${entry.timestamp || '-'}</td>
+                                <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${entry.status === 'Reviewed' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${entry.status}</span></td>
+                                <td class="p-3 font-mono text-slate-600">
+                                    ${entry.utr || '-'}
+                                    <div class="text-[9px] text-slate-400">${entry.combinedRef}</div>
+                                </td>
+                                <td class="p-3 text-center whitespace-nowrap">
+                                    <button onclick='openQueueModal(${JSON.stringify(entry)}, "review")' class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press">Rate Review</button>
+                                    <button onclick='openQueueModal(${JSON.stringify(entry)}, "approve")' class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press ml-1">Approve All</button>
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        const rawAmount = parseFloat(entry.amount) || 0;
+                        tbody.innerHTML += `
+                            <tr id="qRow_${entry.row}">
+                                <td class="p-3 font-bold">${entry.name}<br><span class="text-[10px] font-mono text-slate-400">+91 ${entry.phone}</span></td>
+                                <td class="p-3 font-mono font-bold">
+                                    <span class="bg-amber-100 text-amber-900 text-[9px] px-1.5 py-0.5 rounded uppercase mr-1">Group ${entry.groupNumber || 24}</span>
+                                    ${entry.acCode}
+                                </td>
+                                <td class="p-3 font-bold">Inst #${entry.month}</td>
+                                <td class="p-3 font-mono font-bold">₹${rawAmount.toLocaleString('en-IN')}</td>
+                                <td class="p-3 font-mono text-[11px] text-slate-600">${entry.timestamp || '-'}</td>
+                                <td class="p-3"><span id="qStatus_${entry.row}" class="px-2 py-0.5 rounded text-[10px] font-bold ${entry.status === 'Reviewed' ? 'bg-slate-200 text-slate-800' : 'bg-amber-100 text-amber-800'}">${entry.status}</span></td>
+                                <td class="p-3 font-mono text-slate-600">${entry.utr || '-'}</td>
+                                <td class="p-3 text-center whitespace-nowrap">
+                                    <button onclick='openQueueModal(${JSON.stringify(entry)}, "review")' class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press">Rate Review</button>
+                                    <button onclick='openQueueModal(${JSON.stringify(entry)}, "approve")' class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1.5 rounded text-[10px] cursor-pointer active-press ml-1">Approve</button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to load approval queue.", "error");
+            });
+        }
+
+        function openQueueModal(item, mode) {
+            activeQueueItem = item;
+            const allocBox = document.getElementById('qaCombinedAllocBox');
+
+            if (item.isCombinedBatch) {
+                document.getElementById('qaModalTitle').innerText = "Process Combined Multi-Account Payment";
+                document.getElementById('qaMemberName').innerText = item.name;
+                document.getElementById('qaAcCode').innerText = `${item.items.length} Selected Accounts`;
+                document.getElementById('qaMonth').innerText = item.combinedRef;
+                document.getElementById('qaAmount').innerText = "₹" + (parseFloat(item.totalAmount) || 0).toLocaleString('en-IN');
+                document.getElementById('qaDate').innerText = item.timestamp || "Today";
+                document.getElementById('qaUtr').innerText = item.utr || "Combined Deposit";
+
+                allocBox.innerHTML = `<p class="text-[10px] font-bold uppercase text-amber-900">Individual Account Allocations:</p>` +
+                    item.items.map(sub => `<div class="flex justify-between text-[11px] font-mono"><span>Group ${sub.groupNumber || 24} &mdash; ${sub.acCode} (Inst #${sub.month})</span><strong>₹${Number(sub.amount).toLocaleString('en-IN')}</strong></div>`).join('');
+                allocBox.classList.remove('hidden-view');
+            } else {
+                document.getElementById('qaModalTitle').innerText = "Process Queue Payment";
+                document.getElementById('qaMemberName').innerText = item.name;
+                document.getElementById('qaAcCode').innerText = `Group ${item.groupNumber || 24} — ${item.acCode}`;
+                document.getElementById('qaMonth').innerText = "Installment #" + item.month;
+                document.getElementById('qaAmount').innerText = "₹" + (parseFloat(item.amount) || 0).toLocaleString('en-IN');
+                document.getElementById('qaDate').innerText = item.timestamp || "Today";
+                document.getElementById('qaUtr').innerText = item.utr || "Counter Cash";
+                allocBox.classList.add('hidden-view');
+            }
+
+            const initialRate = parseFloat(item.rateApplied) || 68500;
+            document.getElementById('qaGoldRateInput').value = initialRate;
+            calculateQueueModalGrams();
+
+            if (mode === 'approve') {
+                document.getElementById('btnQueueApprove').classList.add('ring-2', 'ring-amber-500');
+                document.getElementById('btnQueueReview').classList.remove('ring-2', 'ring-amber-500');
+            } else {
+                document.getElementById('btnQueueReview').classList.add('ring-2', 'ring-amber-500');
+                document.getElementById('btnQueueApprove').classList.remove('ring-2', 'ring-amber-500');
+            }
+
+            document.getElementById('queueActionModal').classList.remove('hidden-view');
+        }
+
+        function closeQueueActionModal() {
+            document.getElementById('queueActionModal').classList.add('hidden-view');
+            activeQueueItem = null;
+        }
+
+        function calculateQueueModalGrams() {
+            if (!activeQueueItem) return;
+            const amt = activeQueueItem.isCombinedBatch
+                ? (parseFloat(activeQueueItem.totalAmount) || 0)
+                : (parseFloat(activeQueueItem.amount) || 0);
+            const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value) || 0;
+            if (rate10g >= 10000 && rate10g <= 999999 && amt > 0) {
+                const grams = (amt / (rate10g / 10));
+                document.getElementById('qaCalculatedGrams').innerText = formatGoldWeight(grams) + " g (22KT)";
+            } else {
+                document.getElementById('qaCalculatedGrams').innerText = "0.0000 g (22KT)";
+            }
+        }
+
+        function submitQueueAction(actionType) {
+            if (!activeQueueItem) return;
+            const rate10g = parseFloat(document.getElementById('qaGoldRateInput').value);
+
+            if (isNaN(rate10g) || rate10g < 10000 || rate10g > 999999) {
+                showNotification("Gold rate must be 5 digits in thousands (e.g. 68,500) or 6 digits in lakhs (e.g. 1,02,500).", "error");
+                return;
+            }
+
+            const isApprove = (actionType === 'approve');
+            const itemSnapshot = activeQueueItem;
+            closeQueueActionModal();
+
+            if (itemSnapshot.isCombinedBatch) {
+                showLoader(isApprove ? "Approving Combined Payment..." : "Reviewing Combined Payment...");
+                fetchFast(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "approveCombinedGroup",
+                        combinedRef: itemSnapshot.combinedRef,
+                        rateUsed: rate10g,
+                        mode: isApprove ? "approve" : "review",
+                        authUser: sessionUser.username,
+                        authPin: sessionUser.pin
+                    })
+                })
+                .then(res => {
+                    hideLoader();
+                    if (res && res.success) {
+                        showNotification(`Combined payment ${isApprove ? 'approved' : 'reviewed'} across ${res.updatedCount} account(s).`, "success");
+                        loadKmpPendingApprovals();
+                        loadLiveDirectoryFeed();
+                    } else {
+                        showNotification(res ? res.error : "Unable to process combined payment.", "error");
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+                return;
+            }
+
+            const targetRow = itemSnapshot.row;
+            const rateFormatted = formatGoldRate(rate10g);
+            const calculatedGrams = formatGoldWeight(parseFloat(itemSnapshot.amount) / (rate10g / 10));
+
+            const statusBadge = document.getElementById(`qStatus_${targetRow}`);
+            const rowElem = document.getElementById(`qRow_${targetRow}`);
+
+            if (isApprove) {
+                if (rowElem) rowElem.classList.add("opacity-40", "bg-emerald-50");
+                showNotification(`Payment Approved! ${calculatedGrams} g (22KT) credited at ${rateFormatted}.`, "success");
+            } else {
+                if (statusBadge) {
+                    statusBadge.innerText = "Reviewed";
+                    statusBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-800";
+                }
+                showNotification(`Rate Reviewed! ${calculatedGrams} g (22KT) locked at ${rateFormatted}.`, "success");
+            }
+
+            const payload = {
+                action: isApprove ? "approve" : "reviewTransaction",
+                row: targetRow,
+                rateUsed: rate10g,
+                authUser: (sessionUser && sessionUser.username) ? sessionUser.username : "Admin",
+                authPin: (sessionUser && sessionUser.pin) ? sessionUser.pin : "1108"
+            };
+
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                if (!res || !res.success) {
+                    showNotification("Error: " + (res ? res.error : "Transaction could not be confirmed."), "error");
+                    loadKmpPendingApprovals();
+                } else if (isApprove) {
+                    if (rowElem) rowElem.remove();
+                    loadLiveDirectoryFeed();
+                }
+            })
+            .catch(() => {
+                showNotification("Unable to complete request.", "error");
+            });
+        }
+
+        // ==========================================================================
+        // OWNER ADMIN: EARLY END KITTY & SETTLE (BEFORE 11 INSTALLMENTS)
+        // ==========================================================================
+        function openEarlyExitSettlementModal() {
+            if (!sessionUser || sessionUser.role !== "Admin") {
+                return showNotification("Unauthorized access: Owner Admin privileges required.", "error");
+            }
+            if (!selectedMemberData) return;
+            const avail = Number(selectedMemberData.remainingGrams) || 0;
+            if (avail <= 0) {
+                return showNotification("Remaining eligible 22KT gold balance is already 0.0000 g.", "error");
+            }
+
+            document.getElementById('eeCustName').innerText = `${selectedMemberData.name} (+91 ${selectedMemberData.phone})`;
+            document.getElementById('eeGroupAc').innerText = `Group ${selectedMemberData.groupNumber || 24} — ${selectedMemberData.acCode}`;
+            document.getElementById('eePaidCount').innerText = `${selectedMemberData.paidCount || 0} / ${config.schemeMonths} Installments`;
+            document.getElementById('eeOrigGrams').innerText = `${formatGoldWeight(selectedMemberData.bookedGrams)} g (22KT)`;
+            document.getElementById('eePrevGrams').innerText = `${formatGoldWeight(selectedMemberData.settledGrams)} g (22KT)`;
+            document.getElementById('eeAvailGrams').innerText = `${formatGoldWeight(avail)} g (22KT)`;
+            document.getElementById('eeSettlementMode').value = "Full";
+            document.getElementById('eeWeightInput').value = avail.toFixed(4);
+            document.getElementById('eeRemarksInput').value = "";
+            onEarlyExitModeChange();
+            document.getElementById('earlyExitSettlementModal').classList.remove('hidden-view');
+        }
+
+        function closeEarlyExitSettlementModal() {
+            document.getElementById('earlyExitSettlementModal').classList.add('hidden-view');
+        }
+
+        function onEarlyExitModeChange() {
+            const mode = document.getElementById('eeSettlementMode').value;
+            const box = document.getElementById('eeCustomWeightBox');
+            const inp = document.getElementById('eeWeightInput');
+            const avail = Number(selectedMemberData ? selectedMemberData.remainingGrams : 0) || 0;
+            if (mode === "Full") {
+                box.classList.add('hidden-view');
+                inp.value = avail.toFixed(4);
+            } else {
+                box.classList.remove('hidden-view');
+                inp.value = "";
+            }
+            updateEarlyExitPreview();
+        }
+
+        function updateEarlyExitPreview() {
+            if (!selectedMemberData) return;
+            const avail = Number(selectedMemberData.remainingGrams) || 0;
+            const mode = document.getElementById('eeSettlementMode').value;
+            const current = (mode === "Full") ? avail : (parseFloat(document.getElementById('eeWeightInput').value) || 0);
+            const rem = Math.max(0, avail - current);
+            document.getElementById('eePreviewRemaining').innerText = `${formatGoldWeight(rem)} g (22KT)`;
+        }
+
+        function confirmAndCommitEarlyExitSettlement() {
+            if (!selectedMemberData || isSubmitting) return;
+            const avail = Number(selectedMemberData.remainingGrams) || 0;
+            const mode = document.getElementById('eeSettlementMode').value;
+            const grams = (mode === "Full") ? avail : parseFloat(document.getElementById('eeWeightInput').value);
+            const reason = document.getElementById('eeRemarksInput').value.trim();
+
+            if (isNaN(grams) || grams <= 0) {
+                return showNotification("Settlement gold weight must be greater than 0.0000 g.", "error");
+            }
+            if (grams > avail + 0.00001) {
+                return showNotification(`Settlement weight cannot exceed eligible booked gold (${formatGoldWeight(avail)} g 22KT).`, "error");
+            }
+            if (!reason) {
+                return showNotification("Please enter early kitty closure remarks.", "error");
+            }
+
+            const confirmMsg = (mode === "Full")
+                ? `End kitty early and settle full ${formatGoldWeight(avail)} g (22KT) for ${selectedMemberData.name} (${selectedMemberData.acCode})? Remaining gold will become 0.0000 g (22KT) and the account will be marked Settled.`
+                : `Process partial early settlement of ${formatGoldWeight(grams)} g (22KT) for ${selectedMemberData.name} (${selectedMemberData.acCode})? Remaining balance will be ${formatGoldWeight(avail - grams)} g (22KT).`;
+
+            uiConfirm("Confirm Early Kitty Closure & Settlement", confirmMsg).then(ok => {
+                if (!ok) return;
+
+                const btn = document.getElementById('btnCommitEarlyExit');
+                isSubmitting = true;
+                btn.disabled = true;
+                showLoader("Processing Early Settlement...");
+
+                fetchFast(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "processSettlement",
+                        adminUser: sessionUser.username,
+                        adminPin: sessionUser.pin,
+                        phone: selectedMemberData.phone,
+                        acCode: selectedMemberData.acCode,
+                        requestId: "EARLY-EXIT",
+                        settlementType: mode,
+                        allowEarlyExit: true,
+                        settlementGrams: grams,
+                        remarks: "Early Kitty Closure: " + reason
+                    })
+                })
+                .then(res => {
+                    hideLoader();
+                    if (res && res.success) {
+                        closeEarlyExitSettlementModal();
+                        latestSettlementSnapshot = res.settlementSnapshot;
+                        showNotification(`Early kitty settlement recorded (${res.settlementRef}).`, "success");
+                        openSettlementCompletedModal(res.settlementSnapshot);
+                        loadMemberLedger(selectedMemberData);
+                        loadLiveDirectoryFeed();
+                    } else {
+                        showNotification(res ? res.error : "Early settlement failed.", "error");
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete early settlement.", "error");
+                })
+                .finally(() => {
+                    isSubmitting = false;
+                    btn.disabled = false;
+                });
+            });
+        }
+
+        // ==========================================================================
+        // OWNER ADMIN: SETTLEMENT REQUESTS & SETTLEMENT HISTORY
+        // ==========================================================================
+        function loadSettlementRequests() {
+            if (!sessionUser || sessionUser.role !== "Admin") return;
+            showLoader("Loading Settlement Requests...");
+            fetchFast(`${config.scriptUrl}?action=getSettlementRequests&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`)
+            .then(res => {
+                hideLoader();
+                const tbody = document.getElementById('settlementRequestsTableBody');
+                if (!res || !res.success) {
+                    return showNotification(res ? res.error : "Unauthorized access.", "error");
+                }
+                const list = res.requests || [];
+                if (list.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400 font-bold">No customer settlement requests found.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = "";
+                list.forEach(req => {
+                    const isSettled = (req.status === "Settled") || (Number(req.remainingGrams) <= 0);
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-3"><strong>${req.name}</strong><br><span class="font-mono text-[10px] text-slate-500">+91 ${req.phone}</span></td>
+                            <td class="p-3 font-mono font-bold">
+                                <span class="bg-amber-100 text-amber-900 text-[9px] px-1.5 py-0.5 rounded uppercase mr-1">Group ${req.groupNumber}</span>
+                                ${req.acCode}
+                            </td>
+                            <td class="p-3">${req.planName}</td>
+                            <td class="p-3 font-mono font-bold">${formatGoldWeight(req.bookedGrams)} g (22KT)</td>
+                            <td class="p-3 font-mono text-slate-600">${formatGoldWeight(req.settledGrams)} g (22KT)</td>
+                            <td class="p-3 font-mono font-black text-amber-950">${formatGoldWeight(req.remainingGrams)} g (22KT)</td>
+                            <td class="p-3 font-mono text-[11px]">${req.requestDate}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${isSettled ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${req.status}</span></td>
+                            <td class="p-3 text-center whitespace-nowrap space-x-1">
+                                ${!isSettled ? `
+                                    <button onclick='openProcessSettlementModal(${JSON.stringify(req)}, "Partial")' class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press">Custom Settlement</button>
+                                    <button onclick='openProcessSettlementModal(${JSON.stringify(req)}, "Full")' class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1 rounded text-[10px] cursor-pointer active-press">Full Settlement</button>
+                                ` : '<span class="text-[10px] text-emerald-700 font-bold uppercase">Completed</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to load settlement requests.", "error");
+            });
+        }
+
+        function openProcessSettlementModal(reqObj, mode) {
+            activeSettlementTarget = { ...reqObj, mode: mode };
+            const isFull = (mode === "Full");
+
+            document.getElementById('stlModalTitle').innerText = isFull ? "Full Settlement (22KT Gold)" : "Custom Settlement (Partial 22KT Gold)";
+            document.getElementById('stlModalSubtitle').innerText = isFull
+                ? "Settles the entire remaining eligible 22KT gold balance"
+                : "Enter partial 22KT gold weight being delivered now";
+
+            document.getElementById('stlCustName').innerText = `${reqObj.name} (+91 ${reqObj.phone})`;
+            document.getElementById('stlGroupAc').innerText = `Group ${reqObj.groupNumber} — ${reqObj.acCode}`;
+            document.getElementById('stlOrigGrams').innerText = `${formatGoldWeight(reqObj.bookedGrams)} g (22KT)`;
+            document.getElementById('stlPrevGrams').innerText = `${formatGoldWeight(reqObj.settledGrams)} g (22KT)`;
+            document.getElementById('stlAvailGrams').innerText = `${formatGoldWeight(reqObj.remainingGrams)} g (22KT)`;
+            document.getElementById('stlRemarksInput').value = "";
+
+            const customBox = document.getElementById('stlCustomWeightBox');
+            const weightInp = document.getElementById('stlWeightInput');
+            if (isFull) {
+                customBox.classList.add('hidden-view');
+                weightInp.value = Number(reqObj.remainingGrams).toFixed(4);
+            } else {
+                customBox.classList.remove('hidden-view');
+                weightInp.value = "";
+            }
+            updateSettlementPreview();
+            document.getElementById('processSettlementModal').classList.remove('hidden-view');
+        }
+
+        function closeProcessSettlementModal() {
+            document.getElementById('processSettlementModal').classList.add('hidden-view');
+            activeSettlementTarget = null;
+        }
+
+        function updateSettlementPreview() {
+            if (!activeSettlementTarget) return;
+            const avail = Number(activeSettlementTarget.remainingGrams) || 0;
+            const current = activeSettlementTarget.mode === "Full"
+                ? avail
+                : (parseFloat(document.getElementById('stlWeightInput').value) || 0);
+            const rem = Math.max(0, avail - current);
+            document.getElementById('stlPreviewRemaining').innerText = `${formatGoldWeight(rem)} g (22KT)`;
+        }
+
+        function confirmAndCommitSettlement() {
+            if (!activeSettlementTarget || isSubmitting) return;
+            const target = activeSettlementTarget;
+            const avail = Number(target.remainingGrams) || 0;
+            const isFull = target.mode === "Full";
+            const grams = isFull ? avail : parseFloat(document.getElementById('stlWeightInput').value);
+
+            if (isNaN(grams) || grams <= 0) {
+                return showNotification("Settlement gold weight must be greater than 0.0000 g.", "error");
+            }
+            if (grams > avail + 0.00001) {
+                return showNotification(`Settlement weight cannot exceed remaining eligible gold (${formatGoldWeight(avail)} g 22KT).`, "error");
+            }
+
+            const confirmTitle = isFull ? "Confirm Full Settlement" : "Confirm Partial Settlement";
+            const confirmMsg = isFull
+                ? `Finalize full settlement of ${formatGoldWeight(avail)} g (22KT) for ${target.name} (${target.acCode})? Remaining gold balance will become 0.0000 g (22KT).`
+                : `Confirm partial settlement of ${formatGoldWeight(grams)} g (22KT) for ${target.name} (${target.acCode})? Remaining balance will be ${formatGoldWeight(avail - grams)} g (22KT).`;
+
+            uiConfirm(confirmTitle, confirmMsg).then(ok => {
+                if (!ok) return;
+
+                const btn = document.getElementById('btnCommitSettlement');
+                isSubmitting = true;
+                btn.disabled = true;
+                showLoader("Processing Settlement...");
+
+                fetchFast(config.scriptUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "processSettlement",
+                        adminUser: sessionUser.username,
+                        adminPin: sessionUser.pin,
+                        phone: target.phone,
+                        acCode: target.acCode,
+                        requestId: target.requestId,
+                        settlementType: target.mode,
+                        settlementGrams: grams,
+                        remarks: document.getElementById('stlRemarksInput').value.trim()
+                    })
+                })
+                .then(res => {
+                    hideLoader();
+                    if (res && res.success) {
+                        closeProcessSettlementModal();
+                        latestSettlementSnapshot = res.settlementSnapshot;
+                        showNotification(`${res.settlementSnapshot.settlementType} settlement recorded (${res.settlementRef}).`, "success");
+                        openSettlementCompletedModal(res.settlementSnapshot);
+                        loadSettlementRequests();
+                        loadLiveDirectoryFeed();
+                    } else {
+                        showNotification(res ? res.error : "Settlement failed.", "error");
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete settlement.", "error");
+                })
+                .finally(() => {
+                    isSubmitting = false;
+                    btn.disabled = false;
+                });
+            });
+        }
+
+        function openSettlementCompletedModal(snap) {
+            if (!snap) return;
+            document.getElementById('stlCompletedTitle').innerText = `${snap.settlementType} Settlement Completed`;
+            document.getElementById('stlCompletedRef').innerText = `Document Ref: ${snap.settlementRef}`;
+            document.getElementById('stlCompletedSummary').innerHTML = `
+                <div class="flex justify-between"><span class="text-slate-500">Customer:</span><strong>${snap.name} (+91 ${snap.phone})</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Group &amp; Account:</span><strong class="font-mono">Group ${snap.groupNumber} &mdash; ${snap.acCode}</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Original Booked (22KT):</span><strong class="font-mono">${formatGoldWeight(snap.originalBookedGrams)} g (22KT)</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Settled Now (22KT):</span><strong class="font-mono text-emerald-800">${formatGoldWeight(snap.currentSettledGrams)} g (22KT)</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Remaining Gold (22KT):</span><strong class="font-mono text-amber-950">${formatGoldWeight(snap.remainingGrams)} g (22KT)</strong></div>
+            `;
+            document.getElementById('settlementCompletedModal').classList.remove('hidden-view');
+        }
+
+        function closeSettlementCompletedModal() {
+            document.getElementById('settlementCompletedModal').classList.add('hidden-view');
+        }
+
+        function downloadLatestSettlementForm() {
+            if (!latestSettlementSnapshot) return;
+            generateSettlementPdf(latestSettlementSnapshot);
+        }
+
+        function loadSettlementHistory() {
+            if (!sessionUser || sessionUser.role !== "Admin") return;
+            showLoader("Loading Settlement History...");
+            fetchFast(`${config.scriptUrl}?action=getSettlementHistory&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin)}&_ts=${Date.now()}`)
+            .then(res => {
+                hideLoader();
+                if (!res || !res.success) {
+                    return showNotification(res ? res.error : "Unauthorized access.", "error");
+                }
+                cachedSettlementHistory = res.settlements || [];
+                filterSettlementHistory();
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to load settlement history.", "error");
+            });
+        }
+
+        function filterSettlementHistory() {
+            const q = (document.getElementById('stlFilterSearch').value || "").trim().toLowerCase();
+            const grp = document.getElementById('stlFilterGroup').value;
+            const typ = document.getElementById('stlFilterType').value;
+            const dt = (document.getElementById('stlFilterDate').value || "").trim().toLowerCase();
+
+            const filtered = cachedSettlementHistory.filter(s => {
+                if (grp !== "ALL" && String(s.groupNumber) !== String(grp)) return false;
+                if (typ !== "ALL" && s.settlementType !== typ) return false;
+                if (dt && !(s.settlementDate || "").toLowerCase().includes(dt)) return false;
+                if (q) {
+                    const hay = `${s.name} ${s.phone} ${s.acCode} ${s.settlementRef}`.toLowerCase();
+                    if (!hay.includes(q)) return false;
+                }
+                return true;
+            });
+
+            renderSettlementHistoryTable(filtered);
+        }
+
+        function renderSettlementHistoryTable(list) {
+            const tbody = document.getElementById('settlementHistoryTableBody');
+            if (!list || list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400 font-bold">No settlement records found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = "";
+            list.forEach(s => {
+                const snapObj = s.snapshot || s;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-mono text-[11px]">
+                            <strong class="text-slate-900">${s.settlementRef}</strong>
+                            <div class="text-slate-500">${s.settlementDate}</div>
+                        </td>
+                        <td class="p-3"><strong>${s.name}</strong><br><span class="font-mono text-[10px] text-slate-500">+91 ${s.phone}</span></td>
+                        <td class="p-3 font-mono font-bold">Group ${s.groupNumber} &mdash; ${s.acCode}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.settlementType === 'Full' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${s.settlementType}</span></td>
+                        <td class="p-3 font-mono font-bold text-emerald-900">${formatGoldWeight(s.currentSettledGrams)} g (22KT)</td>
+                        <td class="p-3 font-mono font-bold text-slate-800">${formatGoldWeight(s.remainingGrams)} g (22KT)</td>
+                        <td class="p-3 font-bold text-slate-700">${s.status}</td>
+                        <td class="p-3 text-center whitespace-nowrap space-x-1">
+                            <button onclick='openSettlementCompletedModal(${JSON.stringify(snapObj)})' class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">View Details</button>
+                            <button onclick='generateSettlementPdf(${JSON.stringify(snapObj)})' class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2 py-1 rounded text-[10px] cursor-pointer active-press">Download Form</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ==========================================================================
+        // STAFF USERS (RBAC) & OVERDUE DEFAULTERS
+        // ==========================================================================
+        function loadStaffUsersList() {
+            if (sessionUser.role !== "Admin") return;
+            showLoader("Loading...");
+
+            fetchFast(`${config.scriptUrl}?action=getStaffUsers&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin || '1108')}&_ts=${Date.now()}`)
+            .then(res => {
+                hideLoader();
+                if (!res.success) return showNotification("Access Denied: " + res.error, "error");
+                const tbody = document.getElementById('userTableBody');
+                tbody.innerHTML = "";
+
+                res.users.forEach(u => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-3 font-bold text-slate-900">${u.username}</td>
+                            <td class="p-3 font-semibold">${u.role}</td>
+                            <td class="p-3">${u.canApprove ? 'Authorized' : 'Restricted'}</td>
+                            <td class="p-3">${u.canFinalApprove ? 'Authorized' : 'Restricted'}</td>
+                            <td class="p-3">${u.bypass2SV ? 'Exempt' : 'Mandatory 2SV'}</td>
+                            <td class="p-3"><span class="px-2 py-0.5 rounded font-bold ${u.status === 'Active' ? 'bg-slate-100 text-slate-800' : 'bg-rose-100 text-rose-800'}">${u.status}</span></td>
+                            <td class="p-3 text-center">
+                                ${u.username.toLowerCase() !== 'admin' ? `
+                                    <button onclick='editUserRow(${JSON.stringify(u)})' class="text-slate-900 font-bold mr-2 cursor-pointer active-press">Configure</button>
+                                    <button onclick="deleteStaffUser('${u.username}')" class="text-rose-700 font-bold cursor-pointer active-press">Remove</button>
+                                ` : '<span class="text-slate-400 italic">Root Authority</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to load operators.", "error");
+            });
+        }
+
+        function openUserEditModal() {
+            document.getElementById('userModalTitle').innerText = "Register New Operator";
+            document.getElementById('usrNameInput').value = "";
+            document.getElementById('usrNameInput').readOnly = false;
+            document.getElementById('usrPinInput').value = "";
+            document.getElementById('usrRoleInput').value = "Staff";
+            document.getElementById('usrCanApprove').checked = true;
+            document.getElementById('usrCanFinalApprove').checked = false;
+            document.getElementById('usrBypass2SV').checked = false;
+            document.getElementById('userModal').classList.remove('hidden-view');
+        }
+
+        function editUserRow(u) {
+            document.getElementById('userModalTitle').innerText = "Configure Operator: " + u.username;
+            document.getElementById('usrNameInput').value = u.username;
+            document.getElementById('usrNameInput').readOnly = true;
+            document.getElementById('usrPinInput').value = u.pin;
+            document.getElementById('usrRoleInput').value = u.role;
+            document.getElementById('usrCanApprove').checked = u.canApprove;
+            document.getElementById('usrCanFinalApprove').checked = u.canFinalApprove;
+            document.getElementById('usrBypass2SV').checked = u.bypass2SV;
+            document.getElementById('userModal').classList.remove('hidden-view');
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.add('hidden-view');
+        }
+
+        function saveStaffUser(e) {
+            e.preventDefault();
+            showLoader("Saving...");
+
+            const payload = {
+                action: "saveStaffUser",
+                adminUser: sessionUser.username,
+                adminPin: sessionUser.pin || "1108",
+                username: document.getElementById('usrNameInput').value.trim(),
+                pin: document.getElementById('usrPinInput').value.trim(),
+                role: document.getElementById('usrRoleInput').value,
+                canApprove: document.getElementById('usrCanApprove').checked,
+                canFinalApprove: document.getElementById('usrCanFinalApprove').checked,
+                bypass2SV: document.getElementById('usrBypass2SV').checked,
+                status: "Active"
+            };
+
+            fetchFast(config.scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => {
+                hideLoader();
+                if (res.success) {
+                    showNotification("Operator permissions saved.", "success");
+                    closeUserModal();
+                    loadStaffUsersList();
+                } else {
+                    showNotification("Unable to save operator permissions: " + (res.error || ""), "error");
+                }
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to complete request.", "error");
+            });
+        }
+
+        function deleteStaffUser(targetUser) {
+            uiConfirm("Remove Operator", `Permanently remove operator access for ${targetUser}?`)
+            .then(ok => {
+                if (!ok) return;
+                showLoader("Removing...");
+
+                fetchFast(`${config.scriptUrl}?action=deleteStaffUser&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin || '1108')}&targetUser=${encodeURIComponent(targetUser)}&_ts=${Date.now()}`)
+                .then(res => {
+                    hideLoader();
+                    if (res.success) {
+                        showNotification("Operator profile removed.", "success");
+                        loadStaffUsersList();
+                    } else {
+                        showNotification("Unable to remove operator: " + (res.error || ""), "error");
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    showNotification("Unable to complete request.", "error");
+                });
+            });
+        }
+
+        function loadOverdueDefaulters() {
+            showLoader("Loading...");
+            fetchFast(`${config.scriptUrl}?action=getOverdueDefaulters&_ts=${Date.now()}`)
+            .then(res => {
+                hideLoader();
+                const tbody = document.getElementById('defaulterTableBody');
+                if (!res.defaulters || res.defaulters.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold">Zero overdue accounts found.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = "";
+                res.defaulters.forEach(d => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-3 font-bold">${d.name}<br><span class="text-[10px] font-mono text-slate-400">+91 ${d.phone}</span></td>
+                            <td class="p-3 font-mono font-bold">
+                                <span class="bg-amber-100 text-amber-900 text-[9px] px-1.5 py-0.5 rounded uppercase mr-1">Group ${d.groupNumber || 24}</span>
+                                ${d.acCode}
+                            </td>
+                            <td class="p-3 font-mono">${d.doj}</td>
+                            <td class="p-3 font-bold text-slate-800">${d.overdueMonths.map(m => 'Inst #' + m).join(', ')}</td>
+                            <td class="p-3 font-mono font-bold text-rose-700">₹${d.totalDue.toLocaleString('en-IN')}</td>
+                            <td class="p-3 text-center">
+                                <a href="https://wa.me/91${d.phone}" target="_blank" class="bg-emerald-700 hover:bg-emerald-600 text-white px-2.5 py-1 rounded text-[10px] font-bold active-press inline-block">WhatsApp</a>
+                            </td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(() => {
+                hideLoader();
+                showNotification("Unable to load overdue records.", "error");
+            });
+        }
+    </script>
+</body>
+</html>
