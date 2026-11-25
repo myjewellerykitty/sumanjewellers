@@ -941,7 +941,6 @@
             closeSwitchAccountModal();
             if (acCode === globalAcCode) return;
 
-            // Clear account-specific interface values immediately to prevent cross-account leakage
             document.getElementById('custName').innerText = "-";
             document.getElementById('lblAcCode').innerText = "-";
             document.getElementById('lblCustId').innerText = "-";
@@ -973,7 +972,7 @@
                 globalWinCount = Number(data.profile.winCount) || 0;
 
                 const accStatus = (data.profile.accountStatus || "Active").toString();
-                const statusPrefix = accStatus.toLowerCase() === "settled" ? "GRMS Settled" : "GRMS Active";
+                const statusPrefix = accStatus.toLowerCase().includes("settled") ? "GRMS Settled" : "GRMS Active";
                 document.getElementById('lblActiveGroupBadge').innerText = `${statusPrefix} | Group ${globalGroupNumber}`;
 
                 document.getElementById('custName').innerText = data.profile.name;
@@ -1017,7 +1016,7 @@
                 grid.innerHTML = "";
                 const totalInstallments = (data.profile.planBenefits && data.profile.planBenefits.durationMonths) ? data.profile.planBenefits.durationMonths : config.schemeMonths;
                 const nextPayable = data.nextPayableMonth || 1;
-                const isAccountSettled = accStatus.toLowerCase() === "settled";
+                const isAccountSettled = accStatus.toLowerCase().includes("settled");
 
                 for (let m = 1; m <= totalInstallments; m++) {
                     let tx = txs.find(t => Number(t.month) === m);
@@ -1031,7 +1030,6 @@
                         cardStyle = "bg-emerald-50 border border-emerald-200 text-emerald-800";
                         numStyle = "text-emerald-900";
                     } else if (tx && (tx.status === "Pending" || tx.status === "Reviewed")) {
-                        // Internal Reviewed status displays as Pending on simplified customer grid
                         stateLabel = "Pending";
                         cardStyle = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse";
                         numStyle = "text-amber-900";
@@ -1150,7 +1148,7 @@
             const accStatus = (p.accountStatus || "Active").toString();
             let settlementActionHtml = "";
 
-            if (accStatus.toLowerCase() === "settled" || (stmt.isSchemeComplete && remainingGrams <= 0)) {
+            if (accStatus.toLowerCase().includes("settled") && remainingGrams <= 0) {
                 settlementActionHtml = `
                     <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between">
                         <div>
@@ -1187,7 +1185,6 @@
                 `;
             }
 
-            // Transaction rows HTML
             let txRowsHtml = "";
             if (txs.length === 0) {
                 txRowsHtml = `<tr><td colspan="7" class="p-3 text-center text-slate-400">No transactions recorded yet.</td></tr>`;
@@ -1207,7 +1204,6 @@
                 });
             }
 
-            // Completed settlements HTML
             let stlHistoryHtml = "";
             const stlList = stmt.settlementHistory || [];
             if (stlList.length > 0) {
