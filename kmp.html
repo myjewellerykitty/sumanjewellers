@@ -462,6 +462,56 @@
         </div>
     </div>
 
+    <!-- Owner Admin: Early End Kitty & Settle Modal (Before 11 Installments) -->
+    <div id="earlyExitSettlementModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup space-y-3.5">
+            <div class="flex justify-between items-center border-b pb-2">
+                <div>
+                    <h3 class="text-sm font-black text-slate-900 uppercase">Early End Kitty &amp; Gold Settlement</h3>
+                    <p class="text-[11px] text-slate-500">Close kitty early when customer does not wish to continue remaining installments</p>
+                </div>
+                <button onclick="closeEarlyExitSettlementModal()" class="text-slate-400 hover:text-black font-bold text-lg cursor-pointer">&times;</button>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1">
+                <div class="flex justify-between"><span class="text-slate-500">Customer:</span><strong id="eeCustName">-</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Group &amp; Account:</span><strong id="eeGroupAc" class="font-mono">-</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Completed Installments:</span><strong id="eePaidCount" class="font-mono">0 / 11</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Original Booked Gold (22KT):</span><strong id="eeOrigGrams" class="font-mono">0.0000 g (22KT)</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Previously Settled (22KT):</span><strong id="eePrevGrams" class="font-mono">0.0000 g (22KT)</strong></div>
+                <div class="flex justify-between"><span class="text-slate-500">Eligible Gold Available (22KT):</span><strong id="eeAvailGrams" class="font-mono text-amber-950">0.0000 g (22KT)</strong></div>
+            </div>
+
+            <div>
+                <label class="font-bold text-slate-700 text-xs block mb-1">Early Settlement Mode *</label>
+                <select id="eeSettlementMode" onchange="onEarlyExitModeChange()" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-bold">
+                    <option value="Full">Full Early Settlement (Settle All Remaining Gold &amp; Close Kitty)</option>
+                    <option value="Partial">Custom Partial Early Settlement</option>
+                </select>
+            </div>
+
+            <div id="eeCustomWeightBox" class="hidden-view space-y-1">
+                <label class="font-bold text-slate-700 text-xs block">Gold Weight Being Settled Now (22KT Grams) *</label>
+                <input type="number" step="0.0001" id="eeWeightInput" oninput="updateEarlyExitPreview()" placeholder="e.g. 2.5000" class="w-full px-3 py-2.5 bg-amber-50 border border-amber-300 rounded-xl font-mono text-sm font-bold">
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+                <span class="text-[10px] font-bold uppercase text-amber-800 block">Remaining Gold Balance After Early Settlement</span>
+                <span id="eePreviewRemaining" class="text-base font-mono font-black text-amber-950">0.0000 g (22KT)</span>
+            </div>
+
+            <div>
+                <label class="font-bold text-slate-700 text-xs block mb-1">Early Closure Reason / Remarks *</label>
+                <input type="text" id="eeRemarksInput" required placeholder="e.g. Customer requested early kitty exit after 5 installments" class="w-full px-3 py-2 border rounded-lg text-xs">
+            </div>
+
+            <div class="flex gap-2 pt-2 border-t">
+                <button type="button" onclick="closeEarlyExitSettlementModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-xl text-xs font-bold cursor-pointer active-press">Cancel</button>
+                <button type="button" onclick="confirmAndCommitEarlyExitSettlement()" id="btnCommitEarlyExit" class="w-1/2 bg-[#800020] hover:bg-[#650019] text-white py-2.5 rounded-xl text-xs font-bold uppercase cursor-pointer active-press">End Kitty &amp; Settle</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Owner Admin: Custom / Full Gold Settlement Modal -->
     <div id="processSettlementModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup space-y-3.5">
@@ -700,6 +750,9 @@
                             </button>
                             <button id="btnSuperAdminEditCust" onclick="openSuperAdminCustomerModal()" class="hidden-view bg-amber-700 hover:bg-amber-600 text-white font-bold text-xs px-3 py-2 rounded-xl cursor-pointer active-press">
                                 Edit Profile &amp; MPIN
+                            </button>
+                            <button id="btnAdminEarlyCloseSettle" onclick="openEarlyExitSettlementModal()" class="hidden-view bg-[#800020] hover:bg-[#650019] text-white font-bold text-xs px-3 py-2 rounded-xl cursor-pointer active-press border border-rose-700">
+                                Early End &amp; Settle
                             </button>
                             <button onclick="openManualDepositModal()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-2 rounded-xl cursor-pointer active-press border border-slate-700">
                                 Counter Deposit
