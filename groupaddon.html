@@ -62,7 +62,7 @@
             <div class="flex justify-between items-center border-b pb-2 mb-3">
                 <div>
                     <h3 class="text-sm font-black text-slate-900 uppercase">Create New Kitty Group</h3>
-                    <p class="text-[11px] text-amber-800 font-semibold">Next Sequential Number: <span id="lblNextGroupPreview" class="font-mono font-black">Group 25</span></p>
+                    <p class="text-[11px] text-amber-800 font-semibold">Next Sequential Number: <span id="lblNextGroupPreview" class="font-mono font-black">Group 23</span></p>
                 </div>
                 <button onclick="closeCreateGroupModal()" class="text-slate-400 hover:text-black font-bold text-lg cursor-pointer">&times;</button>
             </div>
@@ -97,35 +97,35 @@
                 <input type="hidden" id="apEditId">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Target Group *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Target Group <span class="text-rose-600">*</span></label>
                         <select id="apGroupNumber" required class="w-full px-3 py-2 border rounded-lg font-bold"></select>
                     </div>
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Monthly Installment (INR) *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Monthly Installment (INR) <span class="text-rose-600">*</span></label>
                         <input type="number" id="apMonthlyAmount" required min="100" placeholder="e.g. 10000" class="w-full px-3 py-2 border rounded-lg font-mono font-bold">
                     </div>
                 </div>
                 <div>
-                    <label class="font-bold text-slate-700 block mb-1">Kitty Plan Name *</label>
+                    <label class="font-bold text-slate-700 block mb-1">Kitty Plan Name <span class="text-rose-600">*</span></label>
                     <input type="text" id="apPlanName" required placeholder="e.g. Rs. 10,000 Lucky Draw Kitty" class="w-full px-3 py-2 border rounded-lg font-bold">
                 </div>
                 <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 space-y-2">
                     <p class="text-[10px] font-bold text-amber-950 uppercase">Lucky Draw &amp; Maturity Benefit Rules (11 Months)</p>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="font-bold text-slate-700 block mb-1">1x Winner Benefit (₹) *</label>
+                            <label class="font-bold text-slate-700 block mb-1">1x Winner Benefit (₹) <span class="text-rose-600">*</span></label>
                             <input type="number" id="apWin1" required min="0" placeholder="e.g. 15000" class="w-full px-2.5 py-1.5 bg-white border rounded-lg font-mono">
                         </div>
                         <div>
-                            <label class="font-bold text-slate-700 block mb-1">2x Winner Benefit (₹) *</label>
+                            <label class="font-bold text-slate-700 block mb-1">2x Winner Benefit (₹) <span class="text-rose-600">*</span></label>
                             <input type="number" id="apWin2" required min="0" placeholder="e.g. 30000" class="w-full px-2.5 py-1.5 bg-white border rounded-lg font-mono">
                         </div>
                         <div>
-                            <label class="font-bold text-slate-700 block mb-1">3x+ Winner Benefit (₹) *</label>
+                            <label class="font-bold text-slate-700 block mb-1">3x+ Winner Benefit (₹) <span class="text-rose-600">*</span></label>
                             <input type="number" id="apWin3" required min="0" placeholder="e.g. 45000" class="w-full px-2.5 py-1.5 bg-white border rounded-lg font-mono">
                         </div>
                         <div>
-                            <label class="font-bold text-slate-700 block mb-1">Non-Winner Bonus (₹) *</label>
+                            <label class="font-bold text-slate-700 block mb-1">Non-Winner Bonus (₹) <span class="text-rose-600">*</span></label>
                             <input type="number" id="apNonWin" required min="0" placeholder="e.g. 3000" class="w-full px-2.5 py-1.5 bg-white border rounded-lg font-mono">
                         </div>
                     </div>
@@ -150,7 +150,7 @@
         <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-2.5">
                 <div class="w-10 h-10 rounded-full border border-amber-400/40 p-1 flex items-center justify-center shrink-0 bg-white shadow-sm">
-                    <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Logo" class="w-full h-full object-contain">
+                    <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Logo" class="w-full h-full object-contain">
                 </div>
                 <div>
                     <h1 class="text-xs font-black uppercase tracking-wider text-white">Suman Jewellers</h1>
@@ -193,11 +193,11 @@
         <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
                 <h2 class="text-sm sm:text-base font-black text-slate-900 uppercase">Multi-Group Series Management</h2>
-                <p class="text-xs text-slate-500 mt-0.5">Active Selected Group: <strong id="lblSelectedGroupBanner" class="text-amber-900">Group 24</strong></p>
+                <p class="text-xs text-slate-500 mt-0.5">Active Selected Group: <strong id="lblSelectedGroupBanner" class="text-amber-900">Group 23</strong></p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <button onclick="openCreateGroupModal()" class="bg-[#800020] hover:bg-[#650019] text-white text-xs font-bold px-4 py-2.5 rounded-xl uppercase tracking-wider cursor-pointer active-press">
-                    + New Group (<span id="lblBtnNextGroup">Group 25</span>)
+                    + New Group (<span id="lblBtnNextGroup">Group 23</span>)
                 </button>
                 <button onclick="openAddonPlanModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl uppercase tracking-wider cursor-pointer active-press">
                     + Add Kitty Plan
@@ -215,11 +215,11 @@
         <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="p-4 bg-slate-50 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
-                    <h3 id="lblSelectedGroupPlansTitle" class="text-xs font-black uppercase text-slate-800">Kitty Plans — Group 24</h3>
+                    <h3 id="lblSelectedGroupPlansTitle" class="text-xs font-black uppercase text-slate-800">Kitty Plans — Group 23</h3>
                     <p class="text-[11px] text-slate-500">Manage installment amounts and benefit rules for the selected group</p>
                 </div>
                 <div class="flex gap-2">
-                    <a id="btnOpenGroupInKmp" href="kmp.html?group=24" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer active-press">
+                    <a id="btnOpenGroupInKmp" href="kmp.html?group=23" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3.5 py-2 rounded-xl cursor-pointer active-press">
                         Open Group Operations
                     </a>
                 </div>
@@ -261,8 +261,8 @@
         let adminSession = null;
         let allGroups = [];
         let allPlans = [];
-        let selectedGroupNumber = 24;
-        let nextGroupNum = 25;
+        let selectedGroupNumber = 23;
+        let nextGroupNum = 24;
         let activeConfirmResolver = null;
 
         document.getElementById('linkKmpPortal').href = ADDON_CONFIG.KMP_PORTAL_URL;
@@ -378,7 +378,7 @@
             ]).then(([gRes, pRes]) => {
                 hideLoader();
                 allGroups = (gRes && gRes.groups) ? gRes.groups : [];
-                nextGroupNum = (gRes && gRes.nextGroupNumber) ? gRes.nextGroupNumber : 25;
+                nextGroupNum = (gRes && gRes.nextGroupNumber) ? gRes.nextGroupNumber : 24;
                 allPlans = (pRes && pRes.plans) ? pRes.plans : [];
 
                 document.getElementById('lblBtnNextGroup').innerText = `Group ${nextGroupNum}`;
