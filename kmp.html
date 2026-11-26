@@ -187,9 +187,19 @@
                         <input type="text" id="editCustDoj" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono">
                     </div>
                 </div>
-                <div>
-                    <label class="font-bold text-slate-600 block mb-1">Email Address</label>
-                    <input type="email" id="editCustEmail" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="font-bold text-slate-600 block mb-1">Email Address</label>
+                        <input type="email" id="editCustEmail" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-600 block mb-1">Account Status</label>
+                        <select id="editCustStatus" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Deleted">Deleted</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="flex gap-2 pt-2 border-t">
                     <button type="button" onclick="closeEditCustomerModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-xl font-bold active-press cursor-pointer">Cancel</button>
@@ -249,7 +259,7 @@
             </div>
             <form onsubmit="submitManualDeposit(event)" class="space-y-3 text-xs">
                 <div>
-                    <label class="font-bold text-slate-600 block mb-1">Installment Schedule *</label>
+                    <label class="font-bold text-slate-600 block mb-1">Installment Schedule <span class="text-rose-600">*</span></label>
                     <select id="depositMonth" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-bold">
                         <option value="1">Installment 1</option>
                         <option value="2">Installment 2</option>
@@ -265,11 +275,11 @@
                     </select>
                 </div>
                 <div>
-                    <label class="font-bold text-slate-600 block mb-1">Remittance Amount (INR) *</label>
+                    <label class="font-bold text-slate-600 block mb-1">Remittance Amount (INR) <span class="text-rose-600">*</span></label>
                     <input type="number" id="depositAmount" required class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono font-bold">
                 </div>
                 <div>
-                    <label class="font-bold text-slate-600 block mb-1">22KT Gold Rate / 10g (5 or 6 Digits) *</label>
+                    <label class="font-bold text-slate-600 block mb-1">22KT Gold Rate / 10g (5 or 6 Digits) <span class="text-rose-600">*</span></label>
                     <input type="number" id="depositRate" required placeholder="e.g. 68500 (5 digits) or 102500 (6 digits)" class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono font-bold">
                 </div>
                 <div>
@@ -293,51 +303,59 @@
             </div>
             <form onsubmit="submitNewMember(event)" class="space-y-3 text-xs">
                 <div>
-                    <label class="font-bold text-slate-700 block mb-1">Full Customer Name *</label>
+                    <label class="font-bold text-slate-700 block mb-1">Full Customer Name <span class="text-rose-600">*</span></label>
                     <input type="text" id="newName" required placeholder="Enter full legal name" class="w-full px-3 py-2 border rounded-lg font-bold">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Registered Mobile *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Registered Mobile <span class="text-rose-600">*</span></label>
                         <input type="tel" id="newPhone" maxlength="10" required placeholder="10-digit mobile" class="w-full px-3 py-2 border rounded-lg font-mono">
                     </div>
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Email Address *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Email Address <span class="text-rose-600">*</span></label>
                         <input type="email" id="newEmail" required placeholder="customer@email.com" class="w-full px-3 py-2 border rounded-lg font-mono">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Group Number *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Group Number <span class="text-rose-600">*</span></label>
                         <select id="newGroupSelect" required onchange="onRegistrationGroupChange()" class="w-full px-3 py-2 border rounded-lg font-bold"></select>
                     </div>
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Kitty Plan *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Kitty Plan <span class="text-rose-600">*</span></label>
                         <select id="newPlanSelect" required onchange="onRegistrationPlanChange()" class="w-full px-3 py-2 border rounded-lg font-bold"></select>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Monthly Installment *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Monthly Installment <span class="text-rose-600">*</span></label>
                         <input type="number" id="newAmount" required readonly class="w-full px-3 py-2 bg-slate-50 border rounded-lg font-mono font-bold text-amber-900">
                     </div>
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Date of Joining *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Date of Joining <span class="text-rose-600">*</span></label>
                         <input type="date" id="newRemarks" required class="w-full px-3 py-2 border rounded-lg font-mono">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Account Code *</label>
-                        <input type="text" id="newKittyNo" required placeholder="e.g. GRMS-25-001" class="w-full px-3 py-2 border rounded-lg font-mono font-bold">
+                        <label class="font-bold text-slate-700 block mb-1">Account Code <span class="text-rose-600">*</span></label>
+                        <input type="text" id="newKittyNo" required placeholder="e.g. GRMS-24-001" class="w-full px-3 py-2 border rounded-lg font-mono font-bold">
                     </div>
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Customer / Token ID *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Customer / Token ID <span class="text-rose-600">*</span></label>
                         <input type="text" id="newCustId" required placeholder="e.g. TKN-101" class="w-full px-3 py-2 border rounded-lg font-mono">
                     </div>
                 </div>
                 <div>
-                    <label class="font-bold text-slate-700 block mb-1">Staff Referral Code *</label>
+                    <label class="font-bold text-slate-700 block mb-1">Customer Photo ID Document <span class="text-rose-600">*</span></label>
+                    <input type="file" id="newPhotoIdFile" accept="image/*" required onchange="previewNewCustomerPhotoId(this)" class="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white cursor-pointer border rounded-lg p-1.5 bg-slate-50">
+                    <div id="newPhotoIdPreviewBox" class="hidden-view mt-2 flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <img id="newPhotoIdPreviewImg" src="" alt="Photo ID Preview" class="w-16 h-12 object-cover rounded-lg border border-slate-300">
+                        <span class="text-[11px] font-semibold text-emerald-800">Photo ID ready for registration</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Staff Referral Code <span class="text-rose-600">*</span></label>
                     <input type="text" id="newReferralCode" required placeholder="Enter valid staff referral code (or DIRECT)" class="w-full px-3 py-2 bg-amber-50/60 border border-amber-300 rounded-lg font-mono font-bold uppercase">
                     <p class="text-[10px] text-slate-500 mt-0.5">Use DIRECT for showroom walk-in registrations without staff referral.</p>
                 </div>
@@ -378,35 +396,35 @@
                 <input type="hidden" id="kpEditId">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Group Number *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Group Number <span class="text-rose-600">*</span></label>
                         <select id="kpGroupNumber" required class="w-full px-3 py-2 border rounded-lg font-bold"></select>
                     </div>
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Monthly Installment (INR) *</label>
+                        <label class="font-bold text-slate-700 block mb-1">Monthly Installment (INR) <span class="text-rose-600">*</span></label>
                         <input type="number" id="kpMonthlyAmount" required min="100" placeholder="e.g. 5000" class="w-full px-3 py-2 border rounded-lg font-mono font-bold">
                     </div>
                 </div>
                 <div>
-                    <label class="font-bold text-slate-700 block mb-1">Plan Name *</label>
+                    <label class="font-bold text-slate-700 block mb-1">Plan Name <span class="text-rose-600">*</span></label>
                     <input type="text" id="kpPlanName" required placeholder="e.g. Rs. 10,000 Lucky Draw Kitty" class="w-full px-3 py-2 border rounded-lg font-bold">
                 </div>
                 <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 space-y-2">
                     <p class="text-[10px] font-bold text-amber-950 uppercase">Mandatory Benefit Rules (11-Month Scheme)</p>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="font-bold text-slate-700 block mb-1">1x Draw Winner Benefit (₹) *</label>
+                            <label class="font-bold text-slate-700 block mb-1">1x Draw Winner Benefit (₹) <span class="text-rose-600">*</span></label>
                             <input type="number" id="kpWin1" required min="0" placeholder="e.g. 15000" class="w-full px-2.5 py-1.5 bg-white border rounded-lg font-mono">
                         </div>
                         <div>
-                            <label class="font-bold text-slate-700 block mb-1">2x Draw Winner Benefit (₹) *</label>
+                            <label class="font-bold text-slate-700 block mb-1">2x Draw Winner Benefit (₹) <span class="text-rose-600">*</span></label>
                             <input type="number" id="kpWin2" required min="0" placeholder="e.g. 30000" class="w-full px-2.5 py-1.5 bg-white border rounded-lg font-mono">
                         </div>
                         <div>
-                            <label class="font-bold text-slate-700 block mb-1">3x+ Draw Winner Benefit (₹) *</label>
+                            <label class="font-bold text-slate-700 block mb-1">3x+ Draw Winner Benefit (₹) <span class="text-rose-600">*</span></label>
                             <input type="number" id="kpWin3" required min="0" placeholder="e.g. 45000" class="w-full px-2.5 py-1.5 bg-white border rounded-lg font-mono">
                         </div>
                         <div>
-                            <label class="font-bold text-slate-700 block mb-1">Non-Winner Maturity Bonus (₹) *</label>
+                            <label class="font-bold text-slate-700 block mb-1">Non-Winner Maturity Bonus (₹) <span class="text-rose-600">*</span></label>
                             <input type="number" id="kpNonWin" required min="0" placeholder="e.g. 2000" class="w-full px-2.5 py-1.5 bg-white border rounded-lg font-mono">
                         </div>
                     </div>
@@ -436,11 +454,11 @@
             <form onsubmit="submitStaffReferralForm(event)" class="space-y-3 text-xs">
                 <input type="hidden" id="refEditId">
                 <div>
-                    <label class="font-bold text-slate-700 block mb-1">Staff Name (Private to Owner Admin) *</label>
+                    <label class="font-bold text-slate-700 block mb-1">Staff Name (Private to Owner Admin) <span class="text-rose-600">*</span></label>
                     <input type="text" id="refStaffName" required placeholder="e.g. Rahul Sharma" class="w-full px-3 py-2 border rounded-lg font-bold">
                 </div>
                 <div>
-                    <label class="font-bold text-slate-700 block mb-1">Unique Referral Code *</label>
+                    <label class="font-bold text-slate-700 block mb-1">Unique Referral Code <span class="text-rose-600">*</span></label>
                     <input type="text" id="refCodeInput" required placeholder="e.g. RS104" class="w-full px-3 py-2 border rounded-lg font-mono font-bold uppercase">
                 </div>
                 <div>
@@ -459,6 +477,23 @@
                     <button type="submit" id="btnSaveReferral" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl font-bold uppercase cursor-pointer active-press">Save Referral</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+        <!-- Customer Photo ID Viewer Modal -->
+    <div id="photoIdViewerModal" class="hidden-view fixed inset-0 bg-slate-950/75 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-[70]">
+        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <div>
+                    <h3 class="text-sm font-black text-slate-900 uppercase">Customer Photo ID Document</h3>
+                    <p id="lblPhotoIdMemberInfo" class="text-[11px] font-mono text-slate-500">-</p>
+                </div>
+                <button onclick="closePhotoIdViewerModal()" class="text-slate-400 hover:text-black font-bold text-lg cursor-pointer">&times;</button>
+            </div>
+            <div class="bg-slate-100 rounded-xl p-2 flex items-center justify-center min-h-[200px] border border-slate-200">
+                <img id="imgPhotoIdFull" src="" alt="Customer Photo ID" class="max-h-[60vh] w-auto rounded-lg object-contain">
+            </div>
+            <button onclick="closePhotoIdViewerModal()" class="w-full bg-slate-900 text-white py-2.5 rounded-xl text-xs font-bold uppercase cursor-pointer active-press">Close</button>
         </div>
     </div>
 
@@ -483,7 +518,7 @@
             </div>
 
             <div>
-                <label class="font-bold text-slate-700 text-xs block mb-1">Early Settlement Mode *</label>
+                <label class="font-bold text-slate-700 text-xs block mb-1">Early Settlement Mode <span class="text-rose-600">*</span></label>
                 <select id="eeSettlementMode" onchange="onEarlyExitModeChange()" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-bold">
                     <option value="Full">Full Early Settlement (Settle All Remaining Gold &amp; Close Kitty)</option>
                     <option value="Partial">Custom Partial Early Settlement</option>
@@ -491,7 +526,7 @@
             </div>
 
             <div id="eeCustomWeightBox" class="hidden-view space-y-1">
-                <label class="font-bold text-slate-700 text-xs block">Gold Weight Being Settled Now (22KT Grams) *</label>
+                <label class="font-bold text-slate-700 text-xs block">Gold Weight Being Settled Now (22KT Grams) <span class="text-rose-600">*</span></label>
                 <input type="number" step="0.0001" id="eeWeightInput" oninput="updateEarlyExitPreview()" placeholder="e.g. 2.5000" class="w-full px-3 py-2.5 bg-amber-50 border border-amber-300 rounded-xl font-mono text-sm font-bold">
             </div>
 
@@ -501,7 +536,7 @@
             </div>
 
             <div>
-                <label class="font-bold text-slate-700 text-xs block mb-1">Early Closure Reason / Remarks *</label>
+                <label class="font-bold text-slate-700 text-xs block mb-1">Early Closure Reason / Remarks <span class="text-rose-600">*</span></label>
                 <input type="text" id="eeRemarksInput" required placeholder="e.g. Customer requested early kitty exit after 5 installments" class="w-full px-3 py-2 border rounded-lg text-xs">
             </div>
 
@@ -532,7 +567,7 @@
             </div>
 
             <div id="stlCustomWeightBox" class="space-y-1">
-                <label class="font-bold text-slate-700 text-xs block">Gold Weight Being Settled Now (22KT Grams) *</label>
+                <label class="font-bold text-slate-700 text-xs block">Gold Weight Being Settled Now (22KT Grams) <span class="text-rose-600">*</span></label>
                 <input type="number" step="0.0001" id="stlWeightInput" oninput="updateSettlementPreview()" placeholder="e.g. 4.0000" class="w-full px-3 py-2.5 bg-amber-50 border border-amber-300 rounded-xl font-mono text-sm font-bold">
             </div>
 
@@ -571,43 +606,66 @@
         </div>
     </div>
 
-    <!-- Configure Staff Operator Modal (RBAC) -->
-    <div id="userModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-8 px-3 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-md w-full animate-popup">
-            <h3 id="userModalTitle" class="text-sm font-black text-slate-900 uppercase mb-3 border-b pb-2">Configure Operator Privileges</h3>
+    <!-- Configure Staff Operator Modal (Granular Permissions Matrix: View, Edit, Manage + All Access) -->
+    <div id="userModal" class="hidden-view fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-5 px-3 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-200 max-w-2xl w-full animate-popup max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-2 mb-3">
+                <div>
+                    <h3 id="userModalTitle" class="text-sm font-black text-slate-900 uppercase">Configure Operator Permissions</h3>
+                    <p class="text-[11px] text-slate-500">Assign granular module-level View, Edit, and Manage access</p>
+                </div>
+                <button type="button" onclick="closeUserModal()" class="text-slate-400 hover:text-black font-bold text-lg cursor-pointer">&times;</button>
+            </div>
             <form onsubmit="saveStaffUser(event)" class="space-y-3 text-xs">
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Username</label>
-                    <input type="text" id="usrNameInput" required class="w-full px-3 py-2 border rounded-lg font-bold">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Username <span class="text-rose-600">*</span></label>
+                        <input type="text" id="usrNameInput" required class="w-full px-3 py-2 border rounded-lg font-bold">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Security PIN <span class="text-rose-600">*</span></label>
+                        <input type="password" id="usrPinInput" required maxlength="6" class="w-full px-3 py-2 border rounded-lg font-mono">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Role Type <span class="text-rose-600">*</span></label>
+                        <select id="usrRoleInput" onchange="onUserRoleSelectChange()" class="w-full px-3 py-2 border rounded-lg font-bold">
+                            <option value="Staff">Staff</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Security PIN</label>
-                    <input type="password" id="usrPinInput" required maxlength="6" class="w-full px-3 py-2 border rounded-lg font-mono">
-                </div>
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Role Type</label>
-                    <select id="usrRoleInput" class="w-full px-3 py-2 border rounded-lg font-bold">
-                        <option value="Staff">Staff</option>
-                        <option value="Admin">Admin</option>
-                    </select>
-                </div>
-                <div class="space-y-2 pt-2 border-t">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="usrCanApprove" class="rounded">
-                        <span class="font-medium text-slate-800">Authorized to review payments &amp; enter 22KT rates</span>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <label class="flex items-center gap-2.5 cursor-pointer">
+                        <input type="checkbox" id="usrAllAccess" onchange="toggleAllPermissionsMatrix(this.checked)" class="w-4 h-4 rounded accent-slate-900">
+                        <div>
+                            <span class="font-black text-slate-900 uppercase block">All Access (Full System Privileges)</span>
+                            <span class="text-[10px] text-slate-600">Grants complete View, Edit, and Manage permissions across every module</span>
+                        </div>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="usrCanFinalApprove" class="rounded">
-                        <span class="font-medium text-slate-800">Authorized for direct posting &amp; final approvals</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
+                    <label class="flex items-center gap-2 cursor-pointer shrink-0">
                         <input type="checkbox" id="usrBypass2SV" class="rounded">
-                        <span class="font-medium text-slate-800">Bypass secondary PIN validation</span>
+                        <span class="font-bold text-slate-800 text-[11px]">Bypass 2SV</span>
                     </label>
                 </div>
+
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-700 border-b">
+                            <tr>
+                                <th class="p-2.5 font-bold uppercase">Feature / Module</th>
+                                <th class="p-2.5 text-center font-bold uppercase">View Access</th>
+                                <th class="p-2.5 text-center font-bold uppercase">Edit Access</th>
+                                <th class="p-2.5 text-center font-bold uppercase">Manage Access</th>
+                            </tr>
+                        </thead>
+                        <tbody id="granularPermissionMatrixBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+
                 <div class="flex gap-2 pt-2 border-t">
                     <button type="button" onclick="closeUserModal()" class="w-1/2 bg-slate-100 py-2.5 rounded-xl font-bold cursor-pointer active-press">Cancel</button>
-                    <button type="submit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl font-bold uppercase active-press cursor-pointer">Save Credentials</button>
+                    <button type="submit" class="w-1/2 bg-slate-900 text-white py-2.5 rounded-xl font-bold uppercase active-press cursor-pointer">Save Permissions</button>
                 </div>
             </form>
         </div>
@@ -620,7 +678,7 @@
             <div class="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
                 <div class="flex items-center gap-2.5">
                     <div class="w-10 h-10 rounded-full border border-amber-400/40 p-1 flex items-center justify-center shrink-0 bg-white shadow-sm">
-                        <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Logo" class="w-full h-full object-contain">
+                        <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Logo" class="w-full h-full object-contain">
                     </div>
                     <div>
                         <h1 class="text-xs font-black uppercase tracking-wider text-white">Suman Jewellers</h1>
@@ -686,7 +744,13 @@
             <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm">
                 <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
                     <label class="text-xs font-bold uppercase text-slate-600">Live Member Search &amp; Group Filter</label>
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="directoryStatusFilter" onchange="filterLiveDirectoryTable()" class="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800">
+                            <option value="ALL">All Statuses</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Deleted">Deleted</option>
+                        </select>
                         <select id="directoryGroupFilter" onchange="filterLiveDirectoryTable()" class="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800">
                             <option value="ALL">All Groups</option>
                         </select>
@@ -717,6 +781,7 @@
                             <tr class="text-slate-600 border-b">
                                 <th class="p-3">Member Details</th>
                                 <th class="p-3">Group &amp; Account</th>
+                                <th class="p-3">Status</th>
                                 <th class="p-3">Plan Amount</th>
                                 <th class="p-3">Paid</th>
                                 <th class="p-3">Deposited</th>
@@ -737,7 +802,7 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4 mb-4">
                         <div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span id="viewGroupBadge" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold px-2 py-0.5 rounded uppercase">Group 24</span>
+                                <span id="viewGroupBadge" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold px-2 py-0.5 rounded uppercase">Group 23</span>
                                 <span id="viewAccStatusBadge" class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded uppercase">Active</span>
                                 <span id="viewWinBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">-</span>
                             </div>
@@ -745,6 +810,9 @@
                             <p id="viewCustPhone" class="text-xs font-mono text-slate-400 mt-0.5">-</p>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap">
+                            <button id="btnViewMemberPhotoId" onclick="viewSelectedMemberPhotoId()" class="hidden-view bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs px-3 py-2 rounded-xl cursor-pointer active-press border border-slate-600">
+                                View Photo ID
+                            </button>
                             <button onclick="downloadMemberEnrollmentForm()" class="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-2 rounded-xl cursor-pointer active-press">
                                 Enrollment Form
                             </button>
@@ -778,9 +846,10 @@
                         <div class="bg-slate-800/60 p-3 rounded-xl"><span class="text-slate-400 text-[9px] block uppercase font-bold">Installment</span><span id="viewMonthlyAmount" class="font-bold text-slate-200">-</span></div>
                     </div>
 
-                    <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                    <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
                         <div class="bg-slate-800/40 p-3 rounded-xl"><span class="text-slate-400 text-[9px] block uppercase font-bold">Principal Deposited</span><span id="viewTotalBalance" class="font-mono font-bold text-white text-sm">₹0</span></div>
                         <div class="bg-amber-900/30 p-3 rounded-xl border border-amber-800/40"><span class="text-amber-300 text-[9px] block uppercase font-bold">Booked Gold (22KT)</span><span id="viewTotalGoldGrams" class="font-mono font-bold text-amber-200 text-sm">0.0000 g (22KT)</span></div>
+                        <div class="bg-amber-950/50 p-3 rounded-xl border border-amber-700/50"><span class="text-amber-300 text-[9px] block uppercase font-bold">Average Gold Rate (22KT)</span><span id="viewAvgGoldRate" class="font-mono font-bold text-amber-300 text-sm">-</span></div>
                         <div class="bg-slate-800/40 p-3 rounded-xl"><span class="text-slate-400 text-[9px] block uppercase font-bold">Settled / Remaining (22KT)</span><span id="viewSettledRemainingGrams" class="font-mono font-bold text-emerald-300 text-xs">0.0000 / 0.0000 g</span></div>
                         <div class="bg-slate-800/40 p-3 rounded-xl"><span class="text-slate-400 text-[9px] block uppercase font-bold">Projected Maturity</span><span id="viewMaturityTotal" class="font-mono font-bold text-white text-sm">₹0</span></div>
                     </div>
@@ -1297,7 +1366,7 @@
 
                     list.forEach(m => {
                         tableHtml += `<tr>
-                            <td>Group ${m.groupNumber || 24}</td>
+                            <td>Group ${m.groupNumber || 23}</td>
                             <td style="mso-number-format:'\\@'">${m.phone}</td>
                             <td>${m.name}</td>
                             <td>${m.planName || ''}</td>
@@ -1365,7 +1434,7 @@
                             txs.forEach(t => {
                                 rowCount++;
                                 tableHtml += `<tr>
-                                    <td>Group ${m.groupNumber || 24}</td>
+                                    <td>Group ${m.groupNumber || 23}</td>
                                     <td style="mso-number-format:'\\@'">${m.phone}</td>
                                     <td>${m.name}</td>
                                     <td style="mso-number-format:'\\@'">${m.acCode}</td>
@@ -1480,6 +1549,32 @@
             window.location.reload();
         }
 
+        const PERMISSION_MODULES = [
+            { key: "directory", label: "Member Directory & Search" },
+            { key: "memberProfile", label: "Customer Statement & Profile" },
+            { key: "enrollMember", label: "New Customer Enrollment" },
+            { key: "counterDeposit", label: "Counter Cash Deposit" },
+            { key: "queue", label: "Payment Verification Queue" },
+            { key: "overdue", label: "Overdue Defaulters Register" },
+            { key: "groupsPlans", label: "Group & Kitty Plans" },
+            { key: "referrals", label: "Staff Referrals & Tracking" },
+            { key: "settlements", label: "Gold Settlements & Early Closure" },
+            { key: "exportBackup", label: "Data Export (.XLS) & Backup" },
+            { key: "permissions", label: "User Permissions & Access Control" }
+        ];
+
+        function hasModulePerm(modKey, level = "view") {
+            if (!sessionUser) return false;
+            if (sessionUser.role === "Admin") return true;
+            const perms = sessionUser.permissions || {};
+            if (perms.allAccess === true) return true;
+            const mod = (perms.modules && perms.modules[modKey]) ? perms.modules[modKey] : {};
+            if (level === "view") return !!(mod.view || mod.edit || mod.manage);
+            if (level === "edit") return !!(mod.edit || mod.manage);
+            if (level === "manage") return !!mod.manage;
+            return false;
+        }
+
         function renderUserUI() {
             document.getElementById('headerLoginBar').classList.add('hidden-view');
             document.getElementById('headerNavBar').classList.remove('hidden-view');
@@ -1492,16 +1587,27 @@
             badge.innerText = sessionUser.role;
 
             const isOwnerAdmin = (sessionUser.role === "Admin");
-            const adminOnlyTabs = ['tabBtnPlans', 'tabBtnReferrals', 'tabBtnSettlements', 'tabBtnStlHistory', 'tabBtnUsers'];
+            badge.className = isOwnerAdmin
+                ? "text-[10px] font-bold uppercase px-2.5 py-0.5 rounded bg-amber-500 text-slate-950"
+                : "text-[10px] font-bold uppercase px-2.5 py-0.5 rounded bg-slate-800 text-slate-300";
 
-            if (isOwnerAdmin) {
-                badge.className = "text-[10px] font-bold uppercase px-2.5 py-0.5 rounded bg-amber-500 text-slate-950";
-                adminOnlyTabs.forEach(id => document.getElementById(id).classList.remove('hidden-view'));
-                document.getElementById('btnTopAddMember').classList.remove('hidden-view');
-            } else {
-                badge.className = "text-[10px] font-bold uppercase px-2.5 py-0.5 rounded bg-slate-800 text-slate-300";
-                adminOnlyTabs.forEach(id => document.getElementById(id).classList.add('hidden-view'));
-            }
+            const toggleEl = (id, show) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (show) el.classList.remove('hidden-view');
+                else el.classList.add('hidden-view');
+            };
+
+            toggleEl('tabBtnMembers', hasModulePerm('directory', 'view'));
+            toggleEl('tabBtnApprovals', hasModulePerm('queue', 'view'));
+            toggleEl('tabBtnDefaulters', hasModulePerm('overdue', 'view'));
+            toggleEl('tabBtnPlans', hasModulePerm('groupsPlans', 'view'));
+            toggleEl('tabBtnReferrals', hasModulePerm('referrals', 'view'));
+            toggleEl('tabBtnSettlements', hasModulePerm('settlements', 'view'));
+            toggleEl('tabBtnStlHistory', hasModulePerm('settlements', 'view'));
+            toggleEl('tabBtnUsers', isOwnerAdmin || hasModulePerm('permissions', 'view'));
+            toggleEl('btnTopExportXls', hasModulePerm('exportBackup', 'view'));
+            toggleEl('btnTopAddMember', hasModulePerm('enrollMember', 'edit'));
         }
 
         function switchKmpTab(tab) {
@@ -2087,37 +2193,55 @@
         function filterLiveDirectoryTable() {
             const val = (document.getElementById('searchInput').value || "").trim().toLowerCase();
             const grpFilter = (document.getElementById('directoryGroupFilter') ? document.getElementById('directoryGroupFilter').value : "ALL");
+            const stFilter = (document.getElementById('directoryStatusFilter') ? document.getElementById('directoryStatusFilter').value : "ALL");
 
             const filtered = allMembersFeed.filter(m => {
-                const grpMatch = (grpFilter === "ALL") || (String(m.groupNumber || 24) === String(grpFilter));
+                const grpMatch = (grpFilter === "ALL") || (String(m.groupNumber || 23) === String(grpFilter));
                 if (!grpMatch) return false;
+                const rawSt = (m.accountStatus || "Active").toString().trim();
+                if (stFilter !== "ALL") {
+                    if (stFilter === "Deleted" && rawSt.toLowerCase() !== "deleted") return false;
+                    if (stFilter === "Inactive" && rawSt.toLowerCase() !== "inactive") return false;
+                    if (stFilter === "Active" && (rawSt.toLowerCase() === "deleted" || rawSt.toLowerCase() === "inactive")) return false;
+                }
                 if (!val) return true;
                 return (
                     m.name.toLowerCase().includes(val) ||
                     m.phone.includes(val) ||
                     m.acCode.toLowerCase().includes(val) ||
                     m.customerId.toLowerCase().includes(val) ||
-                    ("group " + (m.groupNumber || 24)).includes(val)
+                    rawSt.toLowerCase().includes(val) ||
+                    ("group " + (m.groupNumber || 23)).includes(val)
                 );
             });
 
-            document.getElementById('lblTotalMemberCount').innerText = `${filtered.length} Registered Members`;
+            document.getElementById('lblTotalMemberCount').innerText = `${filtered.length} Total Members`;
             renderLiveDirectoryTable(filtered);
         }
 
         function renderLiveDirectoryTable(membersList) {
             const tbody = document.getElementById('liveDirectoryTableBody');
             if (!membersList || membersList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No active members found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">No members found matching filter.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = "";
             membersList.forEach(m => {
-                const isSuperAdmin = (sessionUser && sessionUser.role === "Admin");
-                const grpNum = m.groupNumber || 24;
+                const canEditCust = hasModulePerm('memberProfile', 'edit');
+                const grpNum = m.groupNumber || 23;
+                const st = (m.accountStatus || "Active").toString().trim();
+                const stLow = st.toLowerCase();
+                const stBadgeClass = stLow === "deleted"
+                    ? "bg-rose-100 text-rose-800 border border-rose-200"
+                    : stLow === "inactive"
+                        ? "bg-slate-200 text-slate-700 border border-slate-300"
+                        : stLow.includes("settled")
+                            ? "bg-amber-100 text-amber-900 border border-amber-200"
+                            : "bg-emerald-100 text-emerald-800 border border-emerald-200";
+
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/80 transition-colors">
+                    <tr class="hover:bg-slate-50/80 transition-colors ${stLow === 'deleted' ? 'opacity-70 bg-rose-50/20' : ''}">
                         <td class="p-3">
                             <strong class="text-slate-900">${m.name}</strong>
                             <div class="text-[10px] font-mono text-slate-500">+91 ${m.phone}</div>
@@ -2127,6 +2251,7 @@
                             ${m.acCode}
                             <div class="text-[10px] font-normal text-slate-400 font-mono">${m.customerId}</div>
                         </td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${stBadgeClass}">${st}</span></td>
                         <td class="p-3 font-mono font-bold text-slate-900">₹${Number(m.monthlyAmount).toLocaleString('en-IN')}</td>
                         <td class="p-3"><span class="bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold px-2 py-0.5 rounded text-[10px]">${m.paidMonths || 0} / 11 M</span></td>
                         <td class="p-3 font-mono font-bold text-amber-900">₹${Number(m.totalDeposited || 0).toLocaleString('en-IN')}</td>
@@ -2136,7 +2261,7 @@
                             <button onclick='loadMemberLedger(${JSON.stringify(m)})' class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-2.5 py-1 rounded-lg text-[10px] cursor-pointer active-press">
                                 Statement
                             </button>
-                            ${isSuperAdmin ? `
+                            ${canEditCust ? `
                                 <button onclick='quickEditMemberFromTable(${JSON.stringify(m)})' class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-2 py-1 rounded-lg text-[10px] cursor-pointer active-press">
                                     Edit MPIN
                                 </button>
@@ -2162,7 +2287,7 @@
                     const pills = document.getElementById('kittySelectionPills');
                     pills.innerHTML = "";
                     res.results.forEach(m => {
-                        pills.innerHTML += `<button onclick='loadMemberLedger(${JSON.stringify(m)})' class="bg-white border text-slate-800 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer active-press">Group ${m.groupNumber || 24} &mdash; A/C: ${m.acCode} (${m.name})</button>`;
+                        pills.innerHTML += `<button onclick='loadMemberLedger(${JSON.stringify(m)})' class="bg-white border text-slate-800 font-bold px-3 py-1.5 rounded-lg text-xs cursor-pointer active-press">Group ${m.groupNumber || 23} &mdash; A/C: ${m.acCode} (${m.name})</button>`;
                     });
                     document.getElementById('multiKittySelectorWrapper').classList.remove('hidden-view');
                 }
@@ -2178,7 +2303,7 @@
             selectedMemberData = member;
             showLoader("Loading...");
 
-            const grpNum = Number(member.groupNumber) || 24;
+            const grpNum = Number(member.groupNumber) || 23;
             document.getElementById('viewGroupBadge').innerText = `Group ${grpNum}`;
             document.getElementById('viewAccStatusBadge').innerText = member.accountStatus || "Active";
             document.getElementById('viewCustName').innerText = member.name;
@@ -2213,13 +2338,29 @@
 
                 const txs = res.transactions || [];
                 let paidCount = 0, totalDep = 0, totalGrams = 0;
+                let rateSum = 0, rateCount = 0;
                 txs.forEach(t => {
                     if (t.status && t.status.toLowerCase() === "paid") {
                         paidCount++;
                         totalDep += parseFloat(t.amount) || 0;
                         totalGrams += parseFloat(t.bookedGrams) || 0;
+                        const rVal = parseFloat(t.rate);
+                        if (!isNaN(rVal) && rVal > 0) {
+                            rateSum += rVal;
+                            rateCount++;
+                        }
                     }
                 });
+
+                const avgGoldRate = rateCount > 0 ? (rateSum / rateCount) : 0;
+                document.getElementById('viewAvgGoldRate').innerText = avgGoldRate > 0 ? (formatGoldRate(avgGoldRate) + " / 10g") : "-";
+
+                const photoBtn = document.getElementById('btnViewMemberPhotoId');
+                if (selectedMemberData.photoIdUrl) {
+                    photoBtn.classList.remove('hidden-view');
+                } else {
+                    photoBtn.classList.add('hidden-view');
+                }
 
                 const settledGrams = Number(res.settledGrams) || 0;
                 const remGrams = (res.remainingGrams !== undefined) ? Number(res.remainingGrams) : Math.max(0, totalGrams - settledGrams);
@@ -2293,6 +2434,47 @@
         // ==========================================================================
         // UPGRADED CUSTOMER REGISTRATION MODAL (MANDATORY FIELDS + GROUP + PLAN + REFERRAL)
         // ==========================================================================
+        let pendingNewCustomerPhotoBase64 = "";
+
+        function previewNewCustomerPhotoId(inputEl) {
+            const file = inputEl.files && inputEl.files[0];
+            if (!file) {
+                pendingNewCustomerPhotoBase64 = "";
+                document.getElementById('newPhotoIdPreviewBox').classList.add('hidden-view');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    if (w > 480) { h = Math.round((h * 480) / w); w = 480; }
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    pendingNewCustomerPhotoBase64 = canvas.toDataURL('image/jpeg', 0.45);
+                    document.getElementById('newPhotoIdPreviewImg').src = pendingNewCustomerPhotoBase64;
+                    document.getElementById('newPhotoIdPreviewBox').classList.remove('hidden-view');
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function viewSelectedMemberPhotoId() {
+            if (!selectedMemberData || !selectedMemberData.photoIdUrl) {
+                return showNotification("No Photo ID uploaded for this customer.", "error");
+            }
+            document.getElementById('lblPhotoIdMemberInfo').innerText = `${selectedMemberData.name} (${selectedMemberData.acCode})`;
+            document.getElementById('imgPhotoIdFull').src = selectedMemberData.photoIdUrl;
+            document.getElementById('photoIdViewerModal').classList.remove('hidden-view');
+        }
+
+        function closePhotoIdViewerModal() {
+            document.getElementById('photoIdViewerModal').classList.add('hidden-view');
+        }
+
         function openAddMemberModal() {
             document.getElementById('newPhone').value = "";
             document.getElementById('newName').value = "";
@@ -2301,6 +2483,9 @@
             document.getElementById('newRemarks').value = new Date().toISOString().slice(0, 10);
             document.getElementById('newEmail').value = "";
             document.getElementById('newReferralCode').value = "";
+            document.getElementById('newPhotoIdFile').value = "";
+            document.getElementById('newPhotoIdPreviewBox').classList.add('hidden-view');
+            pendingNewCustomerPhotoBase64 = "";
 
             showLoader("Loading Plans...");
             Promise.all([
@@ -2374,8 +2559,8 @@
             const doj = document.getElementById('newRemarks').value;
             const referralCode = document.getElementById('newReferralCode').value.trim().toUpperCase();
 
-            if (phone.length !== 10 || !name || !email || !groupNumber || !planId || !monthlyAmount || !acCode || !customerId || !doj || !referralCode) {
-                return showNotification("All registration fields are mandatory.", "error");
+            if (phone.length !== 10 || !name || !email || !groupNumber || !planId || !monthlyAmount || !acCode || !customerId || !doj || !referralCode || !pendingNewCustomerPhotoBase64) {
+                return showNotification("All registration fields including Customer Photo ID are mandatory.", "error");
             }
 
             const btn = document.getElementById('btnSubmitMember');
@@ -2396,7 +2581,8 @@
                 customerId: customerId,
                 kittyNumber: acCode,
                 otherDetails: doj,
-                referralCode: referralCode
+                referralCode: referralCode,
+                photoIdBase64: pendingNewCustomerPhotoBase64
             };
 
             fetchFast(config.scriptUrl, {
@@ -2471,11 +2657,38 @@
         // ==========================================================================
         // A4 PORTRAIT PDF GENERATOR: ENROLLMENT FORM & SETTLEMENT FORM
         // ==========================================================================
-        function generateEnrollmentPdf(snap) {
+        let cachedBrandLogoBase64 = null;
+        function getBrandLogoDataUrl() {
+            return new Promise((resolve) => {
+                if (cachedBrandLogoBase64) return resolve(cachedBrandLogoBase64);
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement("canvas");
+                        canvas.width = img.width || 160;
+                        canvas.height = img.height || 160;
+                        const ctx = canvas.getContext("2d");
+                        ctx.fillStyle = "#ffffff";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        cachedBrandLogoBase64 = canvas.toDataURL("image/jpeg", 0.9);
+                        resolve(cachedBrandLogoBase64);
+                    } catch (e) {
+                        resolve(null);
+                    }
+                };
+                img.onerror = () => resolve(null);
+                img.src = "https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg";
+            });
+        }
+
+        async function generateEnrollmentPdf(snap) {
             try {
                 if (!window.jspdf || !window.jspdf.jsPDF) {
                     return showNotification("PDF generator library loading. Please retry in a moment.", "error");
                 }
+                const logoDataUrl = await getBrandLogoDataUrl();
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
                 const pageW = 210;
@@ -2484,14 +2697,21 @@
                 let y = 16;
 
                 doc.setFillColor(15, 23, 42);
-                doc.rect(margin, y, contentW, 22, "F");
+                doc.rect(margin, y, contentW, 24, "F");
+                let textOffsetX = margin + 5;
+                if (logoDataUrl) {
+                    doc.setFillColor(255, 255, 255);
+                    doc.roundedRect(margin + 4, y + 3, 18, 18, 2, 2, "F");
+                    doc.addImage(logoDataUrl, "JPEG", margin + 5, y + 4, 16, 16);
+                    textOffsetX = margin + 26;
+                }
                 doc.setTextColor(251, 191, 36);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(14);
-                doc.text("SUMAN JEWELLERS", margin + 5, y + 8.5);
+                doc.text("SUMAN JEWELLERS", textOffsetX, y + 9.5);
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(9.5);
-                doc.text("GOLDEN ROSE MAGIC SCHEME (GRMS) — CUSTOMER ENROLLMENT FORM", margin + 5, y + 15.5);
+                doc.text("GOLDEN ROSE MAGIC SCHEME (GRMS) — CUSTOMER ENROLLMENT FORM", textOffsetX, y + 16.5);
 
                 y += 27;
                 doc.setTextColor(30, 41, 59);
@@ -2628,11 +2848,12 @@
             }
         }
 
-        function generateSettlementPdf(snap) {
+        async function generateSettlementPdf(snap) {
             try {
                 if (!window.jspdf || !window.jspdf.jsPDF) {
                     return showNotification("PDF generator library loading. Please retry in a moment.", "error");
                 }
+                const logoDataUrl = await getBrandLogoDataUrl();
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
                 const pageW = 210;
@@ -2644,14 +2865,21 @@
                 const formTitle = isFinal ? "FINAL SETTLEMENT FORM (22KT GOLD)" : "PARTIAL SETTLEMENT FORM (22KT GOLD)";
 
                 doc.setFillColor(15, 23, 42);
-                doc.rect(margin, y, contentW, 24, "F");
+                doc.rect(margin, y, contentW, 26, "F");
+                let textStartX = margin + 6;
+                if (logoDataUrl) {
+                    doc.setFillColor(255, 255, 255);
+                    doc.roundedRect(margin + 5, y + 4, 18, 18, 2, 2, "F");
+                    doc.addImage(logoDataUrl, "JPEG", margin + 6, y + 5, 16, 16);
+                    textStartX = margin + 27;
+                }
                 doc.setTextColor(251, 191, 36);
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(15);
-                doc.text("SUMAN JEWELLERS", margin + 6, y + 9);
+                doc.text("SUMAN JEWELLERS", textStartX, y + 10);
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(10);
-                doc.text(`GOLDEN ROSE MAGIC SCHEME — ${formTitle}`, margin + 6, y + 17);
+                doc.text(`GOLDEN ROSE MAGIC SCHEME — ${formTitle}`, textStartX, y + 18);
 
                 y += 30;
                 doc.setTextColor(15, 23, 42);
@@ -2784,6 +3012,7 @@
             document.getElementById('editCustDoj').value = selectedMemberData.doj || "";
             document.getElementById('editCustEmail').value = selectedMemberData.email || "";
             document.getElementById('editCustMpin').value = selectedMemberData.mpin || "";
+            document.getElementById('editCustStatus').value = selectedMemberData.accountStatus || "Active";
             document.getElementById('editCustomerModal').classList.remove('hidden-view');
         }
 
@@ -2814,7 +3043,8 @@
                 newCustId: document.getElementById('editCustId').value.trim(),
                 newDoj: document.getElementById('editCustDoj').value.trim(),
                 newEmail: document.getElementById('editCustEmail').value.trim(),
-                newMpin: document.getElementById('editCustMpin').value.trim()
+                newMpin: document.getElementById('editCustMpin').value.trim(),
+                newAccountStatus: document.getElementById('editCustStatus').value
             };
 
             fetchFast(config.scriptUrl, {
@@ -3070,7 +3300,7 @@
                 groupedDisplay.forEach(entry => {
                     if (entry.isCombinedBatch) {
                         const allocLines = entry.items.map(sub =>
-                            `Group ${sub.groupNumber || 24} &bull; ${sub.acCode} (Inst #${sub.month}: ₹${Number(sub.amount).toLocaleString('en-IN')})`
+                            `Group ${sub.groupNumber || 23} &bull; ${sub.acCode} (Inst #${sub.month}: ₹${Number(sub.amount).toLocaleString('en-IN')})`
                         ).join('<br>');
 
                         tbody.innerHTML += `
@@ -3101,7 +3331,7 @@
                             <tr id="qRow_${entry.row}">
                                 <td class="p-3 font-bold">${entry.name}<br><span class="text-[10px] font-mono text-slate-400">+91 ${entry.phone}</span></td>
                                 <td class="p-3 font-mono font-bold">
-                                    <span class="bg-amber-100 text-amber-900 text-[9px] px-1.5 py-0.5 rounded uppercase mr-1">Group ${entry.groupNumber || 24}</span>
+                                    <span class="bg-amber-100 text-amber-900 text-[9px] px-1.5 py-0.5 rounded uppercase mr-1">Group ${entry.groupNumber || 23}</span>
                                     ${entry.acCode}
                                 </td>
                                 <td class="p-3 font-bold">Inst #${entry.month}</td>
@@ -3138,12 +3368,12 @@
                 document.getElementById('qaUtr').innerText = item.utr || "Combined Deposit";
 
                 allocBox.innerHTML = `<p class="text-[10px] font-bold uppercase text-amber-900">Individual Account Allocations:</p>` +
-                    item.items.map(sub => `<div class="flex justify-between text-[11px] font-mono"><span>Group ${sub.groupNumber || 24} &mdash; ${sub.acCode} (Inst #${sub.month})</span><strong>₹${Number(sub.amount).toLocaleString('en-IN')}</strong></div>`).join('');
+                    item.items.map(sub => `<div class="flex justify-between text-[11px] font-mono"><span>Group ${sub.groupNumber || 23} &mdash; ${sub.acCode} (Inst #${sub.month})</span><strong>₹${Number(sub.amount).toLocaleString('en-IN')}</strong></div>`).join('');
                 allocBox.classList.remove('hidden-view');
             } else {
                 document.getElementById('qaModalTitle').innerText = "Process Queue Payment";
                 document.getElementById('qaMemberName').innerText = item.name;
-                document.getElementById('qaAcCode').innerText = `Group ${item.groupNumber || 24} — ${item.acCode}`;
+                document.getElementById('qaAcCode').innerText = `Group ${item.groupNumber || 23} — ${item.acCode}`;
                 document.getElementById('qaMonth').innerText = "Installment #" + item.month;
                 document.getElementById('qaAmount').innerText = "₹" + (parseFloat(item.amount) || 0).toLocaleString('en-IN');
                 document.getElementById('qaDate').innerText = item.timestamp || "Today";
@@ -3288,7 +3518,7 @@
             }
 
             document.getElementById('eeCustName').innerText = `${selectedMemberData.name} (+91 ${selectedMemberData.phone})`;
-            document.getElementById('eeGroupAc').innerText = `Group ${selectedMemberData.groupNumber || 24} — ${selectedMemberData.acCode}`;
+            document.getElementById('eeGroupAc').innerText = `Group ${selectedMemberData.groupNumber || 23} — ${selectedMemberData.acCode}`;
             document.getElementById('eePaidCount').innerText = `${selectedMemberData.paidCount || 0} / ${config.schemeMonths} Installments`;
             document.getElementById('eeOrigGrams').innerText = `${formatGoldWeight(selectedMemberData.bookedGrams)} g (22KT)`;
             document.getElementById('eePrevGrams').innerText = `${formatGoldWeight(selectedMemberData.settledGrams)} g (22KT)`;
@@ -3651,8 +3881,75 @@
         // ==========================================================================
         // STAFF USERS (RBAC) & OVERDUE DEFAULTERS
         // ==========================================================================
+        function buildPermissionMatrixRows(permsObj) {
+            const tbody = document.getElementById('granularPermissionMatrixBody');
+            tbody.innerHTML = "";
+            const isAll = !!(permsObj && permsObj.allAccess);
+            const mods = (permsObj && permsObj.modules) ? permsObj.modules : {};
+
+            PERMISSION_MODULES.forEach(m => {
+                const mp = mods[m.key] || {};
+                const vChk = (isAll || mp.view || mp.edit || mp.manage) ? "checked" : "";
+                const eChk = (isAll || mp.edit || mp.manage) ? "checked" : "";
+                const mChk = (isAll || mp.manage) ? "checked" : "";
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2.5 font-semibold text-slate-800">${m.label}</td>
+                        <td class="p-2.5 text-center">
+                            <input type="checkbox" class="perm-cb perm-view rounded accent-slate-900" data-mod="${m.key}" data-level="view" onchange="onGranularCheckboxChange(this)" ${vChk}>
+                        </td>
+                        <td class="p-2.5 text-center">
+                            <input type="checkbox" class="perm-cb perm-edit rounded accent-amber-700" data-mod="${m.key}" data-level="edit" onchange="onGranularCheckboxChange(this)" ${eChk}>
+                        </td>
+                        <td class="p-2.5 text-center">
+                            <input type="checkbox" class="perm-cb perm-manage rounded accent-rose-800" data-mod="${m.key}" data-level="manage" onchange="onGranularCheckboxChange(this)" ${mChk}>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function onGranularCheckboxChange(cb) {
+            const mod = cb.getAttribute('data-mod');
+            const level = cb.getAttribute('data-level');
+            const viewEl = document.querySelector(`.perm-cb[data-mod="${mod}"][data-level="view"]`);
+            const editEl = document.querySelector(`.perm-cb[data-mod="${mod}"][data-level="edit"]`);
+            const manageEl = document.querySelector(`.perm-cb[data-mod="${mod}"][data-level="manage"]`);
+
+            if (level === "manage" && cb.checked) {
+                if (editEl) editEl.checked = true;
+                if (viewEl) viewEl.checked = true;
+            } else if (level === "edit" && cb.checked) {
+                if (viewEl) viewEl.checked = true;
+            } else if (level === "view" && !cb.checked) {
+                if (editEl) editEl.checked = false;
+                if (manageEl) manageEl.checked = false;
+            } else if (level === "edit" && !cb.checked) {
+                if (manageEl) manageEl.checked = false;
+            }
+
+            const allCbs = document.querySelectorAll('.perm-cb');
+            const everyChecked = Array.from(allCbs).every(x => x.checked);
+            document.getElementById('usrAllAccess').checked = everyChecked;
+        }
+
+        function toggleAllPermissionsMatrix(checked) {
+            document.querySelectorAll('.perm-cb').forEach(cb => {
+                cb.checked = checked;
+            });
+        }
+
+        function onUserRoleSelectChange() {
+            const roleVal = document.getElementById('usrRoleInput').value;
+            if (roleVal === "Admin") {
+                document.getElementById('usrAllAccess').checked = true;
+                toggleAllPermissionsMatrix(true);
+            }
+        }
+
         function loadStaffUsersList() {
-            if (sessionUser.role !== "Admin") return;
+            if (sessionUser.role !== "Admin" && !hasModulePerm('permissions', 'view')) return;
             showLoader("Loading...");
 
             fetchFast(`${config.scriptUrl}?action=getStaffUsers&adminUser=${encodeURIComponent(sessionUser.username)}&adminPin=${encodeURIComponent(sessionUser.pin || '1108')}&_ts=${Date.now()}`)
@@ -3663,11 +3960,20 @@
                 tbody.innerHTML = "";
 
                 res.users.forEach(u => {
+                    const p = u.permissions || {};
+                    let summaryBadge = "Custom Matrix";
+                    if (u.role === "Admin" || p.allAccess) {
+                        summaryBadge = "All Access (Full)";
+                    } else if (p.modules) {
+                        const activeCount = Object.values(p.modules).filter(m => m && (m.view || m.edit || m.manage)).length;
+                        summaryBadge = `${activeCount} / ${PERMISSION_MODULES.length} Modules`;
+                    }
+
                     tbody.innerHTML += `
                         <tr>
                             <td class="p-3 font-bold text-slate-900">${u.username}</td>
                             <td class="p-3 font-semibold">${u.role}</td>
-                            <td class="p-3">${u.canApprove ? 'Authorized' : 'Restricted'}</td>
+                            <td class="p-3"><span class="bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded font-bold text-[10px]">${summaryBadge}</span></td>
                             <td class="p-3">${u.canFinalApprove ? 'Authorized' : 'Restricted'}</td>
                             <td class="p-3">${u.bypass2SV ? 'Exempt' : 'Mandatory 2SV'}</td>
                             <td class="p-3"><span class="px-2 py-0.5 rounded font-bold ${u.status === 'Active' ? 'bg-slate-100 text-slate-800' : 'bg-rose-100 text-rose-800'}">${u.status}</span></td>
@@ -3693,9 +3999,17 @@
             document.getElementById('usrNameInput').readOnly = false;
             document.getElementById('usrPinInput').value = "";
             document.getElementById('usrRoleInput').value = "Staff";
-            document.getElementById('usrCanApprove').checked = true;
-            document.getElementById('usrCanFinalApprove').checked = false;
+            document.getElementById('usrAllAccess').checked = false;
             document.getElementById('usrBypass2SV').checked = false;
+            buildPermissionMatrixRows({
+                allAccess: false,
+                modules: {
+                    directory: { view: true, edit: false, manage: false },
+                    memberProfile: { view: true, edit: false, manage: false },
+                    queue: { view: true, edit: false, manage: false },
+                    overdue: { view: true, edit: false, manage: false }
+                }
+            });
             document.getElementById('userModal').classList.remove('hidden-view');
         }
 
@@ -3705,9 +4019,10 @@
             document.getElementById('usrNameInput').readOnly = true;
             document.getElementById('usrPinInput').value = u.pin;
             document.getElementById('usrRoleInput').value = u.role;
-            document.getElementById('usrCanApprove').checked = u.canApprove;
-            document.getElementById('usrCanFinalApprove').checked = u.canFinalApprove;
+            const perms = u.permissions || { allAccess: (u.role === "Admin"), modules: {} };
+            document.getElementById('usrAllAccess').checked = !!(u.role === "Admin" || perms.allAccess);
             document.getElementById('usrBypass2SV').checked = u.bypass2SV;
+            buildPermissionMatrixRows(perms);
             document.getElementById('userModal').classList.remove('hidden-view');
         }
 
@@ -3719,6 +4034,20 @@
             e.preventDefault();
             showLoader("Saving...");
 
+            const isAllAccess = document.getElementById('usrAllAccess').checked;
+            const modulesObj = {};
+            PERMISSION_MODULES.forEach(m => {
+                const v = isAllAccess || !!document.querySelector(`.perm-cb[data-mod="${m.key}"][data-level="view"]`)?.checked;
+                const ed = isAllAccess || !!document.querySelector(`.perm-cb[data-mod="${m.key}"][data-level="edit"]`)?.checked;
+                const mg = isAllAccess || !!document.querySelector(`.perm-cb[data-mod="${m.key}"][data-level="manage"]`)?.checked;
+                modulesObj[m.key] = { view: v, edit: ed, manage: mg };
+            });
+
+            const permissionsPayload = {
+                allAccess: isAllAccess,
+                modules: modulesObj
+            };
+
             const payload = {
                 action: "saveStaffUser",
                 adminUser: sessionUser.username,
@@ -3726,8 +4055,9 @@
                 username: document.getElementById('usrNameInput').value.trim(),
                 pin: document.getElementById('usrPinInput').value.trim(),
                 role: document.getElementById('usrRoleInput').value,
-                canApprove: document.getElementById('usrCanApprove').checked,
-                canFinalApprove: document.getElementById('usrCanFinalApprove').checked,
+                permissions: permissionsPayload,
+                canApprove: isAllAccess || modulesObj.queue.edit || modulesObj.queue.manage,
+                canFinalApprove: isAllAccess || modulesObj.queue.manage || modulesObj.counterDeposit.manage,
                 bypass2SV: document.getElementById('usrBypass2SV').checked,
                 status: "Active"
             };
@@ -3792,7 +4122,7 @@
                         <tr>
                             <td class="p-3 font-bold">${d.name}<br><span class="text-[10px] font-mono text-slate-400">+91 ${d.phone}</span></td>
                             <td class="p-3 font-mono font-bold">
-                                <span class="bg-amber-100 text-amber-900 text-[9px] px-1.5 py-0.5 rounded uppercase mr-1">Group ${d.groupNumber || 24}</span>
+                                <span class="bg-amber-100 text-amber-900 text-[9px] px-1.5 py-0.5 rounded uppercase mr-1">Group ${d.groupNumber || 23}</span>
                                 ${d.acCode}
                             </td>
                             <td class="p-3 font-mono">${d.doj}</td>
