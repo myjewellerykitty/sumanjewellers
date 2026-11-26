@@ -114,7 +114,7 @@
                 <div class="p-3 sm:p-4 text-center relative pt-8">
                     <!-- Circular White Framed Logo Asset -->
                     <div class="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-amber-400 shadow-md overflow-hidden bg-white p-1 flex items-center justify-center">
-                        <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Suman Jewellers Logo" class="w-full h-full object-contain">
+                        <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Suman Jewellers Logo" class="w-full h-full object-contain">
                     </div>
                     <h1 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight uppercase">Golden Rose Magic</h1>
                     <p class="text-xs font-semibold text-amber-700 tracking-wider mt-0.5">For Easy Jewellery Purchase (11 Months)</p>
@@ -206,7 +206,7 @@
                                 <div class="flex items-center gap-1.5">
                                     <span id="grpStatusBadge" class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[9px] sm:text-[10px] uppercase font-bold px-2 py-0.5 rounded flex items-center gap-1.5">
                                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                        <span id="lblActiveGroupBadge">GRMS Active | Group 24</span>
+                                        <span id="lblActiveGroupBadge">GRMS Active | Group 23</span>
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
@@ -513,7 +513,7 @@
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 rounded-full border border-amber-400/40 p-0.5 flex items-center justify-center shrink-0 bg-white shadow-xs">
-                            <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Logo" class="w-full h-full object-contain">
+                            <img src="https://i.pinimg.com/736x/0f/17/88/0f178853dea4e54f198bf9adbd12ac6d.jpg" alt="Logo" class="w-full h-full object-contain">
                         </div>
                         <span class="font-bold tracking-tight uppercase text-white">Suman Jewellers</span>
                     </div>
@@ -619,7 +619,7 @@
         let currentSelectedMonth = null;
         let globalCustomerPhone = null;
         let globalAcCode = null;
-        let globalGroupNumber = 24;
+        let globalGroupNumber = 23;
         let globalMonthlyAmount = 0;
         let globalWinCount = 0;
         let activeAccountsList = [];
@@ -810,7 +810,7 @@
                     document.getElementById('multiAccountPayBar').classList.add('hidden-view');
                 }
 
-                const groups = [...new Set(activeAccountsList.map(a => Number(a.groupNumber) || 24))].sort((a, b) => a - b);
+                const groups = [...new Set(activeAccountsList.map(a => Number(a.groupNumber) || 23))].sort((a, b) => a - b);
 
                 // Scenario A: One Group, One Kitty Account -> Open directly
                 if (groups.length === 1 && activeAccountsList.length === 1) {
@@ -836,7 +836,7 @@
 
         function showGroupSelectorView() {
             document.getElementById('multiKittyWrapper').classList.add('hidden-view');
-            const groups = [...new Set(activeAccountsList.map(a => Number(a.groupNumber) || 24))].sort((a, b) => a - b);
+            const groups = [...new Set(activeAccountsList.map(a => Number(a.groupNumber) || 23))].sort((a, b) => a - b);
             const listEl = document.getElementById('groupSelectionList');
             listEl.innerHTML = "";
 
@@ -967,7 +967,7 @@
                 activePassbookPayload = data;
                 globalCustomerPhone = data.profile.phone;
                 globalAcCode = data.profile.acCode;
-                globalGroupNumber = Number(data.profile.groupNumber) || 24;
+                globalGroupNumber = Number(data.profile.groupNumber) || 23;
                 globalMonthlyAmount = Number(data.profile.monthlyAmount) || 0;
                 globalWinCount = Number(data.profile.winCount) || 0;
 
@@ -988,7 +988,8 @@
                 let paidCount = 0;
                 let gramsTotal = 0;
                 txs.forEach(t => {
-                    if (t.status === "Paid") {
+                    const st = (t.status || "").toString().trim().toLowerCase();
+                    if (st === "paid") {
                         paidCount++;
                         gramsTotal += Number(t.bookedGrams) || 0;
                     }
@@ -1015,25 +1016,40 @@
                 const grid = document.getElementById('gridWrapper');
                 grid.innerHTML = "";
                 const totalInstallments = (data.profile.planBenefits && data.profile.planBenefits.durationMonths) ? data.profile.planBenefits.durationMonths : config.schemeMonths;
-                const nextPayable = data.nextPayableMonth || 1;
                 const isAccountSettled = accStatus.toLowerCase().includes("settled");
+                const isSchemeDone = (paidCount >= totalInstallments) || !!data.isSchemeComplete;
+
+                // Determine exact first sequential unpaid installment from actual ledger rows
+                let nextPayable = null;
+                for (let seq = 1; seq <= totalInstallments; seq++) {
+                    const existingTx = txs.find(t => Number(t.month) === seq);
+                    const st = existingTx ? (existingTx.status || "").toString().trim().toLowerCase() : "";
+                    if (st === "paid") continue;
+                    if (st === "pending" || st === "reviewed") {
+                        nextPayable = null;
+                        break;
+                    }
+                    nextPayable = seq;
+                    break;
+                }
 
                 for (let m = 1; m <= totalInstallments; m++) {
                     let tx = txs.find(t => Number(t.month) === m);
+                    let txStatusLower = tx ? (tx.status || "").toString().trim().toLowerCase() : "";
                     let stateLabel = "Locked";
                     let cardStyle = "bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed opacity-65";
                     let numStyle = "text-slate-400";
                     let action = "";
 
-                    if (tx && tx.status === "Paid") {
+                    if (tx && txStatusLower === "paid") {
                         stateLabel = "Paid";
                         cardStyle = "bg-emerald-50 border border-emerald-200 text-emerald-800";
                         numStyle = "text-emerald-900";
-                    } else if (tx && (tx.status === "Pending" || tx.status === "Reviewed")) {
+                    } else if (tx && (txStatusLower === "pending" || txStatusLower === "reviewed")) {
                         stateLabel = "Pending";
                         cardStyle = "bg-amber-50 border border-amber-200 text-amber-800 animate-pulse";
                         numStyle = "text-amber-900";
-                    } else if (m === nextPayable && !data.isSchemeComplete && !isAccountSettled) {
+                    } else if (nextPayable !== null && m === nextPayable && !isSchemeDone && !isAccountSettled) {
                         stateLabel = "Pay";
                         cardStyle = "bg-slate-900 border border-slate-900 text-white cursor-pointer active-press shadow-xs";
                         numStyle = "text-amber-400";
@@ -1542,7 +1558,7 @@
                     combinedTotal += amt;
                     allocations.push({
                         acCode: cb.getAttribute('data-ac'),
-                        groupNumber: parseInt(cb.getAttribute('data-group'), 10) || 24,
+                        groupNumber: parseInt(cb.getAttribute('data-group'), 10) || 23,
                         month: parseInt(cb.getAttribute('data-month'), 10) || 1,
                         amount: amt
                     });
