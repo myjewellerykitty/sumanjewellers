@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suman Jewellers - GRMS Operations Portal</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -30,6 +33,155 @@
         }
         .animate-toast {
             animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* === MNC LUXURY ENTERPRISE UI LAYER === */
+        :root {
+            --mnc-canvas: #FAF8F5;
+            --mnc-surface: #FFFFFF;
+            --mnc-obsidian: #120B0E;
+            --mnc-maroon: #800020;
+            --mnc-maroon-hover: #630018;
+            --mnc-gold: #C89B3C;
+            --mnc-border: rgba(15, 23, 42, 0.08);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+            background-color: var(--mnc-canvas) !important;
+            background-image: radial-gradient(circle at top right, rgba(200, 155, 60, 0.06), transparent 42%),
+                              radial-gradient(circle at bottom left, rgba(128, 0, 32, 0.04), transparent 45%);
+            color: #1E293B;
+            letter-spacing: -0.01em;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+            font-variant-numeric: tabular-nums;
+        }
+        header.bg-slate-900 {
+            background: linear-gradient(135deg, #140A0E 0%, #1F1218 55%, #160D11 100%) !important;
+            border-bottom: 1px solid rgba(200, 155, 60, 0.25) !important;
+            box-shadow: 0 8px 30px -12px rgba(15, 10, 12, 0.45) !important;
+            backdrop-filter: blur(14px);
+        }
+        footer.bg-slate-900 {
+            background: linear-gradient(180deg, #160D11 0%, #0E080A 100%) !important;
+            border-top: 1px solid rgba(200, 155, 60, 0.2) !important;
+        }
+        footer.bg-white {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(200, 155, 60, 0.2) !important;
+        }
+        section.bg-white, div.bg-white.rounded-2xl, div.bg-white.rounded-xl, header.bg-white {
+            border-color: rgba(15, 23, 42, 0.075) !important;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 10px 28px -12px rgba(15, 23, 42, 0.08) !important;
+        }
+        .bg-slate-900.rounded-2xl {
+            background: linear-gradient(145deg, #160C10 0%, #24131A 55%, #140B0E 100%) !important;
+            border-color: rgba(200, 155, 60, 0.28) !important;
+            box-shadow: 0 16px 36px -14px rgba(18, 11, 14, 0.45) !important;
+        }
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        table thead th {
+            font-size: 10.5px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #475569;
+            background-color: #F8F6F2 !important;
+            border-bottom: 1px solid rgba(200, 155, 60, 0.22) !important;
+            padding-top: 0.85rem !important;
+            padding-bottom: 0.85rem !important;
+        }
+        table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+        table tbody tr:hover {
+            background-color: rgba(250, 248, 245, 0.9) !important;
+        }
+        input:not([type="checkbox"]):not([type="file"]), select, textarea {
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+        input:not([type="checkbox"]):not([type="file"]):focus, select:focus, textarea:focus {
+            border-color: #800020 !important;
+            box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.12) !important;
+            outline: none !important;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F4F1EC;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+        /* Slide-over MNC Navigation Drawer */
+        .mnc-drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 10, 12, 0.55);
+            backdrop-filter: blur(4px);
+            z-index: 60;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .mnc-drawer-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .mnc-drawer-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 300px;
+            max-width: 86vw;
+            background: linear-gradient(180deg, #160C10 0%, #1C1015 100%);
+            border-left: 1px solid rgba(200, 155, 60, 0.25);
+            box-shadow: -16px 0 40px rgba(0, 0, 0, 0.4);
+            z-index: 65;
+            transform: translateX(100%);
+            transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .mnc-drawer-panel.open {
+            transform: translateX(0);
+        }
+        .mnc-hamburger-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(200, 155, 60, 0.35);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+        .mnc-hamburger-btn:hover {
+            background: rgba(128, 0, 32, 0.55);
+            border-color: rgba(200, 155, 60, 0.75);
+        }
+        .mnc-hamburger-line {
+            width: 18px;
+            height: 2px;
+            background-color: #F8FAFC;
+            border-radius: 2px;
+            transition: transform 0.2s ease;
         }
     </style>
 </head>
@@ -700,35 +852,64 @@
                 </form>
             </div>
 
-            <div id="headerNavBar" class="hidden-view flex items-center gap-1.5 flex-wrap w-full lg:w-auto justify-start lg:justify-end">
-                <button onclick="switchKmpTab('members')" id="tabBtnMembers" class="bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Directory</button>
-                <button onclick="switchKmpTab('approvals')" id="tabBtnApprovals" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Queue</button>
-                <button onclick="switchKmpTab('defaulters')" id="tabBtnDefaulters" class="bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Overdue</button>
-                <button onclick="switchKmpTab('plans')" id="tabBtnPlans" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Group &amp; Kitty Plans</button>
-                <button onclick="switchKmpTab('referrals')" id="tabBtnReferrals" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Staff Referrals</button>
-                <button onclick="switchKmpTab('settlements')" id="tabBtnSettlements" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Settlement Requests</button>
-                <button onclick="switchKmpTab('stlHistory')" id="tabBtnStlHistory" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Settlement History</button>
-                <button onclick="switchKmpTab('users')" id="tabBtnUsers" class="hidden-view bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Permissions</button>
-                
-                <button onclick="openExportModal()" id="btnTopExportXls" class="bg-emerald-800 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press flex items-center gap-1">
-                    <span>Export / Backup</span>
+            <div id="headerNavBar" class="hidden-view flex items-center gap-2.5 justify-end">
+                <button type="button" onclick="toggleKmpNavDrawer(true)" aria-label="Menu" class="mnc-hamburger-btn active-press">
+                    <span class="mnc-hamburger-line"></span>
+                    <span class="mnc-hamburger-line"></span>
+                    <span class="mnc-hamburger-line"></span>
                 </button>
-
-                <button onclick="openAddMemberModal()" id="btnTopAddMember" class="bg-[#c25e00] hover:bg-[#a34f00] text-white font-bold px-3 py-1.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press">
-                    + ENROLL
-                </button>
-                <a href="addon.html" class="bg-slate-800 hover:bg-slate-700 border border-amber-500/40 text-amber-300 font-bold text-xs px-3 py-1.5 rounded-xl transition-all cursor-pointer active-press">
-                    Groups Hub
-                </a>
-                <a href="https://myjewellerykitty.github.io/sumanjewellerskitty/kmp" target="_blank" class="bg-[#007042] hover:bg-[#005a35] border border-emerald-600 text-white font-bold text-xs px-3 py-1.5 rounded-xl transition-all cursor-pointer active-press flex items-center gap-1">
-                    <span>12+1 Admin Panel</span>
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                </a>
-                <button onclick="logoutKmp()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Exit</button>
             </div>
 
         </div>
     </header>
+
+    <!-- MNC 3-LINE NAVIGATION DRAWER -->
+    <div id="kmpNavBackdrop" onclick="toggleKmpNavDrawer(false)" class="mnc-drawer-backdrop"></div>
+    <aside id="kmpNavDrawer" class="mnc-drawer-panel text-white">
+        <div class="px-5 py-4 border-b border-amber-500/20 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full border border-amber-400/50 p-0.5 bg-white shrink-0 flex items-center justify-center">
+                    <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Logo" class="w-full h-full object-contain rounded-full">
+                </div>
+                <div>
+                    <p class="text-xs font-black uppercase tracking-wider text-white">Suman Jewellers</p>
+                    <p class="text-[10px] text-amber-400 font-semibold">GRMS Lucky Draw Operations Console</p>
+                </div>
+            </div>
+            <button type="button" onclick="toggleKmpNavDrawer(false)" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white flex items-center justify-center text-lg font-bold cursor-pointer active-press">&times;</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-1.5">
+            <button onclick="switchKmpTab('members'); toggleKmpNavDrawer(false);" id="tabBtnMembers" class="w-full text-left bg-[#800020] text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">Directory</button>
+            <button onclick="switchKmpTab('approvals'); toggleKmpNavDrawer(false);" id="tabBtnApprovals" class="w-full text-left bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">Queue</button>
+            <button onclick="switchKmpTab('defaulters'); toggleKmpNavDrawer(false);" id="tabBtnDefaulters" class="w-full text-left bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">Overdue</button>
+            <button onclick="switchKmpTab('plans'); toggleKmpNavDrawer(false);" id="tabBtnPlans" class="hidden-view w-full text-left bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">Group &amp; Kitty Plans</button>
+            <button onclick="switchKmpTab('referrals'); toggleKmpNavDrawer(false);" id="tabBtnReferrals" class="hidden-view w-full text-left bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">Staff Referrals</button>
+            <button onclick="switchKmpTab('settlements'); toggleKmpNavDrawer(false);" id="tabBtnSettlements" class="hidden-view w-full text-left bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">Settlement Requests</button>
+            <button onclick="switchKmpTab('stlHistory'); toggleKmpNavDrawer(false);" id="tabBtnStlHistory" class="hidden-view w-full text-left bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">Settlement History</button>
+            <button onclick="switchKmpTab('users'); toggleKmpNavDrawer(false);" id="tabBtnUsers" class="hidden-view w-full text-left bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">Permissions</button>
+
+            <div class="my-3 border-t border-white/10 pt-3 space-y-2">
+                <button onclick="toggleKmpNavDrawer(false); openAddMemberModal();" id="btnTopAddMember" class="w-full bg-[#c25e00] hover:bg-[#a34f00] text-white font-bold px-3.5 py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press text-center">
+                    + ENROLL
+                </button>
+                <button onclick="toggleKmpNavDrawer(false); openExportModal();" id="btnTopExportXls" class="w-full bg-emerald-800 hover:bg-emerald-700 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs uppercase tracking-wider cursor-pointer active-press flex items-center justify-center gap-1.5">
+                    <span>Export / Backup</span>
+                </button>
+                <a href="addon.html" class="block w-full text-center bg-white/5 hover:bg-white/10 border border-amber-500/40 text-amber-300 font-bold text-xs px-3.5 py-2.5 rounded-xl transition-all cursor-pointer active-press">
+                    Groups Hub
+                </a>
+                <a href="https://myjewellerykitty.github.io/sumanjewellerskitty/kmp" target="_blank" class="w-full bg-[#007042] hover:bg-[#005a35] border border-emerald-600 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl transition-all cursor-pointer active-press flex items-center justify-center gap-1.5">
+                    <span>12+1 Admin Panel</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-white/10">
+            <button onclick="logoutKmp()" class="w-full bg-rose-950/70 hover:bg-rose-900 border border-rose-800/60 text-rose-200 text-xs font-bold px-3.5 py-2.5 rounded-xl cursor-pointer active-press">Exit</button>
+        </div>
+    </aside>
 
     <div id="loggedOutPlaceholder" class="flex flex-col items-center justify-center p-12 text-center text-slate-500">
         <div class="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center mb-3 text-slate-700 font-black">SJ</div>
@@ -1626,6 +1807,19 @@
             toggleEl('btnTopAddMember', hasModulePerm('enrollMember', 'edit'));
         }
 
+        function toggleKmpNavDrawer(open) {
+            const drawer = document.getElementById('kmpNavDrawer');
+            const backdrop = document.getElementById('kmpNavBackdrop');
+            if (!drawer || !backdrop) return;
+            if (open) {
+                drawer.classList.add('open');
+                backdrop.classList.add('open');
+            } else {
+                drawer.classList.remove('open');
+                backdrop.classList.remove('open');
+            }
+        }
+
         function switchKmpTab(tab) {
             const allTabs = ['members', 'approvals', 'defaulters', 'plans', 'referrals', 'settlements', 'stlHistory', 'users'];
             allTabs.forEach(t => {
@@ -1633,14 +1827,20 @@
                 const el = document.getElementById('tabContent' + cap);
                 const btn = document.getElementById('tabBtn' + cap);
                 if (el) el.classList.add('hidden-view');
-                if (btn) btn.className = "bg-slate-800 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press";
+                if (btn) {
+                    const isHid = btn.classList.contains('hidden-view');
+                    btn.className = (isHid ? "hidden-view " : "") + "w-full text-left bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all";
+                }
             });
 
             const activeCap = tab.charAt(0).toUpperCase() + tab.slice(1);
             const activeContent = document.getElementById('tabContent' + activeCap);
             const activeBtn = document.getElementById('tabBtn' + activeCap);
             if (activeContent) activeContent.classList.remove('hidden-view');
-            if (activeBtn) activeBtn.className = "bg-slate-800 text-white text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press";
+            if (activeBtn) {
+                const isHid = activeBtn.classList.contains('hidden-view');
+                activeBtn.className = (isHid ? "hidden-view " : "") + "w-full text-left bg-[#800020] text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all shadow-sm";
+            }
 
             if (tab === 'members') loadLiveDirectoryFeed();
             if (tab === 'approvals') loadKmpPendingApprovals();
