@@ -1150,10 +1150,24 @@
 
     <!-- Client Script -->
     <script>
+        let groupsConfigMap = {};
+        let activeGroupScriptUrl = "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec";
+
         const config = {
-            scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
+            get scriptUrl() { return activeGroupScriptUrl; },
             schemeMonths: 11
         };
+
+        function loadGroupsConfigAndInit() {
+            return fetch("groups-config.json")
+                .then(r => r.json())
+                .then(cfg => {
+                    groupsConfigMap = cfg || {};
+                    const selectedGrp = sessionStorage.getItem('GRMS_ACTIVE_GROUP_FILTER') || "23";
+                    if (cfg[selectedGrp]) activeGroupScriptUrl = cfg[selectedGrp];
+                })
+                .catch(() => {});
+        }
 
         let sessionUser = null;
         let selectedMemberData = null;
@@ -1498,13 +1512,15 @@
                 sessionStorage.setItem('GRMS_ACTIVE_GROUP_FILTER', preselectedGroup);
             }
 
-            const stored = sessionStorage.getItem('kmpSession_GRMS');
-            if (stored) {
-                sessionUser = JSON.parse(stored);
-                renderUserUI();
-                loadGroupsAndPlansMetadata();
-                loadLiveDirectoryFeed();
-            }
+            loadGroupsConfigAndInit().then(() => {
+                const stored = sessionStorage.getItem('kmpSession_GRMS');
+                if (stored) {
+                    sessionUser = JSON.parse(stored);
+                    renderUserUI();
+                    loadGroupsAndPlansMetadata();
+                    loadLiveDirectoryFeed();
+                }
+            });
         });
 
         function handleKmpLogin(e) {
@@ -1673,6 +1689,13 @@
                     sel.value = currentVal;
                 }
             });
+
+            // Switch activeGroupScriptUrl based on directoryGroupFilter
+            if (dirFilter && dirFilter.value && dirFilter.value !== "ALL") {
+                const gNum = dirFilter.value;
+                if (groupsConfigMap[gNum]) activeGroupScriptUrl = groupsConfigMap[gNum];
+            }
+
             filterLiveDirectoryTable();
         }
 
