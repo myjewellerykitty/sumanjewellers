@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suman Jewellers — Multi-Group Kitty Control Center</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
@@ -28,6 +31,155 @@
         }
         .animate-toast {
             animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* === MNC LUXURY ENTERPRISE UI LAYER === */
+        :root {
+            --mnc-canvas: #FAF8F5;
+            --mnc-surface: #FFFFFF;
+            --mnc-obsidian: #120B0E;
+            --mnc-maroon: #800020;
+            --mnc-maroon-hover: #630018;
+            --mnc-gold: #C89B3C;
+            --mnc-border: rgba(15, 23, 42, 0.08);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+            background-color: var(--mnc-canvas) !important;
+            background-image: radial-gradient(circle at top right, rgba(200, 155, 60, 0.06), transparent 42%),
+                              radial-gradient(circle at bottom left, rgba(128, 0, 32, 0.04), transparent 45%);
+            color: #1E293B;
+            letter-spacing: -0.01em;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace !important;
+            font-variant-numeric: tabular-nums;
+        }
+        header.bg-slate-900 {
+            background: linear-gradient(135deg, #140A0E 0%, #1F1218 55%, #160D11 100%) !important;
+            border-bottom: 1px solid rgba(200, 155, 60, 0.25) !important;
+            box-shadow: 0 8px 30px -12px rgba(15, 10, 12, 0.45) !important;
+            backdrop-filter: blur(14px);
+        }
+        footer.bg-slate-900 {
+            background: linear-gradient(180deg, #160D11 0%, #0E080A 100%) !important;
+            border-top: 1px solid rgba(200, 155, 60, 0.2) !important;
+        }
+        footer.bg-white {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(200, 155, 60, 0.2) !important;
+        }
+        section.bg-white, div.bg-white.rounded-2xl, div.bg-white.rounded-xl, header.bg-white {
+            border-color: rgba(15, 23, 42, 0.075) !important;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 10px 28px -12px rgba(15, 23, 42, 0.08) !important;
+        }
+        .bg-slate-900.rounded-2xl {
+            background: linear-gradient(145deg, #160C10 0%, #24131A 55%, #140B0E 100%) !important;
+            border-color: rgba(200, 155, 60, 0.28) !important;
+            box-shadow: 0 16px 36px -14px rgba(18, 11, 14, 0.45) !important;
+        }
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        table thead th {
+            font-size: 10.5px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #475569;
+            background-color: #F8F6F2 !important;
+            border-bottom: 1px solid rgba(200, 155, 60, 0.22) !important;
+            padding-top: 0.85rem !important;
+            padding-bottom: 0.85rem !important;
+        }
+        table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+        table tbody tr:hover {
+            background-color: rgba(250, 248, 245, 0.9) !important;
+        }
+        input:not([type="checkbox"]):not([type="file"]), select, textarea {
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        }
+        input:not([type="checkbox"]):not([type="file"]):focus, select:focus, textarea:focus {
+            border-color: #800020 !important;
+            box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.12) !important;
+            outline: none !important;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F4F1EC;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+        /* Slide-over MNC Navigation Drawer */
+        .mnc-drawer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 10, 12, 0.55);
+            backdrop-filter: blur(4px);
+            z-index: 60;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+        .mnc-drawer-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .mnc-drawer-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 300px;
+            max-width: 86vw;
+            background: linear-gradient(180deg, #160C10 0%, #1C1015 100%);
+            border-left: 1px solid rgba(200, 155, 60, 0.25);
+            box-shadow: -16px 0 40px rgba(0, 0, 0, 0.4);
+            z-index: 65;
+            transform: translateX(100%);
+            transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .mnc-drawer-panel.open {
+            transform: translateX(0);
+        }
+        .mnc-hamburger-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(200, 155, 60, 0.35);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+        .mnc-hamburger-btn:hover {
+            background: rgba(128, 0, 32, 0.55);
+            border-color: rgba(200, 155, 60, 0.75);
+        }
+        .mnc-hamburger-line {
+            width: 18px;
+            height: 2px;
+            background-color: #F8FAFC;
+            border-radius: 2px;
+            transition: transform 0.2s ease;
         }
     </style>
 </head>
@@ -166,18 +318,44 @@
                 </form>
             </div>
 
-            <div id="addonNavBar" class="hidden-view flex items-center gap-2 flex-wrap">
+            <div id="addonNavBar" class="hidden-view flex items-center gap-2.5">
                 <span class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded bg-amber-500 text-slate-950">Owner Admin</span>
-                <a id="linkKmpPortal" href="kmp.html" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl cursor-pointer active-press">
-                    Operations Console
-                </a>
-                <a id="linkCustomerPortal" href="index.html" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs px-3 py-1.5 rounded-xl cursor-pointer active-press">
-                    Customer Portal
-                </a>
-                <button onclick="logoutAddonAdmin()" class="bg-slate-800 hover:bg-rose-900/60 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl cursor-pointer active-press">Exit</button>
+                <button type="button" onclick="toggleAddonNavDrawer(true)" aria-label="Menu" class="mnc-hamburger-btn active-press">
+                    <span class="mnc-hamburger-line"></span>
+                    <span class="mnc-hamburger-line"></span>
+                    <span class="mnc-hamburger-line"></span>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- MNC 3-LINE NAVIGATION DRAWER -->
+    <div id="addonNavBackdrop" onclick="toggleAddonNavDrawer(false)" class="mnc-drawer-backdrop"></div>
+    <aside id="addonNavDrawer" class="mnc-drawer-panel text-white">
+        <div class="px-5 py-4 border-b border-amber-500/20 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full border border-amber-400/50 p-0.5 bg-white shrink-0 flex items-center justify-center">
+                    <img src="https://i.pinimg.com/736x/de/1e/3c/de1e3cbb5a80e01aae5e2340602dc02c.jpg" alt="Logo" class="w-full h-full object-contain rounded-full">
+                </div>
+                <div>
+                    <p class="text-xs font-black uppercase tracking-wider text-white">Suman Jewellers</p>
+                    <p class="text-[10px] text-amber-400 font-semibold">GRMS Multi-Group Control Center</p>
+                </div>
+            </div>
+            <button type="button" onclick="toggleAddonNavDrawer(false)" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white flex items-center justify-center text-lg font-bold cursor-pointer active-press">&times;</button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 space-y-2">
+            <a id="linkKmpPortal" href="kmp.html" class="block w-full text-left bg-white/5 hover:bg-white/10 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">
+                Operations Console
+            </a>
+            <a id="linkCustomerPortal" href="index.html" target="_blank" class="block w-full text-left bg-white/5 hover:bg-white/10 border border-amber-500/30 text-amber-300 font-bold text-xs px-3.5 py-2.5 rounded-xl cursor-pointer active-press transition-all">
+                Customer Portal
+            </a>
+        </div>
+        <div class="p-4 border-t border-white/10">
+            <button onclick="logoutAddonAdmin()" class="w-full bg-rose-950/70 hover:bg-rose-900 border border-rose-800/60 text-rose-200 text-xs font-bold px-3.5 py-2.5 rounded-xl cursor-pointer active-press">Exit</button>
+        </div>
+    </aside>
 
     <!-- LOGGED OUT PLACEHOLDER -->
     <div id="addonLoggedOutView" class="flex flex-col items-center justify-center p-12 text-center text-slate-500 flex-1">
@@ -355,6 +533,20 @@
                 hideLoader();
                 showNotification("Unable to complete request.", "error");
             });
+        }
+
+
+        function toggleAddonNavDrawer(open) {
+            const drawer = document.getElementById('addonNavDrawer');
+            const backdrop = document.getElementById('addonNavBackdrop');
+            if (!drawer || !backdrop) return;
+            if (open) {
+                drawer.classList.add('open');
+                backdrop.classList.add('open');
+            } else {
+                drawer.classList.remove('open');
+                backdrop.classList.remove('open');
+            }
         }
 
         function logoutAddonAdmin() {
