@@ -609,12 +609,25 @@
             return true;
         }
 
+        let groupsConfigMap = {};
+        let activeGroupScriptUrl = "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec";
+
         const config = {
             name: "Suman Jewellers",
             upiVpa: "vyapar.178552646415@hdfcbank",
-            scriptUrl: "https://script.google.com/macros/s/AKfycbyds-Y0vhWOc4S2HnQUQGaiuKRo3n_F8vL8LiVsfw0hEZpEvKjubDosJNxv-_xwotkoEQ/exec",
+            get scriptUrl() { return activeGroupScriptUrl; },
             schemeMonths: 11
         };
+
+        function loadGroupsConfigAndInit() {
+            return fetch("groups-config.json")
+                .then(r => r.json())
+                .then(cfg => {
+                    groupsConfigMap = cfg || {};
+                    if (cfg["23"]) activeGroupScriptUrl = cfg["23"];
+                })
+                .catch(() => {});
+        }
 
         let currentSelectedMonth = null;
         let globalCustomerPhone = null;
@@ -712,7 +725,40 @@
             showLoader("Verifying...");
             globalCustomerPhone = rawPhone;
 
-            fetchFast(`${config.scriptUrl}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`)
+            loadGroupsConfigAndInit().then(() => {
+                // Query all configured group backend URLs in parallel to find customer record
+                const urls = Object.values(groupsConfigMap);
+                if (urls.length === 0) urls.push(activeGroupScriptUrl);
+
+                Promise.all(urls.map(u => fetchFast(`${u}?action=checkCustomer&phone=${rawPhone}&_ts=${Date.now()}`).catch(() => null)))
+                .then(results => {
+                    const validRes = results.find(r => r && r.success);
+                    hideLoader();
+                    btn.disabled = false;
+                    if (!validRes) return showNotification("Account not located.", "error");
+                    // If found, lock activeGroupScriptUrl to the script URL that returned success
+                    const matchedIdx = results.indexOf(validRes);
+                    const groupKeys = Object.keys(groupsConfigMap);
+                    if (groupKeys[matchedIdx]) {
+                        activeGroupScriptUrl = groupsConfigMap[groupKeys[matchedIdx]];
+                        globalGroupNumber = parseInt(groupKeys[matchedIdx], 10) || 23;
+                    }
+
+                    document.getElementById('phoneSection').classList.add('hidden-view');
+                    if (validRes.hasMpin) {
+                        document.getElementById('lblMpinPhone').innerText = "+91 " + rawPhone;
+                        document.getElementById('mpinInput').value = "";
+                        document.getElementById('mpinLoginSection').classList.remove('hidden-view');
+                    } else {
+                        document.getElementById('firstTimeMpinSection').classList.remove('hidden-view');
+                    }
+                })
+                .catch(() => {
+                    hideLoader();
+                    btn.disabled = false;
+                    showNotification("Unable to complete request.", "error");
+                });
+            });
             .then(res => {
                 hideLoader();
                 btn.disabled = false;
@@ -794,7 +840,27 @@
         // ==========================================================================
         function fetchUserProfile(phone) {
             showLoader("Loading...");
-            fetchFast(`${config.scriptUrl}?action=getCustomerAccounts&phone=${encodeURIComponent(phone)}&_ts=${Date.now()}`)
+            const urls = Object.values(groupsConfigMap);
+            if (urls.length === 0) urls.push(activeGroupScriptUrl);
+
+            Promise.all(urls.map(u => fetchFast(`${u}?action=getCustomerAccounts&phone=${encodeURIComponent(phone)}&_ts=${Date.now()}`).catch(() => null)))
+            .then(results => {
+                hideLoader();
+                let combinedAccounts = [];
+                results.forEach((res, idx) => {
+                    if (res && res.success && res.accounts) {
+                        const gNumKey = Object.keys(groupsConfigMap)[idx] || "23";
+                        res.accounts.forEach(acc => {
+                            acc.scriptUrl = groupsConfigMap[gNumKey] || activeGroupScriptUrl;
+                            combinedAccounts.push(acc);
+                        });
+                    }
+                });
+
+                if (combinedAccounts.length === 0) {
+                    return showNotification("No GRMS account located.", "error");
+                }
+                activeAccountsList = combinedAccounts;
             .then(res => {
                 hideLoader();
                 if (!res || !res.accounts || res.accounts.length === 0) {
@@ -894,6 +960,11 @@
         }
 
         function selectAndOpenAccount(acCode) {
+            const accObj = activeAccountsList.find(a => a.acCode === acCode);
+            if (accObj && accObj.scriptUrl) {
+                activeGroupScriptUrl = accObj.scriptUrl;
+                globalGroupNumber = Number(accObj.groupNumber) || 23;
+            }
             document.getElementById('multiKittyWrapper').classList.add('hidden-view');
             document.getElementById('groupSelectionWrapper').classList.add('hidden-view');
             document.getElementById('authContainer').classList.add('hidden-view');
